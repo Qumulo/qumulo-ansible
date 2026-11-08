@@ -1,0 +1,1362 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The upgrade: variables, steps and files &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Playbooks and roles" href="playbooks-and-roles.html" />
+    <link rel="prev" title="What capture and clone read and write" href="capture-and-clone.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">The upgrade: variables, steps and files</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parts">Parts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inventory-variables">Inventory variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variables-for-one-run">Variables for one run</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#role-variables">Role variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-images-list">The images list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-run">A run</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-nine-steps-of-a-hop">The nine steps of a hop</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-check-run">A check run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#facts-the-role-sets">Facts the role sets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#reboots">Reboots</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-maintenance-window">The maintenance window</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connections">Connections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-limited-release">A limited release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#files-the-run-writes">Files the run writes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-report">The report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-plan">The plan</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commit-records">Commit records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restore-locks">Restore locks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-sources">Supported sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">The upgrade: variables, steps and files</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="the-upgrade-variables-steps-and-files">
+<h1>The upgrade: variables, steps and files<a class="headerlink" href="#the-upgrade-variables-steps-and-files" title="Link to this heading"></a></h1>
+<p>Lookup tables for the upgrade playbook, <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">qumulo.cluster.upgrade</span></code>: its inventory variables, the variables
+for one run, the role variables, the images list, the steps of a run and of a hop, the report and the other files a run writes, and the
+sources the upgrade supports.
+To run an upgrade, see <a class="reference internal" href="../how-to/upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a>.
+To recover from a stopped one, see <a class="reference internal" href="../how-to/resume-an-upgrade.html"><span class="std std-doc">Recover an upgrade that stopped</span></a>.
+For the reasons behind the hop rules, the ordering and the records, see <a class="reference internal" href="../explanation/upgrades.html"><span class="std std-doc">How upgrades work</span></a>.
+<a class="reference internal" href="troubleshooting.html#upgrades"><span class="std std-ref">Troubleshooting</span></a> quotes every refusal (F1 to F34) and warning (W1 to W12).</p>
+<section id="parts">
+<h2>Parts<a class="headerlink" href="#parts" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Part</p></th>
+<th class="head"><p>Kind</p></th>
+<th class="head"><p>Runs</p></th>
+<th class="head"><p>Does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/upgrade.yml"><code class="docutils literal notranslate"><span class="pre">playbooks/upgrade.yml</span></code></a></p></td>
+<td><p>playbook</p></td>
+<td><p>on <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>, <code class="docutils literal notranslate"><span class="pre">strategy:</span> <span class="pre">linear</span></code>, <code class="docutils literal notranslate"><span class="pre">gather_facts:</span> <span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">any_errors_fatal:</span> <span class="pre">false</span></code>, <code class="docutils literal notranslate"><span class="pre">timeout:</span> <span class="pre">0</span></code></p></td>
+<td><p>Reads each cluster, scans the restore files, plans, takes the restore locks, calls the role, releases the locks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/upgrade_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">upgrade</span></code></span></a></p></td>
+<td><p>module</p></td>
+<td><p>per cluster</p></td>
+<td><p>Takes one cluster through one hop: verify, prepare, a readiness check, the commit and its reboots. Decides the outcome from the running build.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/upgrade_plan_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">upgrade_plan</span></code></span></a></p></td>
+<td><p>module</p></td>
+<td><p>on the controller, connects to nothing</p></td>
+<td><p>Plans the fleet from every inventory host’s reads and variables. Also answers whether a hop’s commits may begin inside the maintenance window.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/upgrade_report_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">upgrade_report</span></code></span></a></p></td>
+<td><p>module</p></td>
+<td><p>on the controller, connects to nothing</p></td>
+<td><p>Turns one hop’s results into the hop’s report.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/replication_restore_info_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_restore_info</span></code></span></a></p></td>
+<td><p>module</p></td>
+<td><p>on the controller, connects to nothing</p></td>
+<td><p>Lists the restore records, restore locks and unreadable files under one artifact directory, with their ages. The playbook runs it before the plan, for W1.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/cluster_upgrade_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_upgrade</span></code></span></a></p></td>
+<td><p>role</p></td>
+<td><p>in a linear play without <code class="docutils literal notranslate"><span class="pre">serial</span></code></p></td>
+<td><p>Runs the plan’s hops in lock-step.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/redact_images_filter.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">redact_images</span></code></span></a>, <a class="reference internal" href="../collections/qumulo/cluster/url_secret_filter.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">url_secret</span></code></span></a></p></td>
+<td><p>filters</p></td>
+<td><p>on the controller</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">redact_images</span></code> returns image URLs without their query string and user information, and <code class="docutils literal notranslate"><span class="pre">url_secret</span></code> returns those parts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/artifact_dir_filter.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">artifact_dir</span></code></span></a></p></td>
+<td><p>filter</p></td>
+<td><p>on the controller</p></td>
+<td><p>Gives the <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> directory beside the inventory source that defines a host.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/replication_restore_lock_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_restore_lock</span></code></span></a></p></td>
+<td><p>module</p></td>
+<td><p>on the controller</p></td>
+<td><p>Takes, renews and releases a host’s restore lock.</p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">upgrade_plan</span></code>, <code class="docutils literal notranslate"><span class="pre">upgrade_report</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_restore_info</span></code> are not in the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.qumulo</span></code> action group, so
+<code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> for that group do not reach them.
+<code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.upgrade</span></code>, <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.upgrade_plan</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.upgrade_report</span></code> and <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">-t</span> <span class="pre">role</span> <span class="pre">qumulo.cluster.cluster_upgrade</span></code> give the options of
+each.</p>
+</section>
+<section id="inventory-variables">
+<h2>Inventory variables<a class="headerlink" href="#inventory-variables" title="Link to this heading"></a></h2>
+<p>Each is one setting, not a key of one dict. A host’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> value replaces the group’s value whole.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Declares</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_target</span></code></p></td>
+<td><p>string, quoted</p></td>
+<td><p>unset</p></td>
+<td><p>The release the host ends on. YAML reads an unquoted <code class="docutils literal notranslate"><span class="pre">7.10</span></code> as the number 7.1, and the plan then reads release 7.1. While any host of a run declares one, every host of the run must: the plan refuses a host without it (F14). A target below the host’s running release is refused (F3).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_images</span></code></p></td>
+<td><p>list of strings or mappings</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>The host’s images, in release order, both kinds in one list. <a class="reference internal" href="#the-images-list">The images list</a> gives the entry forms.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot</span></code></p></td>
+<td><p>string: <code class="docutils literal notranslate"><span class="pre">rolling</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rolling</span></code></p></td>
+<td><p>How a platform upgrade reboots the hosts (<a class="reference internal" href="#reboots">Reboots</a>). <code class="docutils literal notranslate"><span class="pre">aggressive</span></code> is refused (F11).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code></p></td>
+<td><p>integer, at least 1</p></td>
+<td><p>unset</p></td>
+<td><p>How many nodes a rolling reboot takes at once. Unset, Qumulo Core sizes the groups.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_maintenance_windows</span></code></p></td>
+<td><p>list of mappings</p></td>
+<td><p>unset</p></td>
+<td><p>The time ranges inside which a hop’s commits may begin (<a class="reference internal" href="#the-maintenance-window">The maintenance window</a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_window_timezone</span></code></p></td>
+<td><p>string, an IANA name</p></td>
+<td><p>unset</p></td>
+<td><p>The timezone of the ranges. Required with <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_maintenance_windows</span></code> (F34).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_after</span></code></p></td>
+<td><p>list of inventory host names</p></td>
+<td><p>unset</p></td>
+<td><p>Hosts whose units commit, in each hop, before this host’s. It may not put a hub before one of its spokes, order two members of one portal component, close a cycle or name a host that is not in the inventory (F18).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_allow_limited_release</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Sends Qumulo Core’s waiver of the rule that refuses a limited (letter) release as an upgrade source (<a class="reference internal" href="#a-limited-release">A limited release</a>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_api_host</span></code></p></td>
+<td><p>string</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code></p></td>
+<td><p>The address the playbook connects to in place of <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> (<a class="reference internal" href="#connections">Connections</a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code></p></td>
+<td><p>string: <code class="docutils literal notranslate"><span class="pre">cnq</span></code>, <code class="docutils literal notranslate"><span class="pre">edge</span></code> or <code class="docutils literal notranslate"><span class="pre">baremetal</span></code></p></td>
+<td><p>unset</p></td>
+<td><p>Picks the host’s images from a list that holds both kinds. The <a class="reference internal" href="../collections/qumulo/cluster/terraform_inventory.html"><span class="std std-doc">Terraform inventory plugin</span></a> sets it.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The plan also reads two variables of other areas: <code class="docutils literal notranslate"><span class="pre">qumulo_portal.hub</span></code>, which groups hosts into portal components, and
+the <code class="docutils literal notranslate"><span class="pre">target</span></code> and <code class="docutils literal notranslate"><span class="pre">state</span></code> of each entry of <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>, which orders a relationship’s target before
+its source.
+<a class="reference internal" href="variables.html"><span class="std std-doc">Variables</span></a> lists them with the connection variables.</p>
+</section>
+<section id="variables-for-one-run">
+<h2>Variables for one run<a class="headerlink" href="#variables-for-one-run" title="Link to this heading"></a></h2>
+<p>Given with <code class="docutils literal notranslate"><span class="pre">-e</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Declares</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_verify_in_check_mode</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>In a check run, also runs verify, which downloads the whole image on every node and installs nothing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_aggressive</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Chooses aggressive reboots for the run. <code class="docutils literal notranslate"><span class="pre">true</span></code> is refused (F11).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="role-variables">
+<h2>Role variables<a class="headerlink" href="#role-variables" title="Link to this heading"></a></h2>
+<p>The role’s inputs and defaults are in <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/roles/cluster_upgrade/meta/argument_specs.yml"><code class="docutils literal notranslate"><span class="pre">meta/argument_specs.yml</span></code></a>.</p>
+<p>Set by the playbook; do not set them.
+An extra variable outranks the playbook’s own value, so <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">upgrade_lock_hosts=[]</span></code> would skip every lock renewal.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_plan</span></code></p></td>
+<td><p>dict, required</p></td>
+<td><p></p></td>
+<td><p>The output of <code class="docutils literal notranslate"><span class="pre">upgrade_plan</span></code>. The playbook passes it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_lock_hosts</span></code></p></td>
+<td><p>list of strings</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>The hosts that hold one of the run’s restore locks. Each renews its lock at each hop’s start, outside check mode.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_lock_token</span></code></p></td>
+<td><p>string</p></td>
+<td><p></p></td>
+<td><p>On each host of <code class="docutils literal notranslate"><span class="pre">upgrade_lock_hosts</span></code>, the token its take of the lock returned.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_lock_held</span></code></p></td>
+<td><p>list of strings</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">[]</span></code></p></td>
+<td><p>The hosts a lock that was refused protects. In each hop, every host of this list that the hop moves holds the hosts its plan entry’s <code class="docutils literal notranslate"><span class="pre">holds</span></code> names.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_stop</span></code></p></td>
+<td><p>boolean</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> runs no hop. The role sets it once a hop ends with a host held or out of the play.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Set in the inventory or with <code class="docutils literal notranslate"><span class="pre">-e</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_artifact_dir</span></code></p></td>
+<td><p>string</p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> directory beside the inventory source that defines the host</p></td>
+<td><p>Where the commit records and the report are written, on the controller. Refused empty.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code></p></td>
+<td><p>string</p></td>
+<td><p>the same expression</p></td>
+<td><p>Where the restore locks are. The <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role’s own variable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_wait_timeout</span></code></p></td>
+<td><p>seconds</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">3600</span></code></p></td>
+<td><p>Each phase’s wait in every <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> call: the preflight, the tolerance, the prepare and the commit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_reboot_timeout</span></code></p></td>
+<td><p>seconds</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">43200</span></code></p></td>
+<td><p>A reboot already under way before a hop, and the reboots at step 7.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_unblock_timeout</span></code></p></td>
+<td><p>seconds</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">14400</span></code></p></td>
+<td><p>Step 1’s wait for the preflight to clear. After a platform upgrade’s reboots, background work can keep the preflight blocked longer than this on a large file system (F5).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_peer_timeout</span></code></p></td>
+<td><p>seconds</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1800</span></code></p></td>
+<td><p>Each portal wait of steps 6 and 8. A timeout is reported and never fails the hop.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_poll_delay</span></code></p></td>
+<td><p>seconds</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">30</span></code></p></td>
+<td><p>The delay between step 1’s reads, and between the portal reads of steps 6 and 8. Each read of the reboot status asks every node for its boot identity; a value below 30 is for tests.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_prepare_throttle</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>unset</p></td>
+<td><p>How many prepares, and so how many clusters’ image downloads, run at once. It bounds step 2 and step 3’s second prepare, never the commits. Unset, they run as wide as <code class="docutils literal notranslate"><span class="pre">forks</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The plan sizes each hop’s lease from the four timeouts and the prepare’s request timeout (<a class="reference internal" href="#connections">Connections</a>),
+and counts batches from <code class="docutils literal notranslate"><span class="pre">forks</span></code> and the throttle.</p>
+</section>
+<section id="the-images-list">
+<h2>The images list<a class="headerlink" href="#the-images-list" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_images</span></code> holds entries of two forms.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Form</p></th>
+<th class="head"><p>Gives</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A URL or an absolute path whose file name is <code class="docutils literal notranslate"><span class="pre">qumulo_core_&lt;version&gt;.qimg</span></code> (on-premises) or <code class="docutils literal notranslate"><span class="pre">cloud_qumulo_core_&lt;version&gt;.qimg</span></code> (cloud)</p></td>
+<td><p>The image. The plan reads the release and the kind from the file name. A URL is <code class="docutils literal notranslate"><span class="pre">http://</span></code> or <code class="docutils literal notranslate"><span class="pre">https://</span></code>. Anything else, such as a relative path or another URL scheme, is refused (F2).</p></td>
+</tr>
+<tr class="row-odd"><td><p>A mapping <code class="docutils literal notranslate"><span class="pre">{version,</span> <span class="pre">image,</span> <span class="pre">kind,</span> <span class="pre">build}</span></code>, for an image under another name</p></td>
+<td><p>See below.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mapping key</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">version</span></code></p></td>
+<td><p>yes</p></td>
+<td><p>The release the image holds, as a quoted string such as <code class="docutils literal notranslate"><span class="pre">&quot;7.10.0.3&quot;</span></code>. A number is refused.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">image</span></code></p></td>
+<td><p>yes</p></td>
+<td><p>A URL or an absolute path.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">kind</span></code></p></td>
+<td><p>yes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">on-prem</span></code> or <code class="docutils literal notranslate"><span class="pre">cloud</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">build</span></code></p></td>
+<td><p>no</p></td>
+<td><p>The build the cluster must end on, for the entry’s own release. Only a mapping entry can declare one. A host whose target is that release and that already runs it on another build is refused (F4). A commit that ends on another build fails, after the commit, which cannot be undone.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Rules the plan applies to the list:</p>
+<ul class="simple">
+<li><p>The whole list ascends by release. An on-premises and a cloud entry of one release may sit in either order, but a list
+that groups all of one kind before the other is out of order. The plan refuses a list out of order rather than
+sorting it (F4).</p></li>
+<li><p>No release appears twice for one kind (F4).</p></li>
+<li><p>A URL’s query string and user information are passed to the module apart from the rest of the URL. The plan, the
+report and every message hold the URL without them. A path and a plain URL are printed in full.</p></li>
+<li><p>An image file name that names no release, and an entry that is not a string or a mapping, are refused before F4.</p></li>
+</ul>
+<p>Which kind a host takes:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Host</p></th>
+<th class="head"><p>Takes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind:</span> <span class="pre">cnq</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">cloud</span></code> entries.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind:</span> <span class="pre">edge</span></code> or <code class="docutils literal notranslate"><span class="pre">baremetal</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">on-prem</span></code> entries.</p></td>
+</tr>
+<tr class="row-even"><td><p>No <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>, the entries in its range all of one kind</p></td>
+<td><p>Those entries, whatever its protection. Qumulo Core’s verify refuses an image of the wrong kind.</p></td>
+</tr>
+<tr class="row-odd"><td><p>No <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>, both kinds in range, protection object-backed</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">cloud</span></code> entries.</p></td>
+</tr>
+<tr class="row-even"><td><p>No <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>, both kinds in range, any other protection</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">on-prem</span></code> entries.</p></td>
+</tr>
+<tr class="row-odd"><td><p>No <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>, both kinds in range, protection not read</p></td>
+<td><p>Refused (F15).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> of another value</p></td>
+<td><p>Refused.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A host with <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> whose next hop exists only as an entry of the other kind is refused (F10).</p>
+<p>From the entries of its kind above its running release and at or below its target, the plan picks each hop as the
+furthest entry the quarterly rule accepts:</p>
+<ul class="simple">
+<li><p>A hop out of quarter <code class="docutils literal notranslate"><span class="pre">x.y</span></code> lands on <code class="docutils literal notranslate"><span class="pre">x.(y+1).0</span></code> or one of its dot releases, <code class="docutils literal notranslate"><span class="pre">x.(y+1).0.w</span></code>, never on a later patch of
+that quarter. The next quarter is <code class="docutils literal notranslate"><span class="pre">x.(y+1)</span></code> by arithmetic, whatever the list names.</p></li>
+<li><p>A hop inside a quarter lands on a later release of that quarter.</p></li>
+<li><p>No hop before the last is a letter release.</p></li>
+<li><p>The last hop is the host’s target.</p></li>
+</ul>
+<p>With the list 7.9.0.5, 7.10.0.3 and 7.10.3 of <a class="reference internal" href="../how-to/upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Running release</p></th>
+<th class="head"><p>Target</p></th>
+<th class="head"><p>Hops</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>7.8.4</p></td>
+<td><p>7.10.3</p></td>
+<td><p>7.9.0.5, 7.10.0.3, 7.10.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>7.10.0.1</p></td>
+<td><p>7.10.3</p></td>
+<td><p>7.10.3, in the same hop as the hosts on 7.8.4 take their last</p></td>
+</tr>
+<tr class="row-even"><td><p>7.8.4</p></td>
+<td><p>7.10.0.3</p></td>
+<td><p>7.9.0.5, 7.10.0.3, whatever the list holds above 7.10.0.3</p></td>
+</tr>
+</tbody>
+</table>
+<p>A 7.9.3.1 entry between 7.9.0.5 and 7.10.0.3 adds no hop for a host on 7.8.4, because 7.10.0.3 accepts any 7.9
+release. A break in a host’s chain is refused before anything is sent, naming the host, the break and the entry to add
+(F4).
+<a class="reference internal" href="../explanation/upgrades.html#fewest-hops-never-a-letter"><span class="std std-ref">How upgrades work</span></a> gives the reasons for the rule.</p>
+</section>
+<section id="a-run">
+<h2>A run<a class="headerlink" href="#a-run" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">qumulo.cluster.upgrade</span> <span class="pre">-i</span> <span class="pre">&lt;inventory&gt;</span></code> runs these on <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>, in order:</p>
+<ol class="arabic simple">
+<li><p><strong>Reads.</strong> Each cluster’s <code class="docutils literal notranslate"><span class="pre">cluster_info</span></code> with the subsets <code class="docutils literal notranslate"><span class="pre">node</span></code>, <code class="docutils literal notranslate"><span class="pre">version</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code>, <code class="docutils literal notranslate"><span class="pre">product</span></code>, <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> and
+<code class="docutils literal notranslate"><span class="pre">portals</span></code>: UUID, release and build, license, product, portals, and the upgrade’s status, preflight, reboot status and
+protection. A cluster whose read fails leaves the play, and the plan treats it as outside the run.</p></li>
+<li><p><strong>The artifact directory.</strong> A host whose <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> or <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_artifact_dir</span></code> is empty,
+as a host given with <code class="docutils literal notranslate"><span class="pre">-i</span></code> as a list is, fails.</p></li>
+<li><p><strong>The commit records.</strong> The record of every inventory host, if it has one, is read from its
+<code class="docutils literal notranslate"><span class="pre">cluster_upgrade_artifact_dir</span></code>.</p></li>
+<li><p><strong>The plan.</strong> <code class="docutils literal notranslate"><span class="pre">upgrade_plan</span></code>, once, from every inventory host and not only the play’s: their reads,
+<code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_*</span></code> variables, <code class="docutils literal notranslate"><span class="pre">qumulo_portal.hub</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code> and commit records.
+Every refusal fails the run here, together, before anything is written. Every warning is printed. A <code class="docutils literal notranslate"><span class="pre">--limit</span></code> run
+plans its own hosts, and a limit that leaves out part of a portal component is refused (F13).</p></li>
+<li><p><strong>The locks.</strong> Each host in the plan’s <code class="docutils literal notranslate"><span class="pre">lock_hosts</span></code> takes its restore lock (<a class="reference internal" href="#restore-locks">Restore locks</a>). Then the
+commit records the plan decided can go are removed: a record is removed only on a host still in the play, and only
+while its file still has the digest the plan read.</p></li>
+<li><p><strong>The hops</strong>, by the <code class="docutils literal notranslate"><span class="pre">cluster_upgrade</span></code> role, one after another, each on every host at once.</p></li>
+<li><p><strong>The end.</strong> Each lock is released however the hops ended. A run that stopped before its last hop then fails, naming
+the hop and the reason, and exits non-zero.</p></li>
+</ol>
+<section id="the-nine-steps-of-a-hop">
+<h3>The nine steps of a hop<a class="headerlink" href="#the-nine-steps-of-a-hop" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Step</p></th>
+<th class="head"><p>Runs on</p></th>
+<th class="head"><p>What happens</p></th>
+<th class="head"><p>A host that fails</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>The hosts the hop moves and does not hold</p></td>
+<td><p>Waits out a reboot still under way from an earlier hop or run, then waits for the upgrade’s preflight to clear, up to <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_unblock_timeout</span></code>.</p></td>
+<td><p>Leaves the play; its unit is held.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>The same</p></td>
+<td><p>Every host prepares at once: verify, then the prepare, which installs the image beside the running build.</p></td>
+<td><p>Stays in the play for step 3’s second prepare, unless no second prepare can lift the refusal.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>The hosts whose first prepare failed, then every host of step 2</p></td>
+<td><p>A host whose first prepare failed prepares once more. Then the <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module checks that each host may commit: the preflight, the image’s release, and the tolerance its reboot needs.</p></td>
+<td><p>Leaves the play; its unit is held.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Once, when a host of the hop declares a window</p></td>
+<td><p>The hop’s commits may begin only inside the maintenance window (<a class="reference internal" href="#the-maintenance-window">The maintenance window</a>).</p></td>
+<td><p>Outside the window, every unit is held except the moving members of a split component the hop closes.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>Each commit step’s hosts that are ready and not held</p></td>
+<td><p>The commits, step by step of the plan’s schedule. Each host’s readiness is checked again just before its own commit.</p></td>
+<td><p>Leaves the play; its unit and every unit that follows it are held.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Each moved component’s hub, or its spokes when the hub is outside the play; the sources of the replication relationships that touch a moved host</p></td>
+<td><p>Each moved portal component’s portals are read until <code class="docutils literal notranslate"><span class="pre">ACTIVE</span></code>, up to <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_peer_timeout</span></code>. Each replication relationship that touches a moved host is read once, with no wait.</p></td>
+<td><p>Never fails. A portal timeout, a read that fails, a relationship the source does not list, and a last job’s error are each a report line.</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>The hosts that committed, and those the plan only reboots</p></td>
+<td><p>Waits for a platform upgrade’s reboots, up to <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_reboot_timeout</span></code>.</p></td>
+<td><p>Leaves the play.</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>As step 6</p></td>
+<td><p>Reads the portals and relationships again.</p></td>
+<td><p>Never fails.</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>Once, also when the hop fails</p></td>
+<td><p>Writes the report.</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p>Step 6 does not wait on a component the hop left on two releases, on a component that stays split without closing,
+or on one whose members took a rolling platform reboot; each gets a report line instead.
+A plan with no hop, as when every cluster is at its target, runs none of this, and the report holds the plan alone.</p>
+<p>At each hop’s start, outside check mode, each host of <code class="docutils literal notranslate"><span class="pre">upgrade_lock_hosts</span></code> renews its restore lock to the hop’s lease.
+A renewal that fails stops the run before the hop.</p>
+</section>
+<section id="a-check-run">
+<h3>A check run<a class="headerlink" href="#a-check-run" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">qumulo.cluster.upgrade</span> <span class="pre">-i</span> <span class="pre">&lt;inventory&gt;</span> <span class="pre">--check</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Part</p></th>
+<th class="head"><p>In a check run</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Reads</p></td>
+<td><p>Sent.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The plan</p></td>
+<td><p>Made in full, with every refusal and warning.</p></td>
+</tr>
+<tr class="row-even"><td><p>Restore locks</p></td>
+<td><p>Judged, not written. A refusal is reported as a prediction with the hosts the run would hold, and a takeover is reported as one.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Commit records</p></td>
+<td><p>Reported as the records the run would retire or drop, not removed.</p></td>
+</tr>
+<tr class="row-even"><td><p>First hop</p></td>
+<td><p>One <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> call per host with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">rebooted</span></code> predicts each phase the hop would run and each wait it would make. Later hops come from the plan.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Verify</p></td>
+<td><p>Not run, because it downloads the whole image on every node. <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_verify_in_check_mode=true</span></code> runs it.</p></td>
+</tr>
+<tr class="row-even"><td><p>The maintenance window</p></td>
+<td><p>Asked once, when the first hop declares a window, whether the hop could commit now.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Waits and lock renewals</p></td>
+<td><p>None.</p></td>
+</tr>
+<tr class="row-even"><td><p>The report</p></td>
+<td><p>Written, marked as a check run’s.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="facts-the-role-sets">
+<h3>Facts the role sets<a class="headerlink" href="#facts-the-role-sets" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Fact</p></th>
+<th class="head"><p>Scope</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_moves</span></code>, <code class="docutils literal notranslate"><span class="pre">upgrade_reboots_only</span></code>, <code class="docutils literal notranslate"><span class="pre">upgrade_prepare_failed</span></code>, <code class="docutils literal notranslate"><span class="pre">upgrade_ready</span></code>, <code class="docutils literal notranslate"><span class="pre">upgrade_committed</span></code></p></td>
+<td><p>each host, reset at each hop’s start</p></td>
+<td><p>Whether the hop moves the host, only reboots it, had its first prepare fail, found it ready, or saw it commit.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_held</span></code></p></td>
+<td><p>every host</p></td>
+<td><p>The hosts out of the hop’s commits.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_stop</span></code></p></td>
+<td><p>the run</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> once the run must stop; every task of a later hop reads it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_stopped_in</span></code></p></td>
+<td><p>the run</p></td>
+<td><p>The number of the hop it stopped in.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_stop_reason</span></code></p></td>
+<td><p>the run</p></td>
+<td><p>Why a failed lock renewal stopped the run.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="reboots">
+<h2>Reboots<a class="headerlink" href="#reboots" title="Link to this heading"></a></h2>
+<p>Verify reads whether a hop is a software-only upgrade or a platform upgrade, <code class="docutils literal notranslate"><span class="pre">SOFTWARE_AND_PLATFORM</span></code>, which also reboots
+every host. The report gives each host’s <code class="docutils literal notranslate"><span class="pre">upgrade_type</span></code>. A hop’s type depends on its source, so one release can be either.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot</span></code> unset or <code class="docutils literal notranslate"><span class="pre">rolling</span></code></p></td>
+<td><p>The hosts reboot in groups, each once the cluster has reprotected after the last.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot:</span> <span class="pre">all</span></code></p></td>
+<td><p>Every host reboots together, one longer outage. On a platform upgrade, Qumulo Core reboots only once the cluster has reprotected fully with every node armed, so the readiness checks first wait for the current node fault tolerance to equal the configured one, up to <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_wait_timeout</span></code> (F23).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code> unset</p></td>
+<td><p>Qumulo Core sizes each group at the current node fault tolerance minus one, at least one.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code> above the configured node fault tolerance</p></td>
+<td><p>Refused before anything is sent (F20).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code> above the current node fault tolerance</p></td>
+<td><p>Waited for before the prepare and at each readiness check, up to <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_wait_timeout</span></code> (F7). Qumulo Core checks the count once more after every node is armed, and a drop in the tolerance after the last check leaves every node armed and nothing restarted (G-UPGRADE-COUNT, in <a class="reference internal" href="gaps.html"><span class="std std-doc">Gaps</span></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code> below 1</p></td>
+<td><p>Refused.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code> with <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot:</span> <span class="pre">all</span></code></p></td>
+<td><p>Ignored, with a warning (W10).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Configured node fault tolerance 0, as on an unprotected edge or a Cloud Native Qumulo cluster of fewer than three nodes</p></td>
+<td><p>Every host reboots at once whatever <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot</span></code> says, with a warning where a declaration is ignored (W10).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot:</span> <span class="pre">aggressive</span></code> in the inventory, or <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_aggressive=true</span></code></p></td>
+<td><p>Refused (F11).</p></td>
+</tr>
+</tbody>
+</table>
+<p>A reboot that was paused outside the run fails at once, at step 1 or step 7 (F25).
+One that stopped on an error fails at once (F26).
+One that outlasts <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_reboot_timeout</span></code> fails (F24).</p>
+</section>
+<section id="the-maintenance-window">
+<h2>The maintenance window<a class="headerlink" href="#the-maintenance-window" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_maintenance_windows</span></code> is a list of ranges. A host that declares none may commit at any time.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Range key</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">start_hour</span></code>, <code class="docutils literal notranslate"><span class="pre">end_hour</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>0 to 23.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">start_minute</span></code>, <code class="docutils literal notranslate"><span class="pre">end_minute</span></code></p></td>
+<td><p>integer</p></td>
+<td><p>0 to 59.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">on_days</span></code></p></td>
+<td><p>a string or a list of strings</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MON</span></code>, <code class="docutils literal notranslate"><span class="pre">TUE</span></code>, <code class="docutils literal notranslate"><span class="pre">WED</span></code>, <code class="docutils literal notranslate"><span class="pre">THU</span></code>, <code class="docutils literal notranslate"><span class="pre">FRI</span></code>, <code class="docutils literal notranslate"><span class="pre">SAT</span></code>, <code class="docutils literal notranslate"><span class="pre">SUN</span></code>, or <code class="docutils literal notranslate"><span class="pre">EVERY_DAY</span></code>. Names are not case-sensitive.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A range whose end is at or before its start runs past midnight, and <code class="docutils literal notranslate"><span class="pre">on_days</span></code> names the day it starts.
+A value outside these limits, a name that is not an IANA timezone, and ranges without a timezone are refused (F34).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Case</p></th>
+<th class="head"><p>What the run does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Whether a hop may commit</p></td>
+<td><p>Checked once per hop, at step 4, before its first commit, against every host the hop moves that declares a window and is not held. The hop is inside only when every such host is inside one of its own ranges.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Inside the window</p></td>
+<td><p>The hop commits all its rounds, the later ones past the window’s end if the hop runs long.</p></td>
+</tr>
+<tr class="row-even"><td><p>Outside the window</p></td>
+<td><p>Nothing is committed. The hosts stay prepared, the report gives when the window next opens, and the run ends after the hop with F9 and a non-zero exit.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Prepares</p></td>
+<td><p>Run whenever the playbook runs, so a run started before the window stages the images and then stops with F9. A prepared upgrade is lost at any quorum change, and a presigned URL differs at the next run, so the run inside the window may prepare again.</p></td>
+</tr>
+<tr class="row-even"><td><p>A rerun outside the window</p></td>
+<td><p>Commits only what closes a split: the moving members of a portal component whose members run two releases at the hop’s start, when the hop brings every member to one release and the component follows no held unit. Each gets a report line. F9 holds everything else.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Hosts whose windows share no time</p></td>
+<td><p>A warning (W11).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="connections">
+<h2>Connections<a class="headerlink" href="#connections" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Request timeout of verify and prepare</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">upgrade</span></code> sends each with a request timeout of its own, 2700 seconds on a source of 7.10.3 or later and 4500 seconds below. The address the playbook connects to must hold an idle connection that long.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_api_host</span></code></p></td>
+<td><p>The address the playbook connects to in place of <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>. A multi-AZ Cloud Native Qumulo cluster’s <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> is a network load balancer that closes a connection idle for 350 seconds by default; a node’s address avoids that.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">forks</span></code></p></td>
+<td><p>Each prepare holds one fork while it waits. A hop of more clusters than <code class="docutils literal notranslate"><span class="pre">forks</span></code>, or a commit step of more hosts, runs in batches. The run warns when <code class="docutils literal notranslate"><span class="pre">forks</span></code>, or <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_prepare_throttle</span></code> when lower, is below the hop’s size or its largest commit step (W6). Set with <code class="docutils literal notranslate"><span class="pre">-f</span></code> or in <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="a-limited-release">
+<h2>A limited release<a class="headerlink" href="#a-limited-release" title="Link to this heading"></a></h2>
+<p>A letter release, such as 7.10.3A, is refused as an upgrade source unless the rule is waived (F1).
+<code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_allow_limited_release:</span> <span class="pre">true</span></code> sends Qumulo Core’s waiver on that host’s first hop, with verify and the
+prepare.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Source release</p></th>
+<th class="head"><p>Waiver sent</p></th>
+<th class="head"><p>What it lifts</p></th>
+<th class="head"><p>Requires</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>7.11.0 or later</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">compatibility_overrides=allow_upgrade_from_limited_release</span></code></p></td>
+<td><p>The limited-release rule alone.</p></td>
+<td><p>Nothing more.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Below 7.11.0</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">override_compatibility_check=true</span></code></p></td>
+<td><p>Every compatibility rule Qumulo Core checks: a prohibited release, a limited release, a developer source, a source off a release branch, a downgrade, the upgrade window, a developer target build, a build not later than the running one, and the license check.</p></td>
+<td><p>The first hop declares the exact <code class="docutils literal notranslate"><span class="pre">build</span></code> in a mapping entry (F16). The module verifies with the waiver first and prepares only when verify reads the declared release. Once the cluster runs the new build, another build fails at once.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A mapping entry’s <code class="docutils literal notranslate"><span class="pre">build</span></code> applies to every host whose hop lands on that entry.
+For a build for one limited-release host, see <a class="reference internal" href="../how-to/upgrade.html#upgrade-from-a-limited-release"><span class="std std-ref">Upgrade from a limited release</span></a>.
+A letter release is never an intermediate hop, and may be a host’s final target.</p>
+</section>
+<section id="files-the-run-writes">
+<h2>Files the run writes<a class="headerlink" href="#files-the-run-writes" title="Link to this heading"></a></h2>
+<p>All paths are on the controller.
+<code class="docutils literal notranslate"><span class="pre">&lt;artifacts&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_artifact_dir</span></code>, and <code class="docutils literal notranslate"><span class="pre">&lt;restore-artifacts&gt;</span></code> is <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>.
+Both default to the <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> directory beside the outermost inventory source on disk that defines the host.
+A host given with <code class="docutils literal notranslate"><span class="pre">-i</span></code> as a list has none, and the run refuses it.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Written by</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;artifacts&gt;/upgrade-&lt;UTC&gt;.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;UTC&gt;</span></code> as <code class="docutils literal notranslate"><span class="pre">20261104T170000Z</span></code></p></td>
+<td><p>The role, at the end of each hop</p></td>
+<td><p><a class="reference internal" href="#the-report">The report</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;artifacts&gt;/&lt;host&gt;/upgrade/commit.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">upgrade</span></code></p></td>
+<td><p><a class="reference internal" href="#commit-records">A commit record</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;restore-artifacts&gt;/&lt;host&gt;/restore/lock</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_lock</span></code></p></td>
+<td><p><a class="reference internal" href="#restore-locks">A restore lock</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;restore-artifacts&gt;/&lt;host&gt;/restore/&lt;64</span> <span class="pre">hexadecimal</span> <span class="pre">digits&gt;.yml</span></code></p></td>
+<td><p>The replication restore</p></td>
+<td><p>An open restore record.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The report and the commit record are mode 0600, in a directory of mode 0700.</p>
+<section id="the-report">
+<h3>The report<a class="headerlink" href="#the-report" title="Link to this heading"></a></h3>
+<p>The file is rewritten at the end of each hop, a failed hop included.
+Its first line is a comment that says it was written by the role, and in a check run that nothing was changed.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">check_mode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> for a check run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">plan</span></code></p></td>
+<td><p>The plan, as <code class="docutils literal notranslate"><span class="pre">upgrade_plan</span></code> returns it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hops</span></code></p></td>
+<td><p>One report per hop run so far, as <code class="docutils literal notranslate"><span class="pre">upgrade_report</span></code> returns it. A run with no hop writes the plan alone, whose <code class="docutils literal notranslate"><span class="pre">skipped</span></code> lists the clusters already at their target.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Each hop’s report:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hop</span></code></p></td>
+<td><p>The hop’s <code class="docutils literal notranslate"><span class="pre">number</span></code>, <code class="docutils literal notranslate"><span class="pre">release</span></code>, <code class="docutils literal notranslate"><span class="pre">lease</span></code> in seconds, and the hosts it <code class="docutils literal notranslate"><span class="pre">moves</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">check_mode_run</span></code></p></td>
+<td><p>Whether the results are a check run’s predictions.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hosts</span></code></p></td>
+<td><p>One entry per host, below.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">components</span></code></p></td>
+<td><p>One entry per portal component the hop moves: <code class="docutils literal notranslate"><span class="pre">members</span></code>, <code class="docutils literal notranslate"><span class="pre">moving</span></code>, <code class="docutils literal notranslate"><span class="pre">split</span></code>, <code class="docutils literal notranslate"><span class="pre">window</span></code> and <code class="docutils literal notranslate"><span class="pre">two_releases</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">peers</span></code></p></td>
+<td><p>The readings of steps 6 and 8, as <code class="docutils literal notranslate"><span class="pre">commits</span></code> and <code class="docutils literal notranslate"><span class="pre">reboots</span></code> lists.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">window</span></code></p></td>
+<td><p>The maintenance window’s answer, or <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span></code></p></td>
+<td><p>Each warning the hop’s results gave, as <code class="docutils literal notranslate"><span class="pre">{host,</span> <span class="pre">message}</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">notes</span></code></p></td>
+<td><p>The hop’s notes from the plan.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lines</span></code></p></td>
+<td><p>The hop’s own lines: why the run stopped before it, the window’s, the peer steps’ and each component left on two releases.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A host’s entry:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">from</span></code>, <code class="docutils literal notranslate"><span class="pre">to</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{version,</span> <span class="pre">build}</span></code> it ran and ends on.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade_type</span></code></p></td>
+<td><p>The upgrade’s type.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">phases</span></code></p></td>
+<td><p>Each phase’s <code class="docutils literal notranslate"><span class="pre">{started,</span> <span class="pre">ended}</span></code> in UTC.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prepare_seconds</span></code></p></td>
+<td><p>The prepare’s duration.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">commit_started</span></code></p></td>
+<td><p>The commit’s start.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">downtime_seconds</span></code></p></td>
+<td><p>How long the REST API did not answer during the commit’s restart.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reboot</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{mode,</span> <span class="pre">set_size,</span> <span class="pre">seconds}</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">commit_sent</span></code>, <code class="docutils literal notranslate"><span class="pre">committed</span></code></p></td>
+<td><p>Whether the commit request was sent, and whether the commit is done.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">outcome</span></code></p></td>
+<td><p>One of the values below.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">message</span></code>, <code class="docutils literal notranslate"><span class="pre">maybe_applied</span></code>, <code class="docutils literal notranslate"><span class="pre">unfinished_commit</span></code></p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">failed</span></code>: the failure, whether the failed task may have been applied, and whether it was a commit that did not finish.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">held_by</span></code>, <code class="docutils literal notranslate"><span class="pre">lock_held</span></code></p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">held</span></code>: the host whose failure held it, and whether a restore lock the run could not take did.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">prediction</span></code></p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">predicted</span></code>: the module’s prediction.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lines</span></code></p></td>
+<td><p>Notes about the host.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">outcome</span></code></p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rebooted</span></code></p></td>
+<td><p>The commit is done and a platform upgrade’s reboots are done.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">committed</span></code></p></td>
+<td><p>The commit is done.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">at</span> <span class="pre">target</span></code></p></td>
+<td><p>The host already ran the hop’s release and had no phase to run.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failed</span></code></p></td>
+<td><p>A step failed.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">held</span></code></p></td>
+<td><p>Held out of the hop’s commits: by a failed host’s unit (<code class="docutils literal notranslate"><span class="pre">held_by</span></code>), by a restore lock the run could not take (<code class="docutils literal notranslate"><span class="pre">lock_held</span></code>), or otherwise by the run, as by a closed maintenance window.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">committed</span></code></p></td>
+<td><p>Neither failed nor held, and its commit did not happen.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">predicted</span></code></p></td>
+<td><p>A check run’s prediction.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A component’s <code class="docutils literal notranslate"><span class="pre">window</span></code> is <code class="docutils literal notranslate"><span class="pre">{started,</span> <span class="pre">ended,</span> <span class="pre">seconds,</span> <span class="pre">open,</span> <span class="pre">uncommitted}</span></code>, from its first member’s commit start to its
+last member’s commit done, or <code class="docutils literal notranslate"><span class="pre">null</span></code> when no member’s commit started.
+A peer reading of a portal is <code class="docutils literal notranslate"><span class="pre">{component,</span> <span class="pre">host,</span> <span class="pre">active,</span> <span class="pre">seconds,</span> <span class="pre">line}</span></code>, with <code class="docutils literal notranslate"><span class="pre">active</span></code> <code class="docutils literal notranslate"><span class="pre">null</span></code> when the step skipped the
+component. A reading of a replication relationship is <code class="docutils literal notranslate"><span class="pre">{source,</span> <span class="pre">target,</span> <span class="pre">error,</span> <span class="pre">line}</span></code>.</p>
+</section>
+<section id="the-plan">
+<h3>The plan<a class="headerlink" href="#the-plan" title="Link to this heading"></a></h3>
+<p>The plan, in <code class="docutils literal notranslate"><span class="pre">plan</span></code> of the playbook’s <code class="docutils literal notranslate"><span class="pre">upgrade_plan</span></code> result and of the report:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hops</span></code></p></td>
+<td><p>The hops in order. Each has <code class="docutils literal notranslate"><span class="pre">number</span></code>, <code class="docutils literal notranslate"><span class="pre">release</span></code>, <code class="docutils literal notranslate"><span class="pre">lease</span></code>, <code class="docutils literal notranslate"><span class="pre">moves</span></code>, <code class="docutils literal notranslate"><span class="pre">components</span></code>, <code class="docutils literal notranslate"><span class="pre">steps</span></code>, <code class="docutils literal notranslate"><span class="pre">units</span></code>, <code class="docutils literal notranslate"><span class="pre">hosts</span></code>, <code class="docutils literal notranslate"><span class="pre">windows</span></code>, <code class="docutils literal notranslate"><span class="pre">notes</span></code> and <code class="docutils literal notranslate"><span class="pre">forks_warning</span></code>. A host’s entry gives its <code class="docutils literal notranslate"><span class="pre">image_index</span></code>, <code class="docutils literal notranslate"><span class="pre">image_redacted</span></code>, <code class="docutils literal notranslate"><span class="pre">version</span></code>, <code class="docutils literal notranslate"><span class="pre">build</span></code>, <code class="docutils literal notranslate"><span class="pre">kind</span></code>, <code class="docutils literal notranslate"><span class="pre">reboot</span></code>, <code class="docutils literal notranslate"><span class="pre">unit</span></code>, <code class="docutils literal notranslate"><span class="pre">round</span></code>, <code class="docutils literal notranslate"><span class="pre">wave</span></code>, <code class="docutils literal notranslate"><span class="pre">step</span></code>, the hosts a failure of it <code class="docutils literal notranslate"><span class="pre">holds</span></code>, and <code class="docutils literal notranslate"><span class="pre">reboots_only</span></code> for a host on the target build still rebooting.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lock_hosts</span></code></p></td>
+<td><p>Each host the run locks, with the hosts its lock protects: itself and its replication targets.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">records</span></code></p></td>
+<td><p>The commit records to <code class="docutils literal notranslate"><span class="pre">retire</span></code> and to <code class="docutils literal notranslate"><span class="pre">drop</span></code>, each <code class="docutils literal notranslate"><span class="pre">{host,</span> <span class="pre">path,</span> <span class="pre">digest,</span> <span class="pre">line}</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">skipped</span></code></p></td>
+<td><p>The hosts already at their target.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">refusals</span></code></p></td>
+<td><p>Each <code class="docutils literal notranslate"><span class="pre">{host,</span> <span class="pre">code,</span> <span class="pre">message}</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">warnings</span></code></p></td>
+<td><p>Each <code class="docutils literal notranslate"><span class="pre">{code,</span> <span class="pre">host,</span> <span class="pre">message}</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">notes</span></code></p></td>
+<td><p>Each <code class="docutils literal notranslate"><span class="pre">{host,</span> <span class="pre">message}</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A hop’s <code class="docutils literal notranslate"><span class="pre">lease</span></code>, in seconds, bounds how long the hop can take. The plan computes it from the four timeouts, the prepare’s
+request timeout (<a class="reference internal" href="#connections">Connections</a>), <code class="docutils literal notranslate"><span class="pre">forks</span></code> and the throttle, and each restore lock is renewed to it at the hop’s start.
+<code class="docutils literal notranslate"><span class="pre">forks_warning</span></code> is W6’s text, or <code class="docutils literal notranslate"><span class="pre">null</span></code>, and is printed by the role.</p>
+</section>
+<section id="commit-records">
+<h3>Commit records<a class="headerlink" href="#commit-records" title="Link to this heading"></a></h3>
+<p>The record holds one field per line, each value in JSON.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">format</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">state</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pending</span></code> or <code class="docutils literal notranslate"><span class="pre">unfinished</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_uuid</span></code></p></td>
+<td><p>The cluster’s UUID.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">build</span></code></p></td>
+<td><p>The build the cluster ran when the record was written.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">target_version</span></code></p></td>
+<td><p>The release being committed to.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">declared_build</span></code></p></td>
+<td><p>The mapping entry’s <code class="docutils literal notranslate"><span class="pre">build</span></code>, or <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">time</span></code></p></td>
+<td><p>When the record was written, in UTC.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">error_info</span></code></p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">unfinished</span></code>, the upgrade status’s error text.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Event</p></th>
+<th class="head"><p>Record</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade</span></code> is about to send the commit</p></td>
+<td><p>Written as <code class="docutils literal notranslate"><span class="pre">pending</span></code>, and flushed to disk first.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The commit is done, or refused</p></td>
+<td><p>Removed.</p></td>
+</tr>
+<tr class="row-even"><td><p>The commit did not finish</p></td>
+<td><p>Rewritten as <code class="docutils literal notranslate"><span class="pre">unfinished</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A run is killed during the commit</p></td>
+<td><p>Stays <code class="docutils literal notranslate"><span class="pre">pending</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The playbook gives every commit a record. A hand run of <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> writes one only with <code class="docutils literal notranslate"><span class="pre">commit_record</span></code> set.</p>
+<p>The next run’s plan decides each record before anything is sent:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Record found</p></th>
+<th class="head"><p>Decision</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Any state, and the host is another cluster now, as after a rebuild</p></td>
+<td><p>Retired, with a report line.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pending</span></code>, and the cluster runs another build at or above the target release</p></td>
+<td><p>Retired.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pending</span></code>, and the cluster reads <code class="docutils literal notranslate"><span class="pre">PREPARING</span></code> or <code class="docutils literal notranslate"><span class="pre">PREPARED</span></code> on the recorded build, which a commit never leaves</p></td>
+<td><p>Dropped.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pending</span></code>, and the cluster still commits or reboots on the recorded build, or its read failed</p></td>
+<td><p>Refused: wait for it (F30).</p></td>
+</tr>
+<tr class="row-even"><td><p>Any other <code class="docutils literal notranslate"><span class="pre">pending</span></code> record, as when the cluster is back on the recorded build with nothing under way</p></td>
+<td><p>Refused (F19).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">unfinished</span></code></p></td>
+<td><p>Refused (F19), until Qumulo Care has cleared the cluster and the record is removed.</p></td>
+</tr>
+<tr class="row-even"><td><p>A file that cannot be read as a record</p></td>
+<td><p>Refused (F31).</p></td>
+</tr>
+</tbody>
+</table>
+<p>The records hold on one controller, or on an artifact directory every controller that runs the upgrade shares.
+A run that moves <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_artifact_dir</span></code> loses the records under the old directory, and with them the guard.</p>
+</section>
+<section id="restore-locks">
+<h3>Restore locks<a class="headerlink" href="#restore-locks" title="Link to this heading"></a></h3>
+<p>The lock is the one a replication restore takes, with the holder <code class="docutils literal notranslate"><span class="pre">upgrade</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Path</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;restore-artifacts&gt;/&lt;host&gt;/restore/lock</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Taken on</p></td>
+<td><p>Each host the plan moves or reboots, and each host in the play whose declared replication targets one of them.</p></td>
+</tr>
+<tr class="row-even"><td><p>Taken</p></td>
+<td><p>Once, after the plan, with a lease of the first hop’s <code class="docutils literal notranslate"><span class="pre">lease</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Renewed</p></td>
+<td><p>At the start of each hop, outside check mode, to that hop’s <code class="docutils literal notranslate"><span class="pre">lease</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p>Released</p></td>
+<td><p>At every end the run itself reaches: hops done, a hop that failed or stopped, a lost lock, or a host that failed after its take.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A lock another run holds</p></td>
+<td><p>Fails that host with the lock’s own message (F22). The host and every host it replicates to are held in every hop that moves them, and the run ends after the first hop that moves one of them. A check run reports it as a prediction.</p></td>
+</tr>
+<tr class="row-even"><td><p>A source outside the run</p></td>
+<td><p>Cannot be locked by the run. The plan warns that a restore of it started meanwhile is not held off (W9).</p></td>
+</tr>
+</tbody>
+</table>
+<p>A run stopped with Ctrl-C, or killed, leaves its locks. A lock is taken over, with a warning:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Lock taken on</p></th>
+<th class="head"><p>Taken over when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>This controller (same host name, boot ID and PID namespace)</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process that took it is gone. A lock whose process is alive is never taken over.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Another controller, or one without <code class="docutils literal notranslate"><span class="pre">/proc</span></code></p></td>
+<td><p>Its lease has run out.</p></td>
+</tr>
+</tbody>
+</table>
+<p>For a hop the lease is many hours.
+<a class="reference internal" href="troubleshooting.html#restore-locks"><span class="std std-ref">Troubleshooting</span></a> quotes the lock’s warnings and refusals.</p>
+<p>Before the plan, the playbook runs <code class="docutils literal notranslate"><span class="pre">replication_restore_info</span></code> once for each distinct <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> of the
+<code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code> hosts, as the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role computes it, <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> beside the host’s inventory source by
+default, and passes the records and locks it finds to <code class="docutils literal notranslate"><span class="pre">upgrade_plan</span></code> as <code class="docutils literal notranslate"><span class="pre">restore_files</span></code>.
+It scans in check mode too, since it only reads.
+The plan warns W1 for a host it moves or reboots, once for each record or lock that names the host:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Found</p></th>
+<th class="head"><p>Names</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A restore record</p></td>
+<td><p>Its edge, the <code class="docutils literal notranslate"><span class="pre">target_host</span></code> of its key, and every target of the edge’s <code class="docutils literal notranslate"><span class="pre">present</span></code> replication relationships.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A <code class="docutils literal notranslate"><span class="pre">live</span></code> restore lock</p></td>
+<td><p>Its host, and every target of that host’s <code class="docutils literal notranslate"><span class="pre">present</span></code> replication relationships.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A lock on a host the run locks itself is left to the lock step (F22).
+A lock that is <code class="docutils literal notranslate"><span class="pre">gone</span></code> or <code class="docutils literal notranslate"><span class="pre">expired</span></code>, and a file the scan cannot read, are not W1: the next restore or upgrade of the host
+takes a lock over with a warning, and a restore that reads an unreadable file stops on it, naming it, and so does
+this run’s lock step on an unreadable <code class="docutils literal notranslate"><span class="pre">lock</span></code> of a host it locks.
+<a class="reference internal" href="troubleshooting.html#upgrades"><span class="std std-ref">Troubleshooting</span></a> quotes W1, and
+<a class="reference internal" href="../how-to/restore-replica.html#find-and-clear-restore-records-and-locks"><span class="std std-ref">Find and clear restore records and locks</span></a> reads
+the scan’s result.</p>
+<p>An open restore record is a file named by 64 hexadecimal digits and <code class="docutils literal notranslate"><span class="pre">.yml</span></code> in <code class="docutils literal notranslate"><span class="pre">&lt;restore-artifacts&gt;/&lt;host&gt;/restore/</span></code>.
+A file named <code class="docutils literal notranslate"><span class="pre">done-</span></code> followed by the digits is a finished restore’s stamp.</p>
+</section>
+</section>
+<section id="supported-sources">
+<h2>Supported sources<a class="headerlink" href="#supported-sources" title="Link to this heading"></a></h2>
+<p>The upgrade does not keep the collection’s floor of Qumulo Core 7.10.3 (<a class="reference internal" href="tested-versions.html"><span class="std std-doc">Tested Qumulo Core versions</span></a>).
+The upgrade modules, the role and the reads the playbook makes run on older sources, and the playbook prints no floor
+warning.
+Which sources the collection supports is what backwards testing finds.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Lane</p></th>
+<th class="head"><p>Oldest source upgraded from</p></th>
+<th class="head"><p>Date of the run</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Hardware, tier 3</p></td>
+<td><p>not yet measured</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Cloud Native Qumulo, tier 2</p></td>
+<td><p>not yet measured</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p>Once a run has set the range, the plan warns about a source older than it (W5).
+<a class="reference internal" href="tested-versions.html#upgrades"><span class="std std-ref">How the lanes are tested</span></a> says how the range is measured and what each lane cannot show.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a>: declare, check, run, a canary, several quarters, a window.</p></li>
+<li><p><a class="reference internal" href="../how-to/resume-an-upgrade.html"><span class="std std-doc">Recover an upgrade that stopped</span></a>: read the report, rerun, a commit that did not
+finish, a paused reboot, a lock.</p></li>
+<li><p><a class="reference internal" href="../explanation/upgrades.html"><span class="std std-doc">How upgrades work</span></a>: hop rules, lock-step, ordering, and why the cluster records no commit.</p></li>
+<li><p><a class="reference internal" href="troubleshooting.html#upgrades"><span class="std std-ref">Troubleshooting</span></a>: every refusal and warning, with what lifts it.</p></li>
+<li><p><a class="reference internal" href="variables.html"><span class="std std-doc">Variables</span></a>: the inventory variables of every area.</p></li>
+<li><p><a class="reference internal" href="playbooks-and-roles.html"><span class="std std-doc">Playbooks and roles</span></a>: the playbook and role tables.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="capture-and-clone.html" class="btn btn-neutral float-left" title="What capture and clone read and write" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="playbooks-and-roles.html" class="btn btn-neutral float-right" title="Playbooks and roles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

@@ -1,0 +1,685 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.monitoring_info module – Read a Qumulo cluster’s monitoring, Nexus, audit and encryption settings and status &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.monitoring_settings module – Manage a Qumulo cluster’s cloud monitoring settings" href="monitoring_settings_module.html" />
+    <link rel="prev" title="qumulo.cluster.local_user module – Manage a Qumulo cluster’s local user" href="local_user_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.monitoring_info module – Read a Qumulo cluster’s monitoring, Nexus, audit and encryption settings and status</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-monitoring-info-module"></span><section id="qumulo-cluster-monitoring-info-module-read-a-qumulo-cluster-s-monitoring-nexus-audit-and-encryption-settings-and-status">
+<h1>qumulo.cluster.monitoring_info module – Read a Qumulo cluster’s monitoring, Nexus, audit and encryption settings and status<a class="headerlink" href="#qumulo-cluster-monitoring-info-module-read-a-qumulo-cluster-s-monitoring-nexus-audit-and-encryption-settings-and-status" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.monitoring_info</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Gathers the cloud monitoring settings and each node’s monitoring status, the Nexus connection and registration, the audit log destinations, and the encryption key store’s status, and changes nothing.</p></li>
+<li><p>The <code class="ansible-value docutils literal notranslate"><span class="pre">settings</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">nexus_connection</span></code> subsets have the option shape of <a class="reference internal" href="monitoring_settings_module.html#ansible-collections-qumulo-cluster-monitoring-settings-module"><span class="std std-ref">qumulo.cluster.monitoring_settings</span></a> and <a class="reference internal" href="nexus_connection_module.html#ansible-collections-qumulo-cluster-nexus-connection-module"><span class="std std-ref">qumulo.cluster.nexus_connection</span></a>, so they can be fed back to those modules.</p></li>
+<li><p>No subset returns a secret. A pending Nexus join key, which the cluster returns in cleartext, is left out, and the support VPN keys are never read.</p></li>
+<li><p>On a node that is not yet part of a cluster (state <code class="docutils literal notranslate"><span class="pre">UNCONFIGURED</span></code>) no login is possible, so every subset is listed in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-return-unavailable-subsets"><span class="std std-ref"><span class="pre">unavailable_subsets</span></span></a></code>, and the module warns.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-monitoring-info-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-gather_subset"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-gather-subset"><strong>gather_subset</strong></p>
+<a class="ansibleOptionLink" href="#parameter-gather_subset" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The subsets of facts to gather. <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code> gathers every subset.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">settings</span></code> is the cloud monitoring settings, <code class="ansible-value docutils literal notranslate"><span class="pre">status</span></code> each node’s monitoring status, <code class="ansible-value docutils literal notranslate"><span class="pre">nexus_connection</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">nexus_registration</span></code> the Nexus connection and registration, <code class="ansible-value docutils literal notranslate"><span class="pre">audit</span></code> the <code class="docutils literal notranslate"><span class="pre">syslog</span></code> and <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> audit log destinations, and <code class="ansible-value docutils literal notranslate"><span class="pre">encryption</span></code> the encryption key store’s status.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;all&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;settings&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;status&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;nexus_connection&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;nexus_registration&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;audit&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;encryption&quot;</span></code></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[&quot;all&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: <code class="ansible-value docutils literal notranslate"><span class="pre">settings</span></code> GET /v1/support/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">status</span></code> GET /v1/support/status/; <code class="ansible-value docutils literal notranslate"><span class="pre">nexus_connection</span></code> GET /v1/nexus/connection; <code class="ansible-value docutils literal notranslate"><span class="pre">nexus_registration</span></code> GET /v1/nexus/registration; <code class="ansible-value docutils literal notranslate"><span class="pre">audit</span></code> GET /v1/audit/syslog/config, /v1/audit/syslog/status, /v1/audit/cloudwatch/config and /v1/audit/cloudwatch/status; <code class="ansible-value docutils literal notranslate"><span class="pre">encryption</span></code> GET /v2/encryption/key-store/status.</p></li>
+<li><p>A route this cluster does not offer (HTTP 404, 405, 406 or 501) makes its subset unavailable. A cluster that cannot send audit logs to CloudWatch reports <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> as <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code>. Any other error, such as a missing RBAC privilege, fails the module.</p></li>
+<li><p>The license is <a class="reference internal" href="cluster_info_module.html#ansible-collections-qumulo-cluster-cluster-info-module"><span class="std std-ref">qumulo.cluster.cluster_info</span></a>‘s <code class="ansible-value docutils literal notranslate"><span class="pre">license</span></code> subset.</p></li>
+<li><p><code class="ansible-value docutils literal notranslate"><span class="pre">audit</span></code> reports only the destinations named <code class="docutils literal notranslate"><span class="pre">syslog</span></code> and <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code>, which the v1 routes it reads cover, and no <code class="docutils literal notranslate"><span class="pre">local</span></code> destination; <a class="reference internal" href="capture_info_module.html#ansible-collections-qumulo-cluster-capture-info-module"><span class="std std-ref">qumulo.cluster.capture_info</span></a>‘s <code class="docutils literal notranslate"><span class="pre">audit</span></code> area reads every destination (G-MON-AUDIT-INFO).</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># These tasks carry no connection options, except where a task names another cluster. Set them once for the play</span>
+<span class="c1"># with module_defaults for group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read every monitoring, Nexus, audit and encryption fact</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitoring</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the cloud monitoring settings</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">monitoring.monitoring.settings</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop unless the cluster is registered with Nexus</span>
+<span class="w">  </span><span class="nt">block</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the Nexus registration</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">nexus_registration</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nexus_state</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Assert that the cluster is registered</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nexus_state.monitoring.nexus_registration.registration_status == 'REGISTERED'</span>
+<span class="w">        </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The cluster is not registered with Nexus.</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail when a node does not report monitoring as connected</span>
+<span class="w">  </span><span class="nt">block</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read each node's monitoring status</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">status</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node_status</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Assert that every node is connected</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node_status.monitoring.status | map(attribute='monitoring') | unique | list == ['CONNECTED']</span>
+
+<span class="c1"># Destinations with other names, which qumulo.cluster.audit_destination manages, are in qumulo.cluster.capture_info's</span>
+<span class="c1"># audit area (G-MON-AUDIT-INFO).</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the syslog and CloudWatch audit destinations and their connection status</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">audit</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audit_state</span>
+
+<span class="c1"># A cluster that does not offer a route leaves its subset out of the facts and names it in unavailable_subsets.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the encryption key store, if this cluster offers it</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">encryption</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encryption_state</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show when the key was last rotated</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encryption_state.monitoring.encryption.last_key_rotation_time</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="s">"'encryption'</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">(encryption_state.unavailable_subsets</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default({}))"</span>
+
+<span class="c1"># The settings subset has the option shape of monitoring_settings, so it can be applied to another cluster.</span>
+<span class="c1"># Both clusters must accept the credentials the play sets, since an api_token is bound to one cluster. api_host is a</span>
+<span class="c1"># task argument here: a task-level module_defaults entry for the group would replace the play's credentials.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Copy one cluster's monitoring settings to another</span>
+<span class="w">  </span><span class="nt">block</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the source cluster's monitoring settings</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01.example.com</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">settings</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source_monitoring</span>
+
+<span class="w">    </span><span class="c1"># Name each field to copy; the proxy and VPN fields copy the same way.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Apply them to the other cluster</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.monitoring_settings</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge02.example.com</span>
+<span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">source_monitoring.monitoring.settings.enabled</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">        </span><span class="nt">mq_host</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">source_monitoring.monitoring.settings.mq_host</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">        </span><span class="nt">mq_port</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">source_monitoring.monitoring.settings.mq_port</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">        </span><span class="nt">period</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">source_monitoring.monitoring.settings.period</span> <span class="cp">}}</span><span class="s">"</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring"><strong>monitoring</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The gathered facts. Each key is present only when its subset was gathered and available.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/audit"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-audit"><strong>audit</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/audit" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The <code class="docutils literal notranslate"><span class="pre">syslog</span></code> and <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> audit log destinations, as the v1 routes return them, each with its connection <code class="docutils literal notranslate"><span class="pre">status</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> on a cluster that cannot send audit logs to CloudWatch.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;cloudwatch&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;syslog&quot;:</span> <span class="pre">{&quot;enabled&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;format&quot;:</span> <span class="pre">&quot;csv&quot;,</span> <span class="pre">&quot;server_address&quot;:</span> <span class="pre">&quot;&quot;,</span> <span class="pre">&quot;server_port&quot;:</span> <span class="pre">0,</span> <span class="pre">&quot;status&quot;:</span> <span class="pre">{&quot;connection_status&quot;:</span> <span class="pre">&quot;AUDIT_LOG_DISABLED&quot;}}}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/audit/cloudwatch"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-audit-cloudwatch"><strong>cloudwatch</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/audit/cloudwatch" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The CloudWatch destination’s configuration, with its connection <code class="docutils literal notranslate"><span class="pre">status</span></code>; <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when the cluster cannot send audit logs to CloudWatch.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/audit/syslog"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-audit-syslog"><strong>syslog</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/audit/syslog" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The syslog destination’s configuration, with its connection <code class="docutils literal notranslate"><span class="pre">status</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/encryption"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-encryption"><strong>encryption</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/encryption" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The encryption key store’s type and status, as the cluster reports them.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;last_key_rotation_time&quot;:</span> <span class="pre">&quot;2026-10-31T02:40:19Z&quot;,</span> <span class="pre">&quot;status&quot;:</span> <span class="pre">&quot;Encrypted&quot;,</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;Local&quot;}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/nexus_connection"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-nexus-connection"><strong>nexus_connection</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/nexus_connection" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The Nexus connection settings, as <a class="reference internal" href="nexus_connection_module.html#ansible-collections-qumulo-cluster-nexus-connection-module"><span class="std std-ref">qumulo.cluster.nexus_connection</span></a> takes them.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;nexus_enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;nexus_host&quot;:</span> <span class="pre">&quot;api.nexus.qumulo.com&quot;,</span> <span class="pre">&quot;nexus_interval&quot;:</span> <span class="pre">30,</span> <span class="pre">&quot;nexus_port&quot;:</span> <span class="pre">443}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/nexus_registration"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-nexus-registration"><strong>nexus_registration</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/nexus_registration" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The Nexus registration status and when the cluster’s Nexus secret was created; no other field is passed on.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/nexus_registration/registration_status"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-nexus-registration-registration-status"><strong>registration_status</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/nexus_registration/registration_status" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The registration status, such as <code class="ansible-value docutils literal notranslate"><span class="pre">NONE</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">PENDING_REGISTRATION</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">REGISTERED</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;REGISTERED&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/nexus_registration/secret_created_at"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-nexus-registration-secret-created-at"><strong>secret_created_at</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/nexus_registration/secret_created_at" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When the cluster’s Nexus secret was created.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;2026-10-31T02:00:00Z&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/settings"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-settings"><strong>settings</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/settings" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The cloud monitoring settings, as <a class="reference internal" href="monitoring_settings_module.html#ansible-collections-qumulo-cluster-monitoring-settings-module"><span class="std std-ref">qumulo.cluster.monitoring_settings</span></a> takes them.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;mq_host&quot;:</span> <span class="pre">&quot;monitor.example.com&quot;,</span> <span class="pre">&quot;mq_port&quot;:</span> <span class="pre">443,</span> <span class="pre">&quot;period&quot;:</span> <span class="pre">60,</span> <span class="pre">&quot;vpn_enabled&quot;:</span> <span class="pre">false}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/status"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-status"><strong>status</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/status" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Each node’s monitoring, file upload and VPN status.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;file_upload&quot;:</span> <span class="pre">&quot;DISABLED&quot;,</span> <span class="pre">&quot;monitoring&quot;:</span> <span class="pre">&quot;CONNECTED&quot;,</span> <span class="pre">&quot;node_id&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;vpn_connection&quot;:</span> <span class="pre">&quot;DISABLED&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/status/file_upload"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-status-file-upload"><strong>file_upload</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/status/file_upload" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The node’s file upload status.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;DISABLED&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/status/monitoring"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-status-monitoring"><strong>monitoring</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/status/monitoring" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The node’s monitoring connection status, such as <code class="ansible-value docutils literal notranslate"><span class="pre">CONNECTED</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">DISABLED</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">ERROR</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;CONNECTED&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/status/node_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-status-node-id"><strong>node_id</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/status/node_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The node’s ID.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">1</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-monitoring/status/vpn_connection"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-monitoring-status-vpn-connection"><strong>vpn_connection</strong></p>
+<a class="ansibleOptionLink" href="#return-monitoring/status/vpn_connection" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The node’s remote-support VPN status.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;DISABLED&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unavailable_subsets"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-monitoring-info-module-return-unavailable-subsets"><strong>unavailable_subsets</strong></p>
+<a class="ansibleOptionLink" href="#return-unavailable_subsets" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Each requested subset this cluster could not answer, with the reason.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when a subset was unavailable</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;encryption&quot;:</span> <span class="pre">&quot;GET</span> <span class="pre">/v2/encryption/key-store/status</span> <span class="pre">failed:</span> <span class="pre">HTTP</span> <span class="pre">404</span> <span class="pre">...&quot;}</span></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="local_user_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.local_user module – Manage a Qumulo cluster’s local user" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="monitoring_settings_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.monitoring_settings module – Manage a Qumulo cluster’s cloud monitoring settings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

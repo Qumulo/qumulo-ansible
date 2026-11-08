@@ -1,0 +1,521 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terraform ownership &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tenants and the continuity rule" href="multitenancy.html" />
+    <link rel="prev" title="How upgrades work" href="upgrades.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Terraform ownership</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#two-tools-one-cluster">Two tools, one cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#one-output-is-the-only-meeting-point">One output is the only meeting point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-the-two-variables-say">What the two variables say</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#everything-that-is-not-listed-is-the-collection-s">Everything that is not listed is the collection’s</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-a-declared-area-is-refused-not-skipped">Why a declared area is refused, not skipped</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-floating-addresses-are-terraform-s-by-default-on-cnq">The floating addresses are Terraform’s by default on CNQ</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parts-of-an-area-dns-fqdn-and-audit-cloudwatch">Parts of an area: <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> and <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-a-take-over-hands-back">What a take-over hands back</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adoption-and-cloning-leave-the-owned-areas-out">Adoption and cloning leave the owned areas out</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tenants-and-the-network-document">Tenants and the network document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-the-collection-does-not-do">What the collection does not do</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-more">Learn more</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Terraform ownership</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="terraform-ownership">
+<h1>Terraform ownership<a class="headerlink" href="#terraform-ownership" title="Link to this heading"></a></h1>
+<p>This page explains how Terraform and this collection share a cluster without writing the same setting.</p>
+<section id="two-tools-one-cluster">
+<h2>Two tools, one cluster<a class="headerlink" href="#two-tools-one-cluster" title="Link to this heading"></a></h2>
+<p>Terraform forms a cluster, and this collection configures it afterwards.
+The Terraform provider also keeps writing some of what it formed.
+On a cluster of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> it applies the floating addresses again every time it runs.
+With a <code class="docutils literal notranslate"><span class="pre">cluster_fqdn</span></code> set, it does the same for the cluster’s DNS name and for whether the authoritative DNS server
+answers.
+A setting that two tools write is undone by whichever ran last, so the collection needs to know which settings are
+Terraform’s and must stay out of them.</p>
+<p>The collection does not find that out for itself.
+The baseline reads neither Terraform’s state nor its configuration.
+Ownership is something you declare in the inventory, and the collection acts on the declaration.
+It does not check the declaration against the Terraform root, so a list that is wrong stays wrong until someone notices
+the two tools undoing each other.</p>
+</section>
+<section id="one-output-is-the-only-meeting-point">
+<h2>One output is the only meeting point<a class="headerlink" href="#one-output-is-the-only-meeting-point" title="Link to this heading"></a></h2>
+<p>The two tools meet in one Terraform output, <code class="docutils literal notranslate"><span class="pre">qumulo_ansible_inventory</span></code>, which the inventory plugin
+<a class="reference internal" href="../collections/qumulo/cluster/terraform_inventory.html"><span class="std std-doc">terraform</span></a> turns into hosts.
+Three reasons make one output better than variables that you copy into the inventory.</p>
+<ul class="simple">
+<li><p><strong>Nobody copies an address or a UUID.</strong>
+The root that forms a cluster is the one place that knows its address and its UUID.
+The output carries them, so a cluster that Terraform forms again appears in the inventory with its new facts on the
+next run.
+The plugin reads the output on each run unless a cache holds it, so the floating addresses, which the provider
+documents as able to change when a cluster scales or is reconciled, follow the next <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">apply</span></code>.</p></li>
+<li><p><strong>The identity guard checks what Terraform recorded.</strong>
+The UUID in the output becomes <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, and every module compares it with the cluster at the address
+before it sends a credential (<a class="reference internal" href="authentication.html#the-identity-guard"><span class="std std-ref">the identity guard</span></a>).
+An address that Terraform repointed at another cluster is then a failure that sent nothing.</p></li>
+<li><p><strong>The output carries a pointer, never a secret.</strong>
+An entry names where the password lives in <code class="docutils literal notranslate"><span class="pre">password_ref</span></code>, so the output need not be marked <code class="docutils literal notranslate"><span class="pre">sensitive</span></code>;
+<a class="reference internal" href="authentication.html"><span class="std std-doc">Authentication, trust and secrets</span></a> explains why.</p></li>
+</ul>
+<p>Beside the address, the UUID and the password’s pointer, the output carries the two facts about ownership.
+Nothing passes between the tools outside this output.
+<a class="reference internal" href="../how-to/terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> shows how to publish it, and
+<a class="reference internal" href="../reference/terraform-inventory.html"><span class="std std-doc">The Terraform inventory plugin</span></a> lists its fields.</p>
+</section>
+<section id="what-the-two-variables-say">
+<h2>What the two variables say<a class="headerlink" href="#what-the-two-variables-say" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code> records what formed the cluster: <code class="docutils literal notranslate"><span class="pre">none</span></code>, <code class="docutils literal notranslate"><span class="pre">terraform_provider</span></code> or <code class="docutils literal notranslate"><span class="pre">legacy_provisioner</span></code>.
+The plugin sets it from the output’s <code class="docutils literal notranslate"><span class="pre">managed_by</span></code>.
+The baseline reads it in two places: with <code class="docutils literal notranslate"><span class="pre">terraform_provider</span></code> and no list given, the list defaults to
+<code class="docutils literal notranslate"><span class="pre">[network.floating_ips]</span></code> unless <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> is <code class="docutils literal notranslate"><span class="pre">edge</span></code> or <code class="docutils literal notranslate"><span class="pre">baremetal</span></code>, and the network step passes it to
+<code class="docutils literal notranslate"><span class="pre">network_config</span></code> as <code class="docutils literal notranslate"><span class="pre">managed_by</span></code>. An unset kind counts as <code class="docutils literal notranslate"><span class="pre">cnq</span></code>. Capture and clone derive the same
+default, so a provider-formed CNQ host adopted with <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by:</span> <span class="pre">terraform_provider</span></code> set is captured without
+its floating ranges, and an edge or bare-metal one with them.
+Adoption writes the variable only when the inventory leaves it unset.
+The plugin also puts each host in a <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by_&lt;value&gt;</span></code> group.
+<code class="docutils literal notranslate"><span class="pre">none</span></code> and <code class="docutils literal notranslate"><span class="pre">legacy_provisioner</span></code> behave alike: neither gives the baseline an area on its own.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> lists the areas that Terraform owns.
+The plugin sets it from the output’s <code class="docutils literal notranslate"><span class="pre">owned_areas</span></code>.
+The baseline refuses to manage an area on the list, and the list is empty unless the inventory gives one or the cluster
+is a provider-formed one of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or unset.
+The names are those of the baseline’s areas, which <a class="reference internal" href="../reference/variables.html#area-map"><span class="std std-ref">Inventory variables</span></a> maps to
+the variables each guards.
+Three of them name a part of an area, <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> and <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code>, which the sections
+below explain.</p>
+<p>The plugin checks that each name looks like an area name, and that a <code class="docutils literal notranslate"><span class="pre">cnq</span></code> entry with <code class="docutils literal notranslate"><span class="pre">terraform_provider</span></code> lists
+<code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>.
+It does not check a name against the baseline’s areas.
+A name the baseline does not know matches nothing in a baseline run, and <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> fails on it, because its
+<code class="docutils literal notranslate"><span class="pre">leave_out</span></code> accepts only the areas and parts it knows.
+A misspelt area therefore protects nothing, and a capture or a clone is where it shows.</p>
+</section>
+<section id="everything-that-is-not-listed-is-the-collection-s">
+<h2>Everything that is not listed is the collection’s<a class="headerlink" href="#everything-that-is-not-listed-is-the-collection-s" title="Link to this heading"></a></h2>
+<p>The list names what Terraform owns, and the collection treats every other area as its own.
+That includes the shares, exports, quotas, snapshot policies, the portal and the capacity clamp, which the provider’s
+default does not claim.
+The collection cannot tell which of them a root also manages through its own resources, so the default is the one
+thing that is always true of a provider-formed cluster of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or unset, the floating addresses, and the root’s
+author adds the rest.
+A root that manages monitoring, the networks or a share too would otherwise fight the baseline over the same objects,
+and its author lists that area.
+<a class="reference internal" href="../how-to/terraform.html#declare-the-areas-the-root-owns"><span class="std std-ref">Use a Terraform root’s output as the inventory</span></a> has the
+steps.</p>
+</section>
+<section id="why-a-declared-area-is-refused-not-skipped">
+<h2>Why a declared area is refused, not skipped<a class="headerlink" href="#why-a-declared-area-is-refused-not-skipped" title="Link to this heading"></a></h2>
+<p>When the inventory declares a variable that belongs to an owned area, the baseline fails at its ownership check, the
+second step, before any step writes.
+The message names each area and the variables that declare it.
+The run could skip the variable and carry on, and it does not, for two reasons.</p>
+<ul class="simple">
+<li><p><strong>The inventory would say what the cluster does not hold.</strong>
+A declared <code class="docutils literal notranslate"><span class="pre">qumulo_dns</span></code> that is silently ignored reads as a setting that applies.
+Someone who changes it, and sees a run succeed, believes the cluster follows.</p></li>
+<li><p><strong>A refusal leaves the cluster as it was.</strong>
+The check runs before step 3, the first step that writes, so a run that is going to refuse changes nothing.
+<a class="reference internal" href="refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a> explains why the collection refuses in preference to guessing.</p></li>
+</ul>
+<p>The message offers two ways out, and they are different decisions.
+Removing the variable leaves the area to Terraform.
+Removing the area from the list gives it to the collection, and the list does not make Terraform stop writing it.
+With the plugin the list is part of the Terraform output, beside the resources it describes, so a change that gives an
+area up belongs in the root, together with the change that stops Terraform setting it.</p>
+</section>
+<section id="the-floating-addresses-are-terraform-s-by-default-on-cnq">
+<h2>The floating addresses are Terraform’s by default on CNQ<a class="headerlink" href="#the-floating-addresses-are-terraform-s-by-default-on-cnq" title="Link to this heading"></a></h2>
+<p>On a CNQ cluster the provider applies the cluster’s floating addresses again every time it runs.
+A collection that wrote them there would be undone on the next apply, and the two would differ without either failing.
+The floating addresses are therefore Terraform’s on a provider-formed CNQ cluster, and three rules say so.</p>
+<ul class="simple">
+<li><p>The plugin refuses an entry with <code class="docutils literal notranslate"><span class="pre">cluster_kind:</span> <span class="pre">cnq</span></code> and <code class="docutils literal notranslate"><span class="pre">managed_by:</span> <span class="pre">terraform_provider</span></code> whose <code class="docutils literal notranslate"><span class="pre">owned_areas</span></code> does not
+list <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, and the baseline refuses a hand-written host with the same three facts. An edge or
+bare-metal entry may leave it out.</p></li>
+<li><p>Without a list in the inventory, the baseline defaults <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> to <code class="docutils literal notranslate"><span class="pre">[network.floating_ips]</span></code> for
+a provider-formed cluster whose <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> is <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or unset, and to nothing when it is <code class="docutils literal notranslate"><span class="pre">edge</span></code> or
+<code class="docutils literal notranslate"><span class="pre">baremetal</span></code>. An unset kind counts as <code class="docutils literal notranslate"><span class="pre">cnq</span></code>, the cautious reading.</p></li>
+<li><p>A list that the inventory gives rules. It is all that Terraform owns, an empty list included, and the network step
+manages the floating addresses unless the list names <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>.</p></li>
+</ul>
+<p>To the baseline, the kind matters to the default, and to the refusal of a provider-formed <code class="docutils literal notranslate"><span class="pre">cnq</span></code> list that leaves out the floating addresses.
+On an edge or bare-metal cluster the provider forms the cluster but does not apply the floating addresses again, so the
+collection may manage them there.
+The Terraform output’s <code class="docutils literal notranslate"><span class="pre">owned_areas</span></code> states what Terraform owns, so the baseline follows a list the inventory gives,
+and <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code> does not override it.
+A host that sets <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas:</span> <span class="pre">[dns.fqdn]</span></code> to add a part therefore hands the floating addresses to the
+baseline, and lists <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> as well to keep them with Terraform; a provider-formed <code class="docutils literal notranslate"><span class="pre">cnq</span></code> host must list
+it.
+<code class="docutils literal notranslate"><span class="pre">network_config</span></code> takes no kind: told <code class="docutils literal notranslate"><span class="pre">managed_by:</span> <span class="pre">terraform_provider</span></code>, it refuses the floating addresses unless
+<code class="docutils literal notranslate"><span class="pre">take_over_from_terraform</span></code> is set, so the network step sets it for the module when the list leaves them out.
+Capture and clone read the same list as the baseline, with the same default.</p>
+<p>The address is a part of the <code class="docutils literal notranslate"><span class="pre">network</span></code> area, not the whole of it.
+With <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> owned, <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> may still declare the networks and the interfaces.
+The step keeps the floating address ranges the cluster holds, and a <code class="docutils literal notranslate"><span class="pre">floating_ip_ranges</span></code> in the declaration fails
+before any request, because that part is not one the step manages.
+A root that also configures the networks lists <code class="docutils literal notranslate"><span class="pre">network</span></code>, and then any <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> is refused.</p>
+</section>
+<section id="parts-of-an-area-dns-fqdn-and-audit-cloudwatch">
+<h2>Parts of an area: <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> and <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code><a class="headerlink" href="#parts-of-an-area-dns-fqdn-and-audit-cloudwatch" title="Link to this heading"></a></h2>
+<p>An area is the collection’s unit of ownership, but the provider can write only a slice of one.
+Two more parts are named for the same reason, because giving away the whole area would give away settings that Terraform does not
+write.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code></strong> is the authoritative DNS server’s name and whether it answers, that is, <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> of
+<code class="docutils literal notranslate"><span class="pre">qumulo_authoritative_dns</span></code>.
+When the root sets the provider’s <code class="docutils literal notranslate"><span class="pre">cluster_fqdn</span></code>, the provider applies both again every time it runs.
+It writes nothing else of the server’s settings, so <code class="docutils literal notranslate"><span class="pre">host_restrictions</span></code> and <code class="docutils literal notranslate"><span class="pre">record_ttl_seconds</span></code> stay the collection’s.
+Listing <code class="docutils literal notranslate"><span class="pre">dns</span></code> instead would hand over those two as well, and all of <code class="docutils literal notranslate"><span class="pre">qumulo_dns</span></code> with them: the DNS servers, search
+domains and lookup overrides.
+Unlike the floating addresses, <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> is never owned by default, since only the roots that set <code class="docutils literal notranslate"><span class="pre">cluster_fqdn</span></code> write
+it.
+Once a name is set the cluster cannot clear it (G-DNS-FQDN-CLEAR in the <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gap register</span></a>).
+A name Terraform set therefore stays, and <code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> refuses an inventory’s empty <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> with a message that
+points at listing <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code>.
+<code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> refuses <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> when its <code class="docutils literal notranslate"><span class="pre">terraform_owned_areas</span></code> lists <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code>, before it sends a
+request.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code></strong> is the CloudWatch destinations of <code class="docutils literal notranslate"><span class="pre">qumulo_audit_destinations</span></code>, which the provider can set on a
+cluster in AWS.
+Syslog and local destinations stay the collection’s.
+Listing <code class="docutils literal notranslate"><span class="pre">audit</span></code> gives all the destinations to Terraform.
+A destination that the list leaves out is left alone in any case, so leaving the CloudWatch destination out of the
+inventory is how the collection stays out of it.</p>
+<p>The check for these two sits at two levels, and they differ on purpose.</p>
+<ul class="simple">
+<li><p>The baseline’s check compares declarations.
+It refuses a declared entry of type <code class="docutils literal notranslate"><span class="pre">CLOUDWATCH</span></code> while <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> is owned, and any entry while <code class="docutils literal notranslate"><span class="pre">audit</span></code> is
+owned, even an entry that would change nothing.
+It runs at step 2, before the network, DNS and the other steps that come ahead of the audit step write anything.
+An entry without a <code class="docutils literal notranslate"><span class="pre">type</span></code> is left to the module, since the declaration alone does not say which type it names.</p></li>
+<li><p>The module’s check compares effects.
+<code class="docutils literal notranslate"><span class="pre">audit_destination</span></code> refuses a task that would create, change or delete a CloudWatch destination, or change a
+destination to or from that type, while <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> is owned, and any write while <code class="docutils literal notranslate"><span class="pre">audit</span></code> is owned.
+A task that would change nothing passes, and so does <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> for a destination that does not exist.
+It refuses in check mode too, before any write.</p></li>
+</ul>
+<p>A module called on its own has no inventory to read.
+Its <code class="docutils literal notranslate"><span class="pre">terraform_owned_areas</span></code> defaults to an empty list, so it refuses nothing until the task passes the host’s list, as
+the baseline passes its own, default included.</p>
+</section>
+<section id="what-a-take-over-hands-back">
+<h2>What a take-over hands back<a class="headerlink" href="#what-a-take-over-hands-back" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_take_over_from_terraform:</span> <span class="pre">true</span></code> hands the collection what the provider writes, for one inventory or one run.
+It covers four things: the floating addresses, <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code>, <code class="docutils literal notranslate"><span class="pre">audit</span></code> and <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code>.
+It covers no other area.
+Giving the collection <code class="docutils literal notranslate"><span class="pre">network</span></code>, <code class="docutils literal notranslate"><span class="pre">dns</span></code>, <code class="docutils literal notranslate"><span class="pre">monitoring</span></code> or any other area means taking it off the list, and the flag does
+not do that.</p>
+<p>The flag is one flag for every hand-over, so a take-over of the audit destinations hands back the floating addresses
+too, and the refusals for <code class="docutils literal notranslate"><span class="pre">audit</span></code> and <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> say so.
+The list stays as the output wrote it.
+The cluster is still described as Terraform’s, and the collection manages these settings anyway.</p>
+<p>The take-over is explicit because it has a cost that the inventory cannot see.
+If the Terraform root still sets these settings, its next apply writes its own values again, and the collection’s next
+run writes the inventory’s back.
+The flag says that the person running the playbook has weighed that, and a variable that is declared is not enough to
+say so.
+The same flag reaches <code class="docutils literal notranslate"><span class="pre">network_config</span></code>, <code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> and <code class="docutils literal notranslate"><span class="pre">audit_destination</span></code> as <code class="docutils literal notranslate"><span class="pre">take_over_from_terraform</span></code>, which
+defaults to <code class="docutils literal notranslate"><span class="pre">false</span></code> in each.</p>
+</section>
+<section id="adoption-and-cloning-leave-the-owned-areas-out">
+<h2>Adoption and cloning leave the owned areas out<a class="headerlink" href="#adoption-and-cloning-leave-the-owned-areas-out" title="Link to this heading"></a></h2>
+<p>A capture writes the variables the baseline would read, so a capture of an owned area would write a file that the
+baseline then refuses.
+The capture playbook therefore passes the owned areas to <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> as <code class="docutils literal notranslate"><span class="pre">leave_out</span></code>, and the file notes each area
+that was left out.
+With <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> owned, the network document is written without its floating address ranges.
+With <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> owned, the authoritative DNS settings are written without <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">fqdn</span></code>.
+With <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> owned, the audit destinations are written without the CloudWatch ones.
+<a class="reference internal" href="../reference/capture-and-clone.html#areas-terraform-owns"><span class="std std-ref">What capture and clone read and write</span></a> lists them.</p>
+<p>A host from the plugin is adopted for the settings Terraform does not hold, and adoption leaves out every variable the
+plugin defines.
+A <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file outranks the plugin’s variables, so a copy of the UUID, the ownership or the addresses in it would
+pin values the plugin refreshes from the output on each run.
+For the same reason adoption writes <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by:</span> <span class="pre">none</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas:</span> <span class="pre">[]</span></code> only when the
+inventory defines neither.
+A hand-written <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by:</span> <span class="pre">terraform_provider</span></code> therefore keeps its derived list, which follows the host’s
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>.
+<a class="reference internal" href="../how-to/adopt-a-cluster.html#adopt-a-host-from-the-terraform-inventory-plugin"><span class="std std-ref">Adopt a cluster you already run</span></a> has the
+steps.</p>
+<p>A clone reads the same way, with the target’s list.
+It does not copy the source’s <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code>, since they say what formed the
+source, and the target’s inventory says the same of the target.
+It leaves out the source’s network document, the authoritative DNS name and whether it answers, and the CloudWatch
+destinations, because each holds a fact that is the source’s own.
+Terraform or you declare the target’s.
+<a class="reference internal" href="../how-to/clone-edge.html"><span class="std std-doc">Clone an edge’s configuration onto a new edge</span></a> has the steps.</p>
+</section>
+<section id="tenants-and-the-network-document">
+<h2>Tenants and the network document<a class="headerlink" href="#tenants-and-the-network-document" title="Link to this heading"></a></h2>
+<p>Qumulo marks the multitenancy REST API as preview in Qumulo Core 7.10.3 and 7.11.0. The collection manages tenants
+through it on those releases, and a later Qumulo Core release may change it.</p>
+<p>A tenant’s networks are part of the network document, so the ownership check reads the keys inside <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> as it
+reads the variables outside it.
+A tenant’s <code class="docutils literal notranslate"><span class="pre">networks</span></code> is in the area <code class="docutils literal notranslate"><span class="pre">network</span></code>, and the <code class="docutils literal notranslate"><span class="pre">floating_ip_ranges</span></code> of those networks are in
+<code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>.
+A tenant’s SMB settings and shares are in <code class="docutils literal notranslate"><span class="pre">smb</span></code>, and its NFS settings and exports are in <code class="docutils literal notranslate"><span class="pre">nfs</span></code>, as well as in <code class="docutils literal notranslate"><span class="pre">tenants</span></code>,
+so a tenant-scoped share is refused while either area is Terraform’s.
+A flat share or export that names its tenants, with <code class="docutils literal notranslate"><span class="pre">tenants</span></code> or the deprecated <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code>, is in <code class="docutils literal notranslate"><span class="pre">tenants</span></code> as well as
+<code class="docutils literal notranslate"><span class="pre">smb</span></code> or <code class="docutils literal notranslate"><span class="pre">nfs</span></code>, and one that names none is in <code class="docutils literal notranslate"><span class="pre">smb</span></code> or <code class="docutils literal notranslate"><span class="pre">nfs</span></code> alone.
+A flat network’s <code class="docutils literal notranslate"><span class="pre">tenant</span></code> is in no extra area, because capture writes it when <code class="docutils literal notranslate"><span class="pre">tenants</span></code> is among the areas Terraform
+owns, and refusing it would refuse capture’s own output.
+<a class="reference internal" href="../reference/variables.html#area-map"><span class="std std-ref">Inventory variables</span></a> lists the matchers.</p>
+<p>The take-over flag lifts only what it lifts elsewhere: the dotted parts and <code class="docutils literal notranslate"><span class="pre">audit</span></code>.
+It hands back a tenant network’s floating ranges while <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> is Terraform’s, and it does not hand back a
+tenant’s <code class="docutils literal notranslate"><span class="pre">networks</span></code> while <code class="docutils literal notranslate"><span class="pre">network</span></code> is Terraform’s.
+The reason is that lifting it would let the baseline write a network document that Terraform owns, every network of it.</p>
+<p>A Terraform apply that sends the networks without their tenants is the one other writer this page has to name.
+With one tenant such an apply leaves each network in that tenant.
+With two or more, the network write puts a network that carries no tenant in no tenant, where it serves no client
+(<a class="reference internal" href="multitenancy.html#why-the-network-document-holds-every-binding"><span class="std std-ref">Why the network document holds every binding</span></a>).
+The baseline therefore warns, when the owned list holds <code class="docutils literal notranslate"><span class="pre">network</span></code> or <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> and the cluster has two or
+more tenants once the run is done, that an apply that omits the tenants unbinds the networks.
+The owned list is the one the inventory gives, as the Terraform output does, and with none it is the default for the
+cluster’s kind (<a class="reference internal" href="#the-floating-addresses-are-terraform-s-by-default-on-cnq">The floating addresses are Terraform’s by default on CNQ</a>).
+A provider-formed <code class="docutils literal notranslate"><span class="pre">edge</span></code> or <code class="docutils literal notranslate"><span class="pre">baremetal</span></code> cluster with no list owns nothing, so it is warned only when its output lists
+<code class="docutils literal notranslate"><span class="pre">network</span></code> or <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, and the baseline writes its whole network document, tenants’ networks included.
+A provider-formed cluster with no list and no kind reads as <code class="docutils literal notranslate"><span class="pre">cnq</span></code>, so it is warned at two tenants.
+The next baseline run binds again each network the inventory lists under a tenant.</p>
+</section>
+<section id="what-the-collection-does-not-do">
+<h2>What the collection does not do<a class="headerlink" href="#what-the-collection-does-not-do" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>It does not read Terraform’s state or its configuration, so it cannot tell that a list is incomplete.</p></li>
+<li><p>It does not change Terraform’s resources.
+The plugin runs <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span></code> or reads a file saved from it, and neither writes.
+No role applies Terraform.
+An <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> run reads the inventory again after reinstall tasks you supply, which may apply Terraform so that
+the new edge’s UUID reaches the output.
+<a class="reference internal" href="../how-to/edge-rebuild.html#a-terraform-formed-edge"><span class="std std-ref">Rebuild an unprotected edge</span></a> has that case.</p></li>
+<li><p>It does not decide between the two tools when both write a setting.
+The ownership check refuses a declared area, and a setting that Terraform writes and the inventory does not declare is
+not seen at all.</p></li>
+<li><p>It does not manage the addresses in front of a cluster.
+The portal and replication addresses come from the output, and the collection derives none of them
+(<a class="reference internal" href="edges-and-portals.html"><span class="std std-doc">Edges and portals</span></a> explains why).</p></li>
+</ul>
+</section>
+<section id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a>: publish the output and declare the areas the
+root owns.</p></li>
+<li><p><a class="reference internal" href="../how-to/adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a>: adopt a host from the plugin.</p></li>
+<li><p><a class="reference internal" href="../how-to/clone-edge.html"><span class="std std-doc">Clone an edge’s configuration onto a new edge</span></a>: clone onto a Terraform-formed edge.</p></li>
+<li><p><a class="reference internal" href="../how-to/inventory-recipes.html#send-the-audit-log-to-syslog"><span class="std std-ref">Declare common settings in the inventory</span></a>: the audit
+destinations beside a CloudWatch destination Terraform owns.</p></li>
+<li><p><a class="reference internal" href="../reference/capture-and-clone.html"><span class="std std-doc">What capture and clone read and write</span></a>: what each leaves out for Terraform.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html#ownership"><span class="std std-ref">Inventory variables</span></a>: the two variables, the take-over flag and the area map.</p></li>
+<li><p><a class="reference internal" href="../reference/terraform-inventory.html"><span class="std std-doc">The Terraform inventory plugin</span></a>: the output’s fields and the variables and
+groups it produces.</p></li>
+<li><p><a class="reference internal" href="refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a>: why the baseline refuses an owned area instead of skipping it.</p></li>
+<li><p><a class="reference internal" href="multitenancy.html"><span class="std std-doc">Tenants and the continuity rule</span></a>: why a network write carries every network’s tenant.</p></li>
+<li><p><a class="reference internal" href="state-management.html"><span class="std std-doc">State management</span></a>: how a declaration in the inventory becomes a change.</p></li>
+<li><p><a class="reference internal" href="architecture.html#the-order-of-areas"><span class="std std-ref">Architecture of the collection</span></a>: where the ownership check sits among the
+baseline’s steps.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="upgrades.html" class="btn btn-neutral float-left" title="How upgrades work" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="multitenancy.html" class="btn btn-neutral float-right" title="Tenants and the continuity rule" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

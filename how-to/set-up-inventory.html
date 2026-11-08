@@ -1,0 +1,497 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Set up an inventory for your clusters &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Keep secrets out of the inventory" href="store-secrets.html" />
+    <link rel="prev" title="Install and pin the collection" href="install-the-collection.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Set up an inventory for your clusters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#copy-the-example-inventory">Copy the example inventory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connect-the-hosts">Connect the hosts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-the-connection">Check the connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#start-from-one-cluster-and-no-example">Start from one cluster and no example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#use-an-access-token">Use an access token</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#add-a-hub-you-formed-yourself">Add a hub you formed yourself</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#read-the-clusters-from-a-terraform-root">Read the clusters from a Terraform root</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-the-uuid-of-a-rebuilt-edge">Update the UUID of a rebuilt edge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Set up an inventory for your clusters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="set-up-an-inventory-for-your-clusters">
+<h1>Set up an inventory for your clusters<a class="headerlink" href="#set-up-an-inventory-for-your-clusters" title="Link to this heading"></a></h1>
+<p>This page lays out an inventory directory for hubs and edges, gives every host its connection, and checks with a
+read-only run that the modules reach each cluster.
+When you finish, <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">-i</span> <span class="pre">inventory</span></code> can log in to every cluster you listed, and nothing has changed on
+any of them.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Install the collection: <a class="reference internal" href="install-the-collection.html"><span class="std std-doc">Install and pin the collection</span></a>.</p></li>
+<li><p>For each cluster, have its address, the port its REST API answers on (8000 unless you changed it) and the password
+of its <code class="docutils literal notranslate"><span class="pre">admin</span></code> user.</p></li>
+<li><p>Have the certificate of the CA that signed each cluster’s TLS certificate.
+A cluster that still serves its factory certificate cannot be verified yet (G-FACTORY-TLS, see
+<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).
+Set up its inventory with these steps, read its UUID with <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-k</span></code> in step 3, and skip “Check the connection” for it.
+Then follow <a class="reference internal" href="manage-certificates.html#replace-the-factory-certificate"><span class="std std-ref">Replace the factory certificate</span></a>, which installs
+the certificate in a run of its own, with verification off for that run, before you apply the baseline.</p></li>
+<li><p>Check that the controller reaches each cluster over HTTPS.</p></li>
+</ul>
+</section>
+<section id="copy-the-example-inventory">
+<h2>Copy the example inventory<a class="headerlink" href="#copy-the-example-inventory" title="Link to this heading"></a></h2>
+<p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/tree/main/examples/inventory"><code class="docutils literal notranslate"><span class="pre">examples/inventory/</span></code></a> is a complete inventory for one hub and one edge, with a comment on
+every variable.
+An installed collection carries it in <code class="docutils literal notranslate"><span class="pre">qumulo/cluster/examples/inventory</span></code>, under the directory that
+<code class="docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span> <span class="pre">qumulo.cluster</span></code> prints on its <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">...ansible_collections</span></code> line.</p>
+<ol class="arabic">
+<li><p>Make a project directory and copy the example into it as <code class="docutils literal notranslate"><span class="pre">inventory/</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>project/files
+cp<span class="w"> </span>-r<span class="w"> </span>&lt;path<span class="w"> </span>that<span class="w"> </span>ansible-galaxy<span class="w"> </span>prints&gt;/qumulo/cluster/examples/inventory<span class="w"> </span>project/inventory
+<span class="nb">cd</span><span class="w"> </span>project
+</pre></div>
+</div>
+<p>The result looks like this.
+<code class="docutils literal notranslate"><span class="pre">files/</span></code> holds what is not inventory and is yours to create:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>project/
+  files/                      certificates you add; outside the inventory directory
+    qumulo-ca.pem
+    edge01-chain.pem
+  inventory/
+    hosts.yml                 the hosts, their addresses and UUIDs
+    group_vars/
+      qumulo_clusters.yml     the connection, and what every cluster shares
+      qumulo_edges.yml        what every edge shares
+      qumulo_hubs.yml         what every hub shares
+    host_vars/
+      edge01.yml              what one edge holds
+      hub01.yml               what one hub holds
+</pre></div>
+</div>
+<p>Keep certificates, captures, rebuild records and every other file that is not inventory outside <code class="docutils literal notranslate"><span class="pre">inventory/</span></code>.
+Given a directory, Ansible tries to read every file in it as an inventory.</p>
+</li>
+<li><p>Put the CA that signed your clusters’ certificates in <code class="docutils literal notranslate"><span class="pre">files/qumulo-ca.pem</span></code>.
+To keep it elsewhere, set <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> in <code class="docutils literal notranslate"><span class="pre">inventory/group_vars/qumulo_clusters.yml</span></code> to its path.
+The example ships no certificates.
+<code class="docutils literal notranslate"><span class="pre">host_vars/edge01.yml</span></code> also reads <code class="docutils literal notranslate"><span class="pre">files/edge01-chain.pem</span></code> for the certificate the baseline installs on that edge.
+Provide that file, or delete <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code> from the host’s file.</p></li>
+<li><p>Read each cluster’s UUID.
+<code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code> reports it as <code class="docutils literal notranslate"><span class="pre">cluster_id</span></code> and needs no login.
+<code class="docutils literal notranslate"><span class="pre">--cacert</span></code> checks the cluster’s certificate against your CA:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>--cacert<span class="w"> </span>files/qumulo-ca.pem<span class="w"> </span>https://10.0.0.10:8000/v1/node/state
+</pre></div>
+</div>
+<p>For a cluster that still serves its factory certificate, <code class="docutils literal notranslate"><span class="pre">--cacert</span></code> fails.
+Use <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-k</span></code> for this one read, which skips the check, and do not send a password with it.</p>
+</li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">inventory/hosts.yml</span></code>, replace each host’s <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> with your clusters’.
+Rename the hosts to your own names, and rename their <code class="docutils literal notranslate"><span class="pre">host_vars/</span></code> files to match.
+A cluster that does not answer on port 8000 also needs <code class="docutils literal notranslate"><span class="pre">qumulo_api_port</span></code> on its host.
+Each host sits under the group for its kind:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/hosts.yml</span>
+<span class="nt">all</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">children</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">qumulo_clusters</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">children</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">qumulo_hubs</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">hub01</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">qumulo_api_host</span><span class="p">:</span><span class="w"> </span><span class="nv">10.0.0.10</span><span class="p p-Indicator">,</span><span class="nt"> qumulo_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="nv">aaa55f64-ed03-4d6d-a600-6889d7b20ee5</span><span class="p p-Indicator">}</span>
+<span class="w">        </span><span class="nt">qumulo_edges</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">edge01</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">qumulo_api_host</span><span class="p">:</span><span class="w"> </span><span class="nv">10.20.0.5</span><span class="p p-Indicator">,</span><span class="nt"> qumulo_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="nv">cbb6f13a-d92f-4dfb-a7f0-d0a6785da65d</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<p>Put each edge under <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code> and each hub under <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code>.
+Add a cluster by adding a host under its group, with a <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file of the same name.
+The edge rebuild finds each portal’s hub in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code> by its <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, so list every hub there
+(<a class="reference internal" href="pair-edge-with-hub.html"><span class="std std-doc">Pair an edge with its hub through a portal</span></a>).
+<a class="reference internal" href="../reference/variables.html#groups"><span class="std std-ref">Inventory variables</span></a> says which playbook reads each group.</p>
+<p>In each <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file, set <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code> to the cluster’s current name, or delete it.
+Otherwise the baseline renames the cluster to the example’s name.
+When you rename a hub, change the host names that refer to it in the edges’ files: <code class="docutils literal notranslate"><span class="pre">qumulo_portal.hub</span></code> and each
+replication <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
+<p>For a cluster you will <a class="reference internal" href="adopt-a-cluster.html"><span class="std std-doc">adopt</span></a>, delete its <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file instead, and take its password from
+the environment as in <a class="reference internal" href="#start-from-one-cluster-and-no-example">Start from one cluster and no example</a>.
+Adoption writes the file.</p>
+</li>
+<li><p>Replace the example’s secrets.
+They are placeholders, encrypted with the vault password <code class="docutils literal notranslate"><span class="pre">example</span></code>.
+Each host’s admin password is in <code class="docutils literal notranslate"><span class="pre">host_vars/&lt;host&gt;.yml</span></code>, edge01’s certificate key, its local user’s password and its
+license document are there too, and the Active Directory join password is in <code class="docutils literal notranslate"><span class="pre">group_vars/qumulo_clusters.yml</span></code>.
+<a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a> shows how to make each, including the option of reading a
+password from the environment.
+<a class="reference internal" href="store-secrets.html#encrypt-a-license-document"><span class="std std-ref">Encrypt a license document</span></a> covers the license document.</p></li>
+<li><p>Delete every variable for an area you do not want to manage yet.
+An unset variable leaves its area alone, so an inventory can declare only DNS and time and grow from there.
+The areas and their variables are in <a class="reference internal" href="../reference/variables.html#areas"><span class="std std-ref">Inventory variables</span></a>.</p></li>
+</ol>
+</section>
+<section id="connect-the-hosts">
+<h2>Connect the hosts<a class="headerlink" href="#connect-the-hosts" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">inventory/group_vars/qumulo_clusters.yml</span></code> in the example already holds the connection.
+The hosts are REST endpoints, so the modules run on the controller
+(<a class="reference internal" href="../explanation/architecture.html"><span class="std std-doc">Architecture</span></a>).
+Every playbook in the collection hands these variables to every module with <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> for
+<code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code>.</p>
+<ol class="arabic">
+<li><p>Check that the group file has these lines, or write them:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">ansible_connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="nt">ansible_python_interpreter</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">ansible_playbook_python</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="nt">qumulo_api_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8000</span>
+<span class="nt">qumulo_api_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="nt">qumulo_api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_qumulo_api_password</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="nt">qumulo_validate_certs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../files/qumulo-ca.pem"</span>
+</pre></div>
+</div>
+<p>Each host’s own <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file can set any of these for that host, and outranks the group.
+The table of connection variables, with each module option and default, is in
+<a class="reference internal" href="../reference/variables.html#connection"><span class="std std-ref">Inventory variables</span></a>.</p>
+</li>
+<li><p>Set exactly one of <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_api_token</span></code> for each host.</p></li>
+<li><p>Keep <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> set on every host.
+A module reads the cluster’s UUID before it sends a password and fails when it is not that value; without one the
+check is off and the modules warn (<a class="reference internal" href="../explanation/authentication.html#the-identity-guard"><span class="std std-ref">the identity guard</span></a>).</p></li>
+<li><p>Set connection variables in the inventory, never with <code class="docutils literal notranslate"><span class="pre">-e</span></code>: an extra variable outranks the facts the certificate
+step sets during a run, and reaches the connection to a hub too, not only the cluster the play runs on.
+Do not pass <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> or another connection variable with <code class="docutils literal notranslate"><span class="pre">-e</span></code>.</p></li>
+</ol>
+<p>Give Ansible the inventory directory, <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">inventory</span></code>, not <code class="docutils literal notranslate"><span class="pre">hosts.yml</span></code>, so that it also reads <code class="docutils literal notranslate"><span class="pre">group_vars/</span></code> and
+<code class="docutils literal notranslate"><span class="pre">host_vars/</span></code> beside the hosts file.</p>
+</section>
+<section id="check-the-connection">
+<h2>Check the connection<a class="headerlink" href="#check-the-connection" title="Link to this heading"></a></h2>
+<p>Save this as <code class="docutils literal notranslate"><span class="pre">first-run.yml</span></code> in the project directory.
+It reads each cluster and changes nothing.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read each cluster, changing nothing</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the cluster's identity, version, license and capacity</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.cluster_info</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">first_run</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show what it read</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">          </span><span class="no">{{ first_run.cluster.cluster_name }} is {{ first_run.cluster.cluster_id }},</span>
+<span class="w">          </span><span class="no">Qumulo Core {{ first_run.cluster.version }}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> block is the header every playbook of the collection starts with.
+It is copied from <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/baseline.yml"><code class="docutils literal notranslate"><span class="pre">playbooks/baseline.yml</span></code></a>.
+Copy it into any playbook of your own.</p>
+<p>Run it, adding <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> or <code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> when the inventory holds vault values:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>first-run.yml<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>Verify the result: each host reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, and the debug task prints its cluster’s name, UUID and version.
+If a host fails, its message says what to fix.
+<a class="reference internal" href="../reference/troubleshooting.html#connecting"><span class="std std-ref">Troubleshooting</span></a> lists the connection messages and what each means.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="start-from-one-cluster-and-no-example">
+<h3>Start from one cluster and no example<a class="headerlink" href="#start-from-one-cluster-and-no-example" title="Link to this heading"></a></h3>
+<p>Make <code class="docutils literal notranslate"><span class="pre">inventory/hosts.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">inventory/group_vars/qumulo_clusters.yml</span></code> by hand, with the layout above and only the
+lines you need.
+Every cluster the collection manages is a host in the <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code> group:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/hosts.yml</span>
+<span class="nt">all</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">children</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">qumulo_clusters</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">hosts</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cluster01</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">qumulo_api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.10</span>
+<span class="w">          </span><span class="nt">qumulo_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6f1c2c1e-5c3a-4c56-9d2e-3f8c1b0a7e11</span>
+</pre></div>
+</div>
+<p>In <code class="docutils literal notranslate"><span class="pre">group_vars/qumulo_clusters.yml</span></code>, take the password from the environment so that it is never written down:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">ansible_connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="nt">ansible_python_interpreter</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">ansible_playbook_python</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="nt">qumulo_api_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="nt">qumulo_api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">lookup('ansible.builtin.env',</span><span class="nv"> </span><span class="s">'QUMULO_PASSWORD_'</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">inventory_hostname</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">upper)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="nt">qumulo_validate_certs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../files/qumulo-ca.pem"</span>
+</pre></div>
+</div>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">read</span><span class="w"> </span>-rs<span class="w"> </span>QUMULO_PASSWORD_CLUSTER01<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">export</span><span class="w"> </span>QUMULO_PASSWORD_CLUSTER01
+</pre></div>
+</div>
+<p>Keep the password in the environment until you have <a class="reference internal" href="adopt-a-cluster.html"><span class="std std-doc">adopted the cluster</span></a>.
+Adoption writes <code class="docutils literal notranslate"><span class="pre">host_vars/cluster01.yml</span></code> and fails instead of replacing a file that already exists.
+Afterwards, move the password into the project, encrypted (<a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>).</p>
+</section>
+<section id="use-an-access-token">
+<h3>Use an access token<a class="headerlink" href="#use-an-access-token" title="Link to this heading"></a></h3>
+<p>Encrypt the token as <code class="docutils literal notranslate"><span class="pre">vault_qumulo_api_token</span></code> in the host’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file
+(<a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>).
+Then set <code class="docutils literal notranslate"><span class="pre">qumulo_api_token:</span> <span class="pre">&quot;{{</span> <span class="pre">vault_qumulo_api_token</span> <span class="pre">}}&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_api_password:</span> <span class="pre">&quot;&quot;</span></code> on that host, or move the
+password line out of <code class="docutils literal notranslate"><span class="pre">group_vars</span></code> if no cluster uses one.
+The client refuses a host that has both set.
+A token is bound to one cluster and dies with it in a rebuild (G-TOKEN, see <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>), so a
+password is the safer choice for an edge.
+<a class="reference internal" href="../explanation/authentication.html"><span class="std std-doc">Authentication</span></a> explains the trade-off.
+To replace the token with a new one and keep the play connected, see
+<a class="reference internal" href="rotate-access-token.html"><span class="std std-doc">Rotate the access token a host connects with</span></a>.</p>
+</section>
+<section id="add-a-hub-you-formed-yourself">
+<h3>Add a hub you formed yourself<a class="headerlink" href="#add-a-hub-you-formed-yourself" title="Link to this heading"></a></h3>
+<p>The example’s <code class="docutils literal notranslate"><span class="pre">hub01</span></code> is a Cloud Native Qumulo cluster that the Terraform provider formed, and its group file says so.
+For a hub formed any other way, set these in <code class="docutils literal notranslate"><span class="pre">inventory/group_vars/qumulo_hubs.yml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_managed_by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<span class="nt">qumulo_terraform_owned_areas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+</pre></div>
+</div>
+<p>Then give the network’s real type in <code class="docutils literal notranslate"><span class="pre">host_vars/hub01.yml</span></code>, or delete <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> there.
+If your hubs are of both kinds, set the two variables in each hub’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file instead of the group file.</p>
+</section>
+<section id="read-the-clusters-from-a-terraform-root">
+<h3>Read the clusters from a Terraform root<a class="headerlink" href="#read-the-clusters-from-a-terraform-root" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.terraform</span></code> inventory plugin sets <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> for each host from the
+root’s output, and puts each host in a group for its kind (<code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_cnq</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_baremetal</span></code>) and a
+<code class="docutils literal notranslate"><span class="pre">qumulo_managed_by_&lt;value&gt;</span></code> group, all under <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>.
+It never puts a host in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code>: add hubs with the plugin’s <code class="docutils literal notranslate"><span class="pre">groups</span></code> option or a static inventory file
+(<a class="reference internal" href="terraform.html#put-a-host-in-qumulo-hubs"><span class="std std-ref">Put a host in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code></span></a>).
+<a class="reference internal" href="terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> has the setup.</p>
+</section>
+<section id="update-the-uuid-of-a-rebuilt-edge">
+<h3>Update the UUID of a rebuilt edge<a class="headerlink" href="#update-the-uuid-of-a-rebuilt-edge" title="Link to this heading"></a></h3>
+<p>A rebuilt edge has a new UUID.
+Apply the <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> patch the rebuild report gives, in <code class="docutils literal notranslate"><span class="pre">hosts.yml</span></code> or in <code class="docutils literal notranslate"><span class="pre">host_vars/&lt;host&gt;.yml</span></code>
+(<a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>).</p>
+</section>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a> captures what a cluster holds into <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>.</p></li>
+<li><p><a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a> covers the vault forms and lookups.</p></li>
+<li><p><a class="reference internal" href="inventory-recipes.html"><span class="std std-doc">Declare common settings in the inventory</span></a> has a recipe for each area.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Inventory variables</span></a> lists every variable, its precedence and its owner.</p></li>
+<li><p><a class="reference internal" href="../explanation/authentication.html"><span class="std std-doc">Authentication</span></a> explains the UUID check and TLS.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="install-the-collection.html" class="btn btn-neutral float-left" title="Install and pin the collection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="store-secrets.html" class="btn btn-neutral float-right" title="Keep secrets out of the inventory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

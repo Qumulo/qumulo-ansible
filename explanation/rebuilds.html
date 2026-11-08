@@ -1,0 +1,889 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rebuilds &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Replication" href="replication.html" />
+    <link rel="prev" title="Licensing and capacity" href="licensing-and-capacity.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rebuilds</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#rebuild-clone-and-resize">Rebuild, clone and resize</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-formation-makes-a-new-cluster">A formation makes a new cluster</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-the-inventory-learns-the-new-uuid">How the inventory learns the new UUID</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-replay-model-the-inventory-never-the-edge">The replay model: the inventory, never the edge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-preflight">The preflight</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-network-sent-with-no-tenant">A network sent with no tenant</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-cannot-be-replayed">What cannot be replayed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#what-survives-the-drain">What survives: the drain</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-first-pass-runs-on-a-floor">The first pass runs on a floor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-guard-on-the-new-edge">The guard on the new edge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#terraform-forms-the-new-edge">Terraform forms the new edge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#a-computer-account-that-outlives-the-edge">A computer account that outlives the edge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-a-rebuild-does-to-replication">What a rebuild does to replication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-the-order-is-what-it-is">Why the order is what it is</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-the-report-hands-off">What the report hands off</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-the-records-persist">Why the records persist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-more">Learn more</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Rebuilds</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="rebuilds">
+<h1>Rebuilds<a class="headerlink" href="#rebuilds" title="Link to this heading"></a></h1>
+<p>A rebuild replaces an unprotected edge with a newly formed one that has the same name and the same inventory entry.
+It is not a repair of the old edge: the <a class="reference internal" href="../collections/qumulo/cluster/edge_rebuild_role.html"><span class="std std-doc">edge_rebuild</span></a> role drains the old edge, which is then
+destroyed and formed again, and the new edge is configured from the inventory.
+This page explains why a rebuild is a replay of the inventory and not a copy of the edge, what a formation takes with it,
+why the role checks and refuses as much as it does, and why it ends with a list of things for a person to do.</p>
+<p>To rebuild an edge, see <a class="reference internal" href="../how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>.
+The variables, files and report fields are in <a class="reference internal" href="../reference/playbooks-and-roles.html"><span class="std std-doc">Playbooks and roles</span></a>, and the
+message texts are under <a class="reference internal" href="../reference/troubleshooting.html#rebuilds"><span class="std std-ref">Rebuilds</span></a> in the troubleshooting reference.</p>
+<section id="rebuild-clone-and-resize">
+<h2>Rebuild, clone and resize<a class="headerlink" href="#rebuild-clone-and-resize" title="Link to this heading"></a></h2>
+<p>Three operations can look alike, and each answers a different need.</p>
+<ul class="simple">
+<li><p>A rebuild replaces an edge that you keep running under the same name.
+It is needed when the cache has to shrink, because provisioned capacity never shrinks (G-CLAMP-SHRINK), when the edge
+needs a new platform, or when it needs a larger disk, because once the edge is formed its disk cannot be resized and
+no disk can be added.</p></li>
+<li><p>A <a class="reference internal" href="../how-to/clone-edge.html"><span class="std std-doc">clone</span></a> adds a second edge beside one you run.
+It is a separate cluster with a name and a UUID of its own, and it never claims to be the source: the source’s UUID is
+never copied, nor are the UUIDs the source took over in a rebuild.
+It copies configuration only, no data.</p></li>
+<li><p>A <a class="reference internal" href="../how-to/edge-sizing.html"><span class="std std-doc">resize</span></a> raises the capacity clamp within the disk the edge already has, and forms
+nothing.
+A resize that would shrink the cache is a rebuild, and the <code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code> role can start one.
+<a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> explains why the clamp is the lever and why an edge starts with a
+small one.</p></li>
+</ul>
+<p>The rest of this page is about the first of the three.</p>
+</section>
+<section id="a-formation-makes-a-new-cluster">
+<h2>A formation makes a new cluster<a class="headerlink" href="#a-formation-makes-a-new-cluster" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../collections/qumulo/cluster/unprotected_edge_create_module.html"><span class="std std-doc">unprotected_edge_create</span></a>, the module that forms an unprotected edge,
+accepts no UUID, so every formation gives the cluster a new one (G-UUID).
+A “rebuilt edge” is therefore a different cluster that carries the old edge’s name.
+Everything the rest of the system keyed on the old UUID does not follow it.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Keyed on the old UUID</p></th>
+<th class="head"><p>What the rebuild does</p></th>
+<th class="head"><p>Why</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>The hub’s record of the edge’s portal</p></td>
+<td><p>Predestroy drains the portal and deletes both records. The replay deletes any record of the old UUID that the declared hub still holds, then the baseline pairs the new edge again.</p></td>
+<td><p>The hub keys the record on the spoke’s UUID, never on a name, which its portals need not keep unique. The new edge has a different UUID, so it cannot take over the old record.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The license</p></td>
+<td><p>The replay is the first of two passes, and the license for the new UUID comes in the second.</p></td>
+<td><p>A license is bound to one UUID and only Nexus issues it (G-LICENSE). See <a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>The Nexus registration</p></td>
+<td><p>Predestroy removes it and, with <code class="docutils literal notranslate"><span class="pre">qumulo_nexus_api_token</span></code>, retires the old UUID. The replay retires it again, and the baseline registers the new edge.</p></td>
+<td><p>A registration belongs to one cluster, and a join key is single-use (G-NEXUS-KEY).</p></td>
+</tr>
+<tr class="row-odd"><td><p>The domain’s computer account</p></td>
+<td><p>Predestroy leaves the domain. The replay joins under the same name.</p></td>
+<td><p>The cluster name is the account name, and it does not change. See <a class="reference internal" href="#a-computer-account-that-outlives-the-edge">A computer account that outlives the edge</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>Access tokens</p></td>
+<td><p>They are dead on the new edge. The preflight makes you acknowledge them, and the report lists them.</p></td>
+<td><p>A token is bound to one cluster, and its secret was shown only once (G-TOKEN).</p></td>
+</tr>
+<tr class="row-odd"><td><p>S3 access keys</p></td>
+<td><p>The baseline makes a new key for each declared one. The report names each, with the file of its secret.</p></td>
+<td><p>The cluster makes both the key’s id and its secret and shows the secret once, and no route imports a known key (G-S3-KEY).</p></td>
+</tr>
+<tr class="row-even"><td><p>Replication relationships</p></td>
+<td><p>A relationship the inventory declares is kept or held. One it does not declare is lost.</p></td>
+<td><p>The target’s UUID is part of the source’s key (G-REPL-PEER). See <a class="reference internal" href="#what-a-rebuild-does-to-replication">What a rebuild does to replication</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Terraform’s state of the edge</p></td>
+<td><p>It still names the old UUID unless Terraform formed the new edge.</p></td>
+<td><p>Terraform records the UUID when it forms the cluster (G-TF-STALE). See <a class="reference internal" href="#terraform-forms-the-new-edge">Terraform forms the new edge</a>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A formation also creates things the old edge had no say in: the factory <code class="docutils literal notranslate"><span class="pre">/</span></code> export, the <code class="docutils literal notranslate"><span class="pre">Files</span></code> share, and the built-in
+users and groups.
+The replay cannot ask the formation to skip the export and the share (G-FACTORY), so the inventory has to say whether
+each one stays, and a rebuild requires <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> to say it.
+A rebuild never counts them as lost state, because every formation brings them back.</p>
+<p>Every client of the edge’s S3 keys then needs the new secret, and the report is where it is found.
+A secret can only be handed over once, which is why the role writes it to a file and names the file, and does not
+try to carry the old one across.
+<a class="reference internal" href="state-management.html#values-the-cluster-shows-once"><span class="std std-ref">State management</span></a> explains the values the cluster shows once.</p>
+<section id="how-the-inventory-learns-the-new-uuid">
+<h3>How the inventory learns the new UUID<a class="headerlink" href="#how-the-inventory-learns-the-new-uuid" title="Link to this heading"></a></h3>
+<p>The inventory names the old edge by <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, and every record the role keeps is keyed on it.
+After the formation the same variable has to name the new edge, so the replay ends by writing a report whose
+<code class="docutils literal notranslate"><span class="pre">host_vars_patch</span></code> holds the new UUID and the old edge’s UUID added to <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>.
+The role does not edit <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>.
+It switches the play to the new UUID in memory, so that the rest of the run is checked against the right cluster, and the
+file change is yours to apply.</p>
+<p>The previous UUIDs are the memory of the rebuild.
+A replication record made before the rebuild names the old UUID of its peer, and the role finds it by that list, at
+whatever address the peer now has.
+Until the patch is applied, a source host whose relationship points at the edge fails at the edge’s identity guard,
+because it still expects the old UUID.</p>
+<p>Because one variable is the old edge before the patch and the new edge after it, a replay refuses a cluster whose UUID
+is the one <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> names: with the patch applied, that is the new edge, and replaying onto it would retire
+it in Nexus and report it as replaced.
+A replay that failed after the edge formed is finished by the baseline instead.</p>
+</section>
+</section>
+<section id="the-replay-model-the-inventory-never-the-edge">
+<h2>The replay model: the inventory, never the edge<a class="headerlink" href="#the-replay-model-the-inventory-never-the-edge" title="Link to this heading"></a></h2>
+<p>The role replays the inventory, never the state of the edge it destroys.
+Three things make that the right model.</p>
+<ul class="simple">
+<li><p>The edge is gone by the time the replay runs.
+Whatever the replay reads has to come from somewhere that survives the reinstall, and the inventory is the place the
+collection treats as the source of truth.</p></li>
+<li><p>Some of what the old edge holds cannot be read back.
+Passwords, token secrets and S3 secrets are shown once or never, so a copy from the edge would be incomplete in the
+same places that matter most.</p></li>
+<li><p>A capture is a one-time import, and nothing replays one.
+After an <a class="reference internal" href="../how-to/adopt-a-cluster.html"><span class="std std-doc">adoption</span></a> the inventory leads, and an edge you may rebuild must declare every
+tenant, share, export, quota, snapshot policy and portal root it holds, as a fresh adoption does.</p></li>
+</ul>
+<p>The consequence is a rule, and the role checks it before it drains anything: everything the edge holds must be in the
+inventory first.</p>
+<section id="the-preflight">
+<h3>The preflight<a class="headerlink" href="#the-preflight" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="../collections/qumulo/cluster/edge_rebuild_preflight_module.html"><span class="std std-doc">edge_rebuild_preflight</span></a> runs on the old edge before the drain.
+It only reads, and it fails the rebuild, naming what it found, in two cases.</p>
+<ul class="simple">
+<li><p><strong>Drift</strong> is state the edge holds that the inventory does not declare, or declares absent.
+The edge and the inventory disagree, and a rebuild would settle the disagreement by destroying the edge’s side.
+The check makes you look first.
+The inventory can settle it by declaring the item or applying its absence, and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code> accepts the
+loss.</p></li>
+<li><p><strong>Unreplayable state</strong> is state the replay cannot create again.
+Nothing waives it except naming its area in <code class="docutils literal notranslate"><span class="pre">edge_rebuild_acknowledge</span></code>.
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code> never covers it.</p></li>
+</ul>
+<p>The two have separate switches because they mean different things.
+Drift is something the inventory could have said and did not, and one switch says you accept the loss, or the one gain
+the preflight reports, a tenant 1 the old edge lacked.
+Unreplayable state is something the inventory cannot say, so the acknowledgement is by area, and each acknowledged area
+reaches the report as a hand-off.
+A blanket flag would lose the names.</p>
+<p>Tenant 1’s factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export, whatever tenant 1’s name, the built-in <code class="docutils literal notranslate"><span class="pre">admin</span></code> and <code class="docutils literal notranslate"><span class="pre">guest</span></code> users and
+the built-in <code class="docutils literal notranslate"><span class="pre">Users</span></code> and <code class="docutils literal notranslate"><span class="pre">Guests</span></code> groups are never drift, since every formation creates them again. A <code class="docutils literal notranslate"><span class="pre">Files</span></code> share or
+<code class="docutils literal notranslate"><span class="pre">/</span></code> export in another tenant is drift like any other.</p>
+<p>Tenants need care in a rebuild because the rebuilt edge is not the old one. Every formation creates tenant 1 as
+<code class="docutils literal notranslate"><span class="pre">Default</span></code>, and the replay renames it only for a <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> entry with <code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code>, so tenant 1
+renamed by hand is drift until the inventory says so. Tenant ids are numbered again in the order the replay creates the
+tenants, so the inventory names a tenant by its name, not by <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code>. The preflight reads <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> as the baseline will on a
+newly formed edge, matches each share and export within its tenant, and, before it reads the edge, refuses an inventory
+that the baseline’s tenancy step would refuse by its inventory rules, network rules that need no read among them. One
+network rule needs a read of the edge’s network document, which tells how the edge forms again: the preflight refuses a
+network sent with no tenant that the newly formed edge does not hold, once the replay has more than one tenant, as
+<a class="reference internal" href="#a-network-sent-with-no-tenant">A network sent with no tenant</a> describes. The network document’s own checks (its
+validation, the backend checks, and the interfaces) and the NFS and continuity checks need the new edge, and run only at
+the replay, as do its host-managed checks apart from the one on tenant networks that the next paragraphs give.</p>
+<p>The replay also decides which tenant each network is bound to. A network listed under a <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> entry’s
+<code class="docutils literal notranslate"><span class="pre">networks</span></code> is that tenant’s. One in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> is the tenant its <code class="docutils literal notranslate"><span class="pre">tenant</span></code> names, and tenant 1’s
+for <code class="docutils literal notranslate"><span class="pre">tenant_id:</span> <span class="pre">1</span></code>. A listed network sent with no tenant comes back in tenant 1, or the preflight refuses it; <a class="reference internal" href="#a-network-sent-with-no-tenant">A network
+sent with no tenant</a> says which. When the inventory sets neither
+<code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> nor <code class="docutils literal notranslate"><span class="pre">networks</span></code> on any present <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> entry, not even as an empty list, the
+replay keeps the newly formed edge’s networks, which are all tenant 1’s, and does not replay a network the formed edge
+lacks. Once any network is listed, the replay keeps only the listed networks and removes the rest, so the listing has to
+hold every network the edge keeps: under its tenant, in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> for a network no tenant holds
+or on the backend bond, and as <code class="docutils literal notranslate"><span class="pre">networks:</span> <span class="pre">[]</span></code> on a present tenant that holds none. A network the old edge binds to a
+tenant the replay builds again, that the replay would not bind to it, is drift in the <code class="docutils literal notranslate"><span class="pre">tenant_networks</span></code> area, since the
+inventory does not declare that binding; a tenant that is itself drift is reported without its networks.</p>
+<p>An edge on host-managed networking forms again with no frontend network, and the baseline creates tenants before it
+writes the network document, so on its own it would refuse the second tenant: with two tenants and no frontend network,
+REST would listen on no network. So when the replay creates a tenant on such an edge, it first runs the baseline’s
+tenancy step with tenant 1 alone, holding tenant 1’s own networks. Those are its entry’s <code class="docutils literal notranslate"><span class="pre">networks</span></code> and the networks in
+<code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> that step 2 resolves to tenant 1 or to no tenant, such as a <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> the newly
+formed edge lacks. Each is sent with no tenant, so each lands in tenant 1. The baseline then creates the other tenants,
+and its step 3 adds their own networks and binds each network to its tenant. Step 2 places the play on the one HOST
+network the pass leaves, from the newly formed edge’s network status, so tenant 1 on HOST 0 beside a second tenant on
+its own HOST 1 needs nothing inferred from the old edge when the play reaches the edge on tenant 1’s network. A play on
+the second tenant’s network is not on the network step 2 places it on: the preflight refuses a
+<code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> that names the second tenant’s network, and with the variable unset step 2 takes tenant 1’s
+network for the play’s (<a class="reference internal" href="../reference/troubleshooting.html#rebuilds"><span class="std std-ref">Rebuilds</span></a> in the troubleshooting reference has the
+remedy). The remedy of reaching the edge at an address on a network the pass writes does not apply when tenant 1’s REST
+switch is off (<code class="docutils literal notranslate"><span class="pre">rest_api_enabled</span></code>, or <code class="docutils literal notranslate"><span class="pre">web_ui_enabled</span></code> behind 443) or the controller has no route to tenant 1’s
+networks; such a rebuild is not supported yet. Where the newly formed edge doesn’t answer its network status
+(G-NET-APPLY), step 2 cannot place the play and refuses the create after the destroy unless <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code>
+is set, and the preflight does not check that case. A host-managed cluster with two tenants declares the variable anyway
+(<a class="reference internal" href="multitenancy.html"><span class="std std-doc">Multitenancy</span></a>), and a rebuild keeps it when it names a network the pass writes.</p>
+<p>Only when tenant 1 holds no network, as when it is declared absent, left undeclared or given <code class="docutils literal notranslate"><span class="pre">networks:</span> <span class="pre">[]</span></code>, does the
+pass send every network the inventory lists for a tenant that stays: those in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> that
+belong to no tenant or to a tenant that stays, and each present tenant’s own <code class="docutils literal notranslate"><span class="pre">networks</span></code>. Every network then exists
+before any create, and step 3 only binds each to its tenant. Tenant 1 is the tenant that holds them in the pass: the
+entry renamed by <code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code>, or, when no present entry names it, as when it is declared absent, the
+<code class="docutils literal notranslate"><span class="pre">Default</span></code> the edge forms with, which step 20a deletes, when the inventory declares it absent, after step 3 has bound the
+networks. So an inventory that declares tenant 1 absent needs no rename. An inventory that lists no network for a tenant
+that stays leaves the pass nothing to write, so the preflight, which decides with the replay’s own rule, refuses it
+before the drain, whatever <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code> says.</p>
+<p>The pass writes two or more networks only when tenant 1 holds two or more, or holds none while the inventory lists two
+or more. With two or more networks in tenant 1 after the pass, each is HOST, and the baseline’s step 2 on the newly
+formed edge may not be able to place the play’s address among them. Then it needs <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code>. The old
+edge can answer what the new one cannot, so, with the variable unset, the preflight reads the old edge. Where the pass
+writes two or more networks, the replay creates a tenant and the edge forms host-managed again, the preflight places the
+play’s address on the old edge as the tenancy continuity rule does (<a class="reference internal" href="multitenancy.html"><span class="std std-doc">Multitenancy</span></a>): on the network
+whose ranges hold the address, or, from the network status, on the document’s one HOST network.</p>
+<p>That covers an old edge with one HOST network where the inventory adds a second, as long as the old edge answers its
+network status (G-NET-APPLY). It does not cover an old edge that holds two HOST networks and is reached on the host’s
+own address, nor one that doesn’t answer its network status. There the variable is still needed. A floating
+<code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> doesn’t escape the refusal. A rebuild reaches the newly formed edge at <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> before the
+pass, and a host-managed edge that is newly formed or UNCONFIGURED has no Qumulo network, so it serves no floating
+address; <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> is a host address in a rebuild.</p>
+<p>The network the preflight finds on the old edge is the one the replay needs because two things carry over to the rebuilt
+edge. The rebuilt edge’s ids are the inventory’s, which the pass and the baseline’s step 3 write. The host associates a
+HOST network id with an interface when the node starts, and that association holds while the reinstall keeps the host’s
+interface setup. The preflight’s binding-drift check holds the inventory’s ids to the old edge’s for every tenant that
+stays.</p>
+<p>The module returns it as <code class="docutils literal notranslate"><span class="pre">management_network</span></code>, which is <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> when the inventory sets it, else the
+inferred ids, else null. A null <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> counts as unset, as the baseline reads it, so the inferred
+network is used. The predestroy record keeps it as <code class="docutils literal notranslate"><span class="pre">management_network</span></code>, with the address the inference used as
+<code class="docutils literal notranslate"><span class="pre">management_api_host</span></code>, which is <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>. The replay takes the recorded network as <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code>
+for the tenant 1 pass and the baseline when the inventory sets none, and only while <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> is still the
+recorded <code class="docutils literal notranslate"><span class="pre">management_api_host</span></code>. A reinstall that changes the address may land the play on another network, and a wrong
+id could pass step 2’s check on the wrong network. With another address, or a record without <code class="docutils literal notranslate"><span class="pre">management_api_host</span></code>, the
+replay passes no network and step 2 decides, as it does for a baseline. The report’s <code class="docutils literal notranslate"><span class="pre">host_vars_patch</span></code> carries the
+network when the inventory lacked it, so later baseline runs have it too. The variable overrides the inference. When the
+two disagree, the preflight warns and the replay uses the variable.</p>
+<p>The preflight refuses when it has neither, before the drain and whatever <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code> says, because step
+2 would refuse the create after the old edge is gone. The refusal gives the reason it cannot tell, which is one of
+these:</p>
+<ul class="simple">
+<li><p>The old edge may not answer its network status (G-NET-APPLY), or its network status read failed.</p></li>
+<li><p>The old edge may hold two HOST networks while the play reaches it on the host’s own address, which no network’s ranges
+hold. The rule places that address from the status only on the document’s one HOST network, since it does not read
+the network ids the status reports. For an address the status doesn’t show, it places the address on no network.</p></li>
+<li><p>The HOST network it would name may be one the status shows served on no device, as step 2 would refuse it.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> may resolve to no address.</p></li>
+</ul>
+<p>Where the pass writes two or more networks, the play may instead reach the old edge on a network the pass does not
+write: network 0, say, which the inventory lists for no tenant that stays, or lists under a second tenant. The
+baseline’s step 2 judges the first create against the document the pass leaves, and step 3 adds the other networks only
+after that create, so step 2 would refuse the create of the tenant after the destroy. The preflight refuses this with a
+message of its own, not one of the reasons above, because setting <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> to 0 would meet the
+refusal of a variable that names a network the pass does not write. Where the inventory lists network 0 under a second
+tenant, listing it under tenant 1 would instead be <code class="docutils literal notranslate"><span class="pre">tenant_networks</span></code> drift for a network the old edge binds to another
+tenant. The <a class="reference internal" href="../reference/troubleshooting.html#rebuilds"><span class="std std-ref">Rebuilds</span></a> rows of the troubleshooting reference give each message
+and its remedy.</p>
+<p>Whenever the pass runs and the replay creates a tenant, the preflight also refuses a <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> that
+names a network the pass does not write, however many networks the pass writes. Step 2 judges the first create against
+the document the pass leaves, so a network that is not in it is not on the cluster there. There are two cases:</p>
+<ul class="simple">
+<li><p>An id that no tenant lists, such as a typo, or the old edge’s id for a network the inventory lists under another id.</p></li>
+<li><p>An id that step 3 adds later, such as a second tenant’s own network, which step 3 adds only after the create.</p></li>
+</ul>
+<p>The preflight refuses one declared with no network as well, <code class="docutils literal notranslate"><span class="pre">qumulo_management_network:</span> <span class="pre">[]</span></code>, which step 2 refuses at the
+create after the destroy. Each case has its own message, and its remedy, under
+<a class="reference internal" href="../reference/troubleshooting.html#rebuilds"><span class="std std-ref">Rebuilds</span></a> in the troubleshooting reference.</p>
+<p>Renaming tenant 1 to the tenant that holds the HOST network, with <code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code>, is still valid, and it keeps
+that network, the one the play reaches REST on, in tenant 1 through the rebuild instead of moving it at step 3. A rename
+leaves no <code class="docutils literal notranslate"><span class="pre">Default</span></code> entry to carry claims on the factory share and export, so the claims move to
+<code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code>, which says for each factory item, a share named <code class="docutils literal notranslate"><span class="pre">Files</span></code> in any letter case and an export at
+<code class="docutils literal notranslate"><span class="pre">/</span></code>, whether the renamed tenant keeps it. <a class="reference internal" href="../how-to/edge-rebuild.html#check-the-inventory-against-the-edge"><span class="std std-ref">Rebuild an unprotected
+edge</span></a> says how to set each.</p>
+<p>On that same edge the replay refuses a tenant network that takes a VLAN or has STATIC addressing, since the host manages
+the networking and a tenant network is HOST. That is the baseline’s step 2, which would refuse it only after the old
+edge is destroyed, so the preflight makes the same check as soon as it has read the edge’s network document, before
+drift, and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code> does not waive it. The replay’s own rules cannot make it, since they model a
+newly formed edge, and only the old edge’s network document says whether the new one forms host-managed. The check
+waits for the replay when <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> declares <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code> and the tenant 1 pass runs, since the pass
+writes them first.</p>
+<p>Terraform ownership can make that refusal impossible to satisfy as it stands. With <code class="docutils literal notranslate"><span class="pre">network</span></code> in
+<code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code>, the baseline’s ownership check refuses <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> and a <code class="docutils literal notranslate"><span class="pre">networks</span></code> key under a
+tenant, so the inventory cannot list the HOST network the pass needs while Terraform owns the area. The preflight, which
+the role gives the areas Terraform owns, ends its refusal with the way out. The way back has an order: the ownership
+check refuses the listing as soon as <code class="docutils literal notranslate"><span class="pre">network</span></code> is in <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> again, so the listing and the
+ownership have to change together. <a class="reference internal" href="../how-to/edge-rebuild.html#check-the-inventory-against-the-edge"><span class="std std-ref">Rebuild an unprotected
+edge</span></a> has the steps.</p>
+<p>An old edge can lack tenant 1, as after its owner deleted it. A newly formed edge always has tenant 1, <code class="docutils literal notranslate"><span class="pre">Default</span></code>, with
+the factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export, and the replay keeps it unless the inventory declares it <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>.
+Capture declares a missing tenant 1 absent: it writes <code class="docutils literal notranslate"><span class="pre">Default</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> and the factory share and export as
+<code class="docutils literal notranslate"><span class="pre">absent</span></code>, so a rebuild from that inventory drops them. On host-managed networking it can write the rename above instead,
+<code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code> on the one tenant that holds a network and no <code class="docutils literal notranslate"><span class="pre">Default</span></code> entry, which keeps the HOST network in
+tenant 1 through the rebuild, where with <code class="docutils literal notranslate"><span class="pre">Default</span></code> absent the pass puts it in <code class="docutils literal notranslate"><span class="pre">Default</span></code> and step 3 moves it. A factory
+key of that capture is <code class="docutils literal notranslate"><span class="pre">present</span></code> where the capture writes the item for that tenant, since the rebuilt edge’s tenant 1 is
+that tenant and <code class="docutils literal notranslate"><span class="pre">absent</span></code> would claim the item twice. A <code class="docutils literal notranslate"><span class="pre">/</span></code> export that capture leaves out, as one whose mapped user is
+gone, shows as drift under either form. The rename, though, would have the rebuilt tenant 1 keep the factory <code class="docutils literal notranslate"><span class="pre">/</span></code> export
+in its place, so a rebuild that waives the drift with <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code> would end with the factory export,
+which the preflight does not report. Capture therefore writes <code class="docutils literal notranslate"><span class="pre">Default</span></code> absent, and a rebuild that waives the drift ends
+with no <code class="docutils literal notranslate"><span class="pre">/</span></code> export. Capture writes no entry when another tenant is named <code class="docutils literal notranslate"><span class="pre">Default</span></code> or a replay of what it wrote could
+not delete <code class="docutils literal notranslate"><span class="pre">Default</span></code>. Its <code class="docutils literal notranslate"><span class="pre">tenant</span> <span class="pre">1</span></code> note in <code class="docutils literal notranslate"><span class="pre">left_out</span></code> says which of these it did; <a class="reference internal" href="../reference/capture-and-clone.html"><span class="std std-doc">What capture and clone read and
+write</span></a> and the <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> module’s <code class="docutils literal notranslate"><span class="pre">tenants</span></code> area give the cases. A network no
+tenant holds always gets the entry, so the preflight refuses the inventory until the network has a tenant that stays,
+since the rebuilt edge would otherwise refuse it at its baseline’s step 2, after the old edge is gone. An inventory
+written by hand, or captured before this rule, can lack the entry too. Deleting a tenant is its entry’s <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>,
+and the role removes the tenant’s declared and claimed content first. So for an inventory without the entry, the
+preflight treats the tenant the rebuilt edge would gain as drift, with <code class="docutils literal notranslate"><span class="pre">added:</span> <span class="pre">true</span></code>, and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code>
+accepts the gain as it accepts a loss. The inventory clears it by saying what becomes of the tenant the rebuilt edge
+would gain: <code class="docutils literal notranslate"><span class="pre">Default</span></code> declared absent, its factory share and export claimed for removal, and each network listed under a
+tenant that stays. <a class="reference internal" href="../how-to/edge-rebuild.html#check-the-inventory-against-the-edge"><span class="std std-ref">Rebuild an unprotected edge</span></a> has the
+keys.</p>
+</section>
+<section id="a-network-sent-with-no-tenant">
+<h3>A network sent with no tenant<a class="headerlink" href="#a-network-sent-with-no-tenant" title="Link to this heading"></a></h3>
+<p>A network in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> is sent with no tenant when it has no <code class="docutils literal notranslate"><span class="pre">tenant</span></code>, or has a <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code>
+that the newly formed edge lacks. The baseline’s step 3 then sends the network document without a tenant for it, and the
+cluster keeps the tenant it already gives that network. On a newly formed edge that is tenant 1, for a network the edge
+holds when step 2 runs. A network it does not hold is new, and step 2 refuses a new network with no tenant once the run
+has more than one tenant, counting the tenants it creates and those it deletes only at the end, since the cluster would
+hold it in no tenant.</p>
+<p>Step 2 runs after the old edge is gone, so the preflight refuses the same inventory before the drain. It needs to know
+which networks the formed edge holds, so it reads the old edge’s network document first, and the refusal comes straight
+after that read, before any other read and before drift. The message is step 2’s, “… is a new network with no tenant,
+but this run has more than one tenant …”, with the prefix “the replay onto the rebuilt edge would refuse the
+inventory”, and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code> does not waive it.</p>
+<p>The formed edge holds two kinds of network:</p>
+<ul class="simple">
+<li><p>The formation network, which is network 1 on managed networking and none on host-managed networking, where the edge
+forms with no frontend network.</p></li>
+<li><p>Each network the replay’s tenant 1 pass writes before step 2. The pass runs only on host-managed networking today, and
+it writes every network sent with no tenant, so nothing is refused there; the check is a guard on what the pass sends.</p></li>
+</ul>
+<p>A network that <code class="docutils literal notranslate"><span class="pre">qumulo_network.managed_interfaces</span></code> puts on the backend bond is not refused, but only when
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline_owned_parts</span></code> holds <code class="docutils literal notranslate"><span class="pre">interfaces</span></code>. Without it, step 2 keeps the formed edge’s own interfaces, and the
+inventory’s backend bond does not apply, so such a network is refused like any other.</p>
+<p>Where the refusal does not fire, a frontend network comes back in tenant 1 of the rebuilt edge. That is the case for
+network 1 on managed networking, for any such network on host-managed networking, and for any such network when the
+replay has one tenant at step 3. The old edge may have held the network in no tenant, and the preflight reports that
+change as drift in the <code class="docutils literal notranslate"><span class="pre">tenant_networks</span></code> area, with <code class="docutils literal notranslate"><span class="pre">added:</span> <span class="pre">true</span></code>, <code class="docutils literal notranslate"><span class="pre">tenant</span></code> the name tenant 1 has after the replay’s
+renames, and <code class="docutils literal notranslate"><span class="pre">name</span></code> the network’s id and name. A network on a backend bond, the old edge’s or the inventory’s when
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline_owned_parts</span></code> holds <code class="docutils literal notranslate"><span class="pre">interfaces</span></code>, takes no tenant and is not reported, nor is a listed network the old
+edge lacks. Its <code class="docutils literal notranslate"><span class="pre">tenant</span></code> decides where it lands, tenant 1 or another tenant; <a class="reference internal" href="../how-to/edge-rebuild.html#check-the-inventory-against-the-edge"><span class="std std-ref">Rebuild an unprotected
+edge</span></a> says how to name one. The network cannot stay in
+no tenant on the rebuilt edge: the formed edge holds network 1 in tenant 1, the tenant 1 pass writes into tenant 1, and
+a network sent with no tenant keeps the tenant the cluster gives it. Only <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code>, which waives the
+report with the rest of the drift, followed by unbinding the network by hand after the rebuild, keeps it unbound.</p>
+<p>With no network listed, in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> or under a tenant, the replay keeps the formed edge’s
+networks, all in tenant 1. On managed networking that is network 1, so when the old edge holds network 1 in no tenant,
+the preflight reports it in the same <code class="docutils literal notranslate"><span class="pre">tenant_networks</span></code> area, with <code class="docutils literal notranslate"><span class="pre">added:</span> <span class="pre">true</span></code>, and its message says that the
+inventory lists no network. On host-managed networking the formed edge holds no network, so nothing is reported.</p>
+</section>
+<section id="what-cannot-be-replayed">
+<h3>What cannot be replayed<a class="headerlink" href="#what-cannot-be-replayed" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Area</p></th>
+<th class="head"><p>What it is</p></th>
+<th class="head"><p>Why the replay cannot create it again</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">network</span></code></p></td>
+<td><p>A static frontend network or a VLAN, when the inventory declares no <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code></p></td>
+<td><p>There is no declaration to replay. With <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> declared, the replay applies it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kmip</span></code></p></td>
+<td><p>A key store other than the local one</p></td>
+<td><p>The replay does not configure a key store, and the report lists it. G-KMS records that every write of the key store rotates the key, even when nothing changed.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication</span></code></p></td>
+<td><p>A relationship the inventory does not declare, any object relationship, and a declared one out of the edge whose record is ENDED or pending</p></td>
+<td><p>The inventory cannot recreate what it does not name, and each peer keeps its own record of it (G-REPL-PEER).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">s3_keys</span></code></p></td>
+<td><p>Any S3 access key</p></td>
+<td><p>The secret was shown once (G-S3-KEY).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">access_tokens</span></code></p></td>
+<td><p>Any access token</p></td>
+<td><p>The secret was shown once, and the token dies with the cluster (G-TOKEN).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">local_data</span></code></p></td>
+<td><p>Any file, link or other object outside the portal’s spoke roots, and any snapshot</p></td>
+<td><p>The drain moves only the spoke roots’ writes to the hub. The rebuild destroys the rest.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Acknowledging <code class="docutils literal notranslate"><span class="pre">local_data</span></code> gives up the files and the snapshots together.</p>
+</section>
+</section>
+<section id="what-survives-the-drain">
+<h2>What survives: the drain<a class="headerlink" href="#what-survives-the-drain" title="Link to this heading"></a></h2>
+<p>The drain sends the writes in the portal’s spoke roots to the hub.
+It makes the hub’s portal read-only until the edge’s outstanding writes reach the hub, and then deletes both records.
+Everything else on the edge, its local directories, the files in them and their snapshots, is destroyed with it.</p>
+<p>That is why the preflight counts local data as unreplayable.
+The check reads the edge at one moment, so a file a client writes to a local directory after the check is lost without a
+word.
+The clients that write there have to be stopped before the predestroy phase for the check to hold.</p>
+<p>The role drains every portal the edge holds, declared or not, since the rebuild destroys the edge’s writes either way.
+A portal whose hub no host in the <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code> group names by <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> cannot be reached, so its drain cannot run.
+The role stops before it changes anything, unless <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code> says to delete it without a drain.</p>
+<p>The drain can fail halfway, so the role records its progress.
+It writes the predestroy record after each portal, with <code class="docutils literal notranslate"><span class="pre">safe_to_destroy:</span> <span class="pre">false</span></code> until the phase ends, so a run that
+fails later still records a drain that finished.
+A rerun counts a portal as drained from that record.
+If the drain finished and only the hub’s record remains, in state DELETING, the writes are on the hub and a rerun only
+waits for the record to go.
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code> forces the deletion of whatever is left, and what it loses is only the writes the hub
+had not received.</p>
+</section>
+<section id="the-first-pass-runs-on-a-floor">
+<h2>The first pass runs on a floor<a class="headerlink" href="#the-first-pass-runs-on-a-floor" title="Link to this heading"></a></h2>
+<p>A rebuilt edge forms unlicensed, with the smaller of its platform’s capacity and 1 TB, and provisioning never shrinks
+(G-EDGE-FLOOR, G-CLAMP-SHRINK).
+The formation provisions that capacity before any clamp can be set.
+So the baseline can never write a clamp more than a rounding tolerance below <code class="docutils literal notranslate"><span class="pre">min(1</span> <span class="pre">TB,</span> <span class="pre">edge_cache_resize_floor_bytes)</span></code>,
+whatever the license value is, and the role refuses such a clamp instead of failing to write it later.</p>
+<p>The role refuses such a clamp as early as it can check it.
+In a rebuild in one run, it comes before the drain.
+In a rebuild in two runs, the predestroy run drains and destroys the edge and checks none of this, so the refusal comes
+in the replay, before the formation.
+Nothing is lost when it does, since the hub holds the data from the spoke roots.
+<code class="docutils literal notranslate"><span class="pre">edge_cache_resize_floor_bytes</span></code> exists to describe a platform smaller than 1 TB.</p>
+<p>The same reasoning explains the shape of the license step.
+The replay is the first pass: the edge forms with its new UUID and registers with Nexus, and it holds no license for
+that UUID yet.
+The baseline therefore leaves the clamp for the license, and the second pass applies the license and sets the clamp.
+An edge that declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license:</span> <span class="pre">none</span></code> expects no license, so its replay writes the clamp itself, and
+<a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> explains that case.
+<a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> explains why a license is a hand-off and not a step.</p>
+</section>
+<section id="the-guard-on-the-new-edge">
+<h2>The guard on the new edge<a class="headerlink" href="#the-guard-on-the-new-edge" title="Link to this heading"></a></h2>
+<p>The replay writes the whole inventory to a cluster, so the first thing it needs is certainty about which cluster that is.
+<a class="reference internal" href="../collections/qumulo/cluster/cluster_guard_module.html"><span class="std std-doc">cluster_guard</span></a> in <code class="docutils literal notranslate"><span class="pre">rebuilt</span></code> mode passes only a node that is UNCONFIGURED, or an ACTIVE unprotected edge that has the
+new UUID and the inventory’s name, no portals, and no SMB share or NFS export other than the factory ones.
+That is the definition of a newly formed, empty edge, and nothing else is let through.
+A working edge that someone pointed the playbook at, or the old edge that was not destroyed, fails the guard.</p>
+<p>The replay connects as <code class="docutils literal notranslate"><span class="pre">admin</span></code> with the password the edge forms with, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_admin_password</span></code> or else
+<code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code>, and with no token.
+A new edge has exactly one user, and a token or another user in the inventory belongs to the old edge.
+The new edge also serves a factory certificate nothing can verify (G-FACTORY-TLS), so the role can switch verification off
+for the new edge only, until the baseline installs <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code>.
+<a class="reference internal" href="authentication.html#the-factory-certificate"><span class="std std-ref">Authentication</span></a> explains why that is safer than <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_validate_certs=false</span></code>.</p>
+<p>The per-request identity guard keeps running under all of this.
+It checks the old UUID during predestroy and the new one after formation, before any credentials are sent.
+<a class="reference internal" href="refusals-and-guards.html#why-a-rebuild-refuses-so-much"><span class="std std-ref">Refusals and guards</span></a> lists the refusals this adds up to and why
+none of them is optional.</p>
+<section id="terraform-forms-the-new-edge">
+<h3>Terraform forms the new edge<a class="headerlink" href="#terraform-forms-the-new-edge" title="Link to this heading"></a></h3>
+<p>When a Terraform root forms the edge, Terraform forms the new one too, and the inventory plugin then reads the new UUID
+from the root’s output.
+The replay takes that UUID as the new edge’s because it differs from the old one, and the guard checks it as it would a
+typed <code class="docutils literal notranslate"><span class="pre">qumulo_new_cluster_uuid</span></code>.
+A typed <code class="docutils literal notranslate"><span class="pre">qumulo_new_cluster_uuid</span></code> still wins over the inventory’s.</p>
+<p>On this path the report’s patch holds only the previous UUIDs, because a UUID or a replication address in <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>
+would outrank the plugin’s from then on, so the role leaves both to the plugin.
+Terraform’s state needs no fix here (G-TF-STALE), since Terraform made the cluster.</p>
+<p>The same variable can carry a stale answer.
+If the saved output still names the old UUID after the reinstall, the replay has no new UUID to check the formed edge
+against, so the guard refuses it and says to save the output again.
+Running the whole rebuild again at that point would run the predestroy phase against the new edge.
+The way on is a replay on its own once the output is saved again, which
+<a class="reference internal" href="../how-to/edge-rebuild.html#a-terraform-formed-edge"><span class="std std-ref">A Terraform-formed edge</span></a> describes.</p>
+<p>A replay on its own, whose inventory UUID no predestroy record names, finds the old edge the other way: from the newest
+predestroy record that says the edge was safe to destroy, of a UUID that no rebuild report has already replaced.
+The report names that record as <code class="docutils literal notranslate"><span class="pre">previous_record</span></code>.</p>
+</section>
+</section>
+<section id="a-computer-account-that-outlives-the-edge">
+<h2>A computer account that outlives the edge<a class="headerlink" href="#a-computer-account-that-outlives-the-edge" title="Link to this heading"></a></h2>
+<p>With <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>, the cluster name is also the edge’s computer account in the domain, and the name does not change in a
+rebuild.
+Two facts follow.</p>
+<p>A join under a name that a live old edge still uses resets the account’s password and cuts that edge off from the
+domain.
+So the replay refuses to join under the old name unless a predestroy record shows the old edge left with credentials, or
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_old_edge_destroyed</span></code> says it is gone.
+In a rebuild in one run, the role checks this before it drains anything.</p>
+<p>A leave without credentials does not delete the account (G-AD-JOIN).
+Only a leave with <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code> does, and only then does the record say the old edge left.
+The report tells you which happened.
+If the leave deleted the old account, its group memberships and delegations went with it and have to be granted again.
+If it was reused, they may be intact, and the report says to check them.</p>
+<p><a class="reference internal" href="identity.html"><span class="std std-doc">Identity</span></a> covers what the collection can see of the domain.</p>
+</section>
+<section id="what-a-rebuild-does-to-replication">
+<h2>What a rebuild does to replication<a class="headerlink" href="#what-a-rebuild-does-to-replication" title="Link to this heading"></a></h2>
+<p>A rebuild keeps every replica the inventory declares.
+Before the drain, the role reads each peer’s record of every relationship the edge holds, through the peer’s own
+inventory host, and the predestroy record lists each relationship with what the rebuild will do with it.
+<a class="reference internal" href="replication.html"><span class="std std-doc">Replication</span></a> explains relationships, releases and the overwrite table.
+These are the parts that belong to the rebuild.</p>
+<ul class="simple">
+<li><p><strong>The edge is a target.</strong>
+A relationship from another host into the edge is replayable while the edge’s record is ESTABLISHED, its directory is
+read-only, and the source’s record of the same id is ESTABLISHED.
+The target directory and its snapshots are then not local data, because the second pass creates the relationship
+again from its source and a full sync fills the new edge.
+In any other state the directory is local data, and the preflight refuses until you acknowledge it.</p></li>
+<li><p><strong>The replay creates no relationship into the edge.</strong>
+A full sync must not start into an edge whose license and clamp do not apply yet, and the first pass ends unlicensed.
+Each such relationship is a hand-off of the second pass, and until then its source has no replica.
+An edge that declares <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">none</span></code> is the exception: its replay writes its clamp, so a source’s baseline run after
+the replay creates the relationship.</p></li>
+<li><p><strong>The edge is a source.</strong>
+The rebuild destroys the source directory, so the replica on the target may be the only copy of its data.
+The target’s record of the relationship is the server’s own lock on that replica, and the collection keeps it.
+The replay’s baseline holds the relationship and writes nothing on either cluster, and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code>
+never lifts the hold.
+The way out is a restore, a copy back and a release, or a release that keeps the replica as plain data, and
+<a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a> covers each.</p></li>
+<li><p><strong>A record from before a peer’s own rebuild.</strong>
+A record that names a previous UUID of the peer was made before the peer was rebuilt.
+With the edge as its source, the relationship is held, and there may be no replica to restore from.
+With the edge as its target, its replica may be the only copy of the data the source had before.
+The edge’s record is also the hold that keeps the source’s own relationship held, and rebuilding the edge destroys
+both.
+The preflight calls this outcome <code class="docutils literal notranslate"><span class="pre">only_copy</span></code>, lists the directory as local data whatever it holds, and requires both
+<code class="docutils literal notranslate"><span class="pre">local_data</span></code> and <code class="docutils literal notranslate"><span class="pre">replication</span></code> to be acknowledged.
+When the edge’s record still allows the source’s own restore, the preflight names that restore first, and once it is
+done the relationship is replayable.
+Otherwise the second pass creates the relationship from the source directory as it is, so copy back first any copy of
+that data you need.</p></li>
+<li><p><strong>A peer whose UUID the inventory does not hold.</strong>
+This happens on the Terraform path before the peer’s own patch is applied.
+A record whose peer UUID the peer’s inventory host does not hold, current or previous, needs <code class="docutils literal notranslate"><span class="pre">replication</span></code>
+acknowledged, and the preflight says to apply that patch.</p></li>
+</ul>
+</section>
+<section id="why-the-order-is-what-it-is">
+<h2>Why the order is what it is<a class="headerlink" href="#why-the-order-is-what-it-is" title="Link to this heading"></a></h2>
+<p>Most of a rebuild’s checks and writes sit where a mistake first becomes irreversible.
+These are the placements that are not obvious.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Placement</p></th>
+<th class="head"><p>Why</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>The inventory-only checks run before the drain in a rebuild in one run.</p></td>
+<td><p>They read only the inventory and the records on the controller. A refusal there leaves the old edge untouched.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The hub’s record of the old UUID is deleted before the edge forms.</p></td>
+<td><p>A refusal leaves the node UNCONFIGURED, so the replay can run again.</p></td>
+</tr>
+<tr class="row-even"><td><p>The old UUID is retired in Nexus before the edge forms.</p></td>
+<td><p>A formation that fails then leaves no old UUID behind in Nexus.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The replay writes the report as soon as the edge has its new UUID, and again at the end.</p></td>
+<td><p>A replay that fails later still leaves the UUID and the patch behind.</p></td>
+</tr>
+<tr class="row-even"><td><p>The report is written however the baseline ends.</p></td>
+<td><p>A failed step still leaves it naming each S3 key the last step made, with its secret’s file, and each key entry that failed.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The role retires the old UUID in Nexus twice when it has a token.</p></td>
+<td><p>Retiring, which <a class="reference internal" href="../collections/qumulo/cluster/nexus_cluster_module.html"><span class="std std-doc">nexus_cluster</span></a> does by marking the UUID decommissioned in Nexus, needs the credentials of a reachable cluster, even when the cluster that had the UUID no longer exists (G-NEXUS-RETIRE). Predestroy has the old edge. The replay has the new one.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The hub’s record of the old UUID is treated by its state, because the replay has to tell a lost edge from one that is
+still up.
+A PENDING record was never accepted and holds no writes, so it goes at once.
+A DELETING record goes at once when a predestroy record shows its portal was drained.
+A DISCONNECTED record needs <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code>.
+A record the hub still reaches means the old edge is up, and the replay stops.
+Right after a lost edge is reinstalled, the hub may still show its portal connected, so the replay stops until the hub
+reports it DISCONNECTED.</p>
+</section>
+<section id="what-the-report-hands-off">
+<h2>What the report hands off<a class="headerlink" href="#what-the-report-hands-off" title="Link to this heading"></a></h2>
+<p>The replay ends with a report, <code class="docutils literal notranslate"><span class="pre">rebuild-&lt;UTC&gt;.yml</span></code>, whose <code class="docutils literal notranslate"><span class="pre">hand_offs</span></code> list is what a person has to do.
+Each item is there because the collection either cannot do it or must not guess.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Hand-off</p></th>
+<th class="head"><p>Why it is left to you</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">host_vars_patch</span></code>, applied first</p></td>
+<td><p>Until it is applied, the inventory names the old UUID, or none of the edge’s previous ones. The role switches the UUID in memory only.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The license for the new UUID, and the second pass</p></td>
+<td><p>The collection never creates a license and never waits for one (G-LICENSE).</p></td>
+</tr>
+<tr class="row-even"><td><p>A capacity cap that waits for a quorum formation</p></td>
+<td><p>A raised cap applies at the next quorum formation (G-LICENSE), and the report says so.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A spent Nexus join key, and the old UUID in Nexus</p></td>
+<td><p>A join key registers one cluster only (G-NEXUS-KEY). Without an API token the rebuild cannot retire the old UUID (G-NEXUS-RETIRE).</p></td>
+</tr>
+<tr class="row-even"><td><p>The edge’s DNS A and PTR records</p></td>
+<td><p>They live outside the cluster, and the role does not manage them.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Terraform state that still names the old UUID</p></td>
+<td><p>The collection does not edit another tool’s state (G-TF-STALE).</p></td>
+</tr>
+<tr class="row-even"><td><p>The computer account’s group memberships and delegations</p></td>
+<td><p>They belong to the domain. The leave deleted them with the account, or the old account was reused and they may still stand (G-AD-JOIN).</p></td>
+</tr>
+<tr class="row-odd"><td><p>A hub record of the old UUID that predestroy could not reach</p></td>
+<td><p>The replay deletes only the declared hub’s record. The record on any other hub is deleted by hand, with <code class="docutils literal notranslate"><span class="pre">portal_hub</span></code>, <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> and <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> (G-PORTAL-STALE).</p></td>
+</tr>
+<tr class="row-even"><td><p>Each relationship into the edge, and each held one</p></td>
+<td><p>They wait for the second pass or for a restore.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The source hosts whose replication fails until the patch is applied</p></td>
+<td><p>The sources still expect the old UUID.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">admin</span></code>’s password on the new edge, when <code class="docutils literal notranslate"><span class="pre">edge_rebuild_admin_password</span></code> differs from <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code></p></td>
+<td><p>The new edge formed with it, and an inventory that connects as <code class="docutils literal notranslate"><span class="pre">admin</span></code> must use it.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Each lock key the old edge held</p></td>
+<td><p>A rebuild does not carry a key: the cluster registers one only with its name signed by its private key, and returns neither. Register each again with <code class="docutils literal notranslate"><span class="pre">security_key</span></code>, from its private key or a signature of its name.</p></td>
+</tr>
+<tr class="row-even"><td><p>The old edge’s key store, when the predestroy phase could not read it</p></td>
+<td><p>The record then names no lock key, and the report says so. Register each key the inventory’s snapshot policies declare.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Each snapshot policy the baseline applied without its lock key</p></td>
+<td><p>The key was not registered when step 20 ran, and <code class="docutils literal notranslate"><span class="pre">qumulo_allow_deferred_policy_lock_keys</span></code> accepted the policy without it. Its snapshots are not locked until you register the key and run the baseline again, which sets it.</p></td>
+</tr>
+<tr class="row-even"><td><p>Each acknowledged area</p></td>
+<td><p>Tokens to issue again to their consumers (G-TOKEN), S3 keys to hand to theirs (G-S3-KEY), replication the inventory does not declare (G-REPL-PEER), the key store (G-KMS), the network, and local data.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The list is the other half of the acknowledgements: what you agreed to lose before the drain comes back as a thing to
+do after it.</p>
+</section>
+<section id="why-the-records-persist">
+<h2>Why the records persist<a class="headerlink" href="#why-the-records-persist" title="Link to this heading"></a></h2>
+<p>The role keeps its records in the edge’s artifacts directory, beside the inventory
+(<a class="reference internal" href="architecture.html#the-artifacts-directory"><span class="std std-ref">The artifacts directory</span></a> says where and why).
+They are the continuity between phases that may run hours or jobs apart.</p>
+<ul class="simple">
+<li><p>The predestroy record says an edge is safe to destroy, and a replay on its own reads it for the old edge’s UUID.</p></li>
+<li><p>The report’s <code class="docutils literal notranslate"><span class="pre">held</span></code> list names the relationships the replay held, and the restore reads it.</p></li>
+<li><p>The baseline and the second pass write stamps that retire those holds, and the second pass writes a restore record and a lock while it restores.</p></li>
+</ul>
+<p>Losing the directory is not neutral.
+A runner discarded after a restore deleted the old record and before its last step strands the pair, with the record that
+says how to finish it gone.
+A lost stamp leaves the report’s claim armed, so a later second pass fails where it would only warn.
+A runner without the directory has no report, so it warns where a stranded restore should fail.
+So the directory has to persist across every job that runs the replay, the baseline or the second pass.
+<a class="reference internal" href="../how-to/pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a> says how.</p>
+</section>
+<section id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a> gives the steps, including the Terraform variant.</p></li>
+<li><p><a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a> covers the relationships a rebuild
+holds.</p></li>
+<li><p><a class="reference internal" href="../how-to/licensing.html"><span class="std std-doc">License an edge</span></a> and <a class="reference internal" href="../how-to/edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a> cover the
+second pass and the clamp.</p></li>
+<li><p><a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> and <a class="reference internal" href="replication.html"><span class="std std-doc">Replication</span></a> explain the two subjects this
+page touches.</p></li>
+<li><p><a class="reference internal" href="refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a> explains why the rebuild refuses so much.</p></li>
+<li><p>The <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gap register</span></a> lists the ids cited above.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="licensing-and-capacity.html" class="btn btn-neutral float-left" title="Licensing and capacity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="replication.html" class="btn btn-neutral float-right" title="Replication" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

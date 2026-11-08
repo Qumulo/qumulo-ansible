@@ -1,0 +1,881 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gap register &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Quirk register" href="quirks.html" />
+    <link rel="prev" title="Troubleshooting" href="troubleshooting.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Gap register</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="gap-register">
+<h1>Gap register<a class="headerlink" href="#gap-register" title="Link to this heading"></a></h1>
+<p>Generated from <code class="docutils literal notranslate"><span class="pre">docs/reference/gaps.yml</span></code> by <code class="docutils literal notranslate"><span class="pre">tools/render_registers.py</span></code>. Edit the YAML file and run the tool again.</p>
+<p>Operations the collection cannot make idempotent, or cannot perform, because of how the Qumulo REST API behaves; how each module handles them; and the Qumulo change that would close each gap. A module whose <code class="docutils literal notranslate"><span class="pre">idempotent</span></code> attribute is <code class="docutils literal notranslate"><span class="pre">partial</span></code> or <code class="docutils literal notranslate"><span class="pre">none</span></code> cites a gap id in its notes.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Id</p></th>
+<th class="head"><p>Title</p></th>
+<th class="head"><p>Operation</p></th>
+<th class="head"><p>Why it is not idempotent or not possible</p></th>
+<th class="head"><p>Handling</p></th>
+<th class="head"><p>Qumulo change that would close it</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Modules</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>G-UUID</p></td>
+<td><p>Cluster UUID on re-formation</p></td>
+<td><p>Re-forming an edge</p></td>
+<td><p>Creating an unprotected edge accepts no UUID, so a rebuilt edge always gets a new one.</p></td>
+<td><p>Identity guard, a rebuild declaration, and a report with a <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> patch</p></td>
+<td><p>Accept <code class="docutils literal notranslate"><span class="pre">cluster_uuid</span></code> on unprotected-edge create, as object-backed create does</p></td>
+<td><p>open</p></td>
+<td><p>edge_cache_route, unprotected_edge_create</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-LICENSE</p></td>
+<td><p>License after a rebuild</p></td>
+<td><p>Licensing an edge after a rebuild</p></td>
+<td><p>A license is bound to the cluster UUID, and only Nexus issues one, for a UUID it sees once the cluster is registered. A customer organization’s users, its administrators included, can neither create nor see licenses in Nexus, which answers them 403. The cluster takes a license document through the API only at <code class="docutils literal notranslate"><span class="pre">/v1/debug/license/validate</span></code> and <code class="docutils literal notranslate"><span class="pre">/v1/debug/license/activate</span></code>, which need <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_DEBUG</span></code>; a document applied there is active at once. How Qumulo delivers a license document to a customer is not yet defined.</p></td>
+<td><p>The collection never creates a license, never reads one from Nexus, and never waits for one. The operator gives the document Qumulo issued for the UUID to the collection in <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license_document</span></code>; <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.license</span></code> applies it through the debug routes, unless the cluster holds it already (by its key), and otherwise reports the license and the UUID one must be issued for. A new UUID takes two passes: the first baseline hands the license off and leaves the clamp for the license, and the second, the baseline again or <code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code>, which run the same step, applies the document, or finds the license the cluster holds, and then sets the clamp. An edge that declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license:</span> <span class="pre">none</span></code> runs without a license: nothing is handed off, and its clamp is written with no license, by the first pass and the second. A raised cap applies at the next quorum formation, which <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.license</span></code> reports as <code class="docutils literal notranslate"><span class="pre">needs_quorum_bounce</span></code> in the run that applied the document, and as <code class="docutils literal notranslate"><span class="pre">cap_waits_for_formation</span></code> in a later run while the file system is still the size an edge formed without a license has. The integration lane mints a test license that expires a day later with raw Nexus calls and a token whose user may create licenses</p></td>
+<td><p>A release route on the cluster that installs a license document</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, clone_host_vars, edge_cache_route, license</p></td>
+</tr>
+<tr class="row-even"><td><p>G-EDGE-FLOOR</p></td>
+<td><p>Edge cache floor</p></td>
+<td><p>A cache smaller than min(platform, 1 TB)</p></td>
+<td><p>Formation provisions that much capacity before any clamp can be set.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_route</span></code> reports <code class="docutils literal notranslate"><span class="pre">below_floor</span></code>, and the role keeps the cache free with <code class="docutils literal notranslate"><span class="pre">free_threshold</span></code> instead; on an unprotected edge without a license cap it holds the target to 1 TB (<code class="docutils literal notranslate"><span class="pre">blocked_license</span></code>)</p></td>
+<td><p>A formation-time clamp parameter</p></td>
+<td><p>open</p></td>
+<td><p>capacity_clamp, edge_cache_route</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-CLAMP-SHRINK</p></td>
+<td><p>Shrinking a cache</p></td>
+<td><p>Lowering the capacity clamp below what is provisioned</p></td>
+<td><p>Provisioning never shrinks, so a lower clamp does not return capacity.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_route</span></code> chooses <code class="docutils literal notranslate"><span class="pre">rebuild</span></code>; <code class="docutils literal notranslate"><span class="pre">capacity_clamp</span></code> refuses a decrease without <code class="docutils literal notranslate"><span class="pre">allow_decrease</span></code> and warns with it</p></td>
+<td><p>None expected</p></td>
+<td><p>open</p></td>
+<td><p>capacity_clamp, edge_cache_route</p></td>
+</tr>
+<tr class="row-even"><td><p>G-CLAMP-BOUNCE</p></td>
+<td><p>Clamp PUT abandons quorum</p></td>
+<td><p>Setting the capacity clamp</p></td>
+<td><p>Every PUT of the clamp abandons quorum to reprovision, even when provisioning does not change.</p></td>
+<td><p>PUT only on a difference, and never resent; after it, or after a lost connection, wait for the bounce and for readiness, then read the clamp back; the <code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code> role writes no clamp on <code class="docutils literal notranslate"><span class="pre">platform_limited</span></code></p></td>
+<td><p>Treat a PUT that leaves provisioning unchanged as a no-op</p></td>
+<td><p>open</p></td>
+<td><p>capacity_clamp, edge_cache_route</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-CLAMP-TOL</p></td>
+<td><p>Clamp comparison tolerance</p></td>
+<td><p>Comparing the stored clamp with the request</p></td>
+<td><p>The server rounds the clamp up to whole provisioning units, and the unit size is not published.</p></td>
+<td><p>A stored clamp from the request D up to D + <code class="docutils literal notranslate"><span class="pre">rounding_tolerance</span></code> (default the larger of 1% of D and 8 GiB, the unit seen on a 7.10.3A docker edge) is unchanged; a larger one is a decrease, which needs <code class="docutils literal notranslate"><span class="pre">allow_decrease</span></code>; an unset clamp is measured against the file system’s size</p></td>
+<td><p>Expose the provisioning-unit size or the provisioned DATA capacity</p></td>
+<td><p>open</p></td>
+<td><p>capacity_clamp, edge_cache_route</p></td>
+</tr>
+<tr class="row-even"><td><p>G-NET-PLACEMENT</p></td>
+<td><p>Static per-node IP placement</p></td>
+<td><p>STATIC per-node IPs</p></td>
+<td><p>Placement of addresses on nodes cannot be pinned, and an identical network PUT reallocates them.</p></td>
+<td><p>No PUT without a difference; the management-plane continuity rule; a lab job</p></td>
+<td><p>A no-op on an identical document; per-node pinning</p></td>
+<td><p>open</p></td>
+<td><p>network_config</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-NET-APPLY</p></td>
+<td><p>Network apply status</p></td>
+<td><p>Verifying that a network change has applied</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v3/network/status</span></code> answers HTTP 500 on the Qumulo Core container. The VM edge, a package install on a virtual machine whose network its host manages, answers it; host-managed CNQ has not been observed.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network_config</span></code> verifies the stored document, on every cluster. The continuity rule reads a 500 from the status as unavailable. With two or more tenants after a judged write, a declared management network (<code class="docutils literal notranslate"><span class="pre">management_network</span></code>) is trusted without the check that a HOST network shows on a device, and an undeclared one is refused with a message that names the option when an address of <code class="docutils literal notranslate"><span class="pre">api_host</span></code> is on no network’s ranges or on a HOST network; an address that the ranges place on a STATIC or DHCP network needs no status, and the write is judged as usual. <code class="docutils literal notranslate"><span class="pre">network_config</span></code> reads the status only for such a write, and never with one tenant. <code class="docutils literal notranslate"><span class="pre">network_info</span></code> lists its <code class="docutils literal notranslate"><span class="pre">status</span></code> and <code class="docutils literal notranslate"><span class="pre">api_host_network</span></code> subsets in <code class="docutils literal notranslate"><span class="pre">unavailable_subsets</span></code> with the reason, from one read of the status, and gathers the other subsets. <code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code> takes the status, or the reason it is unavailable, as options, and judges the run’s writes on it as <code class="docutils literal notranslate"><span class="pre">tenant</span></code> and <code class="docutils literal notranslate"><span class="pre">network_config</span></code> do: with the status unavailable it trusts a declared management network and refuses an undeclared one that needs the status</p></td>
+<td><p>A working status read on the container</p></td>
+<td><p>open</p></td>
+<td><p>network_config, network_info, tenancy_plan, tenant</p></td>
+</tr>
+<tr class="row-even"><td><p>G-NET-DHCP</p></td>
+<td><p>A DHCP network in a managed document</p></td>
+<td><p>Adding a network, such as a second tenant’s VLAN network, to a managed network document that holds a DHCP network</p></td>
+<td><p>The cluster allows one DHCP network in a managed network document and, when it is used, no other network. The rule is on the document, not on the order of changes, so one write may replace the DHCP network with a STATIC one and add a VLAN network together.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network_config</span></code> sends the document as declared, and a check run validates it with the cluster, which refuses it. A second tenant’s VLAN needs STATIC addressing, so a cluster whose untagged network is DHCP moves it to STATIC first, in a run of its own, with <code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code> and <code class="docutils literal notranslate"><span class="pre">api_host_after</span></code>, since the move drops the address the play connects to; <code class="docutils literal notranslate"><span class="pre">docs/how-to/tenants.md</span></code> gives the order</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>network_config</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-TENANT-CASCADE</p></td>
+<td><p>Tenant delete cascade</p></td>
+<td><p>Deleting a tenant</p></td>
+<td><p>Deleting a tenant also deletes its shares, its exports and its SMB and NFS overrides, and leaves stale export-tree entries that can abort a node in a later NFSv4.1 check. The tenant’s If-Match does not change when a share is added.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenant</span></code> refuses a delete, before any write, while the tenant holds a network, an SMB share or an NFS export, and lists them; its result names any override the delete removed. <code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code> refuses, at step 2, a tenant declared absent that holds a share or export that no entry declares or claims for it, and lists each</p></td>
+<td><p>A delete that refuses a tenant holding shares or exports, and cleans the export tree</p></td>
+<td><p>open</p></td>
+<td><p>tenancy_plan, tenant</p></td>
+</tr>
+<tr class="row-even"><td><p>G-TENANT-CLOUD</p></td>
+<td><p>Tenant writes on cloud platforms</p></td>
+<td><p>Creating, changing or deleting a tenant on AWS, Azure, GCP or OCI</p></td>
+<td><p>Qumulo Core refuses every tenant write on a cloud platform, so a cloud cluster always has one tenant.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenant</span></code> maps the refusal to a message that says so. Reads work, and check mode predicts the change and warns when the cluster’s protection type is object-backed. <code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code> refuses, at step 2, every tenant write of a run on a cluster that <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind:</span> <span class="pre">cnq</span></code> or an object-backed protection type marks as cloud, and lists them; the refusal holds with <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code>. <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> writes the tenant of a cluster whose protection type is object-backed without its six services, with a note</p></td>
+<td><p>Tenant writes on cloud platforms</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, tenancy_plan, tenant</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-TENANT-LISTEN</p></td>
+<td><p>Listener rebind between one tenant and two</p></td>
+<td><p>Creating the second tenant or deleting down to one, and changing the networks of a cluster with two or more tenants</p></td>
+<td><p>The first create of a second tenant and the delete that leaves one tenant rebind every listener on every node and end every NFS and replication connection. With more than one tenant, each service listens only on the networks of the tenants that enable it, so REST answers only on the networks of tenants with REST enabled.</p></td>
+<td><p>The continuity rule refuses a write that would leave the play’s own connection on no tenant with REST enabled. <code class="docutils literal notranslate"><span class="pre">tenant</span></code> applies it to its judged writes and warns of the rebind in the run and in a check run that predicts it. <code class="docutils literal notranslate"><span class="pre">network_config</span></code> applies it to every write that changes the network document, on the tenants and networks as the write leaves them, and gives no rebind warning, since a network write never changes the number of tenants. <code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code> applies it at step 2 to each judged write of the run, on the management network and the bindings as that write leaves them, so a run that would cut the play off is refused before any write</p></td>
+<td><p>Listeners that do not depend on the tenant count</p></td>
+<td><p>open</p></td>
+<td><p>network_config, tenancy_plan, tenant</p></td>
+</tr>
+<tr class="row-even"><td><p>G-TENANT-ROUTES</p></td>
+<td><p>Static routes removed by a tenant create or a network binding</p></td>
+<td><p>Creating a tenant, or binding a network to a tenant</p></td>
+<td><p>Creating a tenant and assigning a network removes the static routes of every node (Qumulo Core documentation).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenant</span></code> warns at every create, and <code class="docutils literal notranslate"><span class="pre">network_config</span></code> warns at every write that names a tenant for a new network or a different tenant for an existing one, in the run and in a check run that predicts it. The collection does not manage static routes</p></td>
+<td><p>Routes that survive</p></td>
+<td><p>open</p></td>
+<td><p>network_config, tenant</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-TENANT-BACKEND</p></td>
+<td><p>Backend networks in a tenant</p></td>
+<td><p>Adding a second tenant while a backend network is in a tenant, or declaring a tenant on a backend network</p></td>
+<td><p>The network PUT accepts a tenant on a backend network. With one tenant it puts every network sent without a tenant, backend networks included, in that tenant. Once there are two tenants, such a network aborts every node. <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">network_mod_network</span> <span class="pre">--clear-tenant-id</span></code> puts the network back in the only tenant.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network_config</span></code> never sends a tenant for a network on the backend bond. It refuses a declared <code class="docutils literal notranslate"><span class="pre">tenant</span></code> there, and drops a <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> with a warning for the release that still accepts it. <code class="docutils literal notranslate"><span class="pre">tenant</span></code> refuses a create that would make a second tenant while any tenant holds a network that is not on the frontend bond, a frontend VLAN or a HOST network, and names the network. The operator unbinds it first with a tenant PATCH of <code class="docutils literal notranslate"><span class="pre">networks</span></code> that leaves it out (<code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">multitenancy_modify_tenant</span> <span class="pre">--network-id</span></code>), just before the run that adds the tenant, with no network change between. <code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code> refuses, at step 2, a tenant on a network of the backend bond, and a create that would make the second tenant while a tenant holds a network that is not on the frontend bond, a frontend VLAN or a HOST network. <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> writes a backend network in <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>, and notes one a tenant holds on a cluster with two or more tenants</p></td>
+<td><p>The network PUT refusing backend networks, as the tenant API does</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, network_config, tenancy_plan, tenant</p></td>
+</tr>
+<tr class="row-even"><td><p>G-SSL-READBACK</p></td>
+<td><p>Server certificate readback</p></td>
+<td><p>Installing the server certificate</p></td>
+<td><p>No GET returns the installed certificate, and the private key can never be read back.</p></td>
+<td><p>A TLS probe of every node on ports 8000 and 443</p></td>
+<td><p>A GET returning the certificate chain</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, clone_host_vars, ssl_certificate</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-FACTORY-TLS</p></td>
+<td><p>Factory certificate</p></td>
+<td><p>Verifying a new edge’s certificate</p></td>
+<td><p>A new edge serves a bare self-signed leaf, which Python 3.13 and later refuse as a trust anchor.</p></td>
+<td><p>The certificate is installed in a run of its own with <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs:</span> <span class="pre">false</span></code> (docs/how-to/manage-certificates.md); a rebuild’s replay starts that way, and <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.ca_path_after</span></code> turns verification on after the certificate step</p></td>
+<td><p>A factory certificate shaped like a certificate authority</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>G-PASSWORD</p></td>
+<td><p>Write-only passwords</p></td>
+<td><p>Local user, LDAP bind and KMS passwords</p></td>
+<td><p>These passwords are write-only, so the collection cannot tell whether the stored one matches.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">update_password:</span> <span class="pre">on_create|always</span></code></p></td>
+<td><p>None needed</p></td>
+<td><p>open</p></td>
+<td><p>local_user</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-ADMIN-OS</p></td>
+<td><p>Admin password reaches the node OS</p></td>
+<td><p>Changing the admin password</p></td>
+<td><p>The server applies the admin password to the node operating system too.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">allow_admin_password_change</span></code>; <code class="docutils literal notranslate"><span class="pre">playbooks/admin_password_rotate.yml</span></code></p></td>
+<td><p>Document it, or decouple the two passwords</p></td>
+<td><p>open</p></td>
+<td><p>local_user</p></td>
+</tr>
+<tr class="row-even"><td><p>G-AD-JOIN</p></td>
+<td><p>Active Directory join and leave</p></td>
+<td><p>Joining or leaving AD</p></td>
+<td><p>The join credentials are write-only, and whether a machine account can be reused depends on AD policy (Microsoft KB5020276).</p></td>
+<td><p>Leave with credentials before destroying; a side-by-side guard; a clear mapping of JOIN_FAILED</p></td>
+<td><p>Return the machine account’s state before a join</p></td>
+<td><p>open</p></td>
+<td><p>ad_domain</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-AD-DCS</p></td>
+<td><p>Configured domain controllers</p></td>
+<td><p>Comparing the configured DCs</p></td>
+<td><p>No public API reads the configured domain controllers back.</p></td>
+<td><p>Compare <code class="docutils literal notranslate"><span class="pre">monitor.configured_dcs</span></code> when <code class="docutils literal notranslate"><span class="pre">monitor.domain</span></code> matches; otherwise treat the list as write-only</p></td>
+<td><p>A public read of the configured DCs</p></td>
+<td><p>open</p></td>
+<td><p>ad_domain, capture_info, identity_info</p></td>
+</tr>
+<tr class="row-even"><td><p>G-ID-ATTRIBUTES</p></td>
+<td><p>Listing identity attributes</p></td>
+<td><p>Capturing the attributes of identities the cluster does not own</p></td>
+<td><p>The cluster reads and writes the attributes of one identity at a time, by its id, and lists no identity that has them, so which identities have attributes cannot be found.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">identity_attributes</span></code> manages the identities the inventory names in <code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code>; <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> reads none back</p></td>
+<td><p>A list of the identities that have attributes</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, identity_attributes</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-ID-SAML</p></td>
+<td><p>SAML sign-in</p></td>
+<td><p>Checking that SAML sign-in works</p></td>
+<td><p>The cluster stores the SAML settings without reaching the identity provider, and sign-in is an interactive browser flow, so no API call shows that the settings work. The tier 1 lane has no identity provider.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">saml_settings</span></code> writes the settings and reads them back; the lane pins what the cluster stores, with self-signed certificates and no identity provider. Whether users can sign in is checked by hand</p></td>
+<td><p>An API call that checks the identity provider, or an identity provider on a lane</p></td>
+<td><p>open</p></td>
+<td><p>saml_settings</p></td>
+</tr>
+<tr class="row-even"><td><p>G-ID-SAML-CERT</p></td>
+<td><p>Removing the SAML certificate</p></td>
+<td><p>Removing the identity provider’s certificate</p></td>
+<td><p>Once a certificate is set, the cluster refuses an empty one as an invalid certificate.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">saml_settings</span></code> refuses <code class="docutils literal notranslate"><span class="pre">idp_certificate:</span> <span class="pre">&quot;&quot;</span></code> before any write when one is set, and <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code> turns sign-in off; turning sign-in on with a certificate the task did not give warns, since that one stays whoever set it</p></td>
+<td><p>Accept an empty certificate to remove it</p></td>
+<td><p>open</p></td>
+<td><p>saml_settings</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-KRB-AD</p></td>
+<td><p>A keytab and a domain join</p></td>
+<td><p>Installing a Kerberos keytab on a cluster joined to Active Directory, or joining one that holds a keytab</p></td>
+<td><p>The keytab is a standalone KDC’s. A cluster joined to Active Directory answers a keytab PUT with 409 <code class="docutils literal notranslate"><span class="pre">auth_joined_to_ad_error</span></code>, and a cluster that holds a keytab answers a join with 409 <code class="docutils literal notranslate"><span class="pre">ad_domain_standalone_kdc_error</span></code>; a joined cluster takes its Kerberos keys from its computer account and shows none.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> reads the domain status before any keytab write, in check mode too, and refuses on a joined cluster. The baseline refuses a keytab to install beside <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>, and runs the keytab step before the join, so that a keytab declared absent is deleted before a join</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>kerberos_keytab</p></td>
+</tr>
+<tr class="row-even"><td><p>G-KRB-KEYTAB</p></td>
+<td><p>Whether a keytab works</p></td>
+<td><p>Installing a Kerberos keytab</p></td>
+<td><p>The cluster stores any well-formed keytab without checking its principals against its own names or asking a KDC, so a keytab for another host, or one whose keys the KDC has since changed, installs and NFS with Kerberos then fails.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> compares the cluster’s keytab with the declared one and returns its principals, versions and types; it cannot tell whether a client can authenticate with it. Capture names the principals in the keytab’s supply line</p></td>
+<td><p>A route that validates the keytab against the cluster’s names and the KDC</p></td>
+<td><p>open</p></td>
+<td><p>kerberos_keytab</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-TOKEN</p></td>
+<td><p>Access tokens</p></td>
+<td><p>Creating access tokens</p></td>
+<td><p>The secret is shown once, a user can hold two tokens and expired ones count, and every token is dead after a rebuild.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">access_token</span></code> keys a token by its user, since the cluster takes no name for one. <code class="docutils literal notranslate"><span class="pre">present</span></code> makes a token when the user holds none, and otherwise sets <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">expiration_time</span></code> on each token the user holds. <code class="docutils literal notranslate"><span class="pre">rotated</span></code> always changes: it makes a new token, writes its bearer to a file, confirms the token in a listing, and then deletes the old ones, and it is refused before any write for a user who holds two tokens, expired ones counted. The bearer goes to the result once and at once to a file of its own, readable only by its owner, in <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code>; a task without <code class="docutils literal notranslate"><span class="pre">no_log</span></code> or the destination is refused before any write. A rotation whose later step fails can leave the user with two tokens, and no option of the module deletes only the old one; the failure names the old token’s id, which <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">auth_delete_access_token</span></code> or <code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/v1/auth/access-tokens/{id}</span></code> deletes outside the collection, and a user refused at two tokens is told the same. A create whose connection is lost is not sent again: the module lists the user’s tokens and deletes any it did not hold before, whose bearer is lost, and with them any token another client made in the same moment; when that listing fails too, the task fails with <code class="docutils literal notranslate"><span class="pre">maybe_applied</span></code>, saying a token whose bearer is lost may be left and how to replace it. The rebuild preflight counts the tokens a cluster holds.</p></td>
+<td><p>Do not count expired tokens; name tokens</p></td>
+<td><p>open</p></td>
+<td><p>access_token, edge_rebuild_preflight</p></td>
+</tr>
+<tr class="row-even"><td><p>G-S3-KEY</p></td>
+<td><p>S3 access keys</p></td>
+<td><p>Creating S3 access keys</p></td>
+<td><p>The cluster makes both the key’s id and its secret, returns the secret only in its response to the request that makes the key, and holds at most two keys per user; no route imports a known key, so a rebuilt cluster has none of the old keys.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s3_access_key</span></code> keeps a key by its id, or makes sure the user holds one, and makes a key only when none meets the declaration, and for a declared id only while the user holds fewer keys than the inventory declares for it, so a rebuild restores each declared key. It writes the new secret at once to a file of its own, readable only by its owner, in <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code>, returns it in that run only, and refuses to make a key without <code class="docutils literal notranslate"><span class="pre">no_log</span></code> or a destination. The baseline makes keys last, writing the secrets under the host’s artifact directory; the rebuild preflight counts the keys a cluster holds. Not handled yet: an entry without an id declares no key, so a user with such an entry beside entries with ids is not restored by a rebuild, and which key the id-less entry keeps depends on the order of the entries; a user’s entries are matched by how they spell the user, so <code class="docutils literal notranslate"><span class="pre">local:svc</span></code> and <code class="docutils literal notranslate"><span class="pre">LOCAL:svc</span></code> count as two users; and check mode does not look at <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code>, so a file there passes check mode and fails the real run before any key is made</p></td>
+<td><p>An import route for a known key, or a description on each key to find it by</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, clone_host_vars, edge_rebuild_preflight, s3_access_key</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-S3-ROTATE</p></td>
+<td><p>S3 key rotation without downtime</p></td>
+<td><p>Replacing an S3 access key while its consumers keep working</p></td>
+<td><p>The cluster chooses a key’s id when it makes the key and takes no name for it, so a declaration can name only a key that exists, never a second key to hand out before the first goes.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s3_access_key</span></code> replaces a key by removing it, then making the new one, so its consumers lose access until they hold the new secret; two keys for one user are made only by hand</p></td>
+<td><p>A key made with a name or description the declaration can give in advance</p></td>
+<td><p>open</p></td>
+<td><p>s3_access_key</p></td>
+</tr>
+<tr class="row-even"><td><p>G-S3-PATH</p></td>
+<td><p>S3 bucket directory</p></td>
+<td><p>Moving an S3 bucket to another directory</p></td>
+<td><p>A bucket’s directory is set when the bucket is created, and no route changes it.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s3_bucket</span></code> refuses a different <code class="docutils literal notranslate"><span class="pre">path</span></code> for an existing bucket before any write; removing the bucket keeps its directory and objects, so it can be created again at the new path, after which its policy must be applied again</p></td>
+<td><p>A PATCH of a bucket’s path</p></td>
+<td><p>open</p></td>
+<td><p>s3_bucket</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-S3-LOCK</p></td>
+<td><p>S3 versioning and object lock</p></td>
+<td><p>Turning versioning or object lock off on an S3 bucket</p></td>
+<td><p>Versioning never returns to <code class="docutils literal notranslate"><span class="pre">Unversioned</span></code> once set, a lock can never be removed, and a locked bucket keeps versioning <code class="docutils literal notranslate"><span class="pre">Enabled</span></code>, as in S3.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s3_bucket</span></code> refuses those changes before any write, in check mode too</p></td>
+<td><p>None expected</p></td>
+<td><p>open</p></td>
+<td><p>s3_bucket</p></td>
+</tr>
+<tr class="row-even"><td><p>G-NEXUS-KEY</p></td>
+<td><p>Nexus registration key</p></td>
+<td><p>Registering with Nexus</p></td>
+<td><p>The join key is single-use, and a failed registration looks like a permanent PENDING.</p></td>
+<td><p>Act on NONE, or on PENDING with a new key (PUT, rotate). With <code class="docutils literal notranslate"><span class="pre">nexus_api_token</span></code>, <code class="docutils literal notranslate"><span class="pre">nexus_registration</span></code> mints the key and <code class="docutils literal notranslate"><span class="pre">nexus_cluster</span></code> retires the old UUID; otherwise the old UUID is reported for Qumulo Care</p></td>
+<td><p>Report ERROR_REGISTERING; expose the organization</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, clone_host_vars, nexus_registration</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-NEXUS-RETIRE</p></td>
+<td><p>Retiring a cluster in Nexus</p></td>
+<td><p>Retiring a cluster UUID in Nexus</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nexus_cluster</span></code> is in the action group, and its guard checks the cluster at <code class="docutils literal notranslate"><span class="pre">api_host</span></code>, so retiring a UUID needs a reachable cluster’s credentials even when the cluster that had the UUID no longer exists.</p></td>
+<td><p>Run it against the new edge in the rebuild’s replay</p></td>
+<td><p>A Nexus-only action group for <code class="docutils literal notranslate"><span class="pre">nexus_cluster</span></code>, which would need no cluster</p></td>
+<td><p>open</p></td>
+<td><p>nexus_cluster</p></td>
+</tr>
+<tr class="row-even"><td><p>G-VPN-KEYS</p></td>
+<td><p>Support VPN keys</p></td>
+<td><p>Installing support VPN keys</p></td>
+<td><p>The keys need a CSR signed by Qumulo Care, and the private key is returned in cleartext.</p></td>
+<td><p>Out of scope: Qumulo’s support tooling installs the keys, and the feature is being deprecated, so no module manages them, and none reads them</p></td>
+<td><p>Do not return the private key on GET or PUT</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>G-KMS</p></td>
+<td><p>KMIP key store</p></td>
+<td><p>Configuring the KMIP key store</p></td>
+<td><p>Every PUT of the key store rotates the key, even when the configuration is unchanged.</p></td>
+<td><p>No PUT without a difference; <code class="docutils literal notranslate"><span class="pre">update_password</span></code> for credentials; predestroy fails fast until T9</p></td>
+<td><p>Treat an identical PUT as a no-op</p></td>
+<td><p>open</p></td>
+<td><p>edge_rebuild_preflight</p></td>
+</tr>
+<tr class="row-even"><td><p>G-MON-KMS-ROTATE</p></td>
+<td><p>Rotating a KMS key by age</p></td>
+<td><p>Rotating the at-rest encryption key of a cluster whose key store is a KMS</p></td>
+<td><p>With a KMS key store, <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v2/encryption/rotate-keys</span></code> rotates only to another key the KMS holds, named by its id; without an id, or with the id in use, it is refused. Nothing in the cluster’s API makes that key.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">encryption_key_rotation</span></code> rotates to a given <code class="docutils literal notranslate"><span class="pre">key_id</span></code> that differs from the key in use, and leaves the key in use alone; without <code class="docutils literal notranslate"><span class="pre">key_id</span></code> it fails when the key is older than <code class="docutils literal notranslate"><span class="pre">max_age_days</span></code>, and with one the age is not checked</p></td>
+<td><p>Rotate a KMS-held key to a new key the cluster creates in the KMS, as the cluster’s own key store does</p></td>
+<td><p>open</p></td>
+<td><p>encryption_key_rotation</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-MON-AUDIT-INFO</p></td>
+<td><p>Audit destinations in monitoring_info</p></td>
+<td><p>Reading the audit log destinations with <code class="docutils literal notranslate"><span class="pre">monitoring_info</span></code></p></td>
+<td><p>The v1 audit routes <code class="docutils literal notranslate"><span class="pre">monitoring_info</span></code> reads are views over only the destinations named <code class="docutils literal notranslate"><span class="pre">syslog</span></code>, <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> and <code class="docutils literal notranslate"><span class="pre">local</span></code>, so a destination of any other name, which <code class="docutils literal notranslate"><span class="pre">audit_destination</span></code> manages, is not shown.</p></td>
+<td><p>A follow-up in the collection: <code class="docutils literal notranslate"><span class="pre">monitoring_info</span></code> gains a subset over <code class="docutils literal notranslate"><span class="pre">/v2/audit/destinations/</span></code> in <code class="docutils literal notranslate"><span class="pre">audit_destination</span></code>’s shape; until then <code class="docutils literal notranslate"><span class="pre">capture_info</span></code>’s <code class="docutils literal notranslate"><span class="pre">audit</span></code> area reads every destination</p></td>
+<td><p>None; the collection’s own change</p></td>
+<td><p>open</p></td>
+<td><p>monitoring_info</p></td>
+</tr>
+<tr class="row-even"><td><p>G-MON-AUDIT-RETYPE</p></td>
+<td><p>Changing an audit destination’s type</p></td>
+<td><p>Changing an audit destination from one type to another in place</p></td>
+<td><p>Whether the cluster changes a destination’s type in place is not pinned on a running cluster: the lane’s container refuses CloudWatch destinations, and a LOCAL destination must be named <code class="docutils literal notranslate"><span class="pre">local</span></code>, so no live test reaches a change of type.</p></td>
+<td><p>A follow-up: <code class="docutils literal notranslate"><span class="pre">audit_destination</span></code> PUTs the new type with the old type’s options cleared, pinned by unit tests only, until a lane in AWS (tier 2) can pin the cluster’s answer</p></td>
+<td><p>None; a live pin in the collection’s tier 2 lane</p></td>
+<td><p>open</p></td>
+<td><p>audit_destination</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-PORTAL-ONESHOT</p></td>
+<td><p>One-shot portal operations</p></td>
+<td><p>Spoke create, root propose, hub accept</p></td>
+<td><p>These calls fail when retried, and a failed propose leaves an orphaned root on the hub.</p></td>
+<td><p>List and match first; check that the root is absent and its parent present before proposing; accept only when PENDING; clean up orphans</p></td>
+<td><p>Make propose idempotent and atomic</p></td>
+<td><p>open</p></td>
+<td><p>portal_hub, portal_spoke</p></td>
+</tr>
+<tr class="row-even"><td><p>G-PORTAL-STALE</p></td>
+<td><p>Hub record of a destroyed spoke</p></td>
+<td><p>Deleting the hub record of a spoke that no longer exists</p></td>
+<td><p>The hub has no stale marker, and a non-force delete never finishes.</p></td>
+<td><p>Keyed on the old UUID; force only with <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code></p></td>
+<td><p>Fail a non-force delete fast when the spoke is unreachable</p></td>
+<td><p>open</p></td>
+<td><p>portal_hub</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-PORTAL-HOSTS</p></td>
+<td><p>Each side of a portal records only the other’s addresses</p></td>
+<td><p>Capturing the addresses each side of a portal is reached at</p></td>
+<td><p>A spoke records the hub’s addresses (<code class="docutils literal notranslate"><span class="pre">hub_hosts</span></code>) but not its own, and a hub records the spoke’s (<code class="docutils literal notranslate"><span class="pre">spoke_hosts</span></code>) but not its own, so no cluster reports the addresses it is reached at.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">capture_info</span></code> returns each side’s record of its peer, and <code class="docutils literal notranslate"><span class="pre">playbooks/capture.yml</span></code> writes those addresses as the peer host’s <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> when the peers are captured in the same run and every record agrees and comes from an ACCEPTED, ACTIVE portal; otherwise the host’s file names <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> as a value to supply. A replication target’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> is taken the same way from its sources’ ESTABLISHED records. A hub host holds one address list for all its spokes, so spokes that reach the hub at different addresses cannot all be declared</p></td>
+<td><p>Each portal record reporting the local cluster’s own addresses too</p></td>
+<td><p>open</p></td>
+<td><p>capture_info</p></td>
+</tr>
+<tr class="row-even"><td><p>G-PORTAL-ETAG</p></td>
+<td><p>Portal writes without ETags</p></td>
+<td><p>Hub and spoke writes</p></td>
+<td><p>GET carries no ETag; PATCH checks If-Match and returns one.</p></td>
+<td><p>Diff before writing; <code class="docutils literal notranslate"><span class="pre">throttle:</span> <span class="pre">1</span></code>, which protects only within one play; <code class="docutils literal notranslate"><span class="pre">portal_eviction_settings</span></code> sends If-Match only when its GET returned an ETag</p></td>
+<td><p>ETags on hubs and spokes</p></td>
+<td><p>open</p></td>
+<td><p>portal_eviction_settings, portal_hub, portal_spoke</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-REPL-PEER</p></td>
+<td><p>Replication after a peer rebuild</p></td>
+<td><p>Keeping a replication relationship across a peer rebuild</p></td>
+<td><p>Relationship ids are generated, a relationship pinned to the old peer certificate never reaches ENDED, and the delete notification is sent only once.</p></td>
+<td><p>The target cluster’s UUID is part of the source’s key, and the address a setting. A changed peer is found at the declared address, or by a previous UUID of the target host at any address, and is recreated create-first once the target check has passed: the new relationship’s target UUID is read back before the old record is deleted. While the role defers a relationship into an edge, a delete-only pass removes previous-UUID records at the declared address or with the secure-connection error. A rebuilt source’s stale target record is held until a copy back and a release. An edge that is a target is recreated only in its second pass. The rebuild preflight reads each peer’s record of a declared relationship, matches a peer by its current or a previous UUID, and fails fast on a relationship the inventory does not declare, or on a declared source whose record is ENDED or pending</p></td>
+<td><p>A peer-UUID-mismatch state</p></td>
+<td><p>open</p></td>
+<td><p>edge_rebuild_preflight, replication_info, replication_pair_plan, replication_relationship, replication_restore_step, replication_target</p></td>
+</tr>
+<tr class="row-even"><td><p>G-REPL-ONESHOT</p></td>
+<td><p>One-shot replication operations</p></td>
+<td><p>Creating and authorizing a replication relationship, and a make-writable, reverse or reconnect by relationship id</p></td>
+<td><p>Create and authorize are one-shot, and so are <code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code>’s verbs. A repeated create makes a second relationship, and a create that fails halfway leaves a pending record on the target. A repeated authorize fails. A create to an address that reaches another cluster leaves an ENDED record there after the source’s delete.</p></td>
+<td><p>Match by key before any create, and reconcile a lost create or authorize by listing, never by sending again. The target prunes stale pending records of the key, and a misdirected create is deleted at once. Pending records stay on both sides when a declaration is abandoned before its authorize. <code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> sends each verb only from the state it starts from, the make-writable from ESTABLISHED with a recovery point and the reverse and reconnect from DISCONNECTED, and reconciles a lost answer by reading the record. A restore abandoned before its make-writable leaves its relationship on both sides until its abandon exit deletes it</p></td>
+<td><p>A create that takes a client token, and an authorize that succeeds when repeated</p></td>
+<td><p>open</p></td>
+<td><p>replication_relationship, replication_restore_step, replication_reverse, replication_target</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-REPL-OVERWRITE</p></td>
+<td><p>Authorizing into a non-empty directory</p></td>
+<td><p>Authorizing a replication target directory that holds data</p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">allow-non-empty-directory</span></code>, the first job replaces the target directory’s content with the source’s, deleting what the source lacks. A directory holding only directories counts as non-empty.</p></td>
+<td><p>The overwrite table (docs/explanation/replication.md) decides every case, with a consent on the relationship or a release bound to a record. <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> keeps the target’s data only while the entry stays absent</p></td>
+<td><p>An authorize that refuses an empty source, or reports what it would delete</p></td>
+<td><p>open</p></td>
+<td><p>replication_pair_plan, replication_target</p></td>
+</tr>
+<tr class="row-even"><td><p>G-REPL-NOTIFY</p></td>
+<td><p>Delete notification sent once</p></td>
+<td><p>Removing a replication relationship</p></td>
+<td><p>The source tells the target of a delete once, from memory, so a target that is unreachable then, or a source that is gone, leaves the target’s record live and its directory read-only.</p></td>
+<td><p>Removal deletes on the source, then on the target. For a source gone for good, <code class="docutils literal notranslate"><span class="pre">replication_target</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> on the target host; for a target gone for good, <code class="docutils literal notranslate"><span class="pre">target_gone</span></code> deletes on the source only</p></td>
+<td><p>A target that learns of a delete, or of a source that is gone, by itself</p></td>
+<td><p>open</p></td>
+<td><p>replication_relationship, replication_target</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-REPL-SNAPSHOT</p></td>
+<td><p>Snapshots a removal leaves</p></td>
+<td><p>Removing or pruning a replication relationship, and making its target writable or reversing it</p></td>
+<td><p>Removal leaves the target’s last recovery-point snapshot, and a make-writable a revert snapshot, each owned by nothing and never expiring; a reversal leaves them on both sides. They can read back with an empty path.</p></td>
+<td><p>The modules name the snapshots they leave in their results, and leave them, since each is the last consistent copy; the operator deletes them once the copy is no longer wanted. <code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> says in its notes that a make-writable and a reverse leave them, which <code class="docutils literal notranslate"><span class="pre">snapshot_info</span></code> lists. The restore names in its result X’s recovery-point snapshots on the target, the only ids its record held; the make-writable’s and the reverse’s on both clusters it leaves to <code class="docutils literal notranslate"><span class="pre">snapshot_info</span></code>. A rebuild preflight counts them as snapshots</p></td>
+<td><p>An option to delete a relationship’s snapshots with it</p></td>
+<td><p>open</p></td>
+<td><p>replication_relationship, replication_restore_step, replication_reverse, replication_target</p></td>
+</tr>
+<tr class="row-even"><td><p>G-REPL-TZ</p></td>
+<td><p>Blackout timezone cannot be cleared</p></td>
+<td><p>Removing a relationship’s blackout timezone</p></td>
+<td><p>A PATCH of an empty <code class="docutils literal notranslate"><span class="pre">blackout_window_timezone</span></code> leaves the stored timezone in place (QUIRK-019).</p></td>
+<td><p>An empty timezone where one is set, and blackout windows without a timezone, fail before any write</p></td>
+<td><p>A PATCH that clears the timezone</p></td>
+<td><p>open</p></td>
+<td><p>replication_relationship</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-REPL-IDMAP</p></td>
+<td><p>File ownership through replication</p></td>
+<td><p>Restoring a rebuilt source’s files from its replica with their owners</p></td>
+<td><p>Replication carries a file’s owner and group as NFS ids when they are local users and groups other than the built-in ones. A source with <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code> off fails every job on such a file, and with it on, it needs an NFS uid on every such user and a gid on every such group. The target then holds the file owned by <code class="docutils literal notranslate"><span class="pre">NFS_UID</span> <span class="pre">&lt;uid&gt;</span></code>, and a restore writes it back to the edge the same way, whatever the restore relationship’s own mapping. The built-in admin user and Users group come back as themselves, <code class="docutils literal notranslate"><span class="pre">LOCAL_USER</span></code> and <code class="docutils literal notranslate"><span class="pre">LOCAL_GROUP</span></code>. A file reaches the same user or group only through a matching uid or gid.</p></td>
+<td><p>The restore relationship is created with the server’s defaults, and the restore’s last step applies the declared mapping. The edge’s baseline recreates its local users and groups with their declared uids and gids, which <code class="docutils literal notranslate"><span class="pre">/v1/identity/expand</span></code> maps the NFS ids to, so a restored file reaches its owner again. A uid set on the old edge outside the inventory was replicated too, and its files come back owned by an NFS uid no local user has</p></td>
+<td><p>A relationship that carries local users and groups as themselves</p></td>
+<td><p>open</p></td>
+<td><p>replication_relationship, replication_restore_step</p></td>
+</tr>
+<tr class="row-even"><td><p>G-FACTORY</p></td>
+<td><p>Factory export and share</p></td>
+<td><p>The factory <code class="docutils literal notranslate"><span class="pre">/</span></code> export and <code class="docutils literal notranslate"><span class="pre">Files</span></code> share</p></td>
+<td><p>Every formation creates them again.</p></td>
+<td><p>An explicit <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> for a rebuild</p></td>
+<td><p>A formation option to skip them</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>G-SPOKE-PATHS</p></td>
+<td><p>Paths inside spoke roots</p></td>
+<td><p>Quotas, snapshot policies and snapshots inside spoke roots</p></td>
+<td><p>The server refuses them.</p></td>
+<td><p>A preflight check and a clear error</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>directory_quota, snapshot, snapshot_policy</p></td>
+</tr>
+<tr class="row-even"><td><p>G-MAPTO</p></td>
+<td><p>NFS export mapped to a deleted user</p></td>
+<td><p>Changing an NFS export after its mapped user is deleted</p></td>
+<td><p>The export’s <code class="docutils literal notranslate"><span class="pre">map_to_user</span></code> reads back empty, and every later PATCH of the export fails.</p></td>
+<td><p>Detect the case and fail, naming the user</p></td>
+<td><p>Refuse to delete a user an export references</p></td>
+<td><p>open</p></td>
+<td><p>capture_info, nfs_export</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-FTP-GREETING</p></td>
+<td><p>The factory FTP greeting</p></td>
+<td><p>Setting the FTP greeting back to the one a new cluster has</p></td>
+<td><p>The cluster refuses an empty FTP greeting and has no way to reset it, so once the greeting is changed, the factory text comes back only when a client sends that text again.</p></td>
+<td><p>An empty greeting fails before any request. A capture taken before the change holds the greeting, which is the text to send back.</p></td>
+<td><p>Take an empty or null greeting as the factory greeting</p></td>
+<td><p>open</p></td>
+<td><p>ftp_settings</p></td>
+</tr>
+<tr class="row-even"><td><p>G-FS-ACL-MODE</p></td>
+<td><p>A path’s mode and its ACL</p></td>
+<td><p>Declaring both a POSIX mode and an ACL for one path</p></td>
+<td><p>They are two views of one fact: setting a mode rewrites the ACL, and writing an ACL changes the mode the cluster reports, so a mode and an ACL that disagree would each undo the other on every run.</p></td>
+<td><p>file_acl declares the ACL and directory the mode; the cluster_baseline role refuses a path that has a <code class="docutils literal notranslate"><span class="pre">mode</span></code> in <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code> and an ACL in <code class="docutils literal notranslate"><span class="pre">qumulo_file_acls</span></code>, and capture declares an ACL in place of the mode only when setting the mode would leave another ACL</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>directory, file_acl</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-SNAP-TTL</p></td>
+<td><p>Snapshot policy expiry and delete</p></td>
+<td><p>Changing a snapshot policy’s TTL; deleting a policy</p></td>
+<td><p>A TTL change does not apply to existing snapshots, and replication owners block a policy delete.</p></td>
+<td><p>Documented; a clear error</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>snapshot_policy</p></td>
+</tr>
+<tr class="row-even"><td><p>G-SNAP-LOCK</p></td>
+<td><p>Snapshot locks</p></td>
+<td><p>Locking and unlocking a snapshot</p></td>
+<td><p>The cluster refuses to lock a locked snapshot, even with its own key, and to unlock an unlocked one. Unlocking takes a signature, with the lock key’s private key, of a challenge the cluster issues once, and the cluster keeps only the public key.</p></td>
+<td><p>snapshot_lock reads the lock first and sends neither when the snapshot has the state asked for; it signs the challenge with the openssl command on the controller, since the collection’s modules import nothing beyond ansible-core, and checks the private key against the key store before it asks for a challenge. A snapshot that never expires cannot be given an expiration once locked, so it is locked only when the task gives a private key that matches, a design decision rather than a gap</p></td>
+<td><p>A lock that succeeds when repeated with the same key, and an unlock that succeeds on an unlocked snapshot</p></td>
+<td><p>open</p></td>
+<td><p>snapshot_lock</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-COLD</p></td>
+<td><p>State lost in a rebuild</p></td>
+<td><p>Snapshots, cache contents and analytics after a rebuild</p></td>
+<td><p>A rebuild loses them.</p></td>
+<td><p>Documented in the rebuild report</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>G-DNS</p></td>
+<td><p>DNS records</p></td>
+<td><p>A and PTR records for the cluster</p></td>
+<td><p>Qumulo does not register them.</p></td>
+<td><p>A customer step in the rebuild report</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>G-DNS-FQDN-CLEAR</p></td>
+<td><p>Clearing the authoritative DNS name</p></td>
+<td><p>Returning the cluster’s authoritative DNS name to unset</p></td>
+<td><p>A cluster starts with no name, but once one is set, <code class="docutils literal notranslate"><span class="pre">PATCH</span> <span class="pre">/v1/authoritative-dns/settings</span></code> refuses <code class="docutils literal notranslate"><span class="pre">fqdn:</span> <span class="pre">&quot;&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">dns_name_parse_error</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> refuses an empty <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> before the write on a cluster that has a name, naming that name and saying to leave <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> out or declare the name, and to list <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> where Terraform set it; on a cluster that has never had one, an empty <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> changes nothing. The <code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> target fails once the cluster accepts the empty name</p></td>
+<td><p>Accept an empty name, at least while the server is off</p></td>
+<td><p>open</p></td>
+<td><p>authoritative_dns</p></td>
+</tr>
+<tr class="row-even"><td><p>G-TF-STALE</p></td>
+<td><p>Terraform state after a rebuild</p></td>
+<td><p>Terraform’s state of a rebuilt edge</p></td>
+<td><p>The state keeps the old cluster UUID when the collection forms the new edge.</p></td>
+<td><p>A rebuild whose reinstall tasks replace the edge’s resource lets Terraform form the new edge, and the replay reads the new UUID from the inventory plugin; otherwise replace the resource or override the UUID</p></td>
+<td><p>A provider refresh from <code class="docutils literal notranslate"><span class="pre">/v1/node/state</span></code></p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>G-TF-NLB-ADDRESS</p></td>
+<td><p>Load balancer addresses of a multi-AZ AWS cluster</p></td>
+<td><p>Publishing portal and replication addresses for a multi-AZ cluster in AWS</p></td>
+<td><p>Such a cluster has no floating IPs, and its targets are its network load balancer’s IPs. The provider forms no load balancer; the root’s own <code class="docutils literal notranslate"><span class="pre">aws_lb</span></code> exports <code class="docutils literal notranslate"><span class="pre">dns_name</span></code> and no IP address, and the legacy CNQ modules publish only that name, as <code class="docutils literal notranslate"><span class="pre">qumulo_nlb_dns</span></code>. The portal modules and replication’s <code class="docutils literal notranslate"><span class="pre">target_address</span></code> take IP addresses only.</p></td>
+<td><p>The root reads the load balancer’s IPs from its network interfaces, <code class="docutils literal notranslate"><span class="pre">aws_network_interface</span></code> filtered on the description <code class="docutils literal notranslate"><span class="pre">ELB</span> <span class="pre">&lt;arn_suffix&gt;</span></code> in each subnet, and publishes them as <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_address</span></code>. A root with only the name publishes it as <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code>, and the plugin resolves it at each read; with cross-zone load balancing off the name leaves out a zone with no healthy target, so with the inventory cache a shorter answer than last time fails the source. The load balancer must listen on 3713 for portals and 3712 for replication</p></td>
+<td><p>None needed</p></td>
+<td><p>closed</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>G-PRODUCT</p></td>
+<td><p>Product type</p></td>
+<td><p>Reading the product type</p></td>
+<td><p>No public endpoint returns it; it is read from metric labels.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cluster_info</span></code></p></td>
+<td><p>A public field</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>G-ACTIONS</p></td>
+<td><p>Imperative operations</p></td>
+<td><p>Cache clears, snapshot create, replication job, encryption rotation</p></td>
+<td><p>These operations are imperative, so running them again repeats them.</p></td>
+<td><p>Action modules with plan guards (no running job, key age, path absent); clear-cache actions always report changed. Declined: tree delete, which is one-shot and destructive and which nothing in the collection needs; use <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">tree_delete_create</span></code>. It comes back only with a flow that needs it</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>auth_cache_clear, dns_cache_clear, encryption_key_rotation, snapshot, upgrade</p></td>
+</tr>
+<tr class="row-even"><td><p>G-CONTAINER</p></td>
+<td><p>Operations a container cannot run</p></td>
+<td><p>Upgrade, node operations, floating IPs, managed network, VLAN-bound tenants, service isolation, KMIP, RDMA, authoritative DNS answers</p></td>
+<td><p>The tier 1 single-node container cannot run them. Its network is managed by its host, which never puts a floating address on the container, and its image runs no authoritative DNS server, so nothing answers on port 53 of the container’s address or of a floating address the cluster is given. It has one interface and no VLAN, so a network bound to a second tenant serves no client there, and which services answer on which network cannot be shown.</p></td>
+<td><p>Alias <code class="docutils literal notranslate"><span class="pre">unsupported</span></code> in tier 1; covered by the tier 2 (CNQ) and tier 3 (lab) jobs, except that tier 2 reads the floating IPs the Terraform provider owns but never changes them, so writes to them stay with tier 3. The <code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> target checks the stored settings only; a query answered on a floating address needs a cluster with floating addresses that runs the server</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>G-CONTAINER-OPENAPI</p></td>
+<td><p>OpenAPI document on the container</p></td>
+<td><p>Checking the collection’s routes and request fields against the cluster’s OpenAPI document</p></td>
+<td><p>The Qumulo Core 7.10.3 docker image serves every other route, but answers 500 on <code class="docutils literal notranslate"><span class="pre">/openapi.json</span></code> and 404 on <code class="docutils literal notranslate"><span class="pre">/v1/openapi.json</span></code>.</p></td>
+<td><p>The live contract tests skip with “the cluster serves no OpenAPI document”; they need a full cluster or a <code class="docutils literal notranslate"><span class="pre">--spec-file</span></code>, and <code class="docutils literal notranslate"><span class="pre">QUMULO_CONTRACT_REQUIRE_DOCUMENT=1</span></code> fails them instead for a lane that runs one</p></td>
+<td><p>Serve the OpenAPI document from the container image</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>G-UPGRADE-ONESHOT</p></td>
+<td><p>An upgrade’s commit cannot be cancelled</p></td>
+<td><p>Upgrading a cluster</p></td>
+<td><p>A commit cannot be cancelled, and a prepared upgrade is abandoned only by not committing it or by preparing another.</p></td>
+<td><p>Verify, prepare and commit are never sent again after a lost answer; a lost answer is read back from the build and the status, and only a commit found still PREPARED, with the REST API answering throughout, is sent once more</p></td>
+<td><p>An idempotent commit keyed by the prepared image</p></td>
+<td><p>open</p></td>
+<td><p>upgrade</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-UPGRADE-RECORD</p></td>
+<td><p>No record of a commit in progress</p></td>
+<td><p>Upgrading a cluster</p></td>
+<td><p>Nothing on the cluster records a commit in progress: after a quorum change the status reads IDLE, as after success, and some nodes may be armed to start the new build at their next restart.</p></td>
+<td><p>The outcome comes from the running build. The <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module, given <code class="docutils literal notranslate"><span class="pre">commit_record</span></code>, writes a pending record on the controller immediately before each commit request and marks it unfinished when the commit did not finish; the next plan refuses the host while a record it cannot retire stands</p></td>
+<td><p>A persisted upgrade record, readable after the restart</p></td>
+<td><p>open</p></td>
+<td><p>upgrade, upgrade_plan</p></td>
+</tr>
+<tr class="row-even"><td><p>G-UPGRADE-LETTER</p></td>
+<td><p>A letter release as an upgrade source</p></td>
+<td><p>Upgrading a cluster that runs a limited release, such as 7.10.3A</p></td>
+<td><p>Qumulo Core refuses a letter release as an upgrade source unless the rule is waived.</p></td>
+<td><p>Refused by default; <code class="docutils literal notranslate"><span class="pre">allow_upgrade_from_limited_release</span></code>, a support-directed option, sends the waiver in the source’s form on the first hop; no letter release is an intermediate hop</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>upgrade, upgrade_plan</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-UPGRADE-PATH</p></td>
+<td><p>An upgrade path cannot be read ahead</p></td>
+<td><p>Planning an upgrade across several releases</p></td>
+<td><p>A later hop’s acceptance cannot be read before the cluster reaches the hop before it, and no build’s upgrade window is published beside its image.</p></td>
+<td><p>The plan checks the documented quarterly rule; each prepare’s verify is the server’s check, and the module compares the release verify reads with the images list’s</p></td>
+<td><p>The upgrade window published beside each image</p></td>
+<td><p>open</p></td>
+<td><p>upgrade, upgrade_plan</p></td>
+</tr>
+<tr class="row-even"><td><p>G-UPGRADE-REBOOT</p></td>
+<td><p>No reboot that starts each set at a full quorum</p></td>
+<td><p>Rebooting a platform upgrade’s nodes faster than the rolling reboot</p></td>
+<td><p>The rolling reboot always waits for reprotect between groups, and no public route names the nodes still to reboot.</p></td>
+<td><p>Aggressive reboots pause the server’s reboot and reboot the remaining nodes in sets, on a platform hop of an erasure-coded cluster whose configured node tolerance is at least 2; held until they have run live, and refused until then</p></td>
+<td><p>A server option to start each set at a full quorum, sized by the current tolerance</p></td>
+<td><p>open</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>G-UPGRADE-COUNT</p></td>
+<td><p>A reboot count is checked after the downloads and after arming</p></td>
+<td><p>Declaring how many nodes reboot at once in a rolling platform upgrade</p></td>
+<td><p>A declared count is checked only after the prepare’s downloads, and again after every node is armed, and a refusal then leaves every node armed and nothing restarted.</p></td>
+<td><p>A count above the configured tolerance is refused at plan time on a rolling host; one above the current tolerance is waited out before any prepare that sends it and at each readiness check, and read once at the commit. A drop in the tolerance after that last check still leaves the stuck state, so leave the count unset</p></td>
+<td><p>The check moved before verify and before the commit’s first arm</p></td>
+<td><p>open</p></td>
+<td><p>upgrade, upgrade_plan</p></td>
+</tr>
+<tr class="row-even"><td><p>G-UPGRADE-BLOCKED</p></td>
+<td><p>The upgrade preflight does not show a reboot</p></td>
+<td><p>Deciding whether a cluster can start an upgrade</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/v2/upgrade/blocked</span></code> holds only the preflight: it reads degraded while a reboot group is down and never shows REBOOTING.</p></td>
+<td><p>The upgrade status and the reboot status are waited on first, and offline nodes are the reboot meanwhile</p></td>
+<td><p>REBOOTING and the reboot state in the blocked answer</p></td>
+<td><p>open</p></td>
+<td><p>upgrade</p></td>
+</tr>
+<tr class="row-odd"><td><p>G-UPGRADE-LICENSE</p></td>
+<td><p>An unlicensed edge cannot be upgraded after 30 days</p></td>
+<td><p>Upgrading an unprotected edge without a license</p></td>
+<td><p>Qumulo Core refuses to upgrade a generic host whose license has expired, or that has none and was formed more than 30 days ago, and only Qumulo Care can waive it.</p></td>
+<td><p>The plan warns for an edge without a license, naming licensing, and the module passes the server’s message on</p></td>
+<td><p>None</p></td>
+<td><p>open</p></td>
+<td><p>upgrade, upgrade_plan</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="troubleshooting.html" class="btn btn-neutral float-left" title="Troubleshooting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="quirks.html" class="btn btn-neutral float-right" title="Quirk register" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

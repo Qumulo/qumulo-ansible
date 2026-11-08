@@ -1,0 +1,1594 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What capture and clone read and write &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="The upgrade: variables, steps and files" href="upgrade.html" />
+    <link rel="prev" title="The Terraform inventory plugin" href="terraform-inventory.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">What capture and clone read and write</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parts">Parts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#capture">Capture</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#capture-files">Capture files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#capture-playbook-variables">Capture playbook variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adoption-refusals">Adoption refusals</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#declared-again-by-the-inventory">Declared again by the inventory</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#areas-and-the-variables-they-write">Areas and the variables they write</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#directories">Directories</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tenants">Tenants</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#s3">S3</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#areas-terraform-owns">Areas Terraform owns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-capture-leaves-out">What capture leaves out</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#secrets-to-supply">Secrets to supply</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#values-only-a-peer-records">Values only a peer records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-capture-never-writes">What capture never writes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shape-of-the-files">Shape of the files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#clone">Clone</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#clone-playbook-variables">Clone playbook variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clone-files">Clone files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-clone-does-with-each-variable">What the clone does with each variable</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#rules-for-variables-capture-info-never-returns">Rules for variables <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> never returns</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#supply-lines-the-clone-writes">Supply lines the clone writes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variables-the-target-s-inventory-defines">Variables the target’s inventory defines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-first-pass-needs">What the first pass needs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-clone-checks">What the clone checks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#related">Related</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">What capture and clone read and write</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="what-capture-and-clone-read-and-write">
+<h1>What capture and clone read and write<a class="headerlink" href="#what-capture-and-clone-read-and-write" title="Link to this heading"></a></h1>
+<p>Capture reads a running cluster and writes the inventory variables that declare it.
+A clone derives those variables for a second, fresh cluster from the first cluster’s capture.
+This page lists the variables each writes, what each leaves out, the secrets each names instead of reading, and the
+shape of the files.</p>
+<p>The tasks are in <a class="reference internal" href="../how-to/adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a> and
+<a class="reference internal" href="../how-to/clone-edge.html"><span class="std std-doc">Clone an edge’s configuration onto a new edge</span></a>.
+The reasons are in <a class="reference internal" href="../explanation/state-management.html#capture-and-adoption"><span class="std std-ref">State management</span></a> and
+<a class="reference internal" href="../explanation/rebuilds.html"><span class="std std-doc">Rebuilds</span></a>.</p>
+<section id="parts">
+<h2>Parts<a class="headerlink" href="#parts" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Part</p></th>
+<th class="head"><p>Kind</p></th>
+<th class="head"><p>Runs on</p></th>
+<th class="head"><p>Does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/capture.yml">capture.yml</a></p></td>
+<td><p>playbook, hosts <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code></p></td>
+<td><p>the controller</p></td>
+<td><p>Reads each cluster, writes the capture file, and with <code class="docutils literal notranslate"><span class="pre">qumulo_adopt</span></code> the host’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file. Changes nothing on a cluster.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/capture_info_module.html"><span class="std std-doc">capture_info</span></a></p></td>
+<td><p>module</p></td>
+<td><p>the controller, over the REST API</p></td>
+<td><p>Returns the cluster’s configuration as <code class="docutils literal notranslate"><span class="pre">qumulo_*</span></code> variables, with the secrets to supply and what was left out. Changes nothing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/host_vars_text_module.html"><span class="std std-doc">host_vars_text</span></a></p></td>
+<td><p>module</p></td>
+<td><p>the controller</p></td>
+<td><p>Renders variables as the text of a <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file. Sends no request.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/clone_edge.yml">clone_edge.yml</a></p></td>
+<td><p>playbook, hosts the clone’s target</p></td>
+<td><p>the controller</p></td>
+<td><p>Reads the source, writes the target’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file, and runs the <a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></span></a> role on the target.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/clone_host_vars_module.html"><span class="std std-doc">clone_host_vars</span></a></p></td>
+<td><p>module</p></td>
+<td><p>the controller</p></td>
+<td><p>Derives the target’s variables from a source’s capture. Sends no request.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="capture">
+<h2>Capture<a class="headerlink" href="#capture" title="Link to this heading"></a></h2>
+<section id="capture-files">
+<h3>Capture files<a class="headerlink" href="#capture-files" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Written</p></th>
+<th class="head"><p>Location</p></th>
+<th class="head"><p>Mode</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Capture</p></td>
+<td><p>every run</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;qumulo_capture_dir&gt;/&lt;host&gt;/host_vars.captured.yml</span></code></p></td>
+<td><p>directory <code class="docutils literal notranslate"><span class="pre">&lt;host&gt;</span></code> 0700, file 0600</p></td>
+<td><p>Every variable the cluster returns, the secrets to supply and what was left out.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Host file</p></td>
+<td><p>with <code class="docutils literal notranslate"><span class="pre">qumulo_adopt=true</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host_vars/&lt;host&gt;.yml</span></code> beside the inventory source that defines the host</p></td>
+<td><p>file 0644, a new <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> directory 0755</p></td>
+<td><p>Every captured variable the host does not already have, with the same trailing comments.</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_capture_dir</span></code> defaults to a <code class="docutils literal notranslate"><span class="pre">captures</span></code> directory beside the inventory source that defines the host: in the
+source’s parent when the source is a directory, in the file’s directory when it is a file.
+When several sources define the host, the first in sorted order is used.
+A host that comes from no inventory file or directory needs <code class="docutils literal notranslate"><span class="pre">qumulo_capture_dir</span></code>.</p></li>
+<li><p>The default capture directory is never inside a directory given to <code class="docutils literal notranslate"><span class="pre">-i</span></code> in that run, because Ansible reads every
+<code class="docutils literal notranslate"><span class="pre">.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">.json</span></code> file in an inventory directory as inventory.
+With a file source such as <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">inventory/hosts.yml</span></code> the default is <code class="docutils literal notranslate"><span class="pre">inventory/captures/</span></code>, which a later run with
+<code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">inventory</span></code> reads as inventory; set <code class="docutils literal notranslate"><span class="pre">qumulo_capture_dir</span></code> in that layout.</p></li>
+<li><p>The host file is written once and never rewritten: the write uses <code class="docutils literal notranslate"><span class="pre">force:</span> <span class="pre">false</span></code>, and a host that already has
+<code class="docutils literal notranslate"><span class="pre">host_vars</span></code> fails first (see <a class="reference internal" href="#adoption-refusals">Adoption refusals</a>).</p></li>
+<li><p>The capture file holds <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.
+The host file does not when the inventory defines it, as <code class="docutils literal notranslate"><span class="pre">hosts.yml</span></code> does.</p></li>
+<li><p>Capture uses the connection variables (<code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code> and the rest) to reach the cluster
+and never writes them, so no file holds one.</p></li>
+<li><p>When the host defines <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, the capture fails on a cluster with another UUID (the identity guard).</p></li>
+</ul>
+</section>
+<section id="capture-playbook-variables">
+<h3>Capture playbook variables<a class="headerlink" href="#capture-playbook-variables" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_adopt</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>When true, also write the host file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_capture_dir</span></code></p></td>
+<td><p>see above</p></td>
+<td><p>The directory that holds one subdirectory per host.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Capture also reads <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> to choose what to leave out; see
+<a class="reference internal" href="#areas-terraform-owns">Areas Terraform owns</a>.
+<a class="reference internal" href="variables.html"><span class="std std-doc">Inventory variables</span></a> lists the run-level variables with the others.</p>
+</section>
+<section id="adoption-refusals">
+<h3>Adoption refusals<a class="headerlink" href="#adoption-refusals" title="Link to this heading"></a></h3>
+<p>A node that belongs to no cluster (state <code class="docutils literal notranslate"><span class="pre">UNCONFIGURED</span></code>) has nothing to capture, and the playbook fails for it with or
+without <code class="docutils literal notranslate"><span class="pre">qumulo_adopt</span></code>.
+With <code class="docutils literal notranslate"><span class="pre">qumulo_adopt=true</span></code> the playbook also fails for a host when:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">host_vars/&lt;host&gt;.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> or <code class="docutils literal notranslate"><span class="pre">.json</span></code>, or a <code class="docutils literal notranslate"><span class="pre">host_vars/&lt;host&gt;/</span></code> directory, exists beside any <code class="docutils literal notranslate"><span class="pre">-i</span></code> source.
+The capture file is still written.</p></li>
+<li><p>the host is in more than one <code class="docutils literal notranslate"><span class="pre">-i</span></code> source, so there is no single <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> directory to write.</p></li>
+<li><p>the host is in no <code class="docutils literal notranslate"><span class="pre">-i</span></code> source, even with <code class="docutils literal notranslate"><span class="pre">qumulo_capture_dir</span></code> set: the message is “no inventory file or directory
+defines it”.</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file would hold a network the inventory also declares, or a share or export the inventory declares
+with other values, or the inventory defines <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> and contradicts a captured tenant. The <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file is
+not written; the capture file still is. See <a class="reference internal" href="#declared-again-by-the-inventory">Declared again by the inventory</a>.</p></li>
+</ul>
+<p><a class="reference internal" href="troubleshooting.html#adoption"><span class="std std-ref">Troubleshooting: adoption</span></a> quotes the messages.</p>
+<section id="declared-again-by-the-inventory">
+<h4>Declared again by the inventory<a class="headerlink" href="#declared-again-by-the-inventory" title="Link to this heading"></a></h4>
+<p>The baseline refuses an SMB share, NFS export or network that two entries declare.
+A variable the file holds outranks the inventory’s, so the inventory’s <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> count only where the file leaves them out, and each
+stays in force beside the file’s variables.
+The adoption and the clone compare the file’s entries with the inventory’s before they write the file.
+The <a class="reference internal" href="../collections/qumulo/cluster/host_vars_duplicates_filter.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">host_vars_duplicates</span></code></span></a> filter decides each case.</p>
+<p>What counts as the same entry:</p>
+<ul class="simple">
+<li><p>An SMB share is the same one when its <code class="docutils literal notranslate"><span class="pre">share_name</span></code> is the same ignoring case, and an NFS export when its
+<code class="docutils literal notranslate"><span class="pre">export_path</span></code> is the same, each within one tenant.
+A network is the same one when its <code class="docutils literal notranslate"><span class="pre">id</span></code> is the same, whichever tenant holds it.
+A network under a tenant declared absent is not counted.</p></li>
+<li><p>A flat entry claims the tenants it names in <code class="docutils literal notranslate"><span class="pre">tenants</span></code>, every declared tenant for <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">all</span></code>, and, when it names
+none, the only present tenant.
+With <code class="docutils literal notranslate"><span class="pre">tenant_id:</span> <span class="pre">1</span></code> it claims tenant 1.</p></li>
+<li><p>Tenant 1 is the present entry renamed from <code class="docutils literal notranslate"><span class="pre">Default</span></code>, else the present entry named <code class="docutils literal notranslate"><span class="pre">Default</span></code>.
+The cluster has none when the capture notes it has no tenant 1, as it does when it declares <code class="docutils literal notranslate"><span class="pre">Default</span></code> with
+<code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>.
+Then <code class="docutils literal notranslate"><span class="pre">tenant_id:</span> <span class="pre">1</span></code> and a factory removal claim no tenant.</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> unset or <code class="docutils literal notranslate"><span class="pre">[]</span></code>, the cluster’s one tenant is what a flat entry with no tenants, <code class="docutils literal notranslate"><span class="pre">tenant_id:</span> <span class="pre">1</span></code> and
+a factory removal claim.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> that sets <code class="docutils literal notranslate"><span class="pre">smb_files_share</span></code> or <code class="docutils literal notranslate"><span class="pre">nfs_root_export</span></code> to <code class="docutils literal notranslate"><span class="pre">absent</span></code> claims tenant 1’s factory
+<code class="docutils literal notranslate"><span class="pre">Files</span></code> share or <code class="docutils literal notranslate"><span class="pre">/</span></code> export.</p></li>
+</ul>
+<p>An entry of the file is left out, with a comment at the end of the file that names the inventory’s entry, when the
+inventory:</p>
+<ul class="simple">
+<li><p>declares the same share or export with the same values.
+The entries are compared in the spelling the modules compare them in
+(<a class="reference internal" href="#what-is-compared-as-the-same-values">what is compared</a>).
+For other values, only the keys the inventory’s entry gives are compared.
+What the file’s entry gives beyond them depends on who creates the share
+(<a class="reference internal" href="#a-key-the-inventory-s-entry-leaves-out">a key the inventory’s entry leaves out</a>).</p></li>
+<li><p>removes the share or export, with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> or with <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code>.
+The captured factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export are then left out, and the next baseline removes them from the
+cluster.</p></li>
+</ul>
+<p>A removal in the file’s own <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> of a share or export the inventory declares is left out too, and
+<code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> itself is left out when that empties it.
+A shared entry of the file, in a flat list, loses only the tenants the inventory declares it for.
+When it sets <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">all</span></code>, it is written as the list of the present tenants that remain, and its comment says so:
+“its tenants: all is written as the list of the other tenants, which does not cover a tenant added to the inventory
+later”.</p>
+<section id="when-the-inventory-defines-qumulo-tenants">
+<h5>When the inventory defines <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code><a class="headerlink" href="#when-the-inventory-defines-qumulo-tenants" title="Link to this heading"></a></h5>
+<p>The file cannot hold the captured <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> then, so adoption judges what each captured tenant holds against the
+inventory’s, entry by entry, and writes what the inventory does not declare.</p>
+<p>The baseline reads the cluster’s tenants from the cluster, not from <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, so adoption reads them from the
+captured tenants:</p>
+<ul class="simple">
+<li><p>Tenant 1 is the cluster’s: the captured tenant renamed from <code class="docutils literal notranslate"><span class="pre">Default</span></code>, else the captured <code class="docutils literal notranslate"><span class="pre">Default</span></code>.
+An inventory entry with <code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code> renames it only when the cluster still holds <code class="docutils literal notranslate"><span class="pre">Default</span></code>, since the
+baseline renames a tenant only from a name the cluster holds.</p></li>
+<li><p>The one tenant that a flat entry with no <code class="docutils literal notranslate"><span class="pre">tenants</span></code> names is the one tenant the run holds, which counts a tenant the
+inventory removes, as the baseline counts it until it deletes the tenant.</p></li>
+<li><p>A captured tenant that the inventory renames is matched to the inventory’s entry by <code class="docutils literal notranslate"><span class="pre">previous_name</span></code>, and written
+under the new name.
+The match applies only when the cluster does not already hold the entry’s name, as the baseline renames nothing
+then.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">all</span></code> means the captured tenants, not the tenants the inventory declares.
+A captured shared entry with <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">all</span></code> is rewritten as the list of the cluster’s tenants, with a comment that
+says why, only when the inventory’s present tenants differ from the captured ones after its renames and removals;
+when it declares them, <code class="docutils literal notranslate"><span class="pre">all</span></code> means the same and is left as it is.</p></li>
+</ul>
+<p>What adoption does for each captured tenant:</p>
+<ul class="simple">
+<li><p>Each share and export of the tenant that the inventory does not declare is written in the file’s flat
+<code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code> with <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">[&lt;tenant&gt;]</span></code>.
+When the inventory defines that flat variable too, the file cannot hold it, and a comment says to declare the entry
+under the tenant in the inventory.</p></li>
+<li><p>A share or export the inventory declares with the same values is left out with the usual comment.
+One it declares with other values is refused, and the message names the capture’s entry after “and the capture in”.</p></li>
+<li><p>A tenant the inventory does not declare gets a comment: its services and settings stay as the cluster has them.
+For a tenant other than one still named <code class="docutils literal notranslate"><span class="pre">Default</span></code> the comment adds that a rebuild from the inventory refuses the
+entries that name it until <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> declares it.
+That includes a renamed tenant 1, since a rebuild forms <code class="docutils literal notranslate"><span class="pre">Default</span></code> and nothing renames it, and for it the comment
+says the inventory must declare it with <code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code>.</p></li>
+<li><p>A tenant the inventory declares <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> gets a comment, nothing of it is written, and none of its networks
+are refused.
+The baseline deletes it only once the inventory declares or claims each share and export it holds.</p></li>
+<li><p>A tenant whose switches or settings the inventory declares with other values is refused.
+Settings compare as written, by the keys the inventory gives, not in the modules’ form.
+A null switch or setting in the inventory is unset, and one the capture does not hold, as on a cloud cluster, is not
+compared.</p></li>
+<li><p>A network the tenant holds is refused unless the inventory lists it for that tenant, under the tenant’s entry or flat
+in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> with <code class="docutils literal notranslate"><span class="pre">tenant:</span></code> naming the tenant, with the same values for the keys the
+inventory gives.
+The values compare as written, so a netmask of <code class="docutils literal notranslate"><span class="pre">24</span></code> against <code class="docutils literal notranslate"><span class="pre">255.255.255.0</span></code> differs.
+Under a tenant’s entry an omitted <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code> counts as untagged, so the entry refuses a captured network on a VLAN; a
+flat listing takes no <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code>.
+The baseline’s network document would otherwise remove or rewrite it.</p></li>
+<li><p>The capture’s <code class="docutils literal notranslate"><span class="pre">Default</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, which it writes for a cluster that has no tenant 1, is not written.
+A comment says that a rebuild deletes the <code class="docutils literal notranslate"><span class="pre">Default</span></code> that a new cluster forms, and that the inventory’s
+<code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> has to declare it, unless the inventory declares <code class="docutils literal notranslate"><span class="pre">Default</span></code> already.</p></li>
+</ul>
+<p>A network of a tenant the inventory does not declare is refused too, unless the inventory lists it, so beside
+<code class="docutils literal notranslate"><span class="pre">qumulo_tenants:</span> <span class="pre">[]</span></code> adoption refuses a cluster whose frontend networks belong to a tenant, as a single-tenant cluster’s
+belong to <code class="docutils literal notranslate"><span class="pre">Default</span></code>, unless the inventory lists them.
+<a class="reference internal" href="../how-to/adopt-a-cluster.html#when-adoption-refuses"><span class="std std-ref">When adoption refuses</span></a> gives the remedy.</p>
+<p>The clone leaves out <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> when the target’s inventory defines it, with a comment, and writes none of the
+tenants’ shares, exports or networks.
+The documentation of the <a class="reference internal" href="../collections/qumulo/cluster/host_vars_duplicates_filter.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">host_vars_duplicates</span></code></span></a> filter says how the
+filter takes the captured tenants.</p>
+</section>
+<section id="what-is-compared-as-the-same-values">
+<h5>What is compared as the same values<a class="headerlink" href="#what-is-compared-as-the-same-values" title="Link to this heading"></a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">host_vars_duplicates</span></code> filter compares two entries in the form the modules accept, but with no directory lookup:
+two spellings of one AD identity are a difference.
+Its documentation lists each key it compares or skips and how it compares a trustee.</p>
+</section>
+<section id="a-key-the-inventory-s-entry-leaves-out">
+<h5>A key the inventory’s entry leaves out<a class="headerlink" href="#a-key-the-inventory-s-entry-leaves-out" title="Link to this heading"></a></h5>
+<p>The file’s entry can give a key the inventory’s entry omits.
+What happens depends on who creates the share or export:</p>
+<ul class="simple">
+<li><p>Adoption: the cluster holds the share or export already and keeps the value of each key an entry omits.
+The entry is still left out.
+When such a key holds a value that a create does not give, its comment names the key and says the cluster keeps it.</p></li>
+<li><p>Clone: the target is fresh, so the baseline creates each share or export from the inventory’s entry alone, and each
+key it omits takes the create default.
+A key whose value in the source differs from that default refuses, as “with other values of <code class="docutils literal notranslate"><span class="pre">&lt;keys&gt;</span></code>, which the
+inventory’s entry leaves out”.
+A key equal to its default does not.</p></li>
+</ul>
+<p>A key set to null counts as left out.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">host_vars_duplicates</span></code> documentation lists the create defaults, as observed on Qumulo Core 7.10.3.
+A share’s <code class="docutils literal notranslate"><span class="pre">permissions</span></code>, an export’s <code class="docutils literal notranslate"><span class="pre">restrictions</span></code> and <code class="docutils literal notranslate"><span class="pre">fs_path</span></code> have no create default, so a clone refuses an
+inventory entry that leaves out the one the source’s entry gives.</p>
+</section>
+<section id="what-the-adoption-and-the-clone-refuse">
+<h5>What the adoption and the clone refuse<a class="headerlink" href="#what-the-adoption-and-the-clone-refuse" title="Link to this heading"></a></h5>
+<p>The adoption and the clone refuse, before they write the <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file, when the file would hold:</p>
+<ul class="simple">
+<li><p>a network the inventory also declares;</p></li>
+<li><p>a share or export the inventory declares with other values, which the message lists as the keys that differ;</p></li>
+<li><p>for the clone only, a share or export whose entry gives a key the inventory’s entry leaves out, with a value other
+than a create gives;</p></li>
+<li><p>for the adoption only, beside an inventory that defines <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, a captured tenant whose switches or settings
+the inventory declares with other values, and a captured tenant network the inventory does not list for that tenant, or
+lists with other values
+(<a class="reference internal" href="#when-the-inventory-defines-qumulo-tenants">when the inventory defines <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code></a>).</p></li>
+</ul>
+<p>The adoption has written <code class="docutils literal notranslate"><span class="pre">captures/&lt;host&gt;/host_vars.captured.yml</span></code> by then, and the clone writes nothing.
+Each refusal entry reads as “the SMB share Projects of tenant Default, which the inventory declares in
+qumulo_smb_shares[0] and the file in qumulo_tenants[Default].smb_shares[1] with other values of fs_path”.
+The messages begin as <a class="reference internal" href="troubleshooting.html#adoption"><span class="std std-ref">Troubleshooting</span></a> quotes them.</p>
+<p>Two declarations both in the inventory, or both in the file, are not compared.
+A claim the baseline refuses for a reason of its own, such as an entry with no name, or with no tenant on a cluster of
+several, is left to the baseline, and so is a <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> other than 1, which only the cluster can resolve.</p>
+</section>
+</section>
+</section>
+<section id="areas-and-the-variables-they-write">
+<h3>Areas and the variables they write<a class="headerlink" href="#areas-and-the-variables-they-write" title="Link to this heading"></a></h3>
+<p>An area is a choice of <code class="docutils literal notranslate"><span class="pre">gather_subset</span></code> and of <code class="docutils literal notranslate"><span class="pre">leave_out</span></code> in <code class="docutils literal notranslate"><span class="pre">capture_info</span></code>.
+The names are those of the <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role’s areas, plus <code class="docutils literal notranslate"><span class="pre">replication</span></code>.
+<code class="docutils literal notranslate"><span class="pre">capture.yml</span></code> reads every area.
+<code class="docutils literal notranslate"><span class="pre">capture_info</span></code> reads the areas <code class="docutils literal notranslate"><span class="pre">gather_subset</span></code> names, <code class="docutils literal notranslate"><span class="pre">all</span></code> by default.
+Each variable has the shape the role passes to the module that writes it, so a check run of the baseline from the file
+changes nothing.
+Lists are sorted and values canonical, so a second capture of an unchanged cluster writes the same file.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> is always written.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Area</p></th>
+<th class="head"><p>Variables written</p></th>
+<th class="head"><p>Holds</p></th>
+<th class="head"><p>Reads back</p></th>
+<th class="head"><p>Written when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code></p></td>
+<td><p>The cluster’s name</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cluster_settings</span></code></p></td>
+<td><p>always</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">filesystem</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_filesystem_settings</span></code></p></td>
+<td><p>The permissions mode, access time updates and change notification</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">filesystem_settings</span></code></p></td>
+<td><p>always. A permissions mode that <code class="docutils literal notranslate"><span class="pre">filesystem_settings</span></code> does not offer is left out.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">web_ui</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_web_ui_settings</span></code></p></td>
+<td><p>The login banner and inactivity timeout</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">web_ui_settings</span></code></p></td>
+<td><p>always. An inactivity timeout that is not whole minutes is left out.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">network</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> (<code class="docutils literal notranslate"><span class="pre">frontend_networks</span></code>, <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code>)</p></td>
+<td><p>The network document, with its floating IP ranges unless Terraform owns them. A tenant’s networks are written under the tenant (<a class="reference internal" href="#tenants">Tenants</a>).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network_config</span></code></p></td>
+<td><p>always</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dns</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_dns</span></code> (with <code class="docutils literal notranslate"><span class="pre">lookup_overrides</span></code>), <code class="docutils literal notranslate"><span class="pre">qumulo_authoritative_dns</span></code></p></td>
+<td><p>DNS servers, search domains and lookup overrides; the authoritative DNS settings</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">dns_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">dns_lookup_overrides</span></code>, <code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_authoritative_dns</span></code> only when the cluster offers the authoritative server. A lookup-override address that appears in more than one entry is captured as one entry, with the names in table order.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">time</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_time</span></code></p></td>
+<td><p>The time source, the NTP servers and whether AD is the primary source</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">time_settings</span></code></p></td>
+<td><p>always</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ssl</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ssl_ciphers</span></code></p></td>
+<td><p>The TLS cipher suites the cluster accepts</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ssl_ciphers</span></code>, <code class="docutils literal notranslate"><span class="pre">ssl_certificate</span></code></p></td>
+<td><p>the ciphers when the cluster offers them. The certificate and its key are named under the secrets to supply. <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code> is never written.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">monitoring</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code>, with the Nexus connection under <code class="docutils literal notranslate"><span class="pre">nexus</span></code></p></td>
+<td><p>Cloud monitoring and the Nexus connection</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">monitoring_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">nexus_connection</span></code>, <code class="docutils literal notranslate"><span class="pre">nexus_registration</span></code></p></td>
+<td><p>always. <code class="docutils literal notranslate"><span class="pre">nexus</span></code> only when the cluster offers it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">audit</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_audit_destinations</span></code></p></td>
+<td><p>The audit log destinations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">audit_destination</span></code></p></td>
+<td><p>when the cluster offers them. Sorted by name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">capacity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>: <code class="docutils literal notranslate"><span class="pre">clamp</span></code>, <code class="docutils literal notranslate"><span class="pre">free_threshold</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code></p></td>
+<td><p>The capacity clamp when one is set, the eviction threshold, and the license marker</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">capacity_clamp</span></code>, <code class="docutils literal notranslate"><span class="pre">portal_eviction_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code></p></td>
+<td><p>only when at least one key is set. <code class="docutils literal notranslate"><span class="pre">clamp</span></code> when a clamp is set. <code class="docutils literal notranslate"><span class="pre">free_threshold</span></code> only when the cluster offers portal eviction settings. <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">required</span></code> when an active license is bound to the cluster’s UUID, <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">none</span></code> on an unprotected edge that holds none.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">local_groups</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_local_groups</span></code></p></td>
+<td><p>The local groups and their members</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">local_group</span></code></p></td>
+<td><p>always</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">local_users</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code>, without passwords</p></td>
+<td><p>The local users, without passwords</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">local_user</span></code></p></td>
+<td><p>always</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ad</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>, without the join credentials</p></td>
+<td><p>The Active Directory membership</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ad_domain</span></code></p></td>
+<td><p>only when the cluster is joined</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">kerberos</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code>: <code class="docutils literal notranslate"><span class="pre">use_alt_security_identities_mapping</span></code></p></td>
+<td><p>Whether a Kerberos principal maps to an AD user through the user’s <code class="docutils literal notranslate"><span class="pre">altSecurityIdentities</span></code> attribute</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kerberos_settings</span></code></p></td>
+<td><p>always. The keytab is named under the secrets to supply when the cluster holds one, or noted in <code class="docutils literal notranslate"><span class="pre">left_out</span></code> when the user may not read it, and no key is ever written.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">saml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_saml</span></code>, the identity provider’s certificate included</p></td>
+<td><p>The SAML sign-in settings</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">saml_settings</span></code></p></td>
+<td><p>only once SAML is set up</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">identity_mappings</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_user_defined_mappings</span></code>, sorted by <code class="docutils literal notranslate"><span class="pre">down_level_logon_name</span></code></p></td>
+<td><p>The mappings from AD users to LDAP users</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">user_defined_mappings</span></code></p></td>
+<td><p>only when there are mappings. <code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code> is never written.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">roles</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_roles</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code></p></td>
+<td><p>The custom roles and their privileges; the members of each role</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">role</span></code>, <code class="docutils literal notranslate"><span class="pre">role_member</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_roles</span></code> only when custom roles exist; <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code> always</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">portal</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code>: <code class="docutils literal notranslate"><span class="pre">hub</span></code>, <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">roots</span></code></p></td>
+<td><p>The spoke portal, its hub named by inventory host, and its roots</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">portal_spoke</span></code>, <code class="docutils literal notranslate"><span class="pre">portal_hub</span></code></p></td>
+<td><p>for one ACCEPTED spoke portal whose hub is in the inventory (see <a class="reference internal" href="#what-capture-leaves-out">Left out</a>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">directories</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_file_acls</span></code></p></td>
+<td><p>Each directory that something names, and the ACLs the mode cannot express</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">directory</span></code>, <code class="docutils literal notranslate"><span class="pre">file_acl</span></code></p></td>
+<td><p>always. See <a class="reference internal" href="#directories">Directories</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">smb</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_smb_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults.smb_files_share</span></code></p></td>
+<td><p>SMB settings and the shares that several tenants share; whether the factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share exists. A tenant’s shares and its SMB override are written under the tenant (<a class="reference internal" href="#tenants">Tenants</a>).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">smb_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">smb_share</span></code></p></td>
+<td><p>always. The factory key is <code class="docutils literal notranslate"><span class="pre">present</span></code> when tenant 1 holds a share named <code class="docutils literal notranslate"><span class="pre">Files</span></code>, else <code class="docutils literal notranslate"><span class="pre">absent</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">nfs</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_nfs_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults.nfs_root_export</span></code></p></td>
+<td><p>NFS settings and the exports that several tenants share; whether the factory export at <code class="docutils literal notranslate"><span class="pre">/</span></code> exists. A tenant’s exports and its NFS override are written under the tenant (<a class="reference internal" href="#tenants">Tenants</a>).</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">nfs_export</span></code></p></td>
+<td><p>always. The factory key is <code class="docutils literal notranslate"><span class="pre">present</span></code> when tenant 1 holds an export at <code class="docutils literal notranslate"><span class="pre">/</span></code>, else <code class="docutils literal notranslate"><span class="pre">absent</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">tenants</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code></p></td>
+<td><p>Each tenant’s name, services, networks, SMB and NFS overrides, shares and exports</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenant</span></code>, <code class="docutils literal notranslate"><span class="pre">network_config</span></code>, <code class="docutils literal notranslate"><span class="pre">smb_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">smb_share</span></code>, <code class="docutils literal notranslate"><span class="pre">nfs_export</span></code></p></td>
+<td><p>when the cluster offers the tenant list, on every such cluster, one with a single tenant included. See <a class="reference internal" href="#tenants">Tenants</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">s3</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_s3_buckets</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_s3_bucket_policies</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_s3_access_keys</span></code></p></td>
+<td><p>The S3 server settings, the buckets, each bucket’s policy, and each access key by its user and id</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">s3_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">s3_bucket</span></code>, <code class="docutils literal notranslate"><span class="pre">s3_bucket_policy</span></code>, <code class="docutils literal notranslate"><span class="pre">s3_access_key</span></code></p></td>
+<td><p>always. See <a class="reference internal" href="#s3">S3</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ftp</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ftp_settings</span></code></p></td>
+<td><p>The FTP server settings, with every option</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ftp_settings</span></code></p></td>
+<td><p>when the cluster offers the FTP settings. <code class="docutils literal notranslate"><span class="pre">anonymous_user</span></code> is left out, with a note, when it names a deleted local user or anything but a local user. <code class="docutils literal notranslate"><span class="pre">greeting</span></code> is written as read, the factory text included.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">quotas</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_quotas</span></code>: <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">limit</span></code></p></td>
+<td><p>Directory quotas</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">directory_quota</span></code></p></td>
+<td><p>always</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">snapshots</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_snapshot_policies</span></code></p></td>
+<td><p>Snapshot policies, each with its <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> by the key’s name; <code class="docutils literal notranslate"><span class="pre">left_out</span></code> notes each key of the file system key store by name and id</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">snapshot_policy</span></code></p></td>
+<td><p>always</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code></p></td>
+<td><p>The relationships this cluster is the source of, each target named by inventory host</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_relationship</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_target</span></code></p></td>
+<td><p>only for relationships this cluster is the source of that are not ENDED and whose target is in the inventory</p></td>
+</tr>
+</tbody>
+</table>
+<p>An area that the cluster does not offer is skipped, listed in <code class="docutils literal notranslate"><span class="pre">unavailable_subsets</span></code> and noted under what was left out.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code> entries hold <code class="docutils literal notranslate"><span class="pre">source_path</span></code>, <code class="docutils literal notranslate"><span class="pre">target</span></code> (an inventory host), <code class="docutils literal notranslate"><span class="pre">target_path</span></code>,
+<code class="docutils literal notranslate"><span class="pre">replication_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">source_root_read_only</span></code>, <code class="docutils literal notranslate"><span class="pre">blackout_windows</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">blackout_window_timezone</span></code> once one is set.
+<code class="docutils literal notranslate"><span class="pre">qumulo_portal.roots</span></code> entries hold <code class="docutils literal notranslate"><span class="pre">spoke_root</span></code> and <code class="docutils literal notranslate"><span class="pre">hub_root</span></code>.</p>
+<section id="directories">
+<h4>Directories<a class="headerlink" href="#directories" title="Link to this heading"></a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code> holds each directory that an SMB share, an NFS export, a quota, a snapshot policy, an S3 bucket,
+the S3 base path (unless it is <code class="docutils literal notranslate"><span class="pre">/</span></code>) or a replication target names, and each directory above one, the root included.
+Each entry has the options <code class="docutils literal notranslate"><span class="pre">directory</span></code> takes.</p>
+<ul class="simple">
+<li><p>A replication target directory is declared by its path alone, and no directory inside it is written: replication sets
+its attributes and its content’s.</p></li>
+<li><p>A directory carries its ACL in <code class="docutils literal notranslate"><span class="pre">qumulo_file_acls</span></code> in place of its <code class="docutils literal notranslate"><span class="pre">mode</span></code> when the mode cannot express the ACL
+(<a class="reference internal" href="gaps.html"><span class="std std-doc">G-FS-ACL-MODE</span></a>).
+The entry in <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code> then has no <code class="docutils literal notranslate"><span class="pre">mode</span></code>.</p></li>
+<li><p>A directory in a spoke root, and a directory that a share, export, quota or policy names but that does not exist,
+is left out.</p></li>
+</ul>
+</section>
+<section id="tenants">
+<h4>Tenants<a class="headerlink" href="#tenants" title="Link to this heading"></a></h4>
+<p>Qumulo marks the multitenancy REST API as preview in Qumulo Core 7.10.3 and 7.11.0. The collection manages tenants
+through it on those releases, and a later Qumulo Core release may change it.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">tenants</span></code> area runs after <code class="docutils literal notranslate"><span class="pre">network</span></code>, <code class="docutils literal notranslate"><span class="pre">smb</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs</span></code>, which hand it what each tenant holds. It writes
+<code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> on every cluster that offers the tenant list, by tenant name and never by id, sorted by name. A cluster
+with one tenant has one entry. No tenant id is written anywhere in a capture. Each entry holds:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code> when tenant 1 has another name, so that a replay onto a newly formed cluster renames
+its <code class="docutils literal notranslate"><span class="pre">Default</span></code>, and the six switches. A cluster without tenant 1 is noted, and what is written depends on its networking:</p>
+<ul>
+<li><p>On networking the host manages (no managed interfaces, only HOST networks), the one tenant that holds a network gets
+<code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code> and no <code class="docutils literal notranslate"><span class="pre">Default</span></code> entry is written, when every network has a tenant, no tenant is named
+<code class="docutils literal notranslate"><span class="pre">Default</span></code>, the <code class="docutils literal notranslate"><span class="pre">network</span></code>, <code class="docutils literal notranslate"><span class="pre">smb</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs</span></code> areas are read, and that tenant has no <code class="docutils literal notranslate"><span class="pre">/</span></code> export that the capture leaves
+out (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-MAPTO</span></a>). A rebuild from the capture then renames the <code class="docutils literal notranslate"><span class="pre">Default</span></code> the new edge forms with to that
+tenant, which keeps the HOST network in tenant 1 through the rebuild. <code class="docutils literal notranslate"><span class="pre">smb_files_share</span></code> in
+<code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> is <code class="docutils literal notranslate"><span class="pre">present</span></code> instead of <code class="docutils literal notranslate"><span class="pre">absent</span></code> when the capture writes a share named <code class="docutils literal notranslate"><span class="pre">Files</span></code> (any case)
+for that tenant, and <code class="docutils literal notranslate"><span class="pre">nfs_root_export</span></code> when it writes that tenant’s export at <code class="docutils literal notranslate"><span class="pre">/</span></code>. A clone keeps the
+<code class="docutils literal notranslate"><span class="pre">previous_name</span></code>, so a fresh target’s <code class="docutils literal notranslate"><span class="pre">Default</span></code> is renamed to that tenant.</p></li>
+<li><p>Otherwise, a <code class="docutils literal notranslate"><span class="pre">Default</span></code> entry with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, which has a rebuild delete the <code class="docutils literal notranslate"><span class="pre">Default</span></code> the new edge forms with.
+A cluster whose one tenant that holds a network has a <code class="docutils literal notranslate"><span class="pre">/</span></code> export that the capture leaves out (G-MAPTO) gets this
+form too; <a class="reference internal" href="../explanation/rebuilds.html#the-preflight"><span class="std std-ref">Rebuilds</span></a> says why.
+No entry is written when another tenant is named <code class="docutils literal notranslate"><span class="pre">Default</span></code>, or when a replay of what the capture wrote could not
+delete <code class="docutils literal notranslate"><span class="pre">Default</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">tenant</span> <span class="pre">1</span></code> note in <code class="docutils literal notranslate"><span class="pre">left_out</span></code> says which of these the capture did, which factory keys it set, and, when the rename’s other
+conditions hold but two or more tenants hold networks or that tenant has a <code class="docutils literal notranslate"><span class="pre">/</span></code> export the capture leaves out, why it
+wrote <code class="docutils literal notranslate"><span class="pre">Default</span></code> absent instead; in the first case it adds that a rebuild needs <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code>, which the
+capture does not write.
+<a class="reference internal" href="../explanation/rebuilds.html"><span class="std std-doc">Rebuilds</span></a> says why a rebuild keeps the HOST network in tenant 1.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">networks</span></code>, the tenant’s frontend networks without a tenant id, <code class="docutils literal notranslate"><span class="pre">[]</span></code> for a tenant with none, when the <code class="docutils literal notranslate"><span class="pre">network</span></code> area
+is read. A network on a frontend VLAN has <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">mtu</span></code> when the VLAN sets one. <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code> is written
+without the VLANs that carry only tenant networks, and the frontend bond’s network list without tenant networks;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code>, when the <code class="docutils literal notranslate"><span class="pre">smb</span></code> or <code class="docutils literal notranslate"><span class="pre">nfs</span></code> area is read: <code class="docutils literal notranslate"><span class="pre">inherit</span></code> for a tenant with no override, and
+the override’s full record for one with it, an override equal to the global settings included;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smb_shares</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_exports</span></code>, each left out when empty. The factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export stay under tenant 1.
+<code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> is still written, <code class="docutils literal notranslate"><span class="pre">present</span></code> when tenant 1 holds the factory share or export.</p></li>
+</ul>
+<p>Three things go elsewhere:</p>
+<ul class="simple">
+<li><p>A share or export identical in two or more tenants becomes one entry of <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>.
+Copies compare as the module’s input without the tenant or the id, SMB names without regard to case, and each name’s
+copies group by identical content. A group of every tenant on the cluster is written with <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">all</span></code>, and any
+other group with its tenants as a list sorted by name, and the name spelled as its first tenant spells it. Shared
+entries are sorted by name, then by their first tenant. Every other copy goes under its tenant, and the factory share
+and export never merge.</p></li>
+<li><p>A network of the backend bond, or that no tenant holds, goes in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>. Capture notes a
+backend network a tenant holds on a cluster with two or more tenants, which a replay onto a rebuilt cluster refuses
+while a tenant holds it, and an unbound network on such a cluster. A rebuild whose replay has several tenants
+refuses, in its preflight, an unbound network that the newly formed edge lacks (on managed networking, any network
+but 1; on host-managed networking, none, since the replay’s tenant 1 pass writes every network sent with no tenant
+first), and otherwise puts it in tenant 1, which the preflight reports as drift;
+<a class="reference internal" href="../explanation/rebuilds.html#a-network-sent-with-no-tenant"><span class="std std-ref">A network sent with no tenant</span></a> says when.</p></li>
+<li><p>On a cloud cluster, which capture knows from the protection type, the six switches are left out of every entry and
+noted once, since no cloud cluster supports a tenant write.</p></li>
+</ul>
+<p>Capture also notes a VLAN that carries the networks of two tenants, or a tenant’s network and one no tenant holds.
+For two tenants on one VLAN, the baseline warns about the layout on the cluster that was captured and goes on, and
+refuses it on a cluster that does not hold it yet, as a rebuild. A VLAN that carries a tenant’s network and an unbound
+one stays in <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code>, beside the <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code> on the tenant’s network, so a check run from a capture with the
+<code class="docutils literal notranslate"><span class="pre">tenants</span></code> area refuses it as a VLAN declared in two places; without the area, the baseline keeps it on the captured
+cluster. A rebuild whose replay has several tenants refuses the unbound network in its preflight when the newly formed
+edge lacks it (on managed networking, any network but 1), and otherwise puts it in tenant 1
+(<a class="reference internal" href="../explanation/rebuilds.html#a-network-sent-with-no-tenant"><span class="std std-ref">why</span></a>). A tenant on an identity
+configuration other than tenant 1’s is written in full, and only its identity is noted, as per-tenant identity is not
+supported yet. Capture never writes <code class="docutils literal notranslate"><span class="pre">identity</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">network</span></code>, <code class="docutils literal notranslate"><span class="pre">smb</span></code>, <code class="docutils literal notranslate"><span class="pre">nfs</span></code> and <code class="docutils literal notranslate"><span class="pre">tenants</span></code> areas read the tenant list, and the <code class="docutils literal notranslate"><span class="pre">smb</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs</span></code> areas read each tenant’s
+override, so the user the play connects as needs <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_TENANT_READ</span></code>. A refusal of the list with HTTP 403 fails the
+capture, as a 403 does on every read but the key store’s and the keytab’s. A cluster that does not offer the list, which
+a release without the multitenancy API does not, lists <code class="docutils literal notranslate"><span class="pre">tenants</span></code> in <code class="docutils literal notranslate"><span class="pre">unavailable_subsets</span></code> and notes it, and the other
+areas write the flat forms below.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">kerberos</span></code> area reads the keytab, and the cluster returns every key of it to the user that reads it, which needs
+<code class="docutils literal notranslate"><span class="pre">PRIVILEGE_KERBEROS_KEYTAB_READ</span></code>. When the user the play connects as lacks it, as the built-in Observers role does
+(Qumulo Core 7.11.0), the area still writes <code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code>, leaves out the keytab’s supply line, and says so in one
+entry under <code class="docutils literal notranslate"><span class="pre">left_out</span></code>. Capture writes and returns no key.</p>
+<p><code class="docutils literal notranslate"><span class="pre">leave_out</span></code> and <code class="docutils literal notranslate"><span class="pre">gather_subset</span></code> change the placement:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Left out</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">network</span></code></p></td>
+<td><p>No tenant entry has <code class="docutils literal notranslate"><span class="pre">networks</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code></p></td>
+<td><p>The floating ranges of every tenant network are dropped.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">smb</span></code></p></td>
+<td><p>Every share and every SMB override, nested or shared, is dropped.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nfs</span></code></p></td>
+<td><p>Every export and every NFS override, nested or shared, is dropped.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">tenants</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> is not written, and every network is written in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>, with its VLAN in <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code>. On a cluster with one tenant the networks carry no tenant, the shares and exports are written flat with no tenant, and the tenant’s overrides, which have no flat form, are noted. On a cluster with two or more, each network a tenant holds, except a backend-bond network, carries its <code class="docutils literal notranslate"><span class="pre">tenant</span></code> by name, and every tenant-scoped share, export and override is dropped, with a note.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A <code class="docutils literal notranslate"><span class="pre">gather_subset</span></code> that names <code class="docutils literal notranslate"><span class="pre">network</span></code>, <code class="docutils literal notranslate"><span class="pre">smb</span></code> or <code class="docutils literal notranslate"><span class="pre">nfs</span></code> without <code class="docutils literal notranslate"><span class="pre">tenants</span></code> places them as <code class="docutils literal notranslate"><span class="pre">leave_out:</span> <span class="pre">tenants</span></code> does, and a
+cluster that does not offer the tenant list does the same. Every case is noted under what was left out, and a check run
+of the baseline from the file changes nothing. A baseline run that takes <code class="docutils literal notranslate"><span class="pre">tenant</span></code> on a flat network from a capture of a
+multi-tenant cluster refuses it with the stale name when another owner of <code class="docutils literal notranslate"><span class="pre">tenants</span></code> has renamed the tenant since.</p>
+</section>
+<section id="s3">
+<h4>S3<a class="headerlink" href="#s3" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_settings</span></code> holds the base path, and <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code> holds the base path’s directory.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_buckets</span></code> holds the buckets outside the spoke roots, and <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code> their directories.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_bucket_policies</span></code> holds one entry per kept bucket that has a policy, with each principal in the trustee
+grammar the inventory uses.
+A policy whose principals cannot be converted is left out with a note.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_access_keys</span></code> holds each key by its <code class="docutils literal notranslate"><span class="pre">user</span></code> and <code class="docutils literal notranslate"><span class="pre">access_key_id</span></code>.
+The cluster returns a key’s secret only to the request that makes the key, so each key is named under the secrets to
+supply (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-S3-KEY</span></a>).
+After a rebuild the baseline makes a new key and writes its secret under the host’s artifact directory.</p></li>
+</ul>
+<p><a class="reference internal" href="../how-to/s3.html"><span class="std std-doc">Serve a directory as an S3 bucket</span></a> has the steps.</p>
+</section>
+</section>
+<section id="areas-terraform-owns">
+<h3>Areas Terraform owns<a class="headerlink" href="#areas-terraform-owns" title="Link to this heading"></a></h3>
+<p>The playbook reads <code class="docutils literal notranslate"><span class="pre">cluster_baseline_owned_areas</span></code> from the
+<a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/roles/cluster_baseline/vars/main.yml">role’s vars</a> and passes it as <code class="docutils literal notranslate"><span class="pre">leave_out</span></code>.
+That list is <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code>, which defaults to <code class="docutils literal notranslate"><span class="pre">[network.floating_ips]</span></code> when <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code> is
+<code class="docutils literal notranslate"><span class="pre">terraform_provider</span></code>, unless <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> is <code class="docutils literal notranslate"><span class="pre">edge</span></code> or <code class="docutils literal notranslate"><span class="pre">baremetal</span></code>, and to nothing otherwise.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">leave_out</span></code> entry</p></th>
+<th class="head"><p>Effect</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>any area name</p></td>
+<td><p>The area is not read. The file notes it under what was left out.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> is written without its floating IP ranges.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_authoritative_dns</span></code> is written without <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">fqdn</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_audit_destinations</span></code> is written without the CloudWatch destinations.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A tenant’s keys follow the areas they are in; the table in <a class="reference internal" href="#tenants">Tenants</a> gives the effect of each.</p>
+<p>Any other name fails <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> before a request is sent.
+An area that is left out raises none of its secrets, so a left-out <code class="docutils literal notranslate"><span class="pre">ssl</span></code> area names no certificate to supply.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">qumulo_adopt=true</span></code>, the host file gets <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by:</span> <span class="pre">none</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas:</span> <span class="pre">[]</span></code> when the
+inventory defines neither variable, and neither otherwise.
+A hand-written <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by:</span> <span class="pre">terraform_provider</span></code> therefore keeps the floating addresses Terraform’s, unless the
+host’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> is <code class="docutils literal notranslate"><span class="pre">edge</span></code> or <code class="docutils literal notranslate"><span class="pre">baremetal</span></code>.
+The adoption of a host from the <a class="reference internal" href="terraform-inventory.html"><span class="std std-doc">Terraform inventory plugin</span></a> leaves out every variable the
+plugin defines, because a <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file outranks the plugin’s variables.
+<a class="reference internal" href="../explanation/terraform-ownership.html"><span class="std std-doc">Terraform ownership</span></a> gives the reasons.</p>
+</section>
+<section id="what-capture-leaves-out">
+<h3>What capture leaves out<a class="headerlink" href="#what-capture-leaves-out" title="Link to this heading"></a></h3>
+<p>Each entry below, except directories inside a replication target, is listed with its reason in the comments at the end
+of the file, under “Read from the cluster but left out”.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Left out</p></th>
+<th class="head"><p>When</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>An area</p></td>
+<td><p>The area is in <code class="docutils literal notranslate"><span class="pre">leave_out</span></code>, or the cluster does not offer it.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A directory, quota, snapshot policy or S3 bucket, and the policy of a left-out bucket</p></td>
+<td><p>It lies in a spoke root. The data there is the hub’s, and the hub’s capture declares it.</p></td>
+</tr>
+<tr class="row-even"><td><p>A directory inside a replication target directory</p></td>
+<td><p>The target directory is declared by its path alone, and replication sets what is inside it. No comment is written for it.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A spoke portal</p></td>
+<td><p>It is not ACCEPTED; or another portal is already declared (<code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code> declares one); or no inventory host has the hub’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>; or a root’s directory no longer exists; or the hub has not reported every root’s path.</p></td>
+</tr>
+<tr class="row-even"><td><p>A replication relationship</p></td>
+<td><p>It has ENDED; or no inventory host has the target’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>; or its blackout windows have no timezone (<a class="reference internal" href="quirks.html"><span class="std std-doc">QUIRK-019</span></a>), which the replication roles refuse.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The target side of a replication</p></td>
+<td><p>The source’s UUID is in no inventory host. The source host declares the relationship.</p></td>
+</tr>
+<tr class="row-even"><td><p>An NFS export</p></td>
+<td><p>A restriction maps to a user or group that no longer exists (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-MAPTO</span></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>A tenant’s identity, and a network layout the baseline refuses</p></td>
+<td><p>The tenant uses an identity configuration other than tenant 1’s, or a VLAN carries two tenants’ networks, or a backend network or an unbound network sits on a multi-tenant cluster. The entry is still written. See <a class="reference internal" href="#tenants">Tenants</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p>An S3 bucket policy</p></td>
+<td><p>Its principals cannot be converted to trustees.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Each key of the file system key store</p></td>
+<td><p>Always. The cluster registers a key only with its name signed by its private key, and keeps neither. A key is named by name and id. When the API user may not read the key store, one entry says so instead.</p></td>
+</tr>
+<tr class="row-even"><td><p>The <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> of a snapshot policy</p></td>
+<td><p>Only when the API user may not read the key store, or the cluster stored the key with no name (QUIRK-120). Capture otherwise writes it by the key’s name. Without a name it cannot name the key, and an id here can name another key elsewhere, so the entry has no <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> and a note names the key’s id and says to declare the key by its name, or, when it has no name, by its id on the cluster the inventory is applied to.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The configured domain controllers</p></td>
+<td><p>The cluster does not read them back for the joined domain (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-AD-DCS</span></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p>The permissions mode, the Web UI inactivity timeout</p></td>
+<td><p>The cluster uses a value the module does not take: a mode <code class="docutils literal notranslate"><span class="pre">filesystem_settings</span></code> does not offer, or a timeout that is not whole minutes.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The authoritative DNS settings, the Nexus connection, the audit destinations, the TLS cipher suites, the eviction threshold</p></td>
+<td><p>The cluster does not offer the feature.</p></td>
+</tr>
+<tr class="row-even"><td><p>The floating IP ranges, the authoritative DNS name and whether it answers, a CloudWatch audit destination</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">leave_out</span></code> names <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> or <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> (see <a class="reference internal" href="#areas-terraform-owns">Areas Terraform owns</a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>The separate lookup overrides of an address</p></td>
+<td><p>The cluster lists the address in more than one entry. They are captured as one, with the names in table order.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Shares, exports, quotas, snapshot policies and buckets on a path inside a replication target are still captured; a clone
+drops them (see <a class="reference internal" href="#what-the-clone-does-with-each-variable">What the clone does with each variable</a>).</p>
+<p>A portal’s hub and a replication target are named by inventory host.
+<code class="docutils literal notranslate"><span class="pre">capture_info</span></code> finds the host from <code class="docutils literal notranslate"><span class="pre">inventory_clusters</span></code>, a map of cluster UUID to host, which the playbook builds from
+every <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code> host that defines <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.</p>
+</section>
+<section id="secrets-to-supply">
+<h3>Secrets to supply<a class="headerlink" href="#secrets-to-supply" title="Link to this heading"></a></h3>
+<p>Capture writes no secret.
+It reads one, the keytab’s keys, only to name the principals (see the <code class="docutils literal notranslate"><span class="pre">kerberos</span></code> area above), and never writes them.
+It names each one that the inventory must supply to manage what the secret guards, in comments at the end of the
+file, grouped by reason and sorted.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Named when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_local_users[&lt;name&gt;].password</span></code></p></td>
+<td><p>for each local user except <code class="docutils literal notranslate"><span class="pre">guest</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ad.join_user</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_ad.join_password</span></code></p></td>
+<td><p>the cluster is joined to a domain</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_kerberos.keytab</span></code></p></td>
+<td><p>the cluster holds a keytab. The reason names its principals, never a key. Give the keytab file in base64, encrypted (<a class="reference internal" href="../how-to/store-secrets.html#encrypt-a-binary-secret-such-as-a-keytab"><span class="std std-ref">Encrypt a binary secret such as a keytab</span></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ssl.certificate</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.private_key</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">ssl</span></code> area is read; the cluster returns neither (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-SSL-READBACK</span></a>). The reason gives the SHA-256 of the certificate the cluster serves.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_monitoring.nexus_join_key</span></code></p></td>
+<td><p>the Nexus connection is on and the registration is not <code class="docutils literal notranslate"><span class="pre">REGISTERED</span></code>; a join key is single-use and never read back (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-NEXUS-KEY</span></a>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license_document</span></code></p></td>
+<td><p>the cluster holds no active license bound to its UUID, and is not an unprotected edge without one (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-LICENSE</span></a>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_access_keys[&lt;access_key_id&gt;]</span></code></p></td>
+<td><p>for each S3 access key (G-S3-KEY)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code></p></td>
+<td><p>the cluster is in a portal or is a replication target, and the value cannot be taken from its peers (see <a class="reference internal" href="#values-only-a-peer-records">Values only a peer records</a>)</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="../how-to/store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a> shows how to encrypt each.</p>
+</section>
+<section id="values-only-a-peer-records">
+<h3>Values only a peer records<a class="headerlink" href="#values-only-a-peer-records" title="Link to this heading"></a></h3>
+<p>A spoke records the hub’s addresses but not its own, a hub records the spoke’s but not its own, and a replication
+source records the address it reaches the target at (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-PORTAL-HOSTS</span></a>).
+<code class="docutils literal notranslate"><span class="pre">capture_info</span></code> therefore returns, for each peer, what this cluster records of the peer’s own variable in
+<code class="docutils literal notranslate"><span class="pre">capture.peer_values</span></code>.
+<code class="docutils literal notranslate"><span class="pre">capture.from_peers</span></code> lists the variables of this cluster that only its peers record.</p>
+<p><code class="docutils literal notranslate"><span class="pre">capture.yml</span></code> writes such a variable on a host when all of these hold:</p>
+<ul class="simple">
+<li><p>the peers’ records of it were captured in the same run (the <code class="docutils literal notranslate"><span class="pre">-l</span></code> limit includes the peers);</p></li>
+<li><p>at least one record exists, and none is unusable;</p></li>
+<li><p>every record gives the same value.</p></li>
+</ul>
+<p>A record is unusable when its portal is not ACCEPTED and ACTIVE, or its replication is not ESTABLISHED.
+A portal being deleted, and a replication relationship that has ENDED, is ignored.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Written as</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code></p></td>
+<td><p>the list of <code class="docutils literal notranslate"><span class="pre">address</span></code> and <code class="docutils literal notranslate"><span class="pre">port</span></code> the peers record</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">address</span></code> the sources record</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">port</span></code>, written only when it is not 3712</p></td>
+</tr>
+</tbody>
+</table>
+<p>Otherwise the variable is named under the secrets to supply, with the reason: no peer was captured, a record is
+unusable, or the peers record different values.</p>
+</section>
+<section id="what-capture-never-writes">
+<h3>What capture never writes<a class="headerlink" href="#what-capture-never-writes" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Item</p></th>
+<th class="head"><p>Why</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code></p></td>
+<td><p>The cluster lists no identity that has attributes, so none can be found (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-ID-ATTRIBUTES</span></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code></p></td>
+<td><p>The cluster returns neither the certificate nor its key.</p></td>
+</tr>
+<tr class="row-even"><td><p>Connection variables</p></td>
+<td><p>Capture reads the cluster through them and does not write them.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The edge rebuild’s records</p></td>
+<td><p>They are state the rebuild keeps, not configuration.</p></td>
+</tr>
+</tbody>
+</table>
+<p>One-shot actions are not configuration and leave nothing to read.
+<code class="docutils literal notranslate"><span class="pre">capture_info</span></code> has a reason for each module it does not capture:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Module</p></th>
+<th class="head"><p>Why it is not captured</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">auth_cache_clear</span></code>, <code class="docutils literal notranslate"><span class="pre">dns_cache_clear</span></code></p></td>
+<td><p>They clear a cache.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">encryption_key_rotation</span></code></p></td>
+<td><p>It rotates the at-rest encryption key and leaves no setting.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">identity_attributes</span></code></p></td>
+<td><p>See above.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">nexus_cluster</span></code></p></td>
+<td><p>It retires a cluster in Nexus.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_lock</span></code></p></td>
+<td><p>It holds a restore’s lock, a file on the controller.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code></p></td>
+<td><p>It sends a failover verb to one relationship. The records it leaves are what capture reads, as <code class="docutils literal notranslate"><span class="pre">replication</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">security_key</span></code></p></td>
+<td><p>The cluster registers a key only with its name signed by its private key, which it does not return. Capture lists each key in <code class="docutils literal notranslate"><span class="pre">left_out</span></code> by name and id.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">snapshot</span></code>, <code class="docutils literal notranslate"><span class="pre">snapshot_lock</span></code></p></td>
+<td><p>A snapshot is taken by a one-shot action. Capture declares the policies that take snapshots.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unprotected_edge_create</span></code></p></td>
+<td><p>It forms the cluster, which is what capture reads.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade</span></code></p></td>
+<td><p>Its outcome is the running release, which <code class="docutils literal notranslate"><span class="pre">cluster_info</span></code> reads.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="shape-of-the-files">
+<h3>Shape of the files<a class="headerlink" href="#shape-of-the-files" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">host_vars_text</span></code> renders both files.</p>
+<ul class="simple">
+<li><p>The file starts with the header as comments, then the variables sorted by name, then the secrets to supply, then what
+was left out.</p></li>
+<li><p>Every comment line is wrapped at 112 characters of text and starts with <code class="docutils literal notranslate"><span class="pre">#</span> </code>.</p></li>
+<li><p>Every string value is tagged <code class="docutils literal notranslate"><span class="pre">!unsafe</span></code>, so Ansible reads it as written and never templates it.
+A share description with a Jinja expression in it therefore does not run on the controller.</p></li>
+<li><p>Mapping keys, mappings and sequences carry no tag.</p></li>
+<li><p>A string that would read as another type without its tag, such as <code class="docutils literal notranslate"><span class="pre">0777</span></code> or <code class="docutils literal notranslate"><span class="pre">true</span></code>, is written quoted without the
+tag.
+The empty string is written as <code class="docutils literal notranslate"><span class="pre">''</span></code> without the tag.</p></li>
+<li><p>A template you add to the file yourself, such as a reference to a vaulted secret, is evaluated as usual.</p></li>
+<li><p>Each secret to supply is a comment: <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">&lt;variables&gt;:</span></code> and then the reason, indented.
+Lines with the same reason share one heading.</p></li>
+<li><p>Each item left out is a comment: <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">&lt;what&gt;:</span></code> and then the reason, indented.</p></li>
+</ul>
+<p>The host file’s header is the first three lines of the sample.
+The capture file’s header reads “Captured from <code class="docutils literal notranslate"><span class="pre">&lt;host&gt;</span></code> by playbooks/capture.yml” and says that it is a one-time
+import.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/cluster01.yml, in part</span>
+<span class="c1"># Adopted from cluster01 by playbooks/capture.yml: Qumulo Core 7.10.3,</span>
+<span class="c1"># cluster cbb6f13a-d92f-4dfb-a7f0-d0a6785da65d. Variables the inventory already defined are left out.</span>
+<span class="c1"># Review it, check it with playbooks/baseline.yml --check, and commit it.</span>
+<span class="nt">qumulo_authoritative_dns</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">fqdn</span><span class="p">:</span><span class="w"> </span><span class="s">''</span>
+<span class="w">  </span><span class="nt">host_restrictions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">record_ttl_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="nt">qumulo_cluster_name</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster01</span>
+<span class="nt">qumulo_dns</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lookup_overrides</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">search_domains</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">corp.example.com</span>
+<span class="w">  </span><span class="nt">servers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.2</span>
+<span class="nt">qumulo_factory_defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nfs_root_export</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
+<span class="w">  </span><span class="nt">smb_files_share</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">present</span>
+<span class="nt">qumulo_local_users</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="w">  </span><span class="nt">primary_group</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Users</span>
+<span class="w">  </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">guest</span>
+<span class="w">  </span><span class="nt">primary_group</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Guests</span>
+<span class="w">  </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">65534</span>
+<span class="nt">qumulo_managed_by</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+<span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Default</span>
+<span class="w">  </span><span class="nt">networks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">nfs_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nfs_exports</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">export_path</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/</span>
+<span class="w">    </span><span class="nt">fs_path</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/</span>
+<span class="w">    </span><span class="c1"># ...and the export's other options</span>
+<span class="w">  </span><span class="nt">nfs_settings</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inherit</span>
+<span class="w">  </span><span class="nt">rest_api_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">replication_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">smb_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">smb_settings</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inherit</span>
+<span class="w">  </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Files</span>
+<span class="w">    </span><span class="nt">fs_path</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/</span>
+<span class="w">    </span><span class="c1"># ...and the share's other options</span>
+<span class="w">  </span><span class="nt">ssh_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">web_ui_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_terraform_owned_areas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">qumulo_time</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ntp_servers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ntp1.corp.example.com</span>
+<span class="w">  </span><span class="nt">source</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">API_TIME_SOURCE_NTP</span>
+<span class="w">  </span><span class="nt">use_ad_for_primary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="c1"># Never captured. Supply each of these to manage what it guards, a secret encrypted with ansible-vault:</span>
+<span class="c1">#</span>
+<span class="c1"># qumulo_local_users[admin].password:</span>
+<span class="c1">#   the cluster never returns a password; give the user's password, encrypted with ansible-vault, to set it when the</span>
+<span class="c1">#   user is created, or on every run with update_password: always</span>
+</pre></div>
+</div>
+<p>The sample is of a cluster that has no frontend network yet, so <code class="docutils literal notranslate"><span class="pre">Default</span></code> has <code class="docutils literal notranslate"><span class="pre">networks:</span> <span class="pre">[]</span></code>; on a cluster with one, the
+network is written under the tenant that holds it. The factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export are under tenant 1.</p>
+<p>A capture is a one-time import.
+The inventory is the source of truth afterwards, and nothing replays a capture.
+<a class="reference internal" href="../explanation/state-management.html#capture-and-adoption"><span class="std std-ref">State management</span></a> gives the reason.</p>
+</section>
+</section>
+<section id="clone">
+<h2>Clone<a class="headerlink" href="#clone" title="Link to this heading"></a></h2>
+<p>A clone gives a fresh cluster (the target) the configuration of another cluster (the source).
+It reads the source, changes nothing on it, writes the target’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file, and runs the <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role
+on the target.
+It copies configuration only, never data.
+The target is a second cluster with a name of its own, and the clone never claims to be the source.</p>
+<section id="clone-playbook-variables">
+<h3>Clone playbook variables<a class="headerlink" href="#clone-playbook-variables" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Required</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source</span></code></p></td>
+<td><p>yes</p></td>
+<td><p></p></td>
+<td><p>The source: an inventory host, or the name of a source outside the inventory, which then only names it in messages and in the file’s header.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_target</span></code></p></td>
+<td><p>yes</p></td>
+<td><p></p></td>
+<td><p>The target: an inventory host in <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>, other than the source.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_name</span></code></p></td>
+<td><p>yes</p></td>
+<td><p></p></td>
+<td><p>The target’s name. It is also the target’s computer account in the domain, so it must differ from the source’s name and from the <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code> of every other inventory host that defines one. Names compare without regard to case.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_supply</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p></td>
+<td><p>The secrets for the first pass: a map from the name of a supply line to the secret. The values are used for that run only and are never written.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_check_only</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Write the file, then run the baseline in check mode. Needs the same secrets.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_allow_configured_target</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">false</span></code></p></td>
+<td><p>Clone onto a target that holds configuration formation does not create. True in effect when this clone’s own file exists.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_host_vars_dir</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">host_vars/</span></code> beside the one inventory source that defines the target</p></td>
+<td><p>The absolute directory to write <code class="docutils literal notranslate"><span class="pre">&lt;target&gt;.yml</span></code> in. A relative path is refused.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_api_host</span></code></p></td>
+<td><p>for a source outside the inventory</p></td>
+<td><p></p></td>
+<td><p>The source’s address.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_api_port</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">8000</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_api_username</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">admin</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_api_password</span></code></p></td>
+<td><p>no</p></td>
+<td><p>empty</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_api_token</span></code></p></td>
+<td><p>no</p></td>
+<td><p>empty</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_validate_certs</span></code></p></td>
+<td><p>no</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_ca_path</span></code></p></td>
+<td><p>no</p></td>
+<td><p>unset</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_source_cluster_uuid</span></code></p></td>
+<td><p>no</p></td>
+<td><p>empty</p></td>
+<td><p>The UUID the source must have, for the identity guard.</p></td>
+</tr>
+</tbody>
+</table>
+<p>A key of <code class="docutils literal notranslate"><span class="pre">clone_edge_supply</span></code> is <code class="docutils literal notranslate"><span class="pre">&lt;variable&gt;.&lt;key&gt;</span></code>, such as <code class="docutils literal notranslate"><span class="pre">qumulo_ad.join_user</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">qumulo_local_users[&lt;name&gt;].password</span></code>.
+A key that no supply line of the file names fails the clone.
+Ansible cannot tell a variable given with <code class="docutils literal notranslate"><span class="pre">-e</span></code> from one the inventory defines.
+A captured variable given with <code class="docutils literal notranslate"><span class="pre">-e</span></code> counts as one the inventory defines, and the clone leaves it out of the file.</p>
+<p><a class="reference internal" href="variables.html"><span class="std std-doc">Inventory variables</span></a> lists the run-level variables with the others.</p>
+</section>
+<section id="clone-files">
+<h3>Clone files<a class="headerlink" href="#clone-files" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Location</p></th>
+<th class="head"><p>Mode</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>The target’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_host_vars_dir/&lt;target&gt;.yml</span></code></p></td>
+<td><p>0644; the directory is created if missing and set to 0755 on every run</p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>The clone writes only this file.
+A target that has <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> in another file or directory beside any <code class="docutils literal notranslate"><span class="pre">-i</span></code> source fails.</p></li>
+<li><p>When the file exists and the clone would write different text, the clone fails and leaves it as it was.
+The text is the same on a second run with an unchanged source, so a repeat run succeeds.</p></li>
+<li><p>The file is written before the check for missing secrets, so a missing secret leaves the file in place.</p></li>
+<li><p>The file starts with a header that names the source, its UUID and the target’s UUID, and ends with the same comments
+as a capture: the secrets to supply, then what was left out.
+<a class="reference internal" href="#shape-of-the-files">Shape of the files</a> gives the format rules.</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cloned from edge01, cluster cbb6f13a-d92f-4dfb-a7f0-d0a6785da65d, by playbooks/clone_edge.yml</span>
+<span class="c1"># onto cluster 1b2c33f0-9a8b-4c56-9d2e-3f8c1b0a7e22. Configuration only: no data is copied.</span>
+<span class="c1"># Variables the inventory already defines are left out. A second clone writes the same file, and refuses to</span>
+<span class="c1"># replace it once it differs.</span>
+<span class="nt">qumulo_cluster_name</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge02</span>
+<span class="nt">qumulo_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1b2c33f0-9a8b-4c56-9d2e-3f8c1b0a7e22</span>
+<span class="nt">qumulo_dns</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">lookup_overrides</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">search_domains</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">corp.example.com</span>
+<span class="w">  </span><span class="nt">servers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="kt">!unsafe</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.20.0.2</span>
+<span class="c1"># ...</span>
+
+<span class="c1"># Never captured. Supply each of these to manage what it guards, a secret encrypted with ansible-vault:</span>
+<span class="c1">#</span>
+<span class="c1"># qumulo_monitoring.nexus_join_key:</span>
+<span class="c1">#   a join key registers one cluster only, and the source's registration is the source's; give a new key for the</span>
+<span class="c1">#   clone, or qumulo_nexus_api_token to mint one (G-NEXUS-KEY)</span>
+<span class="c1"># ...</span>
+
+<span class="c1"># Read from the cluster but left out:</span>
+<span class="c1">#</span>
+<span class="c1"># the network document:</span>
+<span class="c1">#   it holds the source's own addresses, its floating IPs among them; Terraform or you declare the clone's network</span>
+<span class="c1"># ...</span>
+</pre></div>
+</div>
+</section>
+<section id="what-the-clone-does-with-each-variable">
+<h3>What the clone does with each variable<a class="headerlink" href="#what-the-clone-does-with-each-variable" title="Link to this heading"></a></h3>
+<p>Every variable a capture can hold has a rule in <code class="docutils literal notranslate"><span class="pre">clone_host_vars</span></code>.
+A variable without a rule fails the clone, so the clone copies nothing it has no rule for.
+The clone reads the source with the same <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> call as a capture, with the areas the target’s inventory gives
+to Terraform left out.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Rule</p></th>
+<th class="head"><p>What the clone does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code></p></td>
+<td><p>replace</p></td>
+<td><p>The target’s own UUID, as the target reports it. Never the source’s.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code></p></td>
+<td><p>replace</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">clone_edge_name</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied without the join credentials. The target joins as a new computer account, <code class="docutils literal notranslate"><span class="pre">&lt;NAME&gt;$</span></code> for the clone’s name, so the join needs <code class="docutils literal notranslate"><span class="pre">qumulo_ad.join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_ad.join_password</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied without <code class="docutils literal notranslate"><span class="pre">keytab</span></code> and <code class="docutils literal notranslate"><span class="pre">keytab_path</span></code>. The keytab holds the source’s principals, for the source’s names, so the target needs a keytab exported from the KDC for the principals of its own names. The capture’s note that the source’s keytab could not be read is restated for the target in the same terms.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied. A join key registers one cluster only, so the target needs a new key, or <code class="docutils literal notranslate"><span class="pre">qumulo_nexus_api_token</span></code> to mint one.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied without <code class="docutils literal notranslate"><span class="pre">license_document</span></code>. A license is bound to one UUID, so the target needs a license issued for its own.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_authoritative_dns</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied without <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">fqdn</span></code>, with a note when the source had a name or answered.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_audit_destinations</span></code></p></td>
+<td><p>filter</p></td>
+<td><p>Copied without the CloudWatch destinations, whose log group and region are in the source’s AWS account.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ftp_settings</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied. The anonymous user is a local user, which <code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code> carries to the target.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_settings</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied. <code class="docutils literal notranslate"><span class="pre">base_path</span></code> is left out, and the target keeps its own, when the base path lies in a spoke root of the source or in a replication target directory.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_file_acls</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_quotas</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_snapshot_policies</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_s3_buckets</span></code></p></td>
+<td><p>filter</p></td>
+<td><p>Each entry whose path lies in a spoke root of the source, or in a directory the source receives replication into, is left out with a note.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code></p></td>
+<td><p>filter</p></td>
+<td><p>Every tenant is kept, with its <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">previous_name</span></code>, switches, <code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code>. <code class="docutils literal notranslate"><span class="pre">networks</span></code> is dropped from every entry, with one note for each tenant that had any, since the networks hold the source’s own addresses. Each nested share and export passes the filter the flat lists pass, so one in a spoke root or a replication target directory is left out with the note a flat one gets, naming its tenant. The shared entries of the flat lists are filtered as those lists are.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_bucket_policies</span></code></p></td>
+<td><p>filter</p></td>
+<td><p>A policy goes where its bucket goes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>The hub’s record of the portal is the source’s. Declare the target’s own portal, with spoke roots of its own.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>The peer’s record of each relationship is the source’s. Declare the target’s own, with target directories of its own. One note per relationship.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_s3_access_keys</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>The source’s S3 clients hold each key’s secret. Declare the target’s own keys. One note per key.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>It holds the source’s own addresses.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_saml</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>Its <code class="docutils literal notranslate"><span class="pre">cluster_dns_name</span></code> is the source’s Web UI address, for which the identity provider’s application is set up. When the source requires AD users to sign in through the identity provider, the note says they sign in to the clone with a password until its own <code class="docutils literal notranslate"><span class="pre">qumulo_saml</span></code> is declared.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_dns</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_ssl_ciphers</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_time</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_filesystem_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_web_ui_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_local_groups</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_user_defined_mappings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_roles</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_smb_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied as captured. A local user’s <code class="docutils literal notranslate"><span class="pre">password</span></code>, the join credentials, a keytab, a join key and a license document are removed wherever they appear.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Each dropped or filtered item is listed in the file under what was left out, with its reason.</p>
+<section id="rules-for-variables-capture-info-never-returns">
+<h4>Rules for variables <code class="docutils literal notranslate"><span class="pre">capture_info</span></code> never returns<a class="headerlink" href="#rules-for-variables-capture-info-never-returns" title="Link to this heading"></a></h4>
+<p>These rules apply when <code class="docutils literal notranslate"><span class="pre">clone_host_vars</span></code> is given a capture built some other way, such as a capture file with peer
+values or an adopted file.
+<code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code> passes <code class="docutils literal notranslate"><span class="pre">capture_info</span></code>’s own capture, which holds none of these variables, so these rules never produce
+a note there.
+The SSL supply lines are still written (see <a class="reference internal" href="#supply-lines-the-clone-writes">Supply lines the clone writes</a>).</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Rule</p></th>
+<th class="head"><p>What the clone does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>The target serves its own certificate, for the names its clients use.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>It names clusters the source took over from in a rebuild.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>They hold the addresses the source’s peers reach the source at.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code></p></td>
+<td><p>drop</p></td>
+<td><p>The target’s inventory says what formed the target and which areas Terraform owns.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code></p></td>
+<td><p>copy</p></td>
+<td><p>Copied as captured.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="supply-lines-the-clone-writes">
+<h3>Supply lines the clone writes<a class="headerlink" href="#supply-lines-the-clone-writes" title="Link to this heading"></a></h3>
+<p>The clone keeps the capture’s supply lines for local user passwords.
+It replaces the lines whose reason was the source’s own, and removes those for S3 access keys.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Line</p></th>
+<th class="head"><p>Written when</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ad.join_user</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_ad.join_password</span></code></p></td>
+<td><p>the file holds <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_monitoring.nexus_join_key</span></code></p></td>
+<td><p>the source’s Nexus connection is on</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license_document</span></code></p></td>
+<td><p>the file holds a <code class="docutils literal notranslate"><span class="pre">license</span></code> key in <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>, or the capture asked for a document (G-LICENSE)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_kerberos.keytab</span></code></p></td>
+<td><p>the capture named it</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_ssl.certificate</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.private_key</span></code></p></td>
+<td><p>the capture named them</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">qumulo_local_users[&lt;name&gt;].password</span></code></p></td>
+<td><p>for each local user except <code class="docutils literal notranslate"><span class="pre">guest</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-the-target-s-inventory-defines">
+<h3>Variables the target’s inventory defines<a class="headerlink" href="#variables-the-target-s-inventory-defines" title="Link to this heading"></a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file outranks the inventory’s other variables, so the clone leaves out each variable the target’s
+inventory already defines, with a note, and removes its supply lines.</p>
+<p>The exception is a mapping that holds only the variable’s secrets.
+<code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> with only <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code> with only <code class="docutils literal notranslate"><span class="pre">keytab</span></code> or <code class="docutils literal notranslate"><span class="pre">keytab_path</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code> with only <code class="docutils literal notranslate"><span class="pre">nexus_join_key</span></code>, and <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code> with only <code class="docutils literal notranslate"><span class="pre">license_document</span></code> each keep the
+source’s other settings in the file.
+The first pass takes those secrets from the inventory, but the file’s variable outranks the inventory’s from then on,
+and the note says to move the secrets into the file.</p>
+<ul class="simple">
+<li><p>A mapping key counts only when its value is not empty (an empty string, list or mapping, <code class="docutils literal notranslate"><span class="pre">false</span></code> and <code class="docutils literal notranslate"><span class="pre">0</span></code> are empty).
+An empty mapping, or one that holds only empty placeholders, therefore counts as holding only the variable’s secrets,
+and the source’s settings are kept.</p></li>
+<li><p>A variable that the clone’s own existing file holds does not count as one the inventory defines. A second run
+therefore writes the same file.</p></li>
+</ul>
+<p>The target’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code> in the inventory must equal <code class="docutils literal notranslate"><span class="pre">clone_edge_name</span></code>, or the clone fails.</p>
+<p>A variable the inventory defines that the file does not hold stays in force beside the file, so the clone leaves out
+each share or export entry the inventory also declares, and refuses one it declares with other values; see
+<a class="reference internal" href="#declared-again-by-the-inventory">Declared again by the inventory</a>.
+The clone drops <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> and each tenant’s <code class="docutils literal notranslate"><span class="pre">networks</span></code>, so it never declares a network twice.
+On a re-run, the variables an earlier clone’s file holds are that file’s, not the inventory’s, so the second run
+decides as the first did.</p>
+</section>
+<section id="what-the-first-pass-needs">
+<h3>What the first pass needs<a class="headerlink" href="#what-the-first-pass-needs" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">clone_host_vars</span></code> returns <code class="docutils literal notranslate"><span class="pre">first_pass_needs</span></code>: the supply lines the first baseline cannot do without, minus those named in
+<code class="docutils literal notranslate"><span class="pre">clone_edge_supply</span></code> and those the inventory gives.</p>
+<ul class="simple">
+<li><p>a password for each local user the target lacks and that is present in the file, since a user is created with one;</p></li>
+<li><p>the join credentials while the target is not joined to the file’s domain.</p></li>
+</ul>
+<p>The other secrets guard what the first pass skips or hands off.
+The clone writes the file, then fails naming each missing secret and changing nothing on the target.
+A Nexus join key given in <code class="docutils literal notranslate"><span class="pre">clone_edge_supply</span></code> registers the target in the same pass.
+Without a join key or <code class="docutils literal notranslate"><span class="pre">qumulo_nexus_api_token</span></code>, the first pass skips registration without a message.</p>
+</section>
+<section id="what-the-clone-checks">
+<h3>What the clone checks<a class="headerlink" href="#what-the-clone-checks" title="Link to this heading"></a></h3>
+<p>Every refusal comes before anything changes on the target, except the missing-secret one, which follows the write of
+the file.
+A <code class="docutils literal notranslate"><span class="pre">clone_edge_check_only</span></code> run refuses a target whose inventory declares <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code> or
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>.</p>
+<p>The check that the target is fresh reads the shares and exports nested under the target’s tenant entries and the flat
+lists’ shared entries, beside the flat entries. The target’s capture reads the <code class="docutils literal notranslate"><span class="pre">tenants</span></code> area for it. The tenant
+formation creates is the target’s only tenant, or else the one named <code class="docutils literal notranslate"><span class="pre">Default</span></code> or renamed from it. Only that tenant’s
+factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export are exempt. Every other tenant counts as configuration the target holds, as does
+every other share or export under any tenant, so a target with a second tenant is refused unless
+<code class="docutils literal notranslate"><span class="pre">clone_edge_allow_configured_target</span></code> is true. The refusal names each, as “the tenant finance” or “the SMB share ledger
+of tenant finance”.</p>
+<p>After the target’s checks and before the file is rendered, the clone leaves out the shares and exports the inventory
+declares too, and refuses one the inventory declares with other values
+(<a class="reference internal" href="#declared-again-by-the-inventory">Declared again by the inventory</a>); nothing is written.</p>
+<p><a class="reference internal" href="troubleshooting.html#cloning"><span class="std std-ref">Troubleshooting: cloning</span></a> lists each refusal with its message.</p>
+</section>
+</section>
+<section id="related">
+<h2>Related<a class="headerlink" href="#related" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Tasks: <a class="reference internal" href="../how-to/adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a>,
+<a class="reference internal" href="../how-to/clone-edge.html"><span class="std std-doc">Clone an edge’s configuration onto a new edge</span></a>,
+<a class="reference internal" href="../how-to/s3.html"><span class="std std-doc">Serve a directory as an S3 bucket</span></a>.</p></li>
+<li><p>Reasons: <a class="reference internal" href="../explanation/state-management.html#capture-and-adoption"><span class="std std-ref">State management</span></a>
+(also <a class="reference internal" href="../explanation/state-management.html#cloning"><span class="std std-ref">cloning</span></a>), <a class="reference internal" href="../explanation/rebuilds.html"><span class="std std-doc">Rebuilds</span></a>,
+<a class="reference internal" href="../explanation/terraform-ownership.html"><span class="std std-doc">Terraform ownership</span></a>.</p></li>
+<li><p>Registers: <a class="reference internal" href="gaps.html"><span class="std std-doc">gaps</span></a> and <a class="reference internal" href="quirks.html"><span class="std std-doc">quirks</span></a>.</p></li>
+<li><p>Modules: <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.capture_info</span></code>, <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.clone_host_vars</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.host_vars_text</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="terraform-inventory.html" class="btn btn-neutral float-left" title="The Terraform inventory plugin" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="upgrade.html" class="btn btn-neutral float-right" title="The upgrade: variables, steps and files" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

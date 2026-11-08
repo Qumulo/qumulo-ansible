@@ -1,0 +1,727 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tested Qumulo Core versions &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
+    <link rel="prev" title="Playbooks and roles" href="playbooks-and-roles.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tested Qumulo Core versions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-the-results-are-recorded">Where the results are recorded</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-table">The table</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#row-columns">Row columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lane-columns">Lane columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vm-edge-lane">VM edge lane</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tier-1-job-columns">Tier 1 job columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#result-values">Result values</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#what-the-lanes-cannot-test">What the lanes cannot test</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tier-1-containers">Tier 1 containers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nfs-with-kerberos">NFS with Kerberos</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tier-3-tenants-and-managed-networking">Tier 3 tenants and managed networking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-rebuild-in-a-container">A rebuild in a container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upgrades">Upgrades</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tested Qumulo Core versions</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="tested-qumulo-core-versions">
+<h1>Tested Qumulo Core versions<a class="headerlink" href="#tested-qumulo-core-versions" title="Link to this heading"></a></h1>
+<p>What the collection is tested against, what each column of the README’s tested-versions table means, and what the
+test lanes cannot show.</p>
+<section id="requirements">
+<h2>Requirements<a class="headerlink" href="#requirements" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Requirement</p></th>
+<th class="head"><p>Minimum</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Qumulo Core</p></td>
+<td><p>7.10.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>ansible-core</p></td>
+<td><p>2.20 (<code class="docutils literal notranslate"><span class="pre">requires_ansible:</span> <span class="pre">&quot;&gt;=2.20.0&quot;</span></code> in <code class="docutils literal notranslate"><span class="pre">meta/runtime.yml</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="../how-to/install-the-collection.html"><span class="std std-doc">Install and pin the collection</span></a> lists the other prerequisites. <code class="docutils literal notranslate"><span class="pre">cluster_guard</span></code>,
+which the baseline runs first unless <code class="docutils literal notranslate"><span class="pre">cluster_baseline_guard</span></code> is <code class="docutils literal notranslate"><span class="pre">false</span></code>, warns when a cluster runs a release older
+than 7.10.3. Nothing refuses one. The upgrade
+also runs on older sources: see <a class="reference internal" href="upgrade.html#supported-sources"><span class="std std-ref">Supported sources</span></a>. The VM edge lane’s records reach
+back to 7.6.0; see <a class="reference internal" href="#vm-edge-lane">VM edge</a>.</p>
+</section>
+<section id="where-the-results-are-recorded">
+<h2>Where the results are recorded<a class="headerlink" href="#where-the-results-are-recorded" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>What</p></th>
+<th class="head"><p>Where</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>The table, one row per Core version</p></td>
+<td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/README.md#tested-qumulo-core-versions">the README’s table</a>, between the <code class="docutils literal notranslate"><span class="pre">tested-versions</span></code> markers</p></td>
+</tr>
+<tr class="row-odd"><td><p>Every build and every lane’s results, release candidates included</p></td>
+<td><p>The collection’s source repository, which is not published</p></td>
+</tr>
+</tbody>
+</table>
+<p>The table is generated from those records.</p>
+<p>Every build of a Qumulo Core release branch is tested from the moment the branch is cut, so a build is tested before
+it ships. Tier 1 runs for every build. The CNQ, Hardware and VM edge lanes run for release candidate (RC) and
+general availability (GA) builds, and when a past release is backfilled by hand. The VM edge lane runs only while it is
+switched on.</p>
+</section>
+<section id="the-table">
+<h2>The table<a class="headerlink" href="#the-table" title="Link to this heading"></a></h2>
+<p>One row per Core version, newest first.</p>
+<section id="row-columns">
+<h3>Row columns<a class="headerlink" href="#row-columns" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Content</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Qumulo Core</p></td>
+<td><p>The base version. Rows group builds by base version, so a limited build such as 7.10.3A sits under 7.10.3. A row shows one build’s results; a limited build’s results show only when it is that build, and the full records, kept in the source repository, hold the rest.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Build</p></td>
+<td><p>The Core build shown. For a version with a GA (or backfilled past release) result, that build. Otherwise the newest Core build recorded, which before a release is normally its newest release candidate. A version recorded only by its release tag shows <code class="docutils literal notranslate"><span class="pre">release</span> <span class="pre">&lt;tag&gt;</span></code>. A build whose posted version differs from the row’s version, such as a limited build, shows the posted version in parentheses after the build.</p></td>
+</tr>
+<tr class="row-even"><td><p>Tested</p></td>
+<td><p>The date of the newest result shown in the lane columns.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The lane and job columns follow the rules under <a class="reference internal" href="#result-values">Result values</a>, across every record the row draws on,
+whatever kind of run produced it.</p>
+</section>
+<section id="lane-columns">
+<h3>Lane columns<a class="headerlink" href="#lane-columns" title="Link to this heading"></a></h3>
+<p>Each build is tested on up to four lanes, each with a column.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Lane</p></th>
+<th class="head"><p>What runs</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Docker edge</p></td>
+<td><p>tier 1</p></td>
+<td><p>Single-node Qumulo Core containers, in the five groups of tests below</p></td>
+</tr>
+<tr class="row-odd"><td><p>CNQ</p></td>
+<td><p>tier 2</p></td>
+<td><p>A single-node Cloud Native Qumulo cluster in AWS that the Terraform provider forms</p></td>
+</tr>
+<tr class="row-even"><td><p>Hardware</p></td>
+<td><p>tier 3</p></td>
+<td><p>A four-node cluster formed on leased lab hardware</p></td>
+</tr>
+<tr class="row-odd"><td><p>VM edge</p></td>
+<td><p>tier 3, VMs</p></td>
+<td><p>Qumulo Core’s package installed on virtual machines, each forming one unprotected edge, and the edge’s tests</p></td>
+</tr>
+</tbody>
+</table>
+<p>A lane’s cell is its result, plain text with no link. The CNQ column shows the release matrix’s <code class="docutils literal notranslate"><span class="pre">cnq</span></code> lane. A CNQ run
+outside the release matrix is not recorded, so its results are not in the table.</p>
+</section>
+<section id="vm-edge-lane">
+<h3>VM edge lane<a class="headerlink" href="#vm-edge-lane" title="Link to this heading"></a></h3>
+<p>The VM edge column shows the release matrix’s <code class="docutils literal notranslate"><span class="pre">vm-edge</span></code> lane, which installs Qumulo Core from the build’s package,
+the package installer the Docker and Hardware lanes do not use. <code class="docutils literal notranslate"><span class="pre">Edge</span></code> is the Docker lane’s job column; <code class="docutils literal notranslate"><span class="pre">VM</span> <span class="pre">edge</span></code> is
+this lane, and the two are unrelated.</p>
+<p>The lane’s entries are <code class="docutils literal notranslate"><span class="pre">&lt;os&gt;/&lt;mode&gt;</span></code>: an operating system, in an install mode of the package. Each entry runs on two
+virtual machines, each with a share of the edge tests. An entry’s result is <code class="docutils literal notranslate"><span class="pre">fail</span></code> with the reason <code class="docutils literal notranslate"><span class="pre">install</span> <span class="pre">failed</span></code>
+when its package did not install, otherwise the result of the edge tests on the edges it formed. The cell is the worst
+result over the entries whose install did not fail, in the order <code class="docutils literal notranslate"><span class="pre">fail</span></code>, <code class="docutils literal notranslate"><span class="pre">not-tested</span></code>, <code class="docutils literal notranslate"><span class="pre">cancelled</span></code>, <code class="docutils literal notranslate"><span class="pre">skipped</span></code>,
+<code class="docutils literal notranslate"><span class="pre">superseded</span></code>, <code class="docutils literal notranslate"><span class="pre">pass</span></code>, and <code class="docutils literal notranslate"><span class="pre">fail</span></code> when every entry’s install failed.</p>
+<p>Under the cell, whatever it reads, a note names each entry that did not pass, so one entry’s pass never hides another’s
+result:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;os&gt;/&lt;mode&gt;:</span> <span class="pre">install</span> <span class="pre">failed</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;os&gt;/&lt;mode&gt;:</span> <span class="pre">&lt;failed</span> <span class="pre">tests&gt;</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;os&gt;/&lt;mode&gt;:</span> <span class="pre">not</span> <span class="pre">tested:</span> <span class="pre">&lt;reason&gt;</span></code>, or <code class="docutils literal notranslate"><span class="pre">cancelled</span></code>, <code class="docutils literal notranslate"><span class="pre">skipped</span></code> or <code class="docutils literal notranslate"><span class="pre">superseded</span></code> with its reason, for an entry with no
+pass or fail.</p></li>
+</ul>
+<p>The note is plain text with no link.</p>
+<p>The lane is advisory. A fail in it does not make a build red, and a collection release needs the Docker, CNQ and
+Hardware lanes only. A backfill of the lane reaches back to 7.6.0, below the 7.10.3 the collection supports; such a row
+fills the VM edge column alone, and its other lane columns read <code class="docutils literal notranslate"><span class="pre">not-tested</span></code>. It is history: a <code class="docutils literal notranslate"><span class="pre">pass</span></code> there says the edge tests ran clean on
+that release, not that the collection supports it.</p>
+</section>
+<section id="tier-1-job-columns">
+<h3>Tier 1 job columns<a class="headerlink" href="#tier-1-job-columns" title="Link to this heading"></a></h3>
+<p>The Docker lane runs five groups of tests on separate containers, each with a column of its own.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>What runs</p></th>
+<th class="head"><p>Blocks the Docker edge result</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Edge</p></td>
+<td><p>The API route check, the modules’ integration tests and the single-edge Molecule scenarios, on a formed unprotected edge</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Formation</p></td>
+<td><p>Forming an unprotected edge from an unconfigured node</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p>Pair</p></td>
+<td><p>A hub and an edge: portal pairing, replication between them, and the pair’s Molecule scenarios</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p>AD</p></td>
+<td><p>Joining a Samba Active Directory domain</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p>Rebuild</p></td>
+<td><p>A whole edge rebuild on a hub and an edge, including the reinstall</p></td>
+<td><p>No</p></td>
+</tr>
+</tbody>
+</table>
+<p>Three of the columns each gather several jobs, and each job starts containers of its own:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Column</p></th>
+<th class="head"><p>Jobs</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Edge</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge</span> <span class="pre">(1)</span></code>, <code class="docutils literal notranslate"><span class="pre">edge</span> <span class="pre">(2)</span></code> and <code class="docutils literal notranslate"><span class="pre">edge</span> <span class="pre">(3)</span></code>, each with a share of the integration tests, and <code class="docutils literal notranslate"><span class="pre">edge</span> <span class="pre">(scenarios)</span></code> and <code class="docutils literal notranslate"><span class="pre">edge</span> <span class="pre">(delete-tenant1)</span></code>, each with a group of the Molecule scenarios</p></td>
+</tr>
+<tr class="row-odd"><td><p>Pair</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pair</span> <span class="pre">(&lt;group&gt;)</span></code>, one for each of four groups of tests</p></td>
+</tr>
+<tr class="row-even"><td><p>Rebuild</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rebuild</span> <span class="pre">(&lt;group&gt;)</span></code>, one for each of five groups of scenarios</p></td>
+</tr>
+</tbody>
+</table>
+<p>Such a column shows the worst of its jobs’ results: <code class="docutils literal notranslate"><span class="pre">fail</span></code>, then <code class="docutils literal notranslate"><span class="pre">cancelled</span></code>, then <code class="docutils literal notranslate"><span class="pre">skipped</span></code>, else <code class="docutils literal notranslate"><span class="pre">pass</span></code>.</p>
+<p>The Docker edge cell is <code class="docutils literal notranslate"><span class="pre">pass</span></code> when Edge and Formation both pass, and <code class="docutils literal notranslate"><span class="pre">fail</span></code> when either fails. Pair, AD and Rebuild
+do not change it. Each job column shows <code class="docutils literal notranslate"><span class="pre">pass</span></code>, <code class="docutils literal notranslate"><span class="pre">fail</span></code>, <code class="docutils literal notranslate"><span class="pre">skipped</span></code> or <code class="docutils literal notranslate"><span class="pre">cancelled</span></code>; a blank cell means no result is
+recorded.</p>
+</section>
+<section id="result-values">
+<h3>Result values<a class="headerlink" href="#result-values" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Value</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pass</span></code></p></td>
+<td><p>The lane ran and every test passed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">fail</span></code></p></td>
+<td><p>The lane ran and a test failed.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">not-tested</span></code></p></td>
+<td><p>The lane did not run, or ran and could not test the build, for example when no lab hardware was free, or when the VM edge lane’s switch was off.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">superseded</span></code></p></td>
+<td><p>A newer build of the same version was tested instead.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">skipped</span></code></p></td>
+<td><p>The job was skipped.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cancelled</span></code></p></td>
+<td><p>The job was cancelled.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Rules:</p>
+<ul class="simple">
+<li><p>A cell shows the lane’s latest <code class="docutils literal notranslate"><span class="pre">pass</span></code> or <code class="docutils literal notranslate"><span class="pre">fail</span></code> for the build. Only a lane with neither shows its latest
+<code class="docutils literal notranslate"><span class="pre">not-tested</span></code>, <code class="docutils literal notranslate"><span class="pre">superseded</span></code>, <code class="docutils literal notranslate"><span class="pre">skipped</span></code> or <code class="docutils literal notranslate"><span class="pre">cancelled</span></code>.</p></li>
+<li><p>A lane with no recorded result reads <code class="docutils literal notranslate"><span class="pre">not-tested</span></code>.</p></li>
+<li><p>Under a row with a <code class="docutils literal notranslate"><span class="pre">fail</span></code>, a note row names the failing tests under each failed column other than Docker edge, or the
+job when it named no test. The names are plain text with no link. The Edge and Formation notes name the Docker lane’s
+failures.</p></li>
+<li><p>The VM edge column’s note appears under whatever its cell reads, and names each entry that did not pass, as
+<a class="reference internal" href="#vm-edge-lane">VM edge lane</a> says.</p></li>
+</ul>
+</section>
+</section>
+<section id="what-the-lanes-cannot-test">
+<h2>What the lanes cannot test<a class="headerlink" href="#what-the-lanes-cannot-test" title="Link to this heading"></a></h2>
+<section id="tier-1-containers">
+<h3>Tier 1 containers<a class="headerlink" href="#tier-1-containers" title="Link to this heading"></a></h3>
+<p>These are not tested there:</p>
+<ul class="simple">
+<li><p>Floating addresses, and a managed network.</p></li>
+<li><p>Authoritative DNS answers. The image runs no DNS server, so the <code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> integration target checks the
+stored settings only.</p></li>
+<li><p>The cluster’s OpenAPI document. The Qumulo Core 7.10.3 image answers 500 on <code class="docutils literal notranslate"><span class="pre">/openapi.json</span></code> and 404 on
+<code class="docutils literal notranslate"><span class="pre">/v1/openapi.json</span></code>, so the live contract tests skip (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-CONTAINER-OPENAPI</span></a>).</p></li>
+<li><p>An upgrade. The image has no installer, so no container is ever upgraded.</p></li>
+<li><p>Node operations, KMIP and RDMA (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-CONTAINER</span></a>).</p></li>
+<li><p>An LDAP server, so <code class="docutils literal notranslate"><span class="pre">ldap_user:</span></code> and <code class="docutils literal notranslate"><span class="pre">ldap_group:</span></code> trustees, and the lookups of them, are tested in unit tests only.</p></li>
+<li><p>A VLAN-bound tenant, and service isolation. The container has one host-managed interface and no VLAN, so a network
+bound to a second tenant serves no client there; only tier 3 tests them
+(<a class="reference internal" href="#tier-3-tenants-and-managed-networking">Tier 3 tenants and managed networking</a>).</p></li>
+<li><p>A second tenant without a declared management network. The container answers the network status with HTTP 500
+(<a class="reference internal" href="gaps.html"><span class="std std-doc">G-NET-APPLY</span></a>), so every two-tenant case there declares <code class="docutils literal notranslate"><span class="pre">management_network</span></code>, on a HOST network whose id the
+container’s host associates with its interface.</p></li>
+<li><p>Tenants behind a cloud cluster’s load balancer. Tier 2 tests that a cloud cluster refuses every tenant write and that
+its tenants read (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-TENANT-CLOUD</span></a>), and its capture, and no second tenant is ever made there.</p></li>
+</ul>
+<p>Tier 2 reads the floating addresses the Terraform provider owns. Tier 3’s <code class="docutils literal notranslate"><span class="pre">network_config</span></code> target reads the network and
+writes nothing. Its <code class="docutils literal notranslate"><span class="pre">tenancy</span></code> target is the only one that writes networks and floating addresses, as
+<a class="reference internal" href="#tier-3-tenants-and-managed-networking">Tier 3 tenants and managed networking</a> lists. No lane yet checks authoritative
+DNS answers or runs the OpenAPI check against a served document. For upgrades, see <a class="reference internal" href="#upgrades">Upgrades</a>.</p>
+</section>
+<section id="nfs-with-kerberos">
+<h3>NFS with Kerberos<a class="headerlink" href="#nfs-with-kerberos" title="Link to this heading"></a></h3>
+<p>No lane runs an NFS client with Kerberos, so no lane shows that a client can sign in against an installed keytab. The
+cluster stores any well-formed keytab without asking a KDC (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-KRB-KEYTAB</span></a>), so the <code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> and
+<code class="docutils literal notranslate"><span class="pre">kerberos_settings</span></code> integration targets test a keytab as stored and compared: install, a second run with no change, a
+rotation, a change of keys alone, removal, every refusal but the one on a joined cluster, which the AD job’s target
+checks, and that no result holds a key. They run on the Docker edge for
+each version the lanes run, and on the VM edge, with keytabs the target writes at run time.</p>
+<p>The AD job’s <code class="docutils literal notranslate"><span class="pre">kerberos_keytab_ad</span></code> target uses the lane’s Samba domain controller as a standalone KDC. It exports a
+keytab for an NFS principal of a service account, installs it on the edge outside the domain, and checks that the join
+and the keytab refuse each other (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-KRB-AD</span></a>). That shows that a keytab a KDC writes reads in the module as it
+does in the cluster, and not that a client can use it.</p>
+</section>
+<section id="tier-3-tenants-and-managed-networking">
+<h3>Tier 3 tenants and managed networking<a class="headerlink" href="#tier-3-tenants-and-managed-networking" title="Link to this heading"></a></h3>
+<p>Qumulo marks the multitenancy REST API as preview in Qumulo Core 7.10.3 and 7.11.0. The collection manages tenants
+through it on those releases, and a later Qumulo Core release may change it.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">tenancy</span></code> target runs only on tier 3’s cluster: four nodes on managed networking, formed with one tenant and one
+DHCP network on the frontend bond, with two VLANs that the nodes’ ports carry tagged. Each module write runs in check
+mode first. It writes:</p>
+<ul class="simple">
+<li><p>The untagged network moves from DHCP to STATIC on the lane’s node and floating addresses, in the tenant that holds
+it, with <a class="reference internal" href="../collections/qumulo/cluster/network_config_module.html"><span class="std std-doc">network_config</span></a>’s <code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code> and
+<code class="docutils literal notranslate"><span class="pre">api_host_after</span></code>.</p></li>
+<li><p>A second tenant, with SMB on, and a third, with NFS on. Both have every other service off: REST, the web UI, SSH and
+replication. The first create warns that it rebinds every listener (G-TENANT-LISTEN), and each create that it removes
+the static routes (G-TENANT-ROUTES).</p></li>
+<li><p>SMB and NFS turned off on the tenant that holds the untagged network.</p></li>
+<li><p>Each test VLAN’s network, a STATIC network on a tagged VLAN, bound to one of the two new tenants in one network
+write. Before the tenants exist, a check run of that write reports the change pending both creates, with each network
+under its tenant’s name and no tenant id yet. After the creates, the check run predicts each network in its tenant,
+and the cluster validates the document.</p></li>
+<li><p>A share in the SMB tenant, an export in the NFS tenant, one share of one name in both, and in each an override of its
+own protocol’s settings (SMB signing required; an NFS ID-mapping domain).</p></li>
+</ul>
+<p>It checks isolation from the configuration the API reports, never from a client on a network:</p>
+<ul class="simple">
+<li><p>Each network’s tenant, read from the tenant’s list of networks and from the network’s own tenant.</p></li>
+<li><p>Each tenant’s switches, and from them which networks serve REST on port 8000, the web UI, SMB and NFS: REST and the
+web UI on the untagged network only, SMB on test VLAN 1’s network only, NFS on test VLAN 2’s network only.</p></li>
+<li><p>Every node’s managed interfaces applied, and the nodes holding exactly the lane’s addresses of the three networks
+(the untagged network and test VLANs 1 and 2).</p></li>
+<li><p>Each tenant’s shares, exports and overrides, which are its own.</p></li>
+</ul>
+<p>It runs these scenarios against its own connection. Each runs in check mode and, except where a bullet says otherwise,
+then for real; a refusal must read the same in both:</p>
+<ul class="simple">
+<li><p>REST off, or the web UI off behind a declared <code class="docutils literal notranslate"><span class="pre">cluster_port</span></code> of 443, on the tenant that holds the network the play
+connects to: refused.</p></li>
+<li><p>REST off on the tenant that holds the management network, judged in check mode only on planned bindings
+(<code class="docutils literal notranslate"><span class="pre">planned_networks</span></code>, <code class="docutils literal notranslate"><span class="pre">planned_tenants</span></code>): allowed on a plan that moves the network to a tenant with REST on, refused on
+one that does not.</p></li>
+<li><p>The management network moved to a tenant with REST off: refused. Moved to a tenant with REST on, and back: allowed.</p></li>
+<li><p>The play’s address moved into the ranges of a network whose tenant has REST off: refused.</p></li>
+<li><p>A declared management network whose tenant has REST off: refused.</p></li>
+<li><p>A new network that names no tenant: refused.</p></li>
+<li><p>One VLAN carrying the networks of two tenants: refused.</p></li>
+<li><p>The delete of a tenant that holds a network and shares: refused, naming them.</p></li>
+<li><p>A test VLAN’s network moved to the other new tenant in one network write, with no tenant’s switches changed, then
+moved back.</p></li>
+<li><p>When the lane formed the cluster with a network on the backend bond: the create of a second tenant, refused while the
+only tenant holds that network (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-TENANT-BACKEND</span></a>); the target then unbinds it through the API. No lab
+cluster has had such a network yet, as the backend-bond case below says, so this has not run there; unit tests cover it.</p></li>
+</ul>
+<p>A second run of every declaration reports no change, in check mode and for real.</p>
+<p>It also runs the <a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc">cluster_baseline</span></a> role and
+<a class="reference internal" href="../collections/qumulo/cluster/capture_info_module.html"><span class="std std-doc">capture_info</span></a> on the same cluster. Each baseline run that writes runs in check
+mode first, and a refusal must read the same in both. Where only the play’s recap shows that a run changed nothing, the
+target runs <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/baseline.yml">playbooks/baseline.yml</a> against an inventory it writes, and the recap must
+show no change.</p>
+<p>While the cluster has one tenant, before the module scenarios above:</p>
+<ul class="simple">
+<li><p>The management network unbound by hand while the only tenant holds another network: a baseline run that adds a
+tenant and moves the play’s address into the other network’s ranges is refused before any write, since the create is
+judged on the network as the cluster has it, which no tenant holds. The target then binds the network again.</p></li>
+<li><p>When the lane formed the cluster with a network on the backend bond: capture writes that network in
+<code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>, not under the tenant, and a check run of the baseline from the capture changes nothing. No lab
+cluster has been formed with a network on the backend bond yet, so this has not run there; unit tests cover it.</p></li>
+</ul>
+<p>On the three tenants, these baseline runs are refused before any write:</p>
+<ul class="simple">
+<li><p>A shared share that names a tenant neither the inventory declares nor the cluster holds.</p></li>
+<li><p>An inventory that leaves out a tenant that holds a network, so the run would remove the network.</p></li>
+<li><p>A tenant network that the declared backend bond lists.</p></li>
+<li><p>A network change judged on an <code class="docutils literal notranslate"><span class="pre">api_host</span></code> name that does not resolve.</p></li>
+<li><p>A network change judged on an <code class="docutils literal notranslate"><span class="pre">api_host</span></code> name with an IPv4 and an IPv6 address, from a hosts entry on the controller:
+the untagged node address the play uses, and an address of an IPv6 network the run would add to test VLAN 1 under
+the SMB tenant, which has REST off. A check run with REST on there passes, judged on both networks. This needs sudo
+without a password on the controller, and is skipped with a note otherwise.</p></li>
+<li><p>The delete of a tenant that holds an export no entry declares or claims.</p></li>
+</ul>
+<p>A replication address on test VLAN 1’s network, whose tenant has replication off, is refused too:
+<code class="docutils literal notranslate"><span class="pre">replication_target</span></code>, given the address as the role’s replication step passes it, reads the tenants and the network
+document and refuses in check mode and for real before it reads the relationship or writes anything, naming the network
+and the tenant. No relationship is made, since the lane leases
+one cluster.</p>
+<p>Then these baseline runs write:</p>
+<ul class="simple">
+<li><p>The NFS tenant’s whole entry marked <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>. The run removes the tenant’s network and VLAN, its copy of the
+shared share, its export and its override, and then the tenant. The check run predicts each removal and the delete
+and writes nothing. A second run changes nothing, in check mode and for real.</p></li>
+<li><p>The NFS tenant declared again. One run creates it with its network and VLAN, its override, its export and its copy
+of the shared share, and the target checks isolation and each tenant’s content again. A second run sends no write.</p></li>
+<li><p>The untagged network declared under a new id with the same addresses, in a run that also creates a fourth tenant.
+The create is judged on the network’s id on the cluster and the network write on its new id, and the run converges.
+A second run changes nothing, and a baseline run deletes the fourth tenant again.</p></li>
+</ul>
+<p>Capture, from the three tenants:</p>
+<ul class="simple">
+<li><p>Each tenant by name, with its network and VLAN, its override, its shares and its export, and the shared share once. A
+check run of the baseline from the capture changes nothing.</p></li>
+<li><p>With a network that no tenant holds, made through the API: the network is written in <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> without a
+tenant, and noted.</p></li>
+<li><p>With test VLAN 1 also carrying an IPv6 network that no tenant holds, made through the API on documentation addresses,
+one for each node, as Qumulo Core requires: the VLAN is kept in <code class="docutils literal notranslate"><span class="pre">qumulo_network.managed_interfaces</span></code> and noted, and a
+check run of the baseline from the capture refuses it as declared in two places. The target then removes the IPv6
+network. When Qumulo Core refuses such a network, the target notes the refusal’s error class and skips this case.</p></li>
+</ul>
+<p>The target ends with the untagged network STATIC, under its new id, and both new tenants in place, with their networks,
+shares, export and overrides. Before the lab releases the cluster, it returns the untagged network to DHCP. That does
+not restore the static routes that the second tenant’s create removed, and on a cluster formed with a network on the
+backend bond, that network stays in no tenant.</p>
+<p>These are not tested on tier 3:</p>
+<ul class="simple">
+<li><p>A client on a test VLAN. The target connects only on the untagged network, so which services answer on each test VLAN
+is read from the configuration, not observed.</p></li>
+<li><p>A replication relationship into a tenant with replication off. The lane leases one cluster, so the target checks the
+refusal without one, as listed above.</p></li>
+<li><p>A VLAN that carries two tenants’ networks. Qumulo Core cannot put one VLAN on two tenants, so no cluster has one, and
+unit tests cover capture’s note for it.</p></li>
+</ul>
+</section>
+<section id="a-rebuild-in-a-container">
+<h3>A rebuild in a container<a class="headerlink" href="#a-rebuild-in-a-container" title="Link to this heading"></a></h3>
+<p>Each of the five Rebuild jobs runs its group’s rebuild scenarios on a hub and an edge container of its own, including
+the reinstall, which starts the edge’s container again from a fresh state. A licensed edge, its retirement in Nexus and the second pass of licensing are shown only by
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_replica</span></code> and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_restore</span></code>, and only in a run with the Nexus token. Only <code class="docutils literal notranslate"><span class="pre">edge_rebuild_restore</span></code>
+shows the second pass’s restore of a relationship out of the edge. Apart from a rebuild, the <code class="docutils literal notranslate"><span class="pre">nexus_*</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code> and
+<code class="docutils literal notranslate"><span class="pre">edge_license_complete</span></code> targets show licensing and Nexus on a single edge, also only with the token.</p>
+<p>These paths are not verified against a cluster within a rebuild; they wait for the tier 2 and tier 3 jobs:</p>
+<ul class="simple">
+<li><p>An Active Directory leave and rejoin (the AD job covers the <code class="docutils literal notranslate"><span class="pre">ad_domain</span></code> module alone).</p></li>
+<li><p>Managed networking.</p></li>
+<li><p>A cache larger than the container’s disk.</p></li>
+<li><p>A drain that fails after the spoke delete.</p></li>
+<li><p>A portal to a hub the inventory does not declare.</p></li>
+</ul>
+</section>
+<section id="upgrades">
+<h3>Upgrades<a class="headerlink" href="#upgrades" title="Link to this heading"></a></h3>
+<p>No lane has yet measured the oldest source an upgrade supports (<a class="reference internal" href="upgrade.html#supported-sources"><span class="std std-ref">Supported sources</span></a>).</p>
+<p>The range is measured by backwards testing:</p>
+<ul class="simple">
+<li><p>It is a run by hand of a lane’s upgrade-from mode.</p></li>
+<li><p>The run installs the oldest source the lane can install. Tier 2 starts only from a source that has a cloud image.</p></li>
+<li><p>It runs one chain from that source to the current GA through every quarterly release on the way, and records each
+hop’s result.</p></li>
+<li><p>A failed hop ends the chain. The lane installs that hop’s target afresh and runs on from there.</p></li>
+<li><p>The supported range starts after the last failure.</p></li>
+<li><p>The chain tests clusters upgraded to each release, not clusters formed at it.</p></li>
+</ul>
+<p>What the tests cover:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Level</p></th>
+<th class="head"><p>Covered</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Unit tests</p></td>
+<td><p>The module’s refusals, waits and outcomes; the plan’s arithmetic over every quarterly release; the schedule; the report</p></td>
+</tr>
+<tr class="row-odd"><td><p>Tier 1 integration targets</p></td>
+<td><p>The reads, the refusals before verify, the module’s check mode, and the limited-release waiver, which the container answers with F8</p></td>
+</tr>
+<tr class="row-even"><td><p>Tier 1 Molecule scenario <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_plan</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">playbooks/upgrade.yml</span> <span class="pre">--check</span></code> on the edge: the plan’s hop, the module’s prediction and W1, with nothing written but the report</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> against stub modules</p></td>
+<td><p>The playbook’s and the role’s hop loop, scripted per host, for the step rules a fleet hop rests on; the restore locks run against the real lock module</p></td>
+</tr>
+<tr class="row-even"><td><p>Tier 3, by hand</p></td>
+<td><p>One hop of a four-node lab cluster with the <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module, below</p></td>
+</tr>
+</tbody>
+</table>
+<p>The one live hop, on 2026-11-08, took a four-node lab cluster from 7.10.3, build 385145.1.82, to 7.11.0, build
+393623.1.21:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>What</p></th>
+<th class="head"><p>Observed</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Upgrade type and reboot</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">SOFTWARE_ONLY</span></code>; no reboot</p></td>
+</tr>
+<tr class="row-odd"><td><p>Prepare, the image’s download and verify on every node included</p></td>
+<td><p>121 seconds</p></td>
+</tr>
+<tr class="row-even"><td><p>Commit, from the request until every node is online on the new build</p></td>
+<td><p>22 seconds</p></td>
+</tr>
+<tr class="row-odd"><td><p>REST unanswered during the commit</p></td>
+<td><p>5 seconds</p></td>
+</tr>
+<tr class="row-even"><td><p>After the hop</p></td>
+<td><p>the same cluster on 7.11.0 and build 393623.1.21, its upgrade status IDLE; a second run changed nothing</p></td>
+</tr>
+</tbody>
+</table>
+<p>What no lane has run:</p>
+<ul class="simple">
+<li><p>A fleet hop.</p></li>
+<li><p>A portal component or a replication pair across an upgrade.</p></li>
+<li><p>A platform upgrade’s reboots, rolling or all at once, or a declared set size: the live hop needed no reboot.</p></li>
+<li><p>A prepare of a platform upgrade. Whether a 7.10.x cluster reads back no reboot count after a prepare that sent none,
+which the module’s wait for PREPARED needs, is unverified. If every host refuses F17 right after its own prepare, see
+<a class="reference internal" href="troubleshooting.html#refusals-during-a-hop"><span class="std std-ref">Refusals during a hop</span></a>.</p></li>
+</ul>
+<p>The hop paths with no live run are covered by the unit tests and the stubbed role test only.</p>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/install-the-collection.html"><span class="std std-doc">Install and pin the collection</span></a></p></li>
+<li><p><a class="reference internal" href="../how-to/pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a></p></li>
+<li><p><a class="reference internal" href="../how-to/upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a></p></li>
+<li><p><a class="reference internal" href="upgrade.html#supported-sources"><span class="std std-ref">The upgrade: variables, steps and files</span></a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="playbooks-and-roles.html" class="btn btn-neutral float-left" title="Playbooks and roles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="troubleshooting.html" class="btn btn-neutral float-right" title="Troubleshooting" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

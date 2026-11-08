@@ -1,0 +1,548 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Respond to a refusal &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Declare common settings in the inventory" href="inventory-recipes.html" />
+    <link rel="prev" title="Use a Terraform root’s output as the inventory" href="terraform.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Respond to a refusal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-a-refusal-tells-you">What a refusal tells you</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-wrong-cluster">The wrong cluster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-consent-flag">A consent flag</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#change-the-connection">Change the connection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-tenant-or-network-write-that-would-cut-the-play-off">A tenant or network write that would cut the play off</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-the-password-of-admin">Change the password of admin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-a-portal-that-cannot-drain">Delete a portal that cannot drain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lower-a-clamp">Lower a clamp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#replace-a-non-empty-replication-target">Replace a non-empty replication target</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#a-declaration">A declaration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-key-the-variable-does-not-take">A key the variable does not take</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-held-record">A held record</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-hand-off">A hand-off</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-run-that-stopped-in-the-middle">A run that stopped in the middle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Respond to a refusal</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="respond-to-a-refusal">
+<h1>Respond to a refusal<a class="headerlink" href="#respond-to-a-refusal" title="Link to this heading"></a></h1>
+<p>This page says, for each kind of refusal, what to read, what lifts it and how to give that for one run.
+It recognises a message by a few words only; <a class="reference internal" href="../reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a> has the full text.
+For why the collection refuses instead of guessing, see <a class="reference internal" href="../explanation/refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a>.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>You have run a playbook of this collection and it stopped with a refusal.
+<a class="reference internal" href="../tutorials/first-cluster.html"><span class="std std-doc">Your first cluster</span></a> shows the first one.</p></li>
+<li><p>You have the whole message. The way out is in it.</p></li>
+</ul>
+</section>
+<section id="what-a-refusal-tells-you">
+<h2>What a refusal tells you<a class="headerlink" href="#what-a-refusal-tells-you" title="Link to this heading"></a></h2>
+<p>Every refusal works the same way:</p>
+<ul class="simple">
+<li><p>It comes before the write it guards. That write has not been sent; steps before it in the same run may have applied.</p></li>
+<li><p>It names what it found and why that stops it.</p></li>
+<li><p>It says what would lift it: a fix to the inventory, a consent flag, or a step to run first. Where nothing lifts it, it
+says so.</p></li>
+</ul>
+<p>Find the kind in the table, then go to its section. The message text for each kind is in
+<a class="reference internal" href="../reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a>; the ids in the messages, such as <code class="docutils literal notranslate"><span class="pre">G-CLAMP-SHRINK</span></code>, are entries of
+the <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gap register</span></a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>The message says</p></th>
+<th class="head"><p>Kind</p></th>
+<th class="head"><p>What lifts it</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">identity</span> <span class="pre">guard:</span> <span class="pre">...;</span> <span class="pre">no</span> <span class="pre">credentials</span> <span class="pre">were</span> <span class="pre">sent</span></code></p></td>
+<td><p><a class="reference internal" href="#the-wrong-cluster">The wrong cluster</a></p></td>
+<td><p>A fix to <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>. No flag.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Names a flag to set: <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">allow_...</span></code>, <code class="docutils literal notranslate"><span class="pre">..._allow_data_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">recreate=true</span></code>, <code class="docutils literal notranslate"><span class="pre">needs</span> <span class="pre">allow_decrease=true</span></code></p></td>
+<td><p><a class="reference internal" href="#a-consent-flag">A consent flag</a></p></td>
+<td><p>The named flag, for one run (for the clamp, see <a class="reference internal" href="#lower-a-clamp">Lower a clamp</a>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">needs</span> <span class="pre">-e</span> <span class="pre">qumulo_rebuild=true</span></code>, <code class="docutils literal notranslate"><span class="pre">belong</span> <span class="pre">to</span> <span class="pre">Terraform</span> <span class="pre">by</span> <span class="pre">qumulo_terraform_owned_areas</span></code>, <code class="docutils literal notranslate"><span class="pre">belong</span> <span class="pre">to</span> <span class="pre">Terraform</span> <span class="pre">by</span> <span class="pre">qumulo_managed_by:</span> <span class="pre">terraform_provider</span></code></p></td>
+<td><p><a class="reference internal" href="#a-declaration">A declaration</a></p></td>
+<td><p>The declaration, or a change to the inventory.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Validation</span> <span class="pre">of</span> <span class="pre">arguments</span> <span class="pre">failed:</span></code>, then <code class="docutils literal notranslate"><span class="pre">&lt;variable&gt;[.&lt;path&gt;].&lt;key&gt;.</span> <span class="pre">Supported</span> <span class="pre">parameters</span> <span class="pre">include:</span> <span class="pre">...</span></code>; at step 2, <code class="docutils literal notranslate"><span class="pre">...</span> <span class="pre">sets</span> <span class="pre">smb_settings.&lt;key&gt;,</span> <span class="pre">which</span> <span class="pre">smb_settings</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">take</span></code></p></td>
+<td><p><a class="reference internal" href="#a-key-the-variable-does-not-take">A key the variable does not take</a></p></td>
+<td><p>A fix to the inventory: correct the key or remove it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">...</span> <span class="pre">would</span> <span class="pre">lose</span> <span class="pre">its</span> <span class="pre">connection</span></code>, <code class="docutils literal notranslate"><span class="pre">...</span> <span class="pre">carries</span> <span class="pre">this</span> <span class="pre">play's</span> <span class="pre">connection</span></code>, <code class="docutils literal notranslate"><span class="pre">The</span> <span class="pre">cluster's</span> <span class="pre">network</span> <span class="pre">status</span> <span class="pre">is</span> <span class="pre">unavailable</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">qumulo_management_network</span></code> or <code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">qumulo_cluster_port</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span> <span class="pre">is</span> <span class="pre">...,</span> <span class="pre">which</span> <span class="pre">is</span> <span class="pre">...</span></code></p></td>
+<td><p><a class="reference internal" href="#a-tenant-or-network-write-that-would-cut-the-play-off">A tenant or network write that would cut the play off</a></p></td>
+<td><p>A declaration, <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_port</span></code>, or a fix to the tenants’ REST switches or bindings. The consent <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code> skips the rule.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">...</span> <span class="pre">holds</span> <span class="pre">...;</span> <span class="pre">a</span> <span class="pre">release</span> <span class="pre">bound</span> <span class="pre">to</span> <span class="pre">...</span> <span class="pre">naming</span> <span class="pre">O2</span> <span class="pre">...</span></code></p></td>
+<td><p><a class="reference internal" href="#a-held-record">A held record</a></p></td>
+<td><p>A <code class="docutils literal notranslate"><span class="pre">release</span></code> entry for that record, for one run.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Put</span> <span class="pre">the</span> <span class="pre">license</span> <span class="pre">document</span> <span class="pre">...</span> <span class="pre">then</span> <span class="pre">run</span> <span class="pre">...</span></code></p></td>
+<td><p><a class="reference internal" href="#a-hand-off">A hand-off</a></p></td>
+<td><p>The step the message names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">maybe_applied:</span> <span class="pre">true</span></code> in the result</p></td>
+<td><p><a class="reference internal" href="#a-run-that-stopped-in-the-middle">A run that stopped in the middle</a></p></td>
+<td><p>Run the task again.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Refusals that belong to one task have their own sections of Troubleshooting:
+<a class="reference internal" href="../reference/troubleshooting.html#upgrades"><span class="std std-ref">an upgrade</span></a>, <a class="reference internal" href="../reference/troubleshooting.html#rebuilds"><span class="std std-ref">a rebuild</span></a>,
+<a class="reference internal" href="../reference/troubleshooting.html#adoption"><span class="std std-ref">an adoption</span></a>.</p>
+</section>
+<section id="the-wrong-cluster">
+<h2>The wrong cluster<a class="headerlink" href="#the-wrong-cluster" title="Link to this heading"></a></h2>
+<p>Every module reads the cluster’s UUID before it sends a password. A refusal that starts <code class="docutils literal notranslate"><span class="pre">identity</span> <span class="pre">guard:</span></code> means the
+address reached a different cluster than the inventory names, or a node that is not formed.</p>
+<ol class="arabic simple">
+<li><p>Compare the two UUIDs in the message: the one found, and the one expected.</p></li>
+<li><p>Decide which is wrong. If the host entry’s <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> points at the wrong cluster, correct the address. If the
+cluster is right and the inventory is stale, correct <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>. For a rebuilt edge, apply the
+<code class="docutils literal notranslate"><span class="pre">host_vars_patch</span></code> from its rebuild report rather than editing the UUID by hand
+(<a class="reference internal" href="edge-rebuild.html#work-through-the-report"><span class="std std-ref">Rebuild an unprotected edge</span></a>).</p></li>
+<li><p>Run the playbook again.</p></li>
+</ol>
+<p>No flag lifts this refusal. If the message says <code class="docutils literal notranslate"><span class="pre">cannot</span> <span class="pre">read</span> <span class="pre">the</span> <span class="pre">node</span> <span class="pre">state</span></code>, check the address, the port and that the
+cluster is up instead.</p>
+<p>A host with no <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> does not refuse. It warns <code class="docutils literal notranslate"><span class="pre">identity</span> <span class="pre">guard</span> <span class="pre">disabled</span></code>, and no task checks which
+cluster it reaches. Add the UUID.
+<a class="reference internal" href="../explanation/authentication.html#the-identity-guard"><span class="std std-ref">The identity guard</span></a> explains the check.
+The messages are in <a class="reference internal" href="../reference/troubleshooting.html#connecting"><span class="std std-ref">Troubleshooting</span></a>.</p>
+</section>
+<section id="a-consent-flag">
+<h2>A consent flag<a class="headerlink" href="#a-consent-flag" title="Link to this heading"></a></h2>
+<p>A change that loses something waits for you to say yes. The message names the flag.
+A flag is an option of the module that refused, so how you give it depends on what ran the module.
+In every case, read what the message says you lose, set the flag for the run that needs it, and remove it afterwards.
+The messages are in <a class="reference internal" href="../reference/troubleshooting.html#refusals-that-wait-for-consent"><span class="std std-ref">Troubleshooting</span></a>.</p>
+<section id="change-the-connection">
+<h3>Change the connection<a class="headerlink" href="#change-the-connection" title="Link to this heading"></a></h3>
+<p>A change that would cut the run off from the cluster names <code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code>. The baseline takes it as the
+run-level variable <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code>. Pass it with <code class="docutils literal notranslate"><span class="pre">-e</span></code> to the one run that needs it, never in the
+inventory, where it would apply to every later run too. The same flag covers a change to the password or role of the
+user the run connects as.</p>
+<p>A network change that drops <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> also needs <code class="docutils literal notranslate"><span class="pre">qumulo_api_host_after</span></code>, the address later tasks connect to:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">qumulo_allow_management_disruption</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">qumulo_api_host_after</span><span class="o">=</span><span class="m">10</span>.0.0.11
+</pre></div>
+</div>
+<p>The same flag covers a certificate the pinned CA would not verify. For that, <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.ca_path_after</span></code> naming the new
+chain’s authority is the alternative; see <a class="reference internal" href="manage-certificates.html"><span class="std std-doc">Manage the cluster’s TLS certificate</span></a>.</p>
+</section>
+<section id="a-tenant-or-network-write-that-would-cut-the-play-off">
+<h3>A tenant or network write that would cut the play off<a class="headerlink" href="#a-tenant-or-network-write-that-would-cut-the-play-off" title="Link to this heading"></a></h3>
+<p>Qumulo marks the multitenancy REST API as preview in Qumulo Core 7.10.3 and 7.11.0. The collection manages tenants
+through it on those releases, and a later Qumulo Core release may change it.</p>
+<p>A write that leaves the network the play connects on in a tenant without REST is refused, and so is one the collection
+cannot judge. With one tenant, turning REST off on the only tenant is refused too; with two or more, the network the play
+connects on is looked up. The message says which, and what to set:</p>
+<ol class="arabic simple">
+<li><p>A message that names <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_port</span></code> asks for a declaration. Give the id of the
+network your play reaches the cluster on, or the port the cluster listens on for it
+(<a class="reference internal" href="tenants.html#declare-the-management-network-and-the-cluster-port"><span class="std std-ref">Declare the management network and the cluster port</span></a>).
+Put them in the host’s file, since they describe the path to the cluster and stay true for every run.</p></li>
+<li><p>A message that says a tenant would be left with REST off asks for a change to the inventory: keep
+<code class="docutils literal notranslate"><span class="pre">rest_api_enabled</span></code>, or <code class="docutils literal notranslate"><span class="pre">web_ui_enabled</span></code> where the cluster port is 443, on the tenant that holds the network, or list
+the network under a tenant that has it.</p></li>
+<li><p>A message that names <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code> is the consent: the write drops the network that carries
+the play, and the message says to set it with <code class="docutils literal notranslate"><span class="pre">qumulo_api_host_after</span></code>, as in the section above.</p></li>
+</ol>
+<p>Setting <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code> for a tenant write skips the rule for the whole run, and a mistake can end
+the connection. <a class="reference internal" href="tenants.html#regain-rest-access"><span class="std std-ref">Regain REST access</span></a> says how to recover. Every message is in
+<a class="reference internal" href="../reference/troubleshooting.html#the-play-s-connection"><span class="std std-ref">Troubleshooting</span></a>.</p>
+</section>
+<section id="change-the-password-of-admin">
+<h3>Change the password of admin<a class="headerlink" href="#change-the-password-of-admin" title="Link to this heading"></a></h3>
+<p>Changing the password of <code class="docutils literal notranslate"><span class="pre">admin</span></code> also changes the console and SSH password of every node
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ADMIN-OS</span></a>).
+For <code class="docutils literal notranslate"><span class="pre">admin</span></code>, run <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.admin_password_rotate</span></code>; it sets both flags the change needs.
+<a class="reference internal" href="rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a> gives the steps.</p>
+<p>To change it from the baseline instead, <code class="docutils literal notranslate"><span class="pre">allow_admin_password_change</span></code> is a key of the user’s item in
+<code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_local_users</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password_after</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">    </span><span class="nt">update_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">always</span>
+<span class="w">    </span><span class="nt">allow_admin_password_change</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>When the run connects as <code class="docutils literal notranslate"><span class="pre">admin</span></code>, also pass <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_allow_management_disruption=true</span></code>, because <code class="docutils literal notranslate"><span class="pre">admin</span></code> is then the
+user the run connects as.
+The baseline switches to the new password only for the rest of that run. Afterwards make the new password the host’s
+<code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code>, and remove <code class="docutils literal notranslate"><span class="pre">allow_admin_password_change</span></code> and <code class="docutils literal notranslate"><span class="pre">update_password:</span> <span class="pre">always</span></code>.</p>
+</section>
+<section id="delete-a-portal-that-cannot-drain">
+<h3>Delete a portal that cannot drain<a class="headerlink" href="#delete-a-portal-that-cannot-drain" title="Link to this heading"></a></h3>
+<p>Deleting a portal the hub sees DISCONNECTED discards spoke writes the hub has not received. The role names
+<code class="docutils literal notranslate"><span class="pre">portal_pair_allow_data_loss</span></code>; a rebuild names <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code>. Neither is part of the baseline, which
+never removes a portal.</p>
+<ol class="arabic">
+<li><p>Check that the edge is really gone. The status can be brief, or the hub’s <code class="docutils literal notranslate"><span class="pre">spoke_hosts</span></code> can be wrong, so if the edge
+is up, run again later.</p></li>
+<li><p>If the edge is gone for good and its unreceived writes can be lost, pass the flag with <code class="docutils literal notranslate"><span class="pre">-e</span></code> to the run that
+refused:</p>
+<ul>
+<li><p>The removal of a portal with <code class="docutils literal notranslate"><span class="pre">portal_pair_state:</span> <span class="pre">absent</span></code>: add <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">portal_pair_allow_data_loss=true</span></code> to the removal
+play in <a class="reference internal" href="pair-edge-with-hub.html#the-hub-sees-the-edge-disconnected"><span class="std std-ref">Pair an edge with its hub</span></a>.</p></li>
+<li><p>The drain of a rebuild, after you fixed the cause and the phase failed again:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.edge_predestroy<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>-e<span class="w"> </span><span class="nv">edge_rebuild_allow_data_loss</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+</li>
+<li><p>The replay of a rebuild, which refuses to delete the hub’s DISCONNECTED record of the old edge’s UUID. The old
+edge has been reinstalled by then, so step 1 does not apply:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.edge_rebuild<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>-e<span class="w"> </span><span class="nv">qumulo_rebuild</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">edge_rebuild_allow_data_loss</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</li>
+</ol>
+<p>For the rebuild, see <a class="reference internal" href="edge-rebuild.html#if-the-drain-fails"><span class="std std-ref">Rebuild an unprotected edge</span></a>.</p>
+</section>
+<section id="lower-a-clamp">
+<h3>Lower a clamp<a class="headerlink" href="#lower-a-clamp" title="Link to this heading"></a></h3>
+<p>The baseline refuses a clamp below the stored one. No flag of the baseline lifts it, because provisioned capacity never
+shrinks (<code class="docutils literal notranslate"><span class="pre">G-CLAMP-SHRINK</span></code>). Either put the stored value back in <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code>, or make the cache smaller by
+the route <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_cache_resize</span></code> chooses. <a class="reference internal" href="edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a> gives the steps.
+On the <code class="docutils literal notranslate"><span class="pre">below_floor</span></code> route, set <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.free_threshold</span></code> instead.</p>
+</section>
+<section id="replace-a-non-empty-replication-target">
+<h3>Replace a non-empty replication target<a class="headerlink" href="#replace-a-non-empty-replication-target" title="Link to this heading"></a></h3>
+<p>Authorizing a relationship into a directory that already holds entries replaces them with the source’s content.
+Set <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target:</span> <span class="pre">true</span></code> on the relationship’s entry in <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code> only if that is
+what you want. It counts only when the target host declares that directory in its <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>.
+<a class="reference internal" href="replicate-a-directory.html#replace-the-content-of-a-target-directory"><span class="std std-ref">Replace the content of a target directory</span></a> has
+the steps.</p>
+</section>
+</section>
+<section id="a-declaration">
+<h2>A declaration<a class="headerlink" href="#a-declaration" title="Link to this heading"></a></h2>
+<p>Some runs go ahead only when you declare what you mean.</p>
+<ul class="simple">
+<li><p>Rebuilding an edge replaces a cluster, so the replay refuses until the run carries <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_rebuild=true</span></code>. The
+message lists whatever else the replay needs. Give the declaration for that run only, and follow
+<a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>.</p></li>
+<li><p>The baseline refuses to manage an area that Terraform owns: one that <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> lists, or, with
+no such list, on a provider-formed cluster of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or unset, the floating addresses. Remove the variables or
+keys the message names, or remove the area from the list when there is one. For <code class="docutils literal notranslate"><span class="pre">audit</span></code>, <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> or
+<code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, the message also offers <code class="docutils literal notranslate"><span class="pre">qumulo_take_over_from_terraform:</span> <span class="pre">true</span></code>, which hands the baseline
+the audit destinations, <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> and the floating addresses together. With no list and no <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>,
+it also offers the kind: an edge or bare-metal cluster declares it, which leaves the floating addresses to the
+baseline.
+<a class="reference internal" href="../explanation/terraform-ownership.html"><span class="std std-doc">Who owns which area</span></a> explains the choice.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">floating_ip_ranges</span></code> in <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> that Terraform owns has its own message, which names where each range is
+declared and the owner. Remove the ranges, or <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> from the list when one is given, or set
+<code class="docutils literal notranslate"><span class="pre">qumulo_take_over_from_terraform:</span> <span class="pre">true</span></code> as above, or, with no list and no kind, declare an on-premises cluster’s
+kind. A list that leaves <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> out gives the floating addresses to the baseline, so the message
+does not arise.</p></li>
+<li><p>A provider-formed <code class="docutils literal notranslate"><span class="pre">cnq</span></code> host whose list leaves out <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> is refused, as the Terraform inventory
+plugin refuses the same output. Add the area to the list, or set <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by:</span> <span class="pre">none</span></code> when the provider did not form the cluster.</p></li>
+</ul>
+<p>The messages are in
+<a class="reference internal" href="../reference/troubleshooting.html#the-inventory-and-the-cluster-disagree"><span class="std std-ref">Troubleshooting</span></a>.</p>
+</section>
+<section id="a-key-the-variable-does-not-take">
+<h2>A key the variable does not take<a class="headerlink" href="#a-key-the-variable-does-not-take" title="Link to this heading"></a></h2>
+<p>The baseline checks each variable’s keys against its argument specification before its first task, and checks a tenant’s
+<code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> keys at step 2. Either way the run stops before it writes. The rebuild runs the first
+check before it drains the edge.</p>
+<ol class="arabic simple">
+<li><p>Find the key in the message. The first kind starts <code class="docutils literal notranslate"><span class="pre">Validation</span> <span class="pre">of</span> <span class="pre">arguments</span> <span class="pre">failed:</span></code> and gives the dotted path to the
+key, then the keys taken where the key sits. The second names the tenant and says <code class="docutils literal notranslate"><span class="pre">sets</span> <span class="pre">smb_settings.&lt;key&gt;</span></code>.</p></li>
+<li><p>Search the inventory for the key. A message about a list does not say which entry holds it.</p></li>
+<li><p>Correct the key, to one the message lists or suggests, or remove it. A connection option such as <code class="docutils literal notranslate"><span class="pre">request_timeout</span></code> is
+not a key of an entry, since the play’s <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> set it.</p></li>
+<li><p>Run the playbook again.</p></li>
+</ol>
+<p>No flag lifts this refusal. The messages are in
+<a class="reference internal" href="../reference/troubleshooting.html#the-inventory-and-the-cluster-disagree"><span class="std std-ref">Troubleshooting</span></a>, and for a tenant’s settings in
+<a class="reference internal" href="../reference/troubleshooting.html#the-inventory-s-tenants"><span class="std std-ref">The inventory’s tenants</span></a>.</p>
+</section>
+<section id="a-held-record">
+<h2>A held record<a class="headerlink" href="#a-held-record" title="Link to this heading"></a></h2>
+<p>When another object already holds what you asked for, the collection names the holder and stops.
+The usual case is a replication relationship: authorizing into a directory that another relationship holds is refused
+with that relationship’s id, and every unmet row is in the result’s <code class="docutils literal notranslate"><span class="pre">unmet</span></code>.</p>
+<ol class="arabic">
+<li><p>Read the holder and the row the refusal names. A release lifts only the rows it names.</p></li>
+<li><p>Copy the release the refusal prints. Its form is <code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;&#64;&lt;record</span> <span class="pre">id&gt;:&lt;rows&gt;</span></code>, bound to the
+record’s id. It lifts the refusal only while that record exists.</p></li>
+<li><p>Give it for one run with <code class="docutils literal notranslate"><span class="pre">-e</span></code>, never in the inventory. To the baseline it is a list. Run it on the source host, the
+one whose <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code> declares the relationship:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"qumulo_replication_release": ["hub01:/replicas/edge01-projects@4f0e...:O2"]}'</span>
+</pre></div>
+</div>
+<p>A playbook of your own passes it to the <code class="docutils literal notranslate"><span class="pre">release</span></code> option of <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.replication_target</span></code>.</p>
+</li>
+</ol>
+<p>An entry for a target host this run reaches must name one of the run’s relationships, or the run fails.
+Some rows no release lifts, such as a live relationship at a path that contains the target path or lies inside it:
+remove that relationship first, or change the paths.
+A relationship from a rebuilt source is held rather than refused, and the message names the restore; see
+<a class="reference internal" href="restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>.
+The overwrite rows and what a release is are in <a class="reference internal" href="../explanation/replication.html"><span class="std std-doc">Replication</span></a>; the message is in
+<a class="reference internal" href="../reference/troubleshooting.html#refusals-that-wait-for-a-release"><span class="std std-ref">Troubleshooting</span></a>.</p>
+</section>
+<section id="a-hand-off">
+<h2>A hand-off<a class="headerlink" href="#a-hand-off" title="Link to this heading"></a></h2>
+<p>Some steps need something only a person can supply, such as a license document Qumulo issues to the cluster.
+The collection then says what to get, where to put it and what to run next, and goes on without it, or stops that host
+and goes on with the others.</p>
+<p>Do what the message says, then run the playbook it names.</p>
+<ul class="simple">
+<li><p>A license document: <a class="reference internal" href="licensing.html"><span class="std std-doc">License an edge</span></a>.</p></li>
+<li><p>An edge’s cache on the <code class="docutils literal notranslate"><span class="pre">blocked_license</span></code> or <code class="docutils literal notranslate"><span class="pre">rebuild</span></code> route: <a class="reference internal" href="edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a>.</p></li>
+<li><p>The report of a rebuild lists what is left to do by hand under <code class="docutils literal notranslate"><span class="pre">hand_offs</span></code>; see
+<a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>.</p></li>
+</ul>
+<p>The messages are in <a class="reference internal" href="../reference/troubleshooting.html#hand-offs"><span class="std std-ref">Troubleshooting</span></a>.</p>
+</section>
+<section id="a-run-that-stopped-in-the-middle">
+<h2>A run that stopped in the middle<a class="headerlink" href="#a-run-that-stopped-in-the-middle" title="Link to this heading"></a></h2>
+<p>A write whose connection drops after the request was sent may or may not have reached the cluster. When the task fails
+with <code class="docutils literal notranslate"><span class="pre">maybe_applied:</span> <span class="pre">true</span></code> in its result:</p>
+<ol class="arabic simple">
+<li><p>Read the task’s result. If the cluster could not be read back, check the object on the cluster.</p></li>
+<li><p>Run the task again. It reads first, and writes only what still differs.</p></li>
+</ol>
+<p>A task that reads the change back and finds it took effect succeeds, with the note <code class="docutils literal notranslate"><span class="pre">write</span> <span class="pre">reconciled</span> <span class="pre">after</span> <span class="pre">a</span> <span class="pre">lost</span> <span class="pre">connection</span></code>. For a registration with a join key, a single-use key is spent: follow the message’s last clause.
+<a class="reference internal" href="../explanation/state-management.html#maybe-applied"><span class="std std-ref">State management</span></a> says why the collection
+never resends such a write, and
+<a class="reference internal" href="../reference/troubleshooting.html#a-change-that-may-or-may-not-have-been-applied"><span class="std std-ref">Troubleshooting</span></a> lists the messages.</p>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<p>Run the playbook that refused again with <code class="docutils literal notranslate"><span class="pre">--check</span></code> (and <code class="docutils literal notranslate"><span class="pre">--diff</span></code> where the playbook shows one). The refusal is gone when
+that task predicts a change or reports none, instead of failing. The example is for the baseline:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+<p>A flag you gave with <code class="docutils literal notranslate"><span class="pre">-e</span></code> is not in the next run unless you pass it again.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a>: every message, with what to do.</p></li>
+<li><p><a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>: the operations the REST API does not let the collection make idempotent.</p></li>
+<li><p><a class="reference internal" href="../explanation/refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a>: why a module refuses.</p></li>
+<li><p><a class="reference internal" href="rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a>, <a class="reference internal" href="edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a> and
+<a class="reference internal" href="replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a>: the pages the consent sections point to.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="terraform.html" class="btn btn-neutral float-left" title="Use a Terraform root’s output as the inventory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="inventory-recipes.html" class="btn btn-neutral float-right" title="Declare common settings in the inventory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

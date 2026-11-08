@@ -1,0 +1,579 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.replication_restore_lock module – Hold the controller’s lock on an edge’s restore, so one restore runs per edge at a time &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.replication_restore_step module – Choose the next step of a rebuilt source’s restore from its replica, from fresh reads of both clusters" href="replication_restore_step_module.html" />
+    <link rel="prev" title="qumulo.cluster.replication_restore_info module – List the restore records and restore locks left on the controller, with their age" href="replication_restore_info_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.replication_restore_lock module – Hold the controller’s lock on an edge’s restore, so one restore runs per edge at a time</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-replication-restore-lock-module"></span><section id="qumulo-cluster-replication-restore-lock-module-hold-the-controller-s-lock-on-an-edge-s-restore-so-one-restore-runs-per-edge-at-a-time">
+<h1>qumulo.cluster.replication_restore_lock module – Hold the controller’s lock on an edge’s restore, so one restore runs per edge at a time<a class="headerlink" href="#qumulo-cluster-replication-restore-lock-module-hold-the-controller-s-lock-on-an-edge-s-restore-so-one-restore-runs-per-edge-at-a-time" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.replication_restore_lock</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Takes or removes the lock that keeps a second restore of an edge from starting on the same controller while one is under way. The <code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> role’s <code class="docutils literal notranslate"><span class="pre">restore.yml</span></code> takes it before its first step and removes it in an <code class="docutils literal notranslate"><span class="pre">always:</span></code> section.</p></li>
+<li><p>An action plugin that runs on the controller. It sends no request, takes no connection options, and is not in the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.qumulo</span></code> action group, so <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> for that group do not reach it.</p></li>
+<li><p>The lock is a JSON file, <code class="docutils literal notranslate"><span class="pre">format</span></code> 1, holding <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-holder"><span class="std std-ref"><span class="pre">holder</span></span></a></strong></code>, a random token for this run, the controller’s host name, boot id and PID namespace, the <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process’s id, its start in clock ticks since boot and its start time, and the lease’s expiry. It is written to <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;.tmp-&lt;token&gt;</span></code>, synced to the disk, and linked to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-path"><span class="std std-ref"><span class="pre">path</span></span></a></strong></code>; then the temporary name is unlinked, and any <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;.tmp-*</span></code> older than <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-lease"><span class="std std-ref"><span class="pre">lease</span></span></a></strong></code> is removed. A lock that is empty or not JSON refuses, naming the file to remove by hand once no run is under way.</p></li>
+<li><p>A lock that another run holds is taken over, with a warning, when its process is gone, if it was taken on this controller, or once its lease has run out, if it was taken on another host or on a controller without <code class="docutils literal notranslate"><span class="pre">/proc</span></code>, where whether its process is alive cannot be read. This controller is the same host name, the same boot id and the same PID namespace; a lock from any other controller waits for its lease. Its process is the one whose start ticks the lock records. A lock whose process is alive on this controller is never taken over, whatever its lease says. Any other lock refuses, naming its holder, its process, its controller and its lease’s end.</p></li>
+<li><p>A take that passes the lock’s <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-token"><span class="std std-ref"><span class="pre">token</span></span></a></strong></code>, by the same <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-holder"><span class="std std-ref"><span class="pre">holder</span></span></a></strong></code> and from the <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process that took it, renews it, extending its lease to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-lease"><span class="std std-ref"><span class="pre">lease</span></span></a></strong></code> from now. The renewal is written to <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;.tmp-&lt;token&gt;</span></code> and renamed over <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-path"><span class="std std-ref"><span class="pre">path</span></span></a></strong></code> under the guard, after the run reads the lock again and finds its token still there. A take by that process for another holder refuses. A renewal never takes a new lock; one whose lock is gone, or holds another token, or holds <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-token"><span class="std std-ref"><span class="pre">token</span></span></a></strong></code> but was taken by another process, refuses.</p></li>
+<li><p>A takeover holds an exclusive <code class="docutils literal notranslate"><span class="pre">flock</span></code> on <code class="docutils literal notranslate"><span class="pre">&lt;path&gt;.guard</span></code> while it reads the lock again and replaces it; the removal holds it while it reads the lock again and unlinks it. The kernel drops the <code class="docutils literal notranslate"><span class="pre">flock</span></code> when the process dies. The guard file is kept. A run waits at most 60 seconds for the guard, then refuses.</p></li>
+<li><p><code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code> creates the lock’s directory and each missing one above it with mode 0700, and never changes the mode of one that exists, so a directory that cannot be written fails the take.</p></li>
+<li><p>The lock is the controller’s alone. Two controllers can both restore one edge.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module has a corresponding <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/plugins/action.html#action-plugins" title="(in Ansible devel)"><span class="xref std std-ref">action plugin</span></a>.</p>
+</div>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-holder"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-holder"><strong>holder</strong></p>
+<a class="ansibleOptionLink" href="#parameter-holder" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What holds the lock, written into it and named by the refusal of another run.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> role’s restore takes the default.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;restore&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-host"><strong>host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory host whose lock <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-path"><span class="std std-ref"><span class="pre">path</span></span></a></strong></code> is, which the refusals name.</p>
+<p>Defaults to the task’s <code class="docutils literal notranslate"><span class="pre">inventory_hostname</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-lease"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-lease"><strong>lease</strong></p>
+<a class="ansibleOptionLink" href="#parameter-lease" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>How long, in seconds from the take, another host may not take the lock over, at least 1. Required with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-path"><strong>path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The lock file, <code class="docutils literal notranslate"><span class="pre">&lt;edge_rebuild_artifact_dir&gt;/&lt;edge&gt;/restore/lock</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">present</span></code> takes the lock for this run and returns its <code class="docutils literal notranslate"><span class="pre">token</span></code>; with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-token"><span class="std std-ref"><span class="pre">token</span></span></a></strong></code>, it renews the lock that holds it.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> removes the lock only when it holds <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-token"><span class="std std-ref"><span class="pre">token</span></span></a></strong></code> and this <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process took it, so a run that found another run’s lock never removes it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-token"><strong>token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The token of the lock this run holds, as the take returned it in <code class="docutils literal notranslate"><span class="pre">token</span></code>. Required with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code>.</p>
+<p>With <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code>, the take renews the lock that holds it, and fails when the lock no longer does. Without it, a take never renews, so a second import of the playbook in the same process takes a lock of its own.</p>
+<p>With <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code>, the empty string removes nothing, as after a take that failed.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>Reports whether it would take, take over, renew or remove the lock, and refuses a lock it would refuse; it creates nothing.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>The take, the renewal and the removal report no change, so a converge’s idempotence run counts none.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: none.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restore one edge at a time</span>
+<span class="w">  </span><span class="c1"># Run on the controller. The lease is the longest the restore can take, in seconds; the always section removes the</span>
+<span class="w">  </span><span class="c1"># lock even when a step fails, and removes nothing when the take itself failed.</span>
+<span class="w">  </span><span class="nt">block</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Take the edge's restore lock</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.replication_restore_lock</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge_rebuild_artifact_dir</span> <span class="cp">}}</span><span class="s">/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/restore/lock"</span>
+<span class="w">        </span><span class="nt">lease</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90000</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">restore_lock</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Restore</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The restore's steps run here.</span>
+<span class="w">  </span><span class="nt">always</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove the edge's restore lock, if this run holds it</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.replication_restore_lock</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge_rebuild_artifact_dir</span> <span class="cp">}}</span><span class="s">/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/restore/lock"</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">        </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">restore_lock.token</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="s1">''</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview taking the edge's restore lock, to see whether another run holds it</span>
+<span class="w">  </span><span class="c1"># Check mode creates nothing; it refuses a lock it would refuse.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_restore_lock</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge_rebuild_artifact_dir</span> <span class="cp">}}</span><span class="s">/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/restore/lock"</span>
+<span class="w">    </span><span class="nt">lease</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90000</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Name a holder other than the default when taking the lock</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_restore_lock</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge_rebuild_artifact_dir</span> <span class="cp">}}</span><span class="s">/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/restore/lock"</span>
+<span class="w">    </span><span class="nt">lease</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+<span class="w">    </span><span class="nt">holder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly-restore</span>
+<span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">named_lock</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Extend the lease of a lock this run holds</span>
+<span class="w">  </span><span class="c1"># Pass the token the take returned, and the same holder. The renewal fails when the lock is gone or holds another</span>
+<span class="w">  </span><span class="c1"># token.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_restore_lock</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge_rebuild_artifact_dir</span> <span class="cp">}}</span><span class="s">/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/restore/lock"</span>
+<span class="w">    </span><span class="nt">lease</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+<span class="w">    </span><span class="nt">holder</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nightly-restore</span>
+<span class="w">    </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">named_lock.token</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove the lock this run holds</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_restore_lock</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge_rebuild_artifact_dir</span> <span class="cp">}}</span><span class="s">/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/restore/lock"</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">    </span><span class="nt">token</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">named_lock.token</span> <span class="cp">}}</span><span class="s">"</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock"><strong>lock</strong></p>
+<a class="ansibleOptionLink" href="#return-lock" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The lock this run holds, or with check mode would hold.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code></p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;boot_id&quot;:</span> <span class="pre">&quot;3b7e1c52-6f0a-4d9e-8a14-0c5d2e9f7b36&quot;,</span> <span class="pre">&quot;controller&quot;:</span> <span class="pre">&quot;ctl01&quot;,</span> <span class="pre">&quot;format&quot;:</span> <span class="pre">1,</span> <span class="pre">&quot;holder&quot;:</span> <span class="pre">&quot;restore&quot;,</span> <span class="pre">&quot;lease_expiry&quot;:</span> <span class="pre">&quot;2026-11-06T10:14:02.000Z&quot;,</span> <span class="pre">&quot;pid&quot;:</span> <span class="pre">41872,</span> <span class="pre">&quot;pid_namespace&quot;:</span> <span class="pre">&quot;pid:[4026531836]&quot;,</span> <span class="pre">&quot;start_ticks&quot;:</span> <span class="pre">91823411,</span> <span class="pre">&quot;start_time&quot;:</span> <span class="pre">&quot;2026-11-05T09:14:02.000Z&quot;,</span> <span class="pre">&quot;token&quot;:</span> <span class="pre">&quot;5f0c7d3b9a1e4c2f8d6b0a7e3c1d9f42&quot;}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/boot_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-boot-id"><strong>boot_id</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/boot_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The controller’s boot id, from <code class="docutils literal notranslate"><span class="pre">/proc/sys/kernel/random/boot_id</span></code>; null without <code class="docutils literal notranslate"><span class="pre">/proc</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/controller"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-controller"><strong>controller</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/controller" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The controller’s host name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/format"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-format"><strong>format</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/format" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The lock’s format, 1.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/holder"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-holder"><strong>holder</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/holder" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p><code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-holder"><span class="std std-ref"><span class="pre">holder</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/lease_expiry"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-lease-expiry"><strong>lease_expiry</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/lease_expiry" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When the lease runs out, in ISO 8601 UTC.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/pid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-pid"><strong>pid</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/pid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process’s id.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/pid_namespace"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-pid-namespace"><strong>pid_namespace</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/pid_namespace" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The PID namespace the <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process runs in, from <code class="docutils literal notranslate"><span class="pre">/proc/self/ns/pid</span></code>, such as <code class="ansible-value docutils literal notranslate"><span class="pre">pid:[4026531836]</span></code>; null without <code class="docutils literal notranslate"><span class="pre">/proc</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/start_ticks"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-start-ticks"><strong>start_ticks</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/start_ticks" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When that process started, in clock ticks since boot, which tells it from a later process of the same id; null without <code class="docutils literal notranslate"><span class="pre">/proc</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/start_time"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-start-time"><strong>start_time</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/start_time" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When that process started, in ISO 8601 UTC, for the messages; when the controller has no <code class="docutils literal notranslate"><span class="pre">/proc</span></code>, when the lock was taken.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-lock/token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-lock-token"><strong>token</strong></p>
+<a class="ansibleOptionLink" href="#return-lock/token" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>This run’s token.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-path"><strong>path</strong></p>
+<a class="ansibleOptionLink" href="#return-path" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-path"><span class="std std-ref"><span class="pre">path</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;/var/lib/qumulo-edge-rebuild/edge01/restore/lock&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-removed"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-removed"><strong>removed</strong></p>
+<a class="ansibleOptionLink" href="#return-removed" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the lock held <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-token"><span class="std std-ref"><span class="pre">token</span></span></a></strong></code> and this process took it, so that it was removed, or with check mode would be.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-token"><strong>token</strong></p>
+<a class="ansibleOptionLink" href="#return-token" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The token of the lock this run holds, which a renewal and the removal pass back as <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-token"><span class="std std-ref"><span class="pre">token</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code></p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;5f0c7d3b9a1e4c2f8d6b0a7e3c1d9f42&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-took_over"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-restore-lock-module-return-took-over"><strong>took_over</strong></p>
+<a class="ansibleOptionLink" href="#return-took_over" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the take replaced another run’s lock.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-restore-lock-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="replication_restore_info_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.replication_restore_info module – List the restore records and restore locks left on the controller, with their age" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="replication_restore_step_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.replication_restore_step module – Choose the next step of a rebuilt source’s restore from its replica, from fresh reads of both clusters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

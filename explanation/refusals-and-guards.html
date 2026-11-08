@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Refusals and guards &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Edges, hubs and portals" href="edges-and-portals.html" />
+    <link rel="prev" title="State management" href="state-management.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state-management.html">State management</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Refusals and guards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#a-refusal-is-the-safety">A refusal is the safety</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#refuse-don-t-guess">Refuse, don’t guess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-shapes-of-refusal">The shapes of refusal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-guard">A guard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-consent">A consent</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-declaration">A declaration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-held-record">A held record</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-hand-off">A hand-off</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#why-a-rebuild-refuses-so-much">Why a rebuild refuses so much</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-more">Learn more</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Refusals and guards</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="refusals-and-guards">
+<h1>Refusals and guards<a class="headerlink" href="#refusals-and-guards" title="Link to this heading"></a></h1>
+<p>Sooner or later the collection stops a run and declines to make a change the inventory asked for. It does so on
+purpose. Some changes lose data, cut the run off from the cluster, or cannot be undone, and an inventory that says so
+is not enough reason to make one. This page explains why the collection refuses instead of guessing, the shapes a
+refusal takes, and why the refusals that no option lifts have no option.</p>
+<p>To read one and act on it, see <a class="reference internal" href="../how-to/respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a>. The message texts are in
+<a class="reference internal" href="../reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a>.</p>
+<section id="a-refusal-is-the-safety">
+<h2>A refusal is the safety<a class="headerlink" href="#a-refusal-is-the-safety" title="Link to this heading"></a></h2>
+<p>A playbook run against the wrong inventory, or an inventory with one wrong line, does exactly what it says. A
+declarative tool has no second opinion of its own, so the collection supplies one at the points where the cost of a
+wrong line is highest: a write that loses data, a write that ends the connection, and a write the cluster cannot take
+back.</p>
+<p>Every refusal has the same three properties, so that it is useful as well as safe:</p>
+<ul class="simple">
+<li><p>It comes before the write it guards. That write has not been sent. Steps before it in the same run may have applied.</p></li>
+<li><p>It names the object, what it found, and why that stops the run.</p></li>
+<li><p>It says what would lift it: a fix to the inventory, a consent, or a step to run first. Where nothing lifts it, it says
+so.</p></li>
+</ul>
+<p>A run that stops partway, with a lost connection, is a different case, because a write may have reached the cluster.
+<a class="reference internal" href="state-management.html#maybe-applied"><span class="std std-ref">State management</span></a> explains how the collection handles it.</p>
+</section>
+<section id="refuse-don-t-guess">
+<h2>Refuse, don’t guess<a class="headerlink" href="#refuse-don-t-guess" title="Link to this heading"></a></h2>
+<p>When the collection cannot be sure a change does what the inventory means, it fails instead of choosing. The
+alternatives are worse. A module that guessed would report success for a change that did something else, and the next
+run would report no change, so nothing would show it.</p>
+<p>Four cases show the pattern.</p>
+<p><strong>The cluster would ignore the field.</strong> <a class="reference internal" href="../collections/qumulo/cluster/nfs_export_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">nfs_export</span></code></span></a> takes <code class="docutils literal notranslate"><span class="pre">restrictions[].require_tls</span></code> only on Qumulo Core 7.11.0 and
+later. A release before that drops an unknown restriction field without an error, so the write would look like it
+succeeded and the export would not require TLS. The module checks the release (and probes the cluster’s API where it
+can) and fails on an older one.</p>
+<p><strong>The cluster would refuse, with a message that does not name the option.</strong> Four modules check the server’s own rule
+first, so that the message names the option to change instead of repeating the server’s error:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/cluster_settings_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_settings</span></code></span></a> reads the domain state before a rename and fails while the cluster is joined, because the name is
+the cluster’s computer account. The message says to leave the domain, rename, and join again.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/role_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">role</span></code></span></a> fails a delete while the role has members, naming <code class="docutils literal notranslate"><span class="pre">role_member</span></code>, which removes them.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/nfs_settings_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code></span></a> fails turning on NFSv4.1 while one export lies inside another, naming the pair. While NFSv4.1 is on,
+the cluster also refuses a new export whose path is inside another’s or contains one.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/time_settings_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">time_settings</span></code></span></a> checks the server’s rules before any write, against the
+settings the task would leave. HYPERVISOR time, for one, needs <code class="docutils literal notranslate"><span class="pre">ntp_servers:</span> <span class="pre">[]</span></code> and <code class="docutils literal notranslate"><span class="pre">use_ad_for_primary:</span> <span class="pre">false</span></code>, and
+the cluster would refuse it with an error that names neither.</p></li>
+</ul>
+<p>These refusals appear in check mode too. The check run is where an operator wants to learn that a rename cannot work,
+not the run after it. <code class="docutils literal notranslate"><span class="pre">role</span></code> is the exception, and the reason is ordering. In check mode it reports the delete with a
+note, because an earlier task in the same play may remove the members, and a check run does not run that task’s write.</p>
+<p><strong>The change belongs to a step of its own.</strong> <a class="reference internal" href="../collections/qumulo/cluster/ad_domain_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">ad_domain</span></code></span></a> never leaves a domain
+in order to join another, and the message names the step to run first: <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>. A leave deletes the cluster’s
+computer account only when it has credentials, and whether an account left behind can be reused depends on the
+domain’s policy (G-AD-JOIN). Leaving is a decision that takes its own credentials, so a changed domain name in the
+inventory does not trigger it as a side effect.</p>
+<p><strong>The change would never be undone.</strong> <a class="reference internal" href="../collections/qumulo/cluster/snapshot_lock_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">snapshot_lock</span></code></span></a> locks a snapshot that
+never expires only when the task gives the matching <code class="docutils literal notranslate"><span class="pre">private_key</span></code>. A snapshot that expires frees itself, so locking it needs nothing more. A snapshot that never
+expires, once locked, can never be given an expiration; it stays locked unless the private key unlocks it. The module
+therefore locks one only when it can prove the lock can be undone, by checking the key against the public key in the
+key store. No consent flag lifts it. The way out is the matching <code class="docutils literal notranslate"><span class="pre">private_key</span></code>, or an expiration given to the snapshot
+first.</p>
+<p>The module signs with <code class="docutils literal notranslate"><span class="pre">openssl</span></code> on the controller because the collection’s modules import no Python package
+beyond ansible-core. It hands the key to <code class="docutils literal notranslate"><span class="pre">openssl</span></code> in a file only the controller’s user can read, and removes the file
+when <code class="docutils literal notranslate"><span class="pre">openssl</span></code> exits. The key is never logged, returned or shown in a diff.</p>
+</section>
+<section id="the-shapes-of-refusal">
+<h2>The shapes of refusal<a class="headerlink" href="#the-shapes-of-refusal" title="Link to this heading"></a></h2>
+<p>Five shapes cover the refusals that something other than a corrected inventory lifts. The shape tells you what, if
+anything, lifts it.</p>
+<section id="a-guard">
+<h3>A guard<a class="headerlink" href="#a-guard" title="Link to this heading"></a></h3>
+<p>A guard protects something the inventory cannot be allowed to override. The identity guard is the main one: every
+module that connects reads the cluster’s UUID before it sends any credential, and fails if <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> reaches
+another cluster.
+<a class="reference internal" href="authentication.html#the-identity-guard"><span class="std std-ref">Authentication</span></a> describes the mechanism.</p>
+<p>No flag lifts it. A consent accepts a named loss on the cluster the inventory describes. A mismatch means the run is
+talking to a cluster the inventory does not describe, so there is no loss to name and accept: every task after it would
+apply one cluster’s declarations to another. The only correct response is to fix <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> or
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, whichever is wrong.</p>
+<p>Other guards follow the same rule:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/cluster_guard_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_guard</span></code></span></a> in <code class="docutils literal notranslate"><span class="pre">rebuilt</span></code> mode passes only a node that is UNCONFIGURED or
+an ACTIVE edge of the expected name and UUID that holds nothing yet, and a node that belongs to any other cluster
+fails at once. The replay writes the whole inventory to the cluster, so the guard lets through only a newly formed,
+empty edge. A working edge, or an old edge that was never destroyed, fails. In <code class="docutils literal notranslate"><span class="pre">match</span></code> mode an empty
+<code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> fails instead of switching the guard off, so this is the one module where emptying the UUID is
+no way past it. <a class="reference internal" href="rebuilds.html#the-guard-on-the-new-edge"><span class="std std-ref">Rebuilds</span></a> describes the guard on the new edge.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/clone_host_vars_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">clone_host_vars</span></code></span></a> fails when the clone’s UUID is the source’s, when its
+name is the source’s or one already in use, and, unless <code class="docutils literal notranslate"><span class="pre">allow_configured_target</span></code>, when the target holds what
+formation does not create. A clone must never claim to be another cluster. A name is also the cluster’s computer
+account in the domain, so a reused name would collide with another cluster’s account. A target that holds a local
+user other than <code class="docutils literal notranslate"><span class="pre">admin</span></code> and <code class="docutils literal notranslate"><span class="pre">guest</span></code>, a domain join, a share or export other than the factory ones, or an S3 bucket or
+key is a cluster already in use, not a fresh one.</p></li>
+<li><p>Qumulo marks the multitenancy REST API as preview in Qumulo Core 7.10.3 and 7.11.0. The collection manages tenants through it on those releases, and a later Qumulo Core release may change it.
+<a class="reference internal" href="../collections/qumulo/cluster/tenant_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">tenant</span></code></span></a> and <code class="docutils literal notranslate"><span class="pre">network_config</span></code> apply the continuity rule, and step 2 of the baseline
+applies it to every judged write of the run before the first write: a tenant create, a change of a REST or web UI
+switch, a delete, or a network write that would leave the network the play connects on in no tenant that serves REST,
+or leave no tenant. The rule is a guard because a write that breaks it cuts off the controller that made it, and the
+run could not say what it left undone. Step 2 also refuses every tenant write to a cloud cluster, which Qumulo Core
+refuses, so that the inventory fails where the cluster would. <a class="reference internal" href="multitenancy.html#the-continuity-rule"><span class="std std-ref">Tenants and the continuity
+rule</span></a> gives the rule, and the
+<a class="reference internal" href="../reference/troubleshooting.html#the-play-s-connection"><span class="std std-ref">troubleshooting rows</span></a> the messages.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/unprotected_edge_create_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">unprotected_edge_create</span></code></span></a> fails, before any credentials are sent,
+when the node is ACTIVE under a UUID other than <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code>. A stale inventory would otherwise adopt the
+wrong cluster.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/edge_rebuild_preflight_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">edge_rebuild_preflight</span></code></span></a> only reads. It runs before the drain,
+the first step that changes anything, so a refusal costs nothing, and a check run of predestroy writes no record and
+can be repeated.</p></li>
+</ul>
+</section>
+<section id="a-consent">
+<h3>A consent<a class="headerlink" href="#a-consent" title="Link to this heading"></a></h3>
+<p>A change that loses something waits for the operator to say yes. The refusal names the flag, and the flag names the
+loss. A consent is an option of the module that refused, so its name says what it accepts:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code> accepts a change that would cut the play off from the cluster.
+<a class="reference internal" href="../collections/qumulo/cluster/network_config_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">network_config</span></code></span></a> refuses a network document that drops the address in
+<code class="docutils literal notranslate"><span class="pre">api_host</span></code> from the static or floating ranges. <a class="reference internal" href="../collections/qumulo/cluster/ssl_certificate_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">ssl_certificate</span></code></span></a> refuses a
+chain that would not verify against <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> for <code class="docutils literal notranslate"><span class="pre">api_host</span></code> when <code class="docutils literal notranslate"><span class="pre">validate_certs</span></code> is true. It checks by serving the
+new chain to itself before installing it. <a class="reference internal" href="../collections/qumulo/cluster/local_user_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">local_user</span></code></span></a> refuses a password
+change for the user the task connects as. In each case later tasks must connect differently, so each tells the play
+how to go on: <code class="docutils literal notranslate"><span class="pre">network_config</span></code> needs <code class="docutils literal notranslate"><span class="pre">api_host_after</span></code>; after <code class="docutils literal notranslate"><span class="pre">ssl_certificate</span></code>, later tasks set <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> to the new
+chain’s authority, which the baseline does from <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.ca_path_after</span></code>; and <code class="docutils literal notranslate"><span class="pre">local_user</span></code> returns
+<code class="docutils literal notranslate"><span class="pre">connection_password_changed:</span> <span class="pre">true</span></code> so that the play switches to the new password.
+<a class="reference internal" href="../collections/qumulo/cluster/access_token_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">access_token</span></code></span></a> refuses to remove, disable or expire the token the task
+connects with, and, when it removed that token, reports <code class="docutils literal notranslate"><span class="pre">connection_token_changed</span></code> so that later tasks connect with a
+password or with the new token’s <code class="docutils literal notranslate"><span class="pre">bearer_token</span></code>. <a class="reference internal" href="../collections/qumulo/cluster/role_member_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">role_member</span></code></span></a> refuses to
+remove the user the task connects as from a role, which can take away the privileges later tasks need; it detects
+only a direct assignment of that user, not one through a group.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code> on <code class="docutils literal notranslate"><span class="pre">tenant</span></code> and <code class="docutils literal notranslate"><span class="pre">network_config</span></code>, and <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code> in the
+baseline, accepts a tenant or network write that the continuity rule would refuse, and skips the rule for the whole
+run. It does not lift the refusals that the cluster itself would make, the cloud refusal, the second tenant while a
+tenant holds a backend network, the delete of a tenant that holds a network, share or export, or a write that would
+leave no tenant.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_admin_password_change</span></code> accepts a change to the password of <code class="docutils literal notranslate"><span class="pre">admin</span></code>. The server also applies it to the operating
+system’s console and SSH password of every node (G-ADMIN-OS), which is a larger change than one cluster user’s
+password. <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/admin_password_rotate.yml"><code class="docutils literal notranslate"><span class="pre">playbooks/admin_password_rotate.yml</span></code></a> sets it for the run that
+rotates the password.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> accepts a delete that discards writes. A DISCONNECTED portal cannot be drained, so deleting it
+discards the spoke writes the hub has not received, and on the hub a delete that is not forced never finishes.
+<a class="reference internal" href="../collections/qumulo/cluster/portal_hub_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">portal_hub</span></code></span></a> and <a class="reference internal" href="../collections/qumulo/cluster/portal_spoke_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">portal_spoke</span></code></span></a>
+therefore fail before any request that changes the cluster until the operator accepts the loss.
+<a class="reference internal" href="../collections/qumulo/cluster/file_acl_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">file_acl</span></code></span></a> uses the same name for a path inside a spoke root: the spoke passes
+the write through to the hub, so it replaces the hub’s ACL, which the hub’s own inventory may declare, and the two
+would then undo each other. Declaring the ACL on the hub is the better answer where it is possible. The same name
+lifts the delete of an S3 bucket with unfinished uploads and a replication revert.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_allow_deferred_policy_lock_keys</span></code> accepts a snapshot policy applied without its lock key. A rebuilt or cloned
+cluster has an empty key store, and the cluster refuses a policy that names a key it does not hold. Step 2 of the
+baseline therefore refuses the run, before it writes anything, when a declared <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> is not in the key store, and
+the edge rebuild refuses it before the predestroy changes anything, in either form of the rebuild. With the flag, the
+baseline’s step 20 applies the policy without the key and lists it in <code class="docutils literal notranslate"><span class="pre">cluster_baseline_policy_lock_key_hand_offs</span></code>.
+The loss it accepts is that the policy’s snapshots are not locked until a later run sets the key: the key goes on once
+it is registered with <code class="docutils literal notranslate"><span class="pre">security_key</span></code> and the baseline runs again. The roles set the flag <code class="docutils literal notranslate"><span class="pre">false</span></code> in their vars, which
+outrank group_vars and host_vars, so a value in the inventory has no effect: give it with <code class="docutils literal notranslate"><span class="pre">-e</span></code>, for the run that needs
+it. The edge rebuild’s report lists each such policy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_decrease</span></code> accepts lowering the capacity clamp. Lowering the clamp never shrinks the capacity already
+provisioned (G-CLAMP-SHRINK), so it cannot do what it looks like. <a class="reference internal" href="../collections/qumulo/cluster/capacity_clamp_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">capacity_clamp</span></code></span></a>
+refuses it, and even with the flag the cluster only stops provisioning more. To make an edge’s cache smaller, rebuild
+the edge, or keep more of it free with <code class="docutils literal notranslate"><span class="pre">portal_eviction_settings</span></code>. The
+<a class="reference internal" href="../collections/qumulo/cluster/edge_cache_resize_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code></span></a> role chooses between them. The baseline gives no flag for a
+decrease, so the decrease is a job for
+<a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/edge_cache_resize.yml"><code class="docutils literal notranslate"><span class="pre">playbooks/edge_cache_resize.yml</span></code></a>, not for the baseline with a flag.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_non_empty_directory</span></code> on <a class="reference internal" href="../collections/qumulo/cluster/replication_target_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_target</span></code></span></a> (in the
+inventory, <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target</span></code> on the relationship entry) accepts that the source’s content replaces a target
+directory that already holds entries, and that the first job deletes whatever the source lacks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_configured_target</span></code> on <code class="docutils literal notranslate"><span class="pre">clone_host_vars</span></code> accepts cloning onto a cluster that is already configured.</p></li>
+</ul>
+<p>How long a consent lasts depends on what it names. A run-level flag, such as <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code> in
+the baseline or <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code> in a rebuild, applies to whatever that run meets. Left in the inventory
+it would apply to the next run as well, which may hold a different change that the operator never looked at, so it goes
+to the run that needs it with <code class="docutils literal notranslate"><span class="pre">-e</span></code>. An item-level consent names one object and stays with it while the decision stands:
+<code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> on a <code class="docutils literal notranslate"><span class="pre">qumulo_file_acls</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_s3_buckets</span></code> entry, or <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target</span></code> on a replication
+entry. <code class="docutils literal notranslate"><span class="pre">allow_admin_password_change</span></code> comes out of the inventory afterwards because it accepts one change, not a
+standing state. <a class="reference internal" href="../how-to/pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a> shows how a pipeline passes a run-level
+consent to a single job.</p>
+</section>
+<section id="a-declaration">
+<h3>A declaration<a class="headerlink" href="#a-declaration" title="Link to this heading"></a></h3>
+<p>Some runs go ahead only when the operator states what they mean. A declaration is not an acceptance of a loss. It says
+which of two meanings of the inventory applies.</p>
+<p>Rebuilding an edge replaces a cluster: it forms a new one with a new UUID, and everything keyed on the old UUID goes.
+The replay deletes the hub’s record of the old UUID, retires that UUID in Nexus and moves the inventory to a new one,
+so it waits until <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_rebuild=true</span></code> says that is the intent. An inventory alone never starts it.</p>
+<p>The baseline refuses to manage an area that Terraform owns. Two owners of one setting undo each other’s work, so the
+inventory has to say which one applies: remove the variables, or take the area off <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code>.
+<a class="reference internal" href="terraform-ownership.html"><span class="std std-doc">Terraform ownership</span></a> explains who owns what. For the areas that can be handed back,
+<code class="docutils literal notranslate"><span class="pre">qumulo_take_over_from_terraform</span></code> is the declaration.</p>
+<p>The continuity rule, which Qumulo’s preview multitenancy REST API makes necessary, asks for two more declarations, because only the operator knows what lies between the play and the
+cluster. <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> names the network a play behind NAT or a load balancer reaches the cluster on, and
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_port</span></code> the port the cluster listens on for a play whose port a balancer or tunnel maps. Without them the
+collection refuses a write it cannot judge, and the message names the variable to set; a play at port 443 with no
+cluster port fails closed, since the collection cannot tell which listener it reaches.</p>
+</section>
+<section id="a-held-record">
+<h3>A held record<a class="headerlink" href="#a-held-record" title="Link to this heading"></a></h3>
+<p>When another object already holds what the task asked for, the collection names the holder and stops. The case that
+matters is replication. Authorizing a relationship makes the target directory read-only and replaces it with the
+source’s content, and a live relationship of another source may hold that directory.</p>
+<p>A release lifts the refusal. It is one entry of the module’s <code class="docutils literal notranslate"><span class="pre">release</span></code> option, bound to the id of the holder’s record
+and naming the rows of the overwrite table that it lifts. It is bound to the id so that a release written for one
+holder cannot delete a different record later. It lifts only the rows it names, and only while that record exists.
+Like a run-level consent, it belongs to one run, so the playbook passes it through a variable that the operator sets
+with <code class="docutils literal notranslate"><span class="pre">-e</span></code>.
+The refusal prints the releases that would lift it, and an operator should copy one only after reading what it allows.
+<a class="reference internal" href="replication.html"><span class="std std-doc">Replication</span></a> explains the overwrite table and why a release is bound.</p>
+</section>
+<section id="a-hand-off">
+<h3>A hand-off<a class="headerlink" href="#a-hand-off" title="Link to this heading"></a></h3>
+<p>Some steps need something only a person can supply, such as a license document that Qumulo issues. The collection then
+says what to get, where to put it and what to run next, and goes on without it, or stops that host and goes on with the
+others. A hand-off is a refusal in the sense that the host does not reach its final state, but nothing is written
+that should not be, and running again after the step finishes the work.
+<a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> covers the most common one.</p>
+</section>
+</section>
+<section id="why-a-rebuild-refuses-so-much">
+<h2>Why a rebuild refuses so much<a class="headerlink" href="#why-a-rebuild-refuses-so-much" title="Link to this heading"></a></h2>
+<p>A rebuild has more refusals than any other task because it destroys a cluster and must be sure to rebuild the right
+one. Each check sits where a mistake would first become irreversible.</p>
+<ul class="simple">
+<li><p>The identity guard checks the old UUID during the predestroy phase and the new one after formation, before any
+credentials are sent. A rebuild that reached the wrong cluster would drain and destroy it.</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>, the replay refuses to join under the old name unless a predestroy record shows the old edge left
+the domain with credentials, or <code class="docutils literal notranslate"><span class="pre">edge_rebuild_old_edge_destroyed</span></code> says it is gone. A join resets the computer
+account’s password, which cuts a live old edge off from the domain. In a rebuild in one run, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ad_leave</span></code>
+with the join credentials stands in for the record, and the check comes before the drain.</p></li>
+<li><p>The hub’s record of the old UUID is deleted before the edge forms, so that a refusal leaves the node UNCONFIGURED
+and the replay can run again. A PENDING record holds no writes and goes at once, and so does a DELETING one whose
+predestroy record shows the portal was drained. A DISCONNECTED one needs <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code>. One the
+hub still reaches means the old edge is up, and the replay stops.</p></li>
+<li><p>The replay refuses an edge whose UUID is the one the inventory names as the old edge. Once <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> holds the new
+UUID, a replay would retire the new edge in Nexus and report it as replaced. <code class="docutils literal notranslate"><span class="pre">playbooks/baseline.yml</span></code> finishes such
+an edge.</p></li>
+<li><p>The replay takes neither <code class="docutils literal notranslate"><span class="pre">qumulo_replication_release</span></code> nor <code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code>, because both belong to later
+runs. After the edge forms, its source directories are new and empty, and a relationship whose replica may be the only
+copy of their data is held and reported, not overwritten.</p></li>
+</ul>
+<p>The <a class="reference internal" href="../collections/qumulo/cluster/edge_rebuild_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code></span></a> role carries these checks. <a class="reference internal" href="rebuilds.html"><span class="std std-doc">Rebuilds</span></a> explains what a
+formation takes with it.</p>
+</section>
+<section id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a> says what to read and do for each kind.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a> lists the messages by symptom.</p></li>
+<li><p>The <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gap register</span></a> lists the operations the REST API does not let the collection make
+idempotent. The ids in the messages, such as G-CLAMP-SHRINK, are its entries.</p></li>
+<li><p><a class="reference internal" href="authentication.html#the-identity-guard"><span class="std std-ref">Authentication</span></a> describes the identity guard’s mechanism.</p></li>
+<li><p><a class="reference internal" href="state-management.html#check-and-diff"><span class="std std-ref">State management</span></a> explains why check mode reports the same refusals.</p></li>
+<li><p><a class="reference internal" href="../how-to/pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a> covers giving a consent to one job.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="state-management.html" class="btn btn-neutral float-left" title="State management" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="edges-and-portals.html" class="btn btn-neutral float-right" title="Edges, hubs and portals" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

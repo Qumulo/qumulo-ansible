@@ -1,0 +1,477 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Run the playbooks from a pipeline &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reference" href="../reference/README.html" />
+    <link rel="prev" title="Manage the keys that lock snapshots" href="manage-lock-keys.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Run the playbooks from a pipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pin-the-collection">Pin the collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#give-the-jobs-their-secrets">Give the jobs their secrets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#from-a-vault-password">From a vault password</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#from-the-environment">From the environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#passwords-that-a-terraform-output-names">Passwords that a Terraform output names</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#read-the-inventory-from-terraform">Read the inventory from Terraform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-check-first-then-the-apply">Run the check first, then the apply</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-many-edges">Run many edges</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#keep-the-records-between-jobs">Keep the records between jobs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-lock-after-a-killed-job">A lock after a killed job</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-license-after-a-rebuild">The license after a rebuild</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Run the playbooks from a pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="run-the-playbooks-from-a-pipeline">
+<h1>Run the playbooks from a pipeline<a class="headerlink" href="#run-the-playbooks-from-a-pipeline" title="Link to this heading"></a></h1>
+<p>This page sets up a CI/CD pipeline that runs the collection’s playbooks against your clusters: it pins the collection,
+hands the jobs their secrets and inventory, splits each change into a check job and an apply job, and keeps the
+records a rebuild writes.
+The playbooks run the same from a pipeline as from a terminal. Only the source of the secrets and of the inventory, and
+what must survive between jobs, change.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Have an inventory that works from a terminal: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.</p></li>
+<li><p>Have a secret store the pipeline can read, and know how the inventory looks each secret up:
+<a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>.</p></li>
+<li><p>Have a runner that can reach every cluster’s REST port (8000 unless <code class="docutils literal notranslate"><span class="pre">qumulo_api_port</span></code> says otherwise) and keep the
+CA certificate that signs each cluster’s certificate in the checkout or the image.</p></li>
+<li><p>Decide where the runner keeps files between jobs. A pipeline that rebuilds edges or makes S3 keys needs this, and
+<a class="reference internal" href="#keep-the-records-between-jobs">Keep the records between jobs</a> says which files.</p></li>
+</ul>
+</section>
+<section id="pin-the-collection">
+<h2>Pin the collection<a class="headerlink" href="#pin-the-collection" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Pin the collection to the version you tested in <code class="docutils literal notranslate"><span class="pre">requirements.yml</span></code>.
+<a class="reference internal" href="install-the-collection.html#pin-a-version-in-a-project"><span class="std std-ref">Install and pin the collection</span></a> has the file and the other
+forms of a pin.</p></li>
+<li><p>Install it in the pipeline’s image, or in the first step of every job:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.yml
+</pre></div>
+</div>
+</li>
+</ol>
+<p>When you change the pin, rebuild the image or add <code class="docutils literal notranslate"><span class="pre">--force</span></code> to the install, or a cached image or a long-lived runner
+keeps the installed copy.
+The runner needs ansible-core 2.20 or later, and the clusters need Qumulo Core 7.10.3 or later;
+<a class="reference internal" href="../reference/tested-versions.html"><span class="std std-doc">Tested Qumulo Core versions</span></a> lists the builds the collection has passed against.</p>
+</section>
+<section id="give-the-jobs-their-secrets">
+<h2>Give the jobs their secrets<a class="headerlink" href="#give-the-jobs-their-secrets" title="Link to this heading"></a></h2>
+<p>The modules mark a password, a token, a join key and a private key <code class="docutils literal notranslate"><span class="pre">no_log</span></code>, so Ansible does not print them.
+Give the pipeline its secrets one of two ways.</p>
+<section id="from-a-vault-password">
+<h3>From a vault password<a class="headerlink" href="#from-a-vault-password" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>Keep the vault password in the pipeline’s secret store.</p></li>
+<li><p>At the start of the job, write it to a file outside the repository, readable only by the job’s user, and remove the
+file when the job ends:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">vault_pass_file</span><span class="o">=</span><span class="s2">"</span><span class="k">$(</span>mktemp<span class="k">)</span><span class="s2">"</span>
+<span class="nb">trap</span><span class="w"> </span><span class="s1">'rm -f "$vault_pass_file"'</span><span class="w"> </span>EXIT
+<span class="nb">printf</span><span class="w"> </span><span class="s1">'%s\n'</span><span class="w"> </span><span class="s2">"</span><span class="nv">$VAULT_PASSWORD</span><span class="s2">"</span><span class="w"> </span>&gt;<span class="w"> </span><span class="s2">"</span><span class="nv">$vault_pass_file</span><span class="s2">"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Pass the file to every <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> command:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--vault-password-file<span class="w"> </span><span class="s2">"</span><span class="nv">$vault_pass_file</span><span class="s2">"</span><span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="from-the-environment">
+<h3>From the environment<a class="headerlink" href="#from-the-environment" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Look each password up from an environment variable in <code class="docutils literal notranslate"><span class="pre">group_vars</span></code>, as
+<a class="reference internal" href="store-secrets.html#from-the-environment"><span class="std std-ref">From the environment</span></a> shows.</p></li>
+<li><p>Have the pipeline set those variables from its secret store before the playbook starts.
+A variable that is unset reads as an empty string, and the first task that connects fails with
+<code class="docutils literal notranslate"><span class="pre">set</span> <span class="pre">exactly</span> <span class="pre">one</span> <span class="pre">of</span> <span class="pre">api_password</span> <span class="pre">or</span> <span class="pre">api_token</span> <span class="pre">for</span> <span class="pre">&lt;host&gt;</span></code>.</p></li>
+</ol>
+</section>
+<section id="passwords-that-a-terraform-output-names">
+<h3>Passwords that a Terraform output names<a class="headerlink" href="#passwords-that-a-terraform-output-names" title="Link to this heading"></a></h3>
+<p>If the inventory comes from the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.terraform</span></code> plugin and its password store throttles, as SSM does, a large
+run can fail on the lookups.
+Export the passwords into the environment first, or read each one once as in step 4 of
+<a class="reference internal" href="terraform.html#point-the-plugin-at-the-output"><span class="std std-ref">Point the plugin at the output</span></a>.</p>
+</section>
+</section>
+<section id="read-the-inventory-from-terraform">
+<h2>Read the inventory from Terraform<a class="headerlink" href="#read-the-inventory-from-terraform" title="Link to this heading"></a></h2>
+<p>A pipeline that applies Terraform can read the root’s output in the same job, or a later job can read a saved copy.</p>
+<ul class="simple">
+<li><p>To read it directly, name the root in the inventory source with <code class="docutils literal notranslate"><span class="pre">project_path</span></code>.</p></li>
+<li><p>To read a saved copy, write the output to a file and name it with <code class="docutils literal notranslate"><span class="pre">output_file</span></code>.
+Keep the file outside the inventory directory.
+<a class="reference internal" href="terraform.html#read-a-saved-output-instead-of-running-terraform"><span class="std std-ref">Read a saved output instead of running Terraform</span></a> has the
+command and the source file.</p></li>
+</ul>
+<p>Set <code class="docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_ANY_UNPARSED_IS_FAILED=true</span></code> in the job’s environment.
+Without it, a source that fails to parse takes its hosts out of the run, Ansible only warns, and the run goes on with
+fewer clusters.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">ANSIBLE_INVENTORY_ANY_UNPARSED_IS_FAILED</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+</section>
+<section id="run-the-check-first-then-the-apply">
+<h2>Run the check first, then the apply<a class="headerlink" href="#run-the-check-first-then-the-apply" title="Link to this heading"></a></h2>
+<p>Add <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">&lt;host&gt;</span></code> to a command to limit a job to one cluster.</p>
+<ol class="arabic">
+<li><p>Add a check job that runs each playbook with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code> and publishes the output where a reviewer reads it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+</li>
+<li><p>Add an apply job that runs the same command without <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code>.
+It can run in a later job, after someone has read the check job’s output; make it wait for that approval.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory
+</pre></div>
+</div>
+<p>Run the apply from the same commit as the check.
+The apply reads each cluster again and writes what differs then, so run the check again if the cluster may have
+changed since.</p>
+</li>
+<li><p>Give a consent to the check job and the apply job of the one change it is for, and to no other run.
+The consent refusals fire in a check run too, so a consent given only to the apply job makes the check job stop at the
+refusal, and the reviewer never sees the change’s diff.
+A refusal names the flag it needs (<a class="reference internal" href="respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a>), so the check job is how the
+pipeline first learns which flag a change needs.</p>
+<ul class="simple">
+<li><p>A run-level flag or variable, such as <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code> or a
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_release</span></code> entry, goes on both jobs’ command lines with <code class="docutils literal notranslate"><span class="pre">-e</span></code>. Never put one in the inventory.</p></li>
+<li><p>A flag that is a key of an inventory item, such as <code class="docutils literal notranslate"><span class="pre">allow_admin_password_change</span></code> on a local user, goes in the
+inventory for both jobs and comes out once the apply is done.</p></li>
+<li><p>Pass consents with <code class="docutils literal notranslate"><span class="pre">-e</span></code>, never connection variables such as <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs</span></code>: an extra variable reaches every
+cluster a play connects to, and outranks the facts the certificate step sets
+(<a class="reference internal" href="set-up-inventory.html#connect-the-hosts"><span class="std std-ref">why</span></a>).</p></li>
+</ul>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>-e<span class="w"> </span><span class="nv">qumulo_allow_management_disruption</span><span class="o">=</span><span class="nb">true</span>
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>-e<span class="w"> </span><span class="nv">qumulo_allow_management_disruption</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>A real run against a cluster that already matches its inventory changes nothing, apart from a few exceptions
+(<a class="reference internal" href="#verify">Verify</a> names them), and a rerun after a failure picks up where the first stopped.
+<a class="reference internal" href="../explanation/state-management.html#check-and-diff"><span class="std std-ref">State management</span></a> says why a check in one job and the apply in a
+later one see the same change, and <a class="reference internal" href="../explanation/refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a> says why a consent
+belongs to one run.</p>
+</section>
+<section id="run-many-edges">
+<h2>Run many edges<a class="headerlink" href="#run-many-edges" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code> and
+<code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code> run one edge at a time.
+What a failure does to the other edges depends on the playbook:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code> end only the edge that failed.
+They go on to the next edge, and their last play fails, naming each edge that failed with its message.
+The exit status is then non-zero, so the job fails and the messages say what each edge needs.</p></li>
+<li><p>A failed automatic rebuild in <code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code> ends the whole run
+(<a class="reference internal" href="../explanation/licensing-and-capacity.html#a-failed-automatic-rebuild-ends-the-run"><span class="std std-ref">why</span></a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code> stop at the first edge that fails.
+Run them with <code class="docutils literal notranslate"><span class="pre">-l</span></code> for one edge per job, as <a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a> does.</p></li>
+</ul>
+<p>The second pass, <code class="docutils literal notranslate"><span class="pre">playbooks/edge_license_complete.yml</span></code>, applies every edge’s license and clamp first and then restores
+one edge at a time, so a run over many rebuilt edges takes as long as all their restores.
+Run one second pass per edge with <code class="docutils literal notranslate"><span class="pre">-l</span></code> to restore them in parallel
+(<a class="reference internal" href="restore-replica.html#restore-several-edges"><span class="std std-ref">Restore several edges</span></a>).
+To run the license play alone, add <code class="docutils literal notranslate"><span class="pre">--skip-tags</span> <span class="pre">restore</span></code>.</p>
+</section>
+<section id="keep-the-records-between-jobs">
+<h2>Keep the records between jobs<a class="headerlink" href="#keep-the-records-between-jobs" title="Link to this heading"></a></h2>
+<p>A rebuild writes its records under <code class="docutils literal notranslate"><span class="pre">artifacts/&lt;edge&gt;/</span></code>, in an <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> directory beside the inventory source that
+defines the host, never inside it.
+With <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">inventory</span></code>, that is <code class="docutils literal notranslate"><span class="pre">artifacts/</span></code> next to the <code class="docutils literal notranslate"><span class="pre">inventory</span></code> directory.
+Set <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> to move it.
+A host given on the command line, as in <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">edge01,</span></code>, has no default directory: set <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> and
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline_artifact_dir</span></code> for it.</p>
+<ol class="arabic simple">
+<li><p>Put the directory on storage that persists between jobs: a cache, a volume or a path on a long-lived runner.</p></li>
+<li><p>Make every job that runs the replay, the baseline or the second pass of that edge use the same directory.
+Those runs read the predestroy record, the rebuild report, the restore stamps in <code class="docutils literal notranslate"><span class="pre">artifacts/&lt;edge&gt;/restore/</span></code>, the
+restore record and the restore’s lock.
+A rebuild in one run (<code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">edge_rebuild_phase=all</span></code> with <code class="docutils literal notranslate"><span class="pre">edge_rebuild_reinstall_tasks</span></code>, as in
+<a class="reference internal" href="edge-rebuild.html#rebuild-in-one-run"><span class="std std-ref">Rebuild in one run</span></a>) removes only the hand-over of the predestroy record between
+jobs.
+The report, the stamps and the restore files still have to reach the baseline and the second-pass jobs, which may
+run hours later.</p></li>
+<li><p>Keep each job’s time limit above the restore’s lease: <code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code> plus, for each relationship
+restored, <code class="docutils literal notranslate"><span class="pre">replication_restore_reverse_timeout</span></code> (300 seconds by default), <code class="docutils literal notranslate"><span class="pre">replication_restore_reconnect_timeout</span></code>
+(1800 by default), the authorize timeout and about 600 seconds for reads.
+The wait covers a full sync of the replica, which takes hours for a large one; its default is 86400 seconds, and
+lowering it shortens the lease.
+A restore that times out stops by itself and removes its lock.
+A job killed at its limit leaves the lock instead.
+<a class="reference internal" href="restore-replica.html#run-the-restore-from-a-pipeline"><span class="std std-ref">Run the restore from a pipeline</span></a> names the later limits.</p></li>
+<li><p>Collect the secret of each new S3 key from <code class="docutils literal notranslate"><span class="pre">&lt;cluster_baseline_artifact_dir&gt;/&lt;host&gt;/secrets/</span></code> in the job that makes
+it, because the cluster shows a key’s secret once (<a class="reference internal" href="s3.html"><span class="std std-doc">Serve a directory as an S3 bucket</span></a>).
+A hub’s keys are written there too.
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline_artifact_dir</span></code> defaults to the same <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> directory, so the secrets stay in the persisted
+store after you collect them.
+Either keep that storage readable only by the pipeline’s jobs and never upload it as a build artifact, or set
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline_artifact_dir</span></code> to a job-local path, collect the secrets in that job and let them go with it;
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> alone then keeps the rebuild records.</p></li>
+</ol>
+<p>Losing the directory can strand a restore or turn a warning into a failure
+(<a class="reference internal" href="../explanation/rebuilds.html#why-the-records-persist"><span class="std std-ref">Why the records persist</span></a>).</p>
+<section id="a-lock-after-a-killed-job">
+<h3>A lock after a killed job<a class="headerlink" href="#a-lock-after-a-killed-job" title="Link to this heading"></a></h3>
+<p>“The same controller” means the same host name, boot id and PID namespace.
+A pipeline job in a fresh container or on a fresh runner is therefore always another controller.
+After a kill, its next run refuses until the killed run’s lease runs out, which is more than 24 hours with the
+defaults.
+Once you know the killed job is gone, remove <code class="docutils literal notranslate"><span class="pre">artifacts/&lt;edge&gt;/restore/lock</span></code> by hand and the next job goes on.
+The lock protects only runs that share the directory, so keep to one restore per edge at a time.
+<a class="reference internal" href="restore-replica.html#a-lock-another-run-holds"><span class="std std-ref">A lock another run holds</span></a> has the rest of the lock rules.</p>
+</section>
+<section id="the-license-after-a-rebuild">
+<h3>The license after a rebuild<a class="headerlink" href="#the-license-after-a-rebuild" title="Link to this heading"></a></h3>
+<p>After a rebuild, the new UUID needs a license.
+Until the new UUID’s license is in <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license_document</span></code>, or has reached the cluster, the second pass fails
+that edge with the license hand-off and restores nothing on it; the other edges in the run still restore.
+Commit the vaulted document before the second-pass job runs, or rerun that job once a directly issued license applies.
+Nothing is lost meanwhile, because the hub keeps its copy.
+<a class="reference internal" href="edge-rebuild.html#finish-the-license"><span class="std std-ref">Finish the license</span></a> describes the two ways a license arrives.</p>
+</section>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Run the check job again after the apply job.
+It should report <code class="docutils literal notranslate"><span class="pre">changed=0</span></code> for every cluster and print no diff, apart from a local user with
+<code class="docutils literal notranslate"><span class="pre">update_password:</span> <span class="pre">always</span></code> and the actions in
+<a class="reference internal" href="../explanation/state-management.html#actions-are-not-settings"><span class="std std-ref">Actions are not settings</span></a>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+</li>
+<li><p>For a pipeline that rebuilds edges, list <code class="docutils literal notranslate"><span class="pre">artifacts/edge01/</span></code> (or <code class="docutils literal notranslate"><span class="pre">&lt;edge_rebuild_artifact_dir&gt;/edge01/</span></code>) from a job on
+a fresh runner.
+It should hold the <code class="docutils literal notranslate"><span class="pre">predestroy-*.yml</span></code> record and, after the replay, the <code class="docutils literal notranslate"><span class="pre">rebuild-*.yml</span></code> report, with <code class="docutils literal notranslate"><span class="pre">restore/</span></code> once
+the baseline or the second pass has run.</p></li>
+</ol>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Before: <a class="reference internal" href="install-the-collection.html"><span class="std std-doc">Install and pin the collection</span></a>, <a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>.</p></li>
+<li><p><a class="reference internal" href="terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> for the inventory source and the password lookups.</p></li>
+<li><p><a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>, <a class="reference internal" href="restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a> and
+<a class="reference internal" href="upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a> are the long-running jobs a pipeline most often carries.</p></li>
+<li><p>Why: <a class="reference internal" href="../explanation/refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a>, <a class="reference internal" href="../explanation/state-management.html"><span class="std std-doc">State management</span></a>,
+<a class="reference internal" href="../explanation/rebuilds.html"><span class="std std-doc">Rebuilds</span></a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="manage-lock-keys.html" class="btn btn-neutral float-left" title="Manage the keys that lock snapshots" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../reference/README.html" class="btn btn-neutral float-right" title="Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

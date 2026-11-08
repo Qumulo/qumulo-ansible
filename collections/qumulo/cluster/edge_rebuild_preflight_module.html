@@ -1,0 +1,954 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.edge_rebuild_preflight module – Check that a Qumulo edge’s live state can be replayed from its inventory before a rebuild destroys it &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.encryption_key_rotation module – Rotate a Qumulo cluster’s at-rest encryption key once it is older than a given age" href="encryption_key_rotation_module.html" />
+    <link rel="prev" title="qumulo.cluster.edge_cache_route module – Choose how to bring a Qumulo edge’s cache to a target size" href="edge_cache_route_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.edge_rebuild_preflight module – Check that a Qumulo edge’s live state can be replayed from its inventory before a rebuild destroys it</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module"></span><section id="qumulo-cluster-edge-rebuild-preflight-module-check-that-a-qumulo-edge-s-live-state-can-be-replayed-from-its-inventory-before-a-rebuild-destroys-it">
+<h1>qumulo.cluster.edge_rebuild_preflight module – Check that a Qumulo edge’s live state can be replayed from its inventory before a rebuild destroys it<a class="headerlink" href="#qumulo-cluster-edge-rebuild-preflight-module-check-that-a-qumulo-edge-s-live-state-can-be-replayed-from-its-inventory-before-a-rebuild-destroys-it" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild_preflight</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Reads only, and never reports a change. The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild</span></code> role runs it on the old edge before it drains anything.</p></li>
+<li><p><strong>Drift.</strong> Fails when the edge has tenants, tenant networks, SMB shares, NFS exports, quotas, snapshot policies, local users, local groups or portal spoke roots that the inventory does not declare, or that the inventory declares absent, unless <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> is set. The inventory declares a tenant, share or export absent with <code class="docutils literal notranslate"><span class="pre">state</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> in its own entry, and the other areas in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-declared-absent"><span class="std std-ref"><span class="pre">declared_absent</span></span></a></strong></code>. A share or export is matched within its tenant, so a share of the same name in another tenant is a different share. Tenant 1’s factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export, whatever tenant 1’s name, the built-in users <code class="docutils literal notranslate"><span class="pre">admin</span></code> and <code class="docutils literal notranslate"><span class="pre">guest</span></code>, and the built-in groups <code class="docutils literal notranslate"><span class="pre">Users</span></code> and <code class="docutils literal notranslate"><span class="pre">Guests</span></code> are never drift; a <code class="docutils literal notranslate"><span class="pre">Files</span></code> share or a <code class="docutils literal notranslate"><span class="pre">/</span></code> export in any other tenant is drift like any other.</p></li>
+<li><p><strong>Tenants.</strong> The module judges the old edge against what the replay will build. It reads <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-smb-shares"><span class="std std-ref"><span class="pre">smb_shares</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-nfs-exports"><span class="std std-ref"><span class="pre">nfs_exports</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults"><span class="std std-ref"><span class="pre">factory_defaults</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><span class="std std-ref"><span class="pre">network</span></span></a></strong></code> as the baseline reads them on a newly formed edge, which holds tenant 1 named <code class="docutils literal notranslate"><span class="pre">Default</span></code>, the factory share and export, and nothing else. It reads the old edge’s tenants by their names after the renames the inventory declares, that is, an entry whose <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> the edge holds while the edge lacks its <code class="docutils literal notranslate"><span class="pre">name</span></code>. A tenant the inventory declares absent and the edge holds is drift, tenant 1 included. Otherwise tenant 1 is replayed only under the name the replay gives the new tenant 1, <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> or the name of the entry with <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>, so tenant 1 renamed by hand to another name is drift unless an entry names it with a <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> of <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>. Another tenant is replayed when the replay ends with a tenant of its name.</p></li>
+<li><p><strong>A tenant gained.</strong> A newly formed edge has tenant 1, <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>, with the factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export, and the replay keeps it unless <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> declares it <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>. When the edge has no tenant 1 and the replay ends with tenant 1 under a name the edge does not hold, that tenant is drift with <code class="docutils literal notranslate"><span class="pre">added</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code>, which <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> waives; its message begins “the rebuilt edge would gain tenant”. An edge that holds a tenant of that name gains nothing. An entry that declares that tenant <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> is refused, as below, unless the factory share and export are claimed for its removal, by both keys of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults"><span class="std std-ref"><span class="pre">factory_defaults</span></span></a></strong></code> set to <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> or by declaring them under that entry. <code class="docutils literal notranslate"><span class="pre">docs/explanation/rebuilds.md</span></code> says why the gain is drift.</p></li>
+<li><p><strong>Tenant networks.</strong> The module works out which tenant the replay binds each network to. A network listed in the <code class="docutils literal notranslate"><span class="pre">networks</span></code> of an entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> is that tenant’s. A network in the <code class="docutils literal notranslate"><span class="pre">frontend_networks</span></code> of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><span class="std std-ref"><span class="pre">network</span></span></a></strong></code> is the tenant’s named by its <code class="docutils literal notranslate"><span class="pre">tenant</span></code>, and tenant 1’s for <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">1</span></code>. A listed network sent with no tenant, that is, a flat network with no <code class="docutils literal notranslate"><span class="pre">tenant</span></code>, or a <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> the newly formed edge lacks, stays in tenant 1, the formed edge’s tenant after any rename by <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> of <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>, unless the module refuses it, as below. When the edge holds that network in no tenant, and on neither backend bond, it is drift in the <code class="ansible-value docutils literal notranslate"><span class="pre">tenant_networks</span></code> area with <code class="docutils literal notranslate"><span class="pre">added</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code>, which <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> waives; its message begins “the rebuilt edge would put network”. When <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><span class="std std-ref"><span class="pre">network</span></span></a></strong></code> has no <code class="docutils literal notranslate"><span class="pre">frontend_networks</span></code> and no present entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> has <code class="docutils literal notranslate"><span class="pre">networks</span></code>, not even an empty list, the replay keeps the newly formed edge’s networks, which are all tenant 1’s, and does not replay a network the formed edge lacks. On managed networking that is network 1, so network 1 that the edge holds in no tenant is that drift too. Once any network is listed, the replay keeps only the listed networks and removes the rest, so each network the edge holds must be listed, under its tenant or in <code class="docutils literal notranslate"><span class="pre">frontend_networks</span></code> for a network no tenant holds or on the backend bond, and every present tenant must have <code class="docutils literal notranslate"><span class="pre">networks</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">[]</span></code> for none. For each tenant the replay builds again, each network the edge binds to it that the replay would not is drift in the <code class="ansible-value docutils literal notranslate"><span class="pre">tenant_networks</span></code> area; a tenant that is itself drift is reported without its networks.</p></li>
+<li><p>On an edge whose network document has no managed interfaces and only HOST networks, which forms again with no frontend network, fails when the replay creates a tenant but the inventory lists no network for a tenant that stays. The replay’s tenant 1 pass writes tenant 1’s own networks, or every listed network that stays when tenant 1 holds none, in tenant 1 before the baseline creates the other tenants; with none to write, the replay would fail after the destroy, and <code class="docutils literal notranslate"><span class="pre">docs/explanation/rebuilds.md</span></code> says why. Tenant 1’s own networks are those under its entry and the flat ones that step 2 resolves to tenant 1 or to no tenant, and the baseline’s step 3 adds the other tenants’ networks. The module decides with the replay’s own rule, the <a class="reference internal" href="tenancy_first_pass_filter.html#ansible-collections-qumulo-cluster-tenancy-first-pass-filter"><span class="std std-ref">qumulo.cluster.tenancy_first_pass</span></a> filter on the newly formed edge, so a network listed under any present tenant or in <code class="docutils literal notranslate"><span class="pre">frontend_networks</span></code> of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><span class="std std-ref"><span class="pre">network</span></span></a></strong></code>, for a tenant that stays or for none, is enough. Tenant 1 declared <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> takes part as the <code class="docutils literal notranslate"><span class="pre">Default</span></code> the edge forms with, so it needs no rename. The message starts “the replay would create tenant”, comes after any drift, and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> does not waive it. With <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code> in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-terraform-owned-areas"><span class="std std-ref"><span class="pre">terraform_owned_areas</span></span></a></strong></code>, the message ends with the remedy that option describes.</p></li>
+<li><p>On the same kind of edge, when the replay creates a tenant and the tenant 1 pass would write two or more networks into tenant 1, which it does only when tenant 1 holds two or more, or holds none while the inventory lists two or more, the baseline’s step 2 needs to know which HOST network the play reaches the edge on. Where tenant 1 holds a network, a second tenant’s own network is not in the pass; the baseline’s step 3 adds it. With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> unset, the module infers it from this edge, as the network that carries the play’s address there, and returns it as <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></code>; <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> says when it can. It fails when it cannot place the address. The message starts “the replay’s tenant 1 pass would write networks”, names them, says why the module cannot tell, and says to set <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> to the id of the network <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> is on. The reasons are that this edge does not answer its network status, that its network status read failed (the reason is “this edge’s network status read failed”, then the error), that it holds two HOST networks and the play reaches it on the host’s own address (“this edge holds HOST networks 0 and 1 and the play reaches it on the host’s own address, A, which the network status does not place on any one of them”), that the status does not show the address (“this edge’s network status places the play’s address on no one network”), that the status shows the HOST network it would name served on no device (“this edge’s network status shows network N served on no device”), and that <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> resolves to no address.</p></li>
+<li><p>On the same kind of edge, when the tenant 1 pass would write two or more networks, fails when the play reaches this edge on a network the pass does not write, which is one the inventory lists for no tenant that stays or lists under a second tenant. The message starts “the play reaches this edge on network N, which the replay’s tenant 1 pass does not write before it creates tenant X, so the baseline’s step 2 would refuse the create after the destroy”, and says to set <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> to an address on one of the networks the pass writes for the rebuild and <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> to that network’s id, or, when the inventory lists network N under another id, to set <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> to that id.</p></li>
+<li><p>Each of those two messages comes after any drift, in the place of the “the replay would create tenant” message, and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> does not waive either.</p></li>
+<li><p>On the same kind of edge, when the replay creates a tenant and the tenant 1 pass writes a network, fails when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> names a network the pass does not write, however many networks the pass writes, whether the inventory lists it for no tenant that stays or for a tenant whose network the baseline’s step 3 adds only after that create, and when it is declared with no network, as <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> describes.</p></li>
+<li><p>On the same kind of edge, fails when a network listed in the <code class="docutils literal notranslate"><span class="pre">networks</span></code> of an entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> has <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code> or is <code class="docutils literal notranslate"><span class="pre">type</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">STATIC</span></code>, which step 2’s host-managed check refuses of a tenant network. The module makes this check once it has read the edge’s network document, before drift, and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> does not waive it. The message starts “the replay onto the rebuilt edge would refuse the inventory” and goes on with the baseline’s own, such as “network 0 of tenant it-one has vlan_id 10, but the host manages this cluster’s networking, so a tenant network takes no VLAN. Remove vlan_id.” A network in <code class="docutils literal notranslate"><span class="pre">frontend_networks</span></code> of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><span class="std std-ref"><span class="pre">network</span></span></a></strong></code> is not checked here. The check waits for the replay when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><span class="std std-ref"><span class="pre">network</span></span></a></strong></code> declares <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code> and the tenant 1 pass runs, which writes them first.</p></li>
+<li><p>Fails before it reads the edge when the inventory rules of the baseline’s tenancy step would refuse the inventory, that is, its renames, its entries and tenant references, its claims, and its network rules that need no read. Examples are a flat share or export with neither <code class="docutils literal notranslate"><span class="pre">tenants</span></code> nor <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> once the replay has more than one tenant, counting the tenants the inventory creates, two entries of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> with one name, a key in a tenant’s <code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> or <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> dict that the global settings do not take, an inventory that leaves no tenant, and two entries, or an entry and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults"><span class="std std-ref"><span class="pre">factory_defaults</span></span></a></strong></code>, that claim one share or export in one tenant. The network rules are that once a present tenant declares <code class="docutils literal notranslate"><span class="pre">networks</span></code> every present tenant must, that a network is listed once, and that an absent tenant’s network is neither kept flat nor named by a flat <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code>. Tenant 1 declared <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> while no network is listed is refused too, since it holds the newly formed edge’s networks, which the run keeps, and so is a network listed with no tenant while tenant 1 is declared <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>. The network document’s own checks (its validation, the backend checks, and the interfaces) and the NFS and continuity checks need the new edge and run only at the replay, as do its host-managed checks apart from the one of a tenant network above. The message starts “the replay onto the rebuilt edge would refuse the inventory”, and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> does not waive it. The warnings of that step come back as module warnings prefixed “the replay onto the rebuilt edge”. An entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> with no name, or with a <code class="docutils literal notranslate"><span class="pre">state</span></code> other than <code class="ansible-value docutils literal notranslate"><span class="pre">present</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>, also fails before any read, with a message that names the entry, such as <code class="docutils literal notranslate"><span class="pre">qumulo_tenants[0]</span> <span class="pre">gives</span> <span class="pre">no</span> <span class="pre">name</span></code>. So does a listed network with no integer <code class="docutils literal notranslate"><span class="pre">id</span></code>, such as <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks[0]</span> <span class="pre">gives</span> <span class="pre">no</span> <span class="pre">id</span></code>; these messages do not carry the replay prefix. A flat entry’s deprecated <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> is read only for tenant 1; any other id is skipped with a warning, so the entry’s share or export on the old edge is drift.</p></li>
+<li><p>Fails after it reads the edge’s network document, before any other read and before drift, on a listed network sent with no tenant that the newly formed edge does not hold, when the replay has more than one tenant at the baseline’s step 3, counting the tenants it creates and those it deletes only at the end. The message starts “the replay onto the rebuilt edge would refuse the inventory” and is the baseline’s step 2 refusal; <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> does not waive it. The newly formed edge holds network 1 on managed networking, and on host-managed networking the networks the replay’s tenant 1 pass writes. A network that the <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code> of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><span class="std std-ref"><span class="pre">network</span></span></a></strong></code> puts on the backend bond is not refused, unless <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-owned-parts"><span class="std std-ref"><span class="pre">owned_parts</span></span></a></strong></code> leaves out <code class="ansible-value docutils literal notranslate"><span class="pre">interfaces</span></code>. <code class="docutils literal notranslate"><span class="pre">docs/explanation/rebuilds.md</span></code> says which networks the newly formed edge holds.</p></li>
+<li><p><strong>Unreplayable state.</strong> Fails when the edge has state that the replay cannot create again, unless <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-acknowledge"><span class="std std-ref"><span class="pre">acknowledge</span></span></a></strong></code> lists its area. <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code> is a STATIC frontend network or a VLAN while <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network-declared"><span class="std std-ref"><span class="pre">network_declared</span></span></a></strong></code> is false. <code class="ansible-value docutils literal notranslate"><span class="pre">kmip</span></code> is a key store other than the local one (G-KMS). <code class="ansible-value docutils literal notranslate"><span class="pre">replication</span></code> is a source or target relationship that <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared"><span class="std std-ref"><span class="pre">replication_declared</span></span></a></strong></code> does not declare, and any object relationship, each listed by its id, its peer’s UUID and both paths (G-REPL-PEER). <code class="ansible-value docutils literal notranslate"><span class="pre">s3_keys</span></code> is any S3 access key and <code class="ansible-value docutils literal notranslate"><span class="pre">access_tokens</span></code> any access token (G-S3-KEY, G-TOKEN). <code class="ansible-value docutils literal notranslate"><span class="pre">local_data</span></code> is any file, link or other object outside the portal’s spoke roots, and any snapshot. The files are counted from the cluster’s aggregates, and a directory they count empty, as they may for some seconds after a write, is listed instead. Its details say <code class="docutils literal notranslate"><span class="pre">files:</span></code> or <code class="docutils literal notranslate"><span class="pre">snapshots:</span></code>, and acknowledging the area gives up both.</p></li>
+<li><p><strong>Declared relationships.</strong> A record matches an entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared"><span class="std std-ref"><span class="pre">replication_declared</span></span></a></strong></code> by its side, its paths, and the peer’s UUID, the current one or one of its previous ones. A relationship it declares with the edge as its target is replayable only while the edge’s record is ESTABLISHED with its directory read-only and the source host’s record of the same id is ESTABLISHED; its target directory is then not local data. In any other state, its directory is local data, listed whatever it holds, with a detail naming both records’ states. A relationship it declares with the edge as its source, whose record is live, is held at the replay while the target holds a replica; its source directory is local data as any other, and the detail says whether the target host still holds a live replica. One whose record is ENDED or pending needs <code class="ansible-value docutils literal notranslate"><span class="pre">replication</span></code> acknowledged, since a declaration explains only a live record.</p></li>
+<li><p><strong>A rebuilt peer.</strong> A record that names a previous UUID of its peer was made before the peer was rebuilt, and the detail says which previous UUID it names. With the edge as its source it is held. With the edge as its target, its outcome is <code class="ansible-value docutils literal notranslate"><span class="pre">only_copy</span></code>. Its directory is local data, listed whatever it holds, and it is listed under <code class="ansible-value docutils literal notranslate"><span class="pre">replication</span></code> too, so both areas must be acknowledged. When the edge’s record allows the source’s restore (ESTABLISHED, read-only, with a recovery point) and the entry’s <code class="docutils literal notranslate"><span class="pre">peer_replication_address</span></code> is an IP literal, the detail names that restore first, the source’s second pass for a source in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">playbooks/replication_restore.yml</span></code> for any other.</p></li>
+<li><p>A record of a declared relationship whose peer UUID the peer host’s inventory does not hold, current or previous, as before a rebuilt peer’s host_vars_patch is applied, needs <code class="ansible-value docutils literal notranslate"><span class="pre">replication</span></code>, and the detail says to apply that patch.</p></li>
+<li><p>A snapshot whose owners are all replayable relationships, or held relationships out of the edge whose target holds a live replica, is not local data.</p></li>
+<li><p><code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> never waives an area. Each acknowledged area that holds such state is returned in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-acknowledged"><span class="std std-ref"><span class="pre">acknowledged</span></span></a></code>.</p></li>
+<li><p>Names compare as the server compares them. Share names ignore case, and export paths the edge reports ignore a trailing slash, each within its tenant. Quota and portal root paths ignore a trailing slash. Tenant names compare exactly.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-acknowledge"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-acknowledge"><strong>acknowledge</strong></p>
+<a class="ansibleOptionLink" href="#parameter-acknowledge" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Areas of unreplayable state to rebuild without. The rebuild report lists what each needs by hand afterwards.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;network&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;kmip&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;replication&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;s3_keys&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;access_tokens&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;local_data&quot;</span></code></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-declared_absent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-declared-absent"><strong>declared_absent</strong></p>
+<a class="ansibleOptionLink" href="#parameter-declared_absent" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What the inventory declares absent, each area under its own key, as in the example. One that the edge still holds is drift, since the edge then differs from its inventory. Tenants, shares and exports say <code class="docutils literal notranslate"><span class="pre">state</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> in their own entries instead.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-declared_absent/local_groups"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-declared-absent-local-groups"><strong>local_groups</strong></p>
+<a class="ansibleOptionLink" href="#parameter-declared_absent/local_groups" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The local group names the inventory declares absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-declared_absent/local_users"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-declared-absent-local-users"><strong>local_users</strong></p>
+<a class="ansibleOptionLink" href="#parameter-declared_absent/local_users" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The local user names the inventory declares absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-declared_absent/quotas"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-declared-absent-quotas"><strong>quotas</strong></p>
+<a class="ansibleOptionLink" href="#parameter-declared_absent/quotas" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The paths of the directories whose quotas the inventory declares absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-declared_absent/snapshot_policies"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-declared-absent-snapshot-policies"><strong>snapshot_policies</strong></p>
+<a class="ansibleOptionLink" href="#parameter-declared_absent/snapshot_policies" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshot policy names the inventory declares absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-factory_defaults"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults"><strong>factory_defaults</strong></p>
+<a class="ansibleOptionLink" href="#parameter-factory_defaults" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory’s <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code>, as it is. The replay reads it as the baseline does. <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults-smb-files-share"><span class="std std-ref"><span class="pre">factory_defaults.smb_files_share</span></span></a></strong></code> or <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults-nfs-root-export"><span class="std std-ref"><span class="pre">factory_defaults.nfs_root_export</span></span></a></strong></code> claims tenant 1’s <code class="docutils literal notranslate"><span class="pre">Files</span></code> share or <code class="docutils literal notranslate"><span class="pre">/</span></code> export for removal, so an entry that also declares that share or export in tenant 1 claims one pair twice, and the module fails as the replay would.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-factory_defaults/nfs_root_export"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults-nfs-root-export"><strong>nfs_root_export</strong></p>
+<a class="ansibleOptionLink" href="#parameter-factory_defaults/nfs_root_export" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>What becomes of the factory <code class="docutils literal notranslate"><span class="pre">/</span></code> export in tenant 1.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;present&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-factory_defaults/smb_files_share"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-factory-defaults-smb-files-share"><strong>smb_files_share</strong></p>
+<a class="ansibleOptionLink" href="#parameter-factory_defaults/smb_files_share" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>What becomes of the factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share in tenant 1.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;present&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ignore_drift"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><strong>ignore_drift</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ignore_drift" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Report drift without failing. Unreplayable state still fails unless <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-acknowledge"><span class="std std-ref"><span class="pre">acknowledge</span></span></a></strong></code> lists its area.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-local_groups"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-local-groups"><strong>local_groups</strong></p>
+<a class="ansibleOptionLink" href="#parameter-local_groups" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The local group names the inventory declares, present or absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-local_users"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-local-users"><strong>local_users</strong></p>
+<a class="ansibleOptionLink" href="#parameter-local_users" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The local user names the inventory declares, present or absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-management_network"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><strong>management_network</strong></p>
+<a class="ansibleOptionLink" href="#parameter-management_network" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The ids of the networks this play reaches the edge on, as the baseline reads <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code>. The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild</span></code> role passes <code class="docutils literal notranslate"><span class="pre">cluster_baseline_management_network</span></code>, null when the variable is unset. A null value counts as unset.</p>
+<p>On an edge that forms host-managed again, when the tenant 1 pass writes two or more networks, which it does only when tenant 1 holds two or more, or holds none while the inventory lists two or more, and the replay creates a tenant, this overrides the network the module infers from the old edge, which <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></code> returns when this is unset. The module infers it only for an old edge with one HOST network whose network status answers, as when the inventory adds a network. When the two disagree, the module warns “qumulo_management_network names network 1, but the play reaches the old edge on network 0; the replay uses qumulo_management_network”. With neither this nor an inference the module fails, with a message that starts “the replay’s tenant 1 pass would write networks”, or, when the play reaches the old edge on a network the pass does not write, “the play reaches this edge on network”.</p>
+<p>On that edge, when the replay creates a tenant and the tenant 1 pass writes a network, an id that the pass does not write fails too, and <code class="docutils literal notranslate"><span class="pre">docs/explanation/rebuilds.md</span></code> says why. An id that the inventory lists for no tenant that stays gets a message that starts “qumulo_management_network names” and goes on “which the inventory lists for no tenant that stays”. An id that step 3 adds later, such as a second tenant’s own network, gets one that starts “qumulo_management_network names” and goes on “but the replay’s tenant 1 pass writes only”. A value declared with no network, <code class="ansible-value docutils literal notranslate"><span class="pre">[]</span></code>, fails as well, with a message that starts “qumulo_management_network is declared with no network”, since step 2 would refuse it at the create after the destroy. Like the one above, each comes after any drift and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-ignore-drift"><span class="std std-ref"><span class="pre">ignore_drift</span></span></a></strong></code> does not waive it.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-network"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network"><strong>network</strong></p>
+<a class="ansibleOptionLink" href="#parameter-network" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory’s <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>, as it is, or null when the inventory declares none. The replay reads it as the baseline does, and the module uses it for the <code class="ansible-value docutils literal notranslate"><span class="pre">tenant_networks</span></code> drift area.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-network_declared"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-network-declared"><strong>network_declared</strong></p>
+<a class="ansibleOptionLink" href="#parameter-network_declared" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the inventory declares the network document (<code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>), which the replay then applies.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-nfs_exports"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-nfs-exports"><strong>nfs_exports</strong></p>
+<a class="ansibleOptionLink" href="#parameter-nfs_exports" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory’s <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, as it is, present or absent. The entries are those of <a class="reference internal" href="nfs_export_module.html#ansible-collections-qumulo-cluster-nfs-export-module"><span class="std std-ref">qumulo.cluster.nfs_export</span></a>, plus <code class="docutils literal notranslate"><span class="pre">tenants</span></code> as the baseline reads it. The exports nested in an entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> are read with it, and are not passed here.</p>
+<p>A flat entry is placed in a tenant as for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-smb-shares"><span class="std std-ref"><span class="pre">smb_shares</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-owned_parts"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-owned-parts"><strong>owned_parts</strong></p>
+<a class="ansibleOptionLink" href="#parameter-owned_parts" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The parts of the network document the replay’s baseline writes. The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild</span></code> role passes the baseline’s <code class="docutils literal notranslate"><span class="pre">cluster_baseline_owned_parts</span></code>, the list the baseline gives <a class="reference internal" href="tenancy_plan_module.html#ansible-collections-qumulo-cluster-tenancy-plan-module"><span class="std std-ref">qumulo.cluster.tenancy_plan</span></a>.</p>
+<p>An entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> that declares <code class="docutils literal notranslate"><span class="pre">networks</span></code> while this leaves out <code class="ansible-value docutils literal notranslate"><span class="pre">networks</span></code> is refused before any read, since the run cannot give a network to a tenant. So is a listed network with <code class="docutils literal notranslate"><span class="pre">floating_ip_ranges</span></code> while this leaves out <code class="ansible-value docutils literal notranslate"><span class="pre">floating_ips</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;interfaces&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;networks&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;floating_ips&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[&quot;interfaces&quot;,</span> <span class="pre">&quot;networks&quot;,</span> <span class="pre">&quot;floating_ips&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-portal_roots"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-portal-roots"><strong>portal_roots</strong></p>
+<a class="ansibleOptionLink" href="#parameter-portal_roots" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The spoke root paths the inventory declares for the edge’s portal.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-quotas"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-quotas"><strong>quotas</strong></p>
+<a class="ansibleOptionLink" href="#parameter-quotas" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The paths of the directories whose quotas the inventory declares, present or absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared"><strong>replication_declared</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The replication relationships the inventory declares present with this edge as their source or their target, each with what its peer’s inventory host reports. The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild</span></code> role reads the peers with <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.replication_info</span></code>, once per peer host.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/peer_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-peer-cluster-uuid"><strong>peer_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/peer_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The peer’s cluster UUID, the target’s for a <code class="ansible-value docutils literal notranslate"><span class="pre">source</span></code> entry and the source’s for a <code class="ansible-value docutils literal notranslate"><span class="pre">target</span></code> one.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/peer_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-peer-host"><strong>peer_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/peer_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The peer’s inventory host, for the messages.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/peer_in_edges"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-peer-in-edges"><strong>peer_in_edges</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/peer_in_edges" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the peer host is in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, whose restore is its second pass.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/peer_previous_cluster_uuids"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-peer-previous-cluster-uuids"><strong>peer_previous_cluster_uuids</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/peer_previous_cluster_uuids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The peer’s previous cluster UUIDs, from its host’s <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>. A record that names one of them is the record of a relationship made before the peer was rebuilt.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/peer_relationships"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-peer-relationships"><strong>peer_relationships</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/peer_relationships" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The peer’s status records on its own side, as <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.replication_info</span></code> returns them, its <code class="docutils literal notranslate"><span class="pre">source_relationships</span></code> for a <code class="ansible-value docutils literal notranslate"><span class="pre">target</span></code> entry and its <code class="docutils literal notranslate"><span class="pre">target_relationships</span></code> for a <code class="ansible-value docutils literal notranslate"><span class="pre">source</span></code> one. Null when the peer did not answer, which makes a <code class="ansible-value docutils literal notranslate"><span class="pre">target</span></code> entry local data and gives a <code class="ansible-value docutils literal notranslate"><span class="pre">source</span></code> one no replica to restore from.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/peer_replication_address"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-peer-replication-address"><strong>peer_replication_address</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/peer_replication_address" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The peer host’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>. With <code class="ansible-value docutils literal notranslate"><span class="pre">peer_in_edges</span></code>, it decides whether a <code class="ansible-value docutils literal notranslate"><span class="pre">target</span></code> entry’s <code class="ansible-value docutils literal notranslate"><span class="pre">only_copy</span></code> detail names the source’s restore first; that restore needs an IP literal.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/side"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-side"><strong>side</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/side" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The edge’s side of the relationship.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;source&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;target&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/source_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-source-path"><strong>source_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/source_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The relationship’s source path.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_declared/target_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-replication-declared-target-path"><strong>target_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_declared/target_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The relationship’s target path.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-smb_shares"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-smb-shares"><strong>smb_shares</strong></p>
+<a class="ansibleOptionLink" href="#parameter-smb_shares" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory’s <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code>, as it is, present or absent. The entries are those of <a class="reference internal" href="smb_share_module.html#ansible-collections-qumulo-cluster-smb-share-module"><span class="std std-ref">qumulo.cluster.smb_share</span></a>, plus <code class="docutils literal notranslate"><span class="pre">tenants</span></code> as the baseline reads it. The shares nested in an entry of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> are read with it, and are not passed here.</p>
+<p>A flat entry is in each tenant its <code class="docutils literal notranslate"><span class="pre">tenants</span></code> lists, in every tenant the inventory declares present for <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code>, and absent in each tenant declared absent. One with neither <code class="docutils literal notranslate"><span class="pre">tenants</span></code> nor <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> is in the rebuilt edge’s only tenant; once the replay has more than one tenant, counting the tenants the inventory creates, the module refuses it, as the baseline does. Its deprecated <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> is read only for tenant 1; any other id is skipped with a warning.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-snapshot_policies"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-snapshot-policies"><strong>snapshot_policies</strong></p>
+<a class="ansibleOptionLink" href="#parameter-snapshot_policies" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The snapshot policy names the inventory declares, present or absent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-tenants"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><strong>tenants</strong></p>
+<a class="ansibleOptionLink" href="#parameter-tenants" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory’s <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, as it is, present or absent. The entries are as the variables of <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.cluster_baseline</span></code> describe them, and the baseline’s tenancy step reads them the same way.</p>
+<p>A tenant the edge holds that the replay does not build again as the edge holds it is drift. An entry whose <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> the edge holds, while the edge does not hold its <code class="docutils literal notranslate"><span class="pre">name</span></code>, is a rename the inventory declares, so the edge’s tenant of the old name is read by the new name, and so are its shares and exports. An entry whose name the edge already holds records a rename already done, and its previous name is ignored. An entry with <code class="docutils literal notranslate"><span class="pre">state</span></code> of <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> renames nothing.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-terraform_owned_areas"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-terraform-owned-areas"><strong>terraform_owned_areas</strong></p>
+<a class="ansibleOptionLink" href="#parameter-terraform_owned_areas" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The areas Terraform owns, as the baseline’s ownership step records them from <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code>, or, without it, from <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code>. The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild</span></code> role passes them as <code class="docutils literal notranslate"><span class="pre">cluster_baseline_owned</span></code>.</p>
+<p>Only <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code> is read. With it listed, the refusal of an inventory that lists no network for a tenant that stays, on an edge whose networking the host manages, ends by saying to take <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code> out of <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> for the rebuild, to list the edge’s HOST network under a tenant in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-tenants"><span class="std std-ref"><span class="pre">tenants</span></span></a></strong></code> or in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>, and to put <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code> back in <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> and remove the listing in the same change. The baseline’s ownership step refuses <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code> and a <code class="docutils literal notranslate"><span class="pre">networks</span></code> key under a tenant while Terraform owns the area. Without <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code>, the refusal says to list the HOST network.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: GET /v1/multitenancy/tenants/, /v3/smb/shares/, /v3/nfs/exports/, /v1/files/quotas/status/, /v3/snapshots/policies/status/, /v1/users/, /v1/groups/, /v2/portal/spokes/ with the attributes of each spoke root, /v3/network, /v2/encryption/key-store/status, /v2/replication/source-relationships/status/, /v2/replication/target-relationships/status/, /v3/replication/object-relationships/, /v1/s3/access-keys/, /v1/auth/access-tokens/, /v1/files/%2F/aggregates/ and those of each directory above a spoke root, /v1/files/{ref}/entries/ of a directory the aggregates count empty, and /v4/snapshots/status/.</p></li>
+<li><p>Needs the tenant list, which needs PRIVILEGE_TENANT_READ; a failure to read it fails the task.</p></li>
+<li><p>The <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> drift area, and the tenant each share and export is in, resolve through the multitenancy REST API, which Qumulo marks as preview; a later Qumulo Core release may change it.</p></li>
+<li><p>Registers: G-KMS, G-REPL-PEER, G-S3-KEY, G-TOKEN.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># These tasks carry no connection options, except where a task names another cluster. Set them once for the play</span>
+<span class="c1"># with module_defaults for group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check that the edge holds nothing its inventory does not declare</span>
+<span class="w">  </span><span class="c1"># The edge_rebuild role passes the inventory's tenants, shares, exports, factory defaults and network as they are, so</span>
+<span class="w">  </span><span class="c1"># the preflight reads them as the replay's baseline will. Nested shares and exports stay inside their tenant's entry.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.edge_rebuild_preflight</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tenants</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_tenants</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_smb_shares</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">nfs_exports</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_nfs_exports</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">factory_defaults</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_factory_defaults</span> <span class="o">|</span> <span class="nf">default</span><span class="o">({})</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">network</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_network</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="kp">none</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">quotas</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_quotas</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'path'</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">snapshot_policies</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_snapshot_policies</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'policy_name'</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">local_users</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_local_users</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'name'</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">local_groups</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_local_groups</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'name'</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">declared_absent</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">quotas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">        </span><span class="cp">{{</span> <span class="nv">qumulo_quotas</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'defined'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'equalto'</span><span class="o">,</span> <span class="s1">'absent'</span><span class="o">)</span>
+           <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'path'</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="w">      </span><span class="nt">snapshot_policies</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">        </span><span class="cp">{{</span> <span class="nv">qumulo_snapshot_policies</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'defined'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'equalto'</span><span class="o">,</span> <span class="s1">'absent'</span><span class="o">)</span>
+           <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'policy_name'</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="w">      </span><span class="nt">local_users</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">        </span><span class="cp">{{</span> <span class="nv">qumulo_local_users</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'defined'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'equalto'</span><span class="o">,</span> <span class="s1">'absent'</span><span class="o">)</span>
+           <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'name'</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="w">      </span><span class="nt">local_groups</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">        </span><span class="cp">{{</span> <span class="nv">qumulo_local_groups</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'defined'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'state'</span><span class="o">,</span> <span class="s1">'equalto'</span><span class="o">,</span> <span class="s1">'absent'</span><span class="o">)</span>
+           <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'name'</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="w">    </span><span class="nt">portal_roots</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_portal.roots</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'spoke_root'</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">network_declared</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">qumulo_network</span> <span class="k">is</span> <span class="nf">defined</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">acknowledge</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">access_tokens</span><span class="p p-Indicator">]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check an edge of two tenants whose inventory declares a shared share and removes one</span>
+<span class="w">  </span><span class="c1"># Each entry is as qumulo_tenants, qumulo_smb_shares and qumulo_nfs_exports hold it. projects is nested in</span>
+<span class="w">  </span><span class="c1"># engineering, backups is in both tenants, and scratch is declared absent there. The edge's engineering tenant may</span>
+<span class="w">  </span><span class="c1"># still be named eng; the preflight reads it as engineering, since the entry renames it. A tenant the edge holds and</span>
+<span class="w">  </span><span class="c1"># these entries do not declare is drift.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.edge_rebuild_preflight</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tenants</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Default</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">engineering</span>
+<span class="w">        </span><span class="nt">previous_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eng</span>
+<span class="w">        </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">projects</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/engineering/projects</span><span class="p p-Indicator">}</span>
+<span class="w">        </span><span class="nt">nfs_exports</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">export_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/builds</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/engineering/builds</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">backups</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/backups</span><span class="p p-Indicator">,</span><span class="nt"> tenants</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Default</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">engineering</span><span class="p p-Indicator">]}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">scratch</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/scratch</span><span class="p p-Indicator">,</span><span class="nt"> tenants</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">engineering</span><span class="p p-Indicator">],</span><span class="nt"> state</span><span class="p">:</span><span class="w"> </span><span class="nv">absent</span><span class="p p-Indicator">}</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check an edge of one tenant whose inventory removes the scratch share and an old user</span>
+<span class="w">  </span><span class="c1"># A name declared absent is still listed with the others; the edge still holding it is drift. A flat share or export</span>
+<span class="w">  </span><span class="c1"># with no tenants is in the rebuilt edge's only tenant; once the replay has a second tenant the baseline refuses</span>
+<span class="w">  </span><span class="c1"># it, and so does the preflight, so name the tenants there.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.edge_rebuild_preflight</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">projects</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">scratch</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/scratch</span><span class="p p-Indicator">,</span><span class="nt"> state</span><span class="p">:</span><span class="w"> </span><span class="nv">absent</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">local_users</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">svc_backup</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">build_old</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">portal_roots</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">/hub-data</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">declared_absent</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">local_users</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">build_old</span><span class="p p-Indicator">]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rebuild without the edge's snapshots and its files outside the spoke roots</span>
+<span class="w">  </span><span class="c1"># Acknowledging local_data gives up both the files and the snapshots.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.edge_rebuild_preflight</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">projects</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">portal_roots</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">/hub-data</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">acknowledge</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">local_data</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">preflight</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List what the rebuild gives up, for the hand-off</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">preflight.unreplayable</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'area'</span><span class="o">,</span> <span class="s1">'in'</span><span class="o">,</span> <span class="nv">preflight.acknowledged</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the peer's replication records, through the peer's own connection</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">target</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hq01.example.com</span>
+<span class="w">    </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">vault_hq01_admin_password</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4b3c802f-8201-42b7-bb41-28f562cd8dfd</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hq01_replication</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check an edge that is the target of a replication relationship the inventory declares</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.edge_rebuild_preflight</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">projects</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">portal_roots</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">/hub-data</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">replication_declared</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">side</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">target</span>
+<span class="w">        </span><span class="nt">peer_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hq01</span>
+<span class="w">        </span><span class="nt">peer_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4b3c802f-8201-42b7-bb41-28f562cd8dfd</span>
+<span class="w">        </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">        </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/projects</span>
+<span class="w">        </span><span class="nt">peer_replication_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.10</span>
+<span class="w">        </span><span class="nt">peer_in_edges</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">peer_relationships</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hq01_replication.replication.source_relationships</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">replication_preflight</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show what the rebuild does with each replication relationship</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">item.side</span> <span class="cp">}}</span><span class="nv"> </span><span class="cp">{{</span> <span class="nv">item.id</span> <span class="cp">}}</span><span class="s">:</span><span class="nv"> </span><span class="cp">{{</span> <span class="nv">item.outcome</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">loop</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">replication_preflight.replication</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List what the inventory misses, without failing on it</span>
+<span class="w">  </span><span class="c1"># Unreplayable state still fails unless acknowledge lists its area. This survey only reads, so it acknowledges</span>
+<span class="w">  </span><span class="c1"># every area.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.edge_rebuild_preflight</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">ignore_drift</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">acknowledge</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">network</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">kmip</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">replication</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">s3_keys</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">access_tokens</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">local_data</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">drift_survey</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show each item the inventory misses</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">item.area</span> <span class="cp">}}</span><span class="s">:</span><span class="nv"> </span><span class="cp">{{</span> <span class="nv">item.name</span> <span class="cp">}}{{</span> <span class="o">(</span><span class="s1">' in tenant '</span> <span class="o">~</span> <span class="nv">item.tenant</span><span class="o">)</span> <span class="k">if</span> <span class="nv">item.tenant</span> <span class="k">is</span> <span class="nf">defined</span> <span class="k">else</span> <span class="s1">''</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">loop</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">drift_survey.drift</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Collect what blocks a rebuild without stopping the play</span>
+<span class="w">  </span><span class="c1"># A failure on drift, unreplayable state, the tenant 1 pass or the management network still returns drift,</span>
+<span class="w">  </span><span class="c1"># unreplayable, acknowledged and replication; a failure on an inventory the replay would refuse returns none of them.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.edge_rebuild_preflight</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">projects</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blockers</span>
+<span class="w">  </span><span class="nt">ignore_errors</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the areas that would block the rebuild</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">blockers.unreplayable</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'area'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">unique</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">blockers is failed and blockers.unreplayable is defined</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-acknowledged"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-acknowledged"><strong>acknowledged</strong></p>
+<a class="ansibleOptionLink" href="#return-acknowledged" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The areas in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-unreplayable"><span class="std std-ref"><span class="pre">unreplayable</span></span></a></code> that <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-acknowledge"><span class="std std-ref"><span class="pre">acknowledge</span></span></a></strong></code> lists, sorted.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success, and when the module fails on drift, unacknowledged unreplayable state, the tenant 1 pass or the management network</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;access_tokens&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-drift"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-drift"><strong>drift</strong></p>
+<a class="ansibleOptionLink" href="#return-drift" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What the edge has that the inventory does not declare, or declares absent, each with its <code class="docutils literal notranslate"><span class="pre">area</span></code>, its <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">declared_absent</span></code>. An entry of the <code class="ansible-value docutils literal notranslate"><span class="pre">smb_shares</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">nfs_exports</span></code> area also has <code class="docutils literal notranslate"><span class="pre">tenant</span></code>, the name of the tenant the share or export is in, and its <code class="docutils literal notranslate"><span class="pre">name</span></code> is the share’s name or the export’s path. An entry of the <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> area has the tenant’s name in <code class="docutils literal notranslate"><span class="pre">name</span></code>, and <code class="docutils literal notranslate"><span class="pre">added</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code> when it is a tenant the rebuilt edge would gain and the edge lacks. An entry of the <code class="ansible-value docutils literal notranslate"><span class="pre">tenant_networks</span></code> area has <code class="docutils literal notranslate"><span class="pre">tenant</span></code>, the tenant’s name, and <code class="docutils literal notranslate"><span class="pre">name</span></code>, the network’s id and its name, as in <code class="ansible-value docutils literal notranslate"><span class="pre">2</span> <span class="pre">(eng-net)</span></code>. It also has <code class="docutils literal notranslate"><span class="pre">added</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code> when the edge holds the network in no tenant and the rebuilt edge would put it in that tenant, whether the inventory lists it or lists no network. A tenant that the inventory’s <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> renames, and its shares and exports, are named by the new name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success, and when the module fails on drift, unacknowledged unreplayable state, the tenant 1 pass or the management network</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;area&quot;:</span> <span class="pre">&quot;tenants&quot;,</span> <span class="pre">&quot;declared_absent&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;Corp&quot;},</span> <span class="pre">{&quot;added&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;area&quot;:</span> <span class="pre">&quot;tenants&quot;,</span> <span class="pre">&quot;declared_absent&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;Default&quot;},</span> <span class="pre">{&quot;area&quot;:</span> <span class="pre">&quot;tenant_networks&quot;,</span> <span class="pre">&quot;declared_absent&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;2</span> <span class="pre">(eng-net)&quot;,</span> <span class="pre">&quot;tenant&quot;:</span> <span class="pre">&quot;eng&quot;},</span> <span class="pre">{&quot;added&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;area&quot;:</span> <span class="pre">&quot;tenant_networks&quot;,</span> <span class="pre">&quot;declared_absent&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;1</span> <span class="pre">(Default)&quot;,</span> <span class="pre">&quot;tenant&quot;:</span> <span class="pre">&quot;Default&quot;},</span> <span class="pre">{&quot;area&quot;:</span> <span class="pre">&quot;smb_shares&quot;,</span> <span class="pre">&quot;declared_absent&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;scratch&quot;,</span> <span class="pre">&quot;tenant&quot;:</span> <span class="pre">&quot;Default&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-management_network"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-management-network"><strong>management_network</strong></p>
+<a class="ansibleOptionLink" href="#return-management_network" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The ids of the networks the replay uses as <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> for its tenant 1 pass and its baseline. They are <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> when set, else the ids inferred from this edge, else null.</p>
+<p>The inferred ids are the networks that carry the address of <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> on this edge. <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> says when the module infers them. Null means it did not infer one.</p>
+<p>With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> unset, it is null when the module fails on the tenant 1 pass, as when the inventory lists no network for a tenant that stays, and when it fails on the management network without having found one. With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-parameter-management-network"><span class="std std-ref"><span class="pre">management_network</span></span></a></strong></code> set, it is that value whenever it is returned.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild</span></code> role records it in the predestroy record as <code class="docutils literal notranslate"><span class="pre">management_network</span></code>, with the <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> the module found it by as <code class="docutils literal notranslate"><span class="pre">management_api_host</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success, and when the module fails on drift, unacknowledged unreplayable state, the tenant 1 pass or the management network</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[1]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-replication"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-replication"><strong>replication</strong></p>
+<a class="ansibleOptionLink" href="#return-replication" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Each replication relationship the edge holds and what the rebuild does with it. Its <code class="docutils literal notranslate"><span class="pre">outcome</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">replayable</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">local_data</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">held</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">only_copy</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">unreplayable</span></code>; <code class="docutils literal notranslate"><span class="pre">detail</span></code> says why.</p>
+<p>Each has <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">side</span></code>, <code class="docutils literal notranslate"><span class="pre">outcome</span></code> and <code class="docutils literal notranslate"><span class="pre">detail</span></code>. A source or target record also has <code class="docutils literal notranslate"><span class="pre">peer_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">source_path</span></code>, <code class="docutils literal notranslate"><span class="pre">target_path</span></code> and <code class="docutils literal notranslate"><span class="pre">state</span></code>. An object relationship has <code class="docutils literal notranslate"><span class="pre">side</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">object</span></code> and no more.</p>
+<p>A declared one also has <code class="docutils literal notranslate"><span class="pre">peer</span></code>, the peer’s record of the same id (<code class="docutils literal notranslate"><span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">recovery_point</span></code>, <code class="docutils literal notranslate"><span class="pre">error_from_last_job</span></code>), when the peer holds one and the record names the peer’s current UUID.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success, and when the module fails on drift, unacknowledged unreplayable state, the tenant 1 pass or the management network</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;detail&quot;:</span> <span class="pre">&quot;...&quot;,</span> <span class="pre">&quot;id&quot;:</span> <span class="pre">&quot;4&quot;,</span> <span class="pre">&quot;outcome&quot;:</span> <span class="pre">&quot;replayable&quot;,</span> <span class="pre">&quot;peer&quot;:</span> <span class="pre">{&quot;error_from_last_job&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;recovery_point&quot;:</span> <span class="pre">&quot;2026-11-01T10:00:00Z&quot;,</span> <span class="pre">&quot;state&quot;:</span> <span class="pre">&quot;ESTABLISHED&quot;},</span> <span class="pre">&quot;peer_cluster_uuid&quot;:</span> <span class="pre">&quot;4b3c802f-8201-42b7-bb41-28f562cd8dfd&quot;,</span> <span class="pre">&quot;side&quot;:</span> <span class="pre">&quot;target&quot;,</span> <span class="pre">&quot;source_path&quot;:</span> <span class="pre">&quot;/projects&quot;,</span> <span class="pre">&quot;state&quot;:</span> <span class="pre">&quot;ESTABLISHED&quot;,</span> <span class="pre">&quot;target_path&quot;:</span> <span class="pre">&quot;/replicas/projects&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unreplayable"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-edge-rebuild-preflight-module-return-unreplayable"><strong>unreplayable</strong></p>
+<a class="ansibleOptionLink" href="#return-unreplayable" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>State the replay cannot create again, each with its <code class="docutils literal notranslate"><span class="pre">area</span></code> and a <code class="docutils literal notranslate"><span class="pre">detail</span></code>, acknowledged or not.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success, and when the module fails on drift, unacknowledged unreplayable state, the tenant 1 pass or the management network</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;area&quot;:</span> <span class="pre">&quot;access_tokens&quot;,</span> <span class="pre">&quot;detail&quot;:</span> <span class="pre">&quot;2</span> <span class="pre">access</span> <span class="pre">tokens&quot;}]</span></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edge_cache_route_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.edge_cache_route module – Choose how to bring a Qumulo edge’s cache to a target size" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="encryption_key_rotation_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.encryption_key_rotation module – Rotate a Qumulo cluster’s at-rest encryption key once it is older than a given age" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

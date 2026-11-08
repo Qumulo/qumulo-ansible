@@ -1,0 +1,611 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fail over to a replica, and fail back &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Upgrade a fleet" href="upgrade.html" />
+    <link rel="prev" title="Restore a rebuilt edge’s data from its replica" href="restore-replica.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Fail over to a replica, and fail back</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-a-disaster">Before a disaster</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fail-over-with-the-source-down">Fail over with the source down</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resync-once-the-source-is-back">Resync once the source is back</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#if-the-reconnect-finds-writes">If the reconnect finds writes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fail-back">Fail back</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#if-the-source-is-running-a-job">If the source is running a job</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-baseline-refuses-the-relationship-while-it-runs-reversed">The baseline refuses the relationship while it runs reversed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#discard-the-failover-s-writes-instead">Discard the failover’s writes instead</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#if-the-target-is-lost-while-the-relationship-runs-reversed">If the target is lost while the relationship runs reversed</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-left">What is left</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Fail over to a replica, and fail back</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="fail-over-to-a-replica-and-fail-back">
+<h1>Fail over to a replica, and fail back<a class="headerlink" href="#fail-over-to-a-replica-and-fail-back" title="Link to this heading"></a></h1>
+<p>This page makes a replica writable when its source cluster is lost, brings the source back as the replica’s copy, and
+returns the data to the source.
+When you finish, clients write to the source again and the target replicates it, as the inventory declares.
+The variants cover a source that is still running a job, writes the role finds and refuses to discard, discarding the
+failover’s writes on purpose, and a target lost while the relationship runs the other way.
+For why the role works one step at a time, and why it asks for two kinds of consent, see
+<a class="reference internal" href="../explanation/replication.html#failing-over"><span class="std std-ref">Replication</span></a>.</p>
+<p>The page uses <code class="docutils literal notranslate"><span class="pre">edge01</span></code> for the source, <code class="docutils literal notranslate"><span class="pre">dr01</span></code> for the target, and one relationship from <code class="docutils literal notranslate"><span class="pre">edge01:/projects</span></code> to
+<code class="docutils literal notranslate"><span class="pre">dr01:/replicas/edge01-projects</span></code>.
+The role is <a class="reference internal" href="../collections/qumulo/cluster/replication_failover_role.html"><span class="std std-doc">replication_failover</span></a>, and
+<a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/replication_failover.yml"><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></a> runs it for one source host.
+A run does one of three actions, named by <code class="docutils literal notranslate"><span class="pre">replication_failover_action</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Action</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failover</span></code></p></td>
+<td><p>Makes the target’s copy writable, from its last recovery point. It sends nothing to the source, so it works with the source gone.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resync</span></code></p></td>
+<td><p>Turns the relationship around, so the target replicates the failover’s writes to the source while clients still use the target.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failback</span></code></p></td>
+<td><p>Makes the source writable again, turns the relationship back and reconnects the target, so the source is the writable copy and the target its replica. It runs the resync’s steps first when the relationship has not been resynced.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Moving clients between the clusters is yours: the role changes no DNS name, mount, share or export.</p>
+<section id="before-a-disaster">
+<h2>Before a disaster<a class="headerlink" href="#before-a-disaster" title="Link to this heading"></a></h2>
+<p>Do this while both clusters work.</p>
+<ul>
+<li><p>Declare the relationship on the source host, as <a class="reference internal" href="replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another
+cluster</span></a> shows, and let the baseline make it.
+The role acts only on a <code class="docutils literal notranslate"><span class="pre">present</span></code> entry of the source host’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>.</p></li>
+<li><p>Give both hosts a <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.
+The role finds the relationship’s records by the two UUIDs and the two paths.</p></li>
+<li><p>Give both hosts a <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> that is an IP address, not a name, for example <code class="docutils literal notranslate"><span class="pre">203.0.113.10</span></code> for
+<code class="docutils literal notranslate"><span class="pre">edge01</span></code> and <code class="docutils literal notranslate"><span class="pre">203.0.113.40</span></code> for <code class="docutils literal notranslate"><span class="pre">dr01</span></code>.
+A failover alone needs neither.
+A resync needs the source’s address, and its reverse is sent there.
+A failback needs the target’s address, and the source’s too when it runs the resync’s steps first.
+A run that needs an address it lacks stops before it writes anything.</p></li>
+<li><p>Check that the tenant serving each replication address has <code class="docutils literal notranslate"><span class="pre">replication_enabled</span></code>.
+The role applies the check the baseline applies at step 21 to each cluster a reverse makes the target, before its
+first write (<a class="reference internal" href="../reference/troubleshooting.html#the-replication-address"><span class="std std-ref">The replication address</span></a>).</p></li>
+<li><p>Keep <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s connection variables in the inventory even while it is down.
+The play reads <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s connection variables, and a failover sends <code class="docutils literal notranslate"><span class="pre">edge01</span></code> only reads and logins.</p></li>
+<li><p>Use an account on both clusters that can make a replication target writable, reverse and reconnect a relationship,
+create and delete a snapshot of the target directory and read the differences between snapshots, since the
+reconnect compares the directory through a snapshot.
+A resync or a failback also reads each new target’s tenants, once in the run and not once for each relationship, which needs
+<code class="docutils literal notranslate"><span class="pre">PRIVILEGE_TENANT_READ</span></code>, and the network document of a target with two or more tenants, which needs
+<code class="docutils literal notranslate"><span class="pre">PRIVILEGE_NETWORK_READ</span></code>.</p></li>
+<li><p>Finish a restore before a resync or a failback.
+When you rebuilt <code class="docutils literal notranslate"><span class="pre">edge01</span></code> and its restore has not ended, its record is in
+<code class="docutils literal notranslate"><span class="pre">&lt;replication_failover_artifact_dir&gt;/edge01/restore/</span></code>, a directory that defaults to the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role’s
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>.
+A resync or a failback refuses a relationship that has one, naming <code class="docutils literal notranslate"><span class="pre">playbooks/replication_restore.yml</span></code>, which
+finishes it (<a class="reference internal" href="restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>).
+When you reconnected the relationship by hand instead,
+<a class="reference internal" href="restore-replica.html#find-and-clear-restore-records-and-locks"><span class="std std-ref">remove the record</span></a>.
+A failover notes the record and goes on
+(<a class="reference internal" href="../explanation/replication.html#a-restore-under-way"><span class="std std-ref">why</span></a>).</p></li>
+<li><p>Practise with a check run, which is the dry run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_failover<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_action</span><span class="o">=</span>failover<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"replication_failover_relationships": ["dr01:/replicas/edge01-projects"]}'</span>
+</pre></div>
+</div>
+<p>Each name is <code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;</span></code>, compared without a trailing slash.
+The run reads both clusters, prints each relationship’s state and every step left, and writes nothing.
+It needs no consent and prints the refusals a real run would make.
+The play runs one source host at a time and stops when <code class="docutils literal notranslate"><span class="pre">-l</span></code> leaves more than one.
+A check run of <code class="docutils literal notranslate"><span class="pre">failover</span></code> on a healthy relationship prints these lines, which the play shows as a list:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dr01:/replicas/edge01-projects: replicating, recovery point 2026-11-08T06:26:34.190479565Z
+dr01: make /replicas/edge01-projects writable. It goes back to the recovery point 2026-11-08T06:26:34.190479565Z; writes on edge01 after it stay behind on edge01
+</pre></div>
+</div>
+<p>Run it again for <code class="docutils literal notranslate"><span class="pre">resync</span></code> and <code class="docutils literal notranslate"><span class="pre">failback</span></code> to read their steps.
+A check run cannot compare a directory with its recovery point, so the lines of a reconnect say that the real run
+compares and stops when anything was written there since.
+The line of a reconnect to a host named in <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code> says instead that it does not
+compare first.</p>
+</li>
+</ul>
+</section>
+<section id="fail-over-with-the-source-down">
+<h2>Fail over with the source down<a class="headerlink" href="#fail-over-with-the-source-down" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Run the check run above.
+When <code class="docutils literal notranslate"><span class="pre">edge01</span></code> does not answer, the run waits for it once, up to <code class="docutils literal notranslate"><span class="pre">replication_failover_source_timeout</span></code> seconds
+(default 30), and then plans from <code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s record alone.
+The plan adds a line such as <code class="docutils literal notranslate"><span class="pre">edge01</span> <span class="pre">did</span> <span class="pre">not</span> <span class="pre">answer</span> <span class="pre">(...);</span> <span class="pre">the</span> <span class="pre">plan</span> <span class="pre">goes</span> <span class="pre">on</span> <span class="pre">from</span> <span class="pre">dr01's</span> <span class="pre">record</span> <span class="pre">alone</span></code>.
+Read the recovery point it names: the copy on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> starts from it, and whatever clients wrote on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> after it
+stays behind there.</p></li>
+<li><p>Run it for real, with the consent:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_failover<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_action</span><span class="o">=</span>failover<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"replication_failover_relationships": ["dr01:/replicas/edge01-projects"]}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_allow_data_loss</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_data_loss=true</span></code>, a real run prints the plan and fails before it writes anything.
+Pass the consent with <code class="docutils literal notranslate"><span class="pre">-e</span></code>: the role ignores a value in the inventory or a play’s <code class="docutils literal notranslate"><span class="pre">vars</span></code>, so the next run, which may
+hold a relationship you never read, has to ask again.
+The run makes <code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s copy writable and waits until its record reads DISCONNECTED, then prints this line:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dr01:/replicas/edge01-projects: replicating to failed over, steps make_writable_target. edge01 did not answer (...); the plan goes on from dr01's record alone
+</pre></div>
+</div>
+<p>When <code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s record shows a job that was running when <code class="docutils literal notranslate"><span class="pre">edge01</span></code> stopped, the line also says that the failover
+discards its partial changes.
+The role does not refuse for that job when the source does not answer
+(<a class="reference internal" href="../explanation/replication.html#why-a-failover-goes-on-without-the-source"><span class="std std-ref">why</span></a>, QUIRK-125).</p>
+</li>
+<li><p>Move clients to <code class="docutils literal notranslate"><span class="pre">dr01:/replicas/edge01-projects</span></code>.
+Create the share or export there, point DNS at it, or remount, as your site does.</p></li>
+<li><p>Run the same command again.
+It reads the relationship as failed over, sends nothing, needs no consent and reports it unchanged.</p></li>
+</ol>
+<p>A source that answers with a job running is a different case: see
+<a class="reference internal" href="#if-the-source-is-running-a-job">If the source is running a job</a>.</p>
+</section>
+<section id="resync-once-the-source-is-back">
+<h2>Resync once the source is back<a class="headerlink" href="#resync-once-the-source-is-back" title="Link to this heading"></a></h2>
+<p>Run this when <code class="docutils literal notranslate"><span class="pre">edge01</span></code> is up again and reachable.
+Clients stay on <code class="docutils literal notranslate"><span class="pre">dr01</span></code>.</p>
+<ol class="arabic">
+<li><p>Preview the run with <code class="docutils literal notranslate"><span class="pre">replication_failover_action=resync</span></code> and <code class="docutils literal notranslate"><span class="pre">--check</span></code>.
+The plan lists the steps left:
+a wait until <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s record reads DISCONNECTED, if it does not yet;
+the reverse on <code class="docutils literal notranslate"><span class="pre">dr01</span></code>, toward <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s replication address, which moves records and changes no data;
+when the relationship declares <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code>, turning it on again in <code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s new source record, since
+the reverse resets it;
+and the reconnect on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, which sends <code class="docutils literal notranslate"><span class="pre">/projects</span></code> back to the recovery point and makes it read-only.
+Stop the writes on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> first: the reconnect compares <code class="docutils literal notranslate"><span class="pre">/projects</span></code> through a snapshot taken a few requests before
+it, and a write made between the two is discarded without being compared
+(<a class="reference internal" href="../explanation/replication.html#why-a-reconnect-compares-and-why-the-consent-names-a-host"><span class="std std-ref">why</span></a>).</p></li>
+<li><p>Run it with the consent:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_failover<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_action</span><span class="o">=</span>resync<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"replication_failover_relationships": ["dr01:/replicas/edge01-projects"]}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_allow_data_loss</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>The consent accepts that <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s directory becomes read-only under its clients.
+The run ends when both records read ESTABLISHED, within <code class="docutils literal notranslate"><span class="pre">replication_failover_wait_timeout</span></code> seconds for each wait
+(default 1800).
+It does not wait for the first job: <code class="docutils literal notranslate"><span class="pre">dr01</span></code> then replicates the writes made during the failover to <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, which
+takes as long as the data takes.
+The failback waits for that copy.</p>
+</li>
+<li><p>When the reconnect refuses, because it found writes on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, see
+<a class="reference internal" href="#if-the-reconnect-finds-writes">If the reconnect finds writes</a>.</p></li>
+</ol>
+<p>You can stay in this state as long as you need.
+<code class="docutils literal notranslate"><span class="pre">dr01</span></code> serves clients, <code class="docutils literal notranslate"><span class="pre">edge01</span></code> holds a read-only copy of what they wrote, and a second run changes nothing.
+While the relationship runs this way, <a class="reference internal" href="#the-baseline-refuses-the-relationship-while-it-runs-reversed">the baseline refuses it</a>.</p>
+<section id="if-the-reconnect-finds-writes">
+<h3>If the reconnect finds writes<a class="headerlink" href="#if-the-reconnect-finds-writes" title="Link to this heading"></a></h3>
+<p>A reconnect sends its directory back to the recovery point, which discards whatever was written there since.
+Before it sends one, the role compares the directory with the recovery point and stops when anything changed.
+A resync’s reconnect is on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, so it finds what clients wrote on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> after the recovery point:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dr01:/replicas/edge01-projects: edge01's /projects changed since the recovery point ...: 2 changes (CREATE /projects/new.txt, MODIFY /projects/).
+The reconnect sends /projects back to the recovery point ..., discarding whatever was written there after it.
+To keep them, copy them to dr01 over a protocol first; to discard them, run again with -e '{"replication_failover_allow_newer_writes": ["edge01"]}'.
+</pre></div>
+</div>
+<p>Nothing was changed by the refusal.
+The relationship is turned around and both records read DISCONNECTED, and the next run resumes at the reconnect.</p>
+<ul>
+<li><p>To keep the writes, copy them from <code class="docutils literal notranslate"><span class="pre">edge01:/projects</span></code> to <code class="docutils literal notranslate"><span class="pre">dr01:/replicas/edge01-projects</span></code> over SMB or NFS, then run
+again with <code class="docutils literal notranslate"><span class="pre">edge01</span></code> named as below.
+The comparison still finds the files on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, and naming the host lets the reconnect discard the copies there.</p></li>
+<li><p>To discard them, run the resync again with the host named:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_failover<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_action</span><span class="o">=</span>resync<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"replication_failover_relationships": ["dr01:/replicas/edge01-projects"]}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_allow_data_loss</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"replication_failover_allow_newer_writes": ["edge01"]}'</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code> names the inventory hosts whose directory a reconnect may discard writes
+from.
+It lifts the refusal only for a reconnect sent to a named host, and, like the other consents, it belongs on the command
+line of the one run: the role ignores it in the inventory.
+<code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">replication_failover_allow_newer_writes=edge01</span></code> works too, and a list of names is split at commas, as in
+<code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">replication_failover_allow_newer_writes=edge01,edge02</span></code>.
+A name matches a whole host name and never part of another.</p>
+</section>
+</section>
+<section id="fail-back">
+<h2>Fail back<a class="headerlink" href="#fail-back" title="Link to this heading"></a></h2>
+<p>Run this after the resync, or let the failback copy the writes first.
+It needs the writes on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> to stop, which the role cannot do.</p>
+<ol class="arabic">
+<li><p>Stop the writes on <code class="docutils literal notranslate"><span class="pre">dr01</span></code>: take clients off <code class="docutils literal notranslate"><span class="pre">dr01:/replicas/edge01-projects</span></code>, or make the share or export
+read-only.
+A write made after the wait below is found by the failback’s reconnect and refused, and it costs a second run.
+A write made in the few requests between the reconnect’s comparison and the reconnect is discarded without being
+compared (<a class="reference internal" href="../explanation/replication.html#why-a-reconnect-compares-and-why-the-consent-names-a-host"><span class="std std-ref">why</span></a>).</p></li>
+<li><p>Preview the run with <code class="docutils literal notranslate"><span class="pre">replication_failover_action=failback</span></code> and <code class="docutils literal notranslate"><span class="pre">--check</span></code>.
+A relationship that is still failed over lists the resync’s steps first, then the failback’s: a wait for a current
+recovery point, the make-writable on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, the reverse on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> toward <code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s replication address, the
+reconnect on <code class="docutils literal notranslate"><span class="pre">dr01</span></code>, and applying the declared settings where <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s record differs.</p></li>
+<li><p>Run it with the consent:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_failover<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_action</span><span class="o">=</span>failback<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"replication_failover_relationships": ["dr01:/replicas/edge01-projects"]}'</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">replication_failover_allow_data_loss</span><span class="o">=</span><span class="nb">true</span>
+</pre></div>
+</div>
+<p>The consent accepts that <code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s directory becomes read-only under its clients, and that <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s copy starts
+from the last recovery point.</p>
+<p>The run first waits for <code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s recovery point to move twice
+(<a class="reference internal" href="../explanation/replication.html#why-the-failback-waits-for-two-moves-of-the-recovery-point"><span class="std std-ref">why</span></a>).
+On an idle relationship that takes about two minutes.
+A failback of several relationships brings each to this wait, then waits for all of them together.
+The relationships on one target host are polled together, the target hosts one after another, and the wait stops
+<code class="docutils literal notranslate"><span class="pre">replication_failover_sync_timeout</span></code> seconds after the waits begin (default 86400).
+A job that reports an error does not end it.
+A wait that runs out names each lagging relationship’s job state and last error and sends nothing, and the next run waits
+again.</p>
+<p>Then the run makes <code class="docutils literal notranslate"><span class="pre">edge01</span></code> writable, reverses the relationship toward <code class="docutils literal notranslate"><span class="pre">dr01</span></code>, reconnects <code class="docutils literal notranslate"><span class="pre">dr01</span></code> and waits until
+both records read ESTABLISHED.
+For a relationship that was already resynced it ends with a line such as
+<code class="docutils literal notranslate"><span class="pre">dr01:/replicas/edge01-projects:</span> <span class="pre">resynced</span> <span class="pre">to</span> <span class="pre">replicating,</span> <span class="pre">steps</span> <span class="pre">make_writable_source,</span> <span class="pre">reverse_to_target,</span> <span class="pre">reconnect_target</span></code>.
+The last step, <code class="docutils literal notranslate"><span class="pre">apply_settings</span></code>, appears only when a reverse reset a declared setting on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>.</p>
+</li>
+<li><p>Move clients back to <code class="docutils literal notranslate"><span class="pre">edge01:/projects</span></code>.</p></li>
+</ol>
+<p>A run that stops anywhere, by a timeout or a killed job, resumes from what the records show: run the same command.
+A run killed after the reverse on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, or after the make-writable on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, makes the rerun repeat part of the
+resync, at the cost of a sync, and lose nothing
+(<a class="reference internal" href="../explanation/replication.html#two-states-that-read-the-same"><span class="std std-ref">why</span></a>).</p>
+<p>When the reconnect on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> finds writes, a client wrote on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> after the wait:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>dr01:/replicas/edge01-projects: dr01's /replicas/edge01-projects changed since the recovery point ...: 1 changes (CREATE /replicas/edge01-projects/late.txt).
+The reconnect sends /replicas/edge01-projects back to the recovery point ..., discarding whatever was written there after it.
+Run the failback again, which resyncs them to edge01 first.
+</pre></div>
+</div>
+<p>Make sure the writes on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> have stopped, then run the failback again.
+It reads the relationship as failed over, resyncs the late writes to <code class="docutils literal notranslate"><span class="pre">edge01</span></code> first, waits for a current recovery point
+and finishes.
+Don’t name <code class="docutils literal notranslate"><span class="pre">dr01</span></code> in <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code>, which would make the rerun’s own reconnect on <code class="docutils literal notranslate"><span class="pre">dr01</span></code>
+skip its comparison
+(<a class="reference internal" href="../explanation/replication.html#why-a-reconnect-compares-and-why-the-consent-names-a-host"><span class="std std-ref">why</span></a>).</p>
+</section>
+<section id="if-the-source-is-running-a-job">
+<h2>If the source is running a job<a class="headerlink" href="#if-the-source-is-running-a-job" title="Link to this heading"></a></h2>
+<p>A failover discards the changes of a job that <code class="docutils literal notranslate"><span class="pre">edge01</span></code> is running, since the make-writable goes back to the last
+recovery point.
+When <code class="docutils literal notranslate"><span class="pre">edge01</span></code> answers and its record shows a job running, the role refuses before it writes anything:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>edge01 is running a job of dr01:/replicas/edge01-projects, started ...; a failover now discards the changes it carries. Run again once the job ends; with writes stopped on the source, the next job carries the rest. ...
+</pre></div>
+</div>
+<p>Wait for the job and run again.
+If the job makes no progress, as when its target cannot be reached, add
+<code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">replication_failover_allow_partial_job=true</span></code>: the failover then goes on and notes the job it discards.
+The writes that job carried stay on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, and the resync’s reconnect there finds them, as
+<a class="reference internal" href="#if-the-reconnect-finds-writes">If the reconnect finds writes</a> says.
+A relationship whose first job has not finished has no recovery point, and the role refuses it at once: there is
+nothing to fail over to.</p>
+</section>
+<section id="the-baseline-refuses-the-relationship-while-it-runs-reversed">
+<h2>The baseline refuses the relationship while it runs reversed<a class="headerlink" href="#the-baseline-refuses-the-relationship-while-it-runs-reversed" title="Link to this heading"></a></h2>
+<p>From the resync’s reverse to the failback’s last reconnect, the relationship runs from <code class="docutils literal notranslate"><span class="pre">dr01</span></code> to <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, and the
+inventory declares it the other way.
+The baseline’s step 21 meets rows O8 and O9 of
+<a class="reference internal" href="../explanation/replication.html#the-overwrite-table"><span class="std std-ref">the overwrite table</span></a> and refuses, naming the role’s failback as the
+way back.
+Don’t run the baseline on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> or <code class="docutils literal notranslate"><span class="pre">dr01</span></code> until the failback, or expect step 21 to fail for this entry.
+Don’t set the entry to <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> meanwhile, which has the baseline delete the relationship’s records, and don’t
+remove the entry, which leaves the role nothing to act on.
+A relationship that is only failed over, not yet resynced, is left alone with a warning.</p>
+</section>
+<section id="discard-the-failover-s-writes-instead">
+<h2>Discard the failover’s writes instead<a class="headerlink" href="#discard-the-failover-s-writes-instead" title="Link to this heading"></a></h2>
+<p>A disaster-recovery test, or a failover that wrote nothing worth keeping, needs no copy back.
+The role does not do this.
+Reconnect <code class="docutils literal notranslate"><span class="pre">dr01</span></code> in the declared direction by hand with
+<a class="reference internal" href="../collections/qumulo/cluster/replication_reverse_module.html"><span class="std std-doc">replication_reverse</span></a>, once the source is back and the relationship reads
+as failed over, DISCONNECTED on both clusters.
+Run it against <code class="docutils literal notranslate"><span class="pre">dr01</span></code> and give it the relationship’s id, read from <code class="docutils literal notranslate"><span class="pre">dr01</span></code>.
+The tasks on this page that read <code class="docutils literal notranslate"><span class="pre">cluster_baseline_connections</span></code> come after the play includes the baseline role’s
+<code class="docutils literal notranslate"><span class="pre">connections.yml</span></code>, as the playbook does:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Record how to connect to edge01 and dr01</span>
+<span class="w">  </span><span class="nt">ansible.builtin.include_role</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.cluster_baseline</span>
+<span class="w">    </span><span class="nt">tasks_from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">connections.yml</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cluster_baseline_connection_hosts</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">edge01</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dr01</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>The tasks:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find the failed-over relationship on dr01</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">target</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">cluster_baseline_connections['dr01']</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01_records</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reconnect dr01 to edge01, discarding what clients wrote on dr01</span>
+<span class="w">  </span><span class="c1"># Without allow_data_loss the module compares /replicas/edge01-projects with the recovery point and fails, naming</span>
+<span class="w">  </span><span class="c1"># the changes, when it would discard any. With it, the reconnect is sent without comparing.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_reverse</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">relationship_id</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">(dr01_records.replication.target_relationships</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">selectattr('target_path',</span><span class="nv"> </span><span class="s">'equalto',</span><span class="nv"> </span><span class="s">'/replicas/edge01-projects')</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">first).id</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">    </span><span class="nt">verb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">reconnect</span>
+<span class="w">    </span><span class="nt">allow_data_loss</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">cluster_baseline_connections['dr01']</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p>Run the reconnect without <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> first to read what it would discard.
+The directory on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> becomes read-only and goes back to the recovery point, and the writes made during the failover
+are gone.
+Wait until both records read ESTABLISHED, as <a class="reference internal" href="replicate-a-directory.html#verify"><span class="std std-ref">Verify</span></a> reads them.</p>
+</section>
+<section id="if-the-target-is-lost-while-the-relationship-runs-reversed">
+<h2>If the target is lost while the relationship runs reversed<a class="headerlink" href="#if-the-target-is-lost-while-the-relationship-runs-reversed" title="Link to this heading"></a></h2>
+<p>After a resync, <code class="docutils literal notranslate"><span class="pre">edge01</span></code> is the target and holds the only other copy of the failover’s writes.
+When <code class="docutils literal notranslate"><span class="pre">dr01</span></code> is lost then, make <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s copy writable by hand, remove its record, and declare the relationship again.</p>
+<ol class="arabic">
+<li><p>Make <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s directory writable from its last recovery point, with <code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> against <code class="docutils literal notranslate"><span class="pre">edge01</span></code>.
+These tasks read <code class="docutils literal notranslate"><span class="pre">cluster_baseline_connections</span></code> too, so include <code class="docutils literal notranslate"><span class="pre">connections.yml</span></code> first as above:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Make edge01's copy of the reversed relationship writable</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_reverse</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">relationship_id</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">reversed_relationship_id</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">    </span><span class="nt">verb</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">make_writable</span>
+<span class="w">    </span><span class="nt">allow_data_loss</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">cluster_baseline_connections['edge01']</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">reversed_relationship_id</span></code> is the id of <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s target record, which <code class="docutils literal notranslate"><span class="pre">replication_info</span></code> lists with
+<code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[target]</span></code>.</p>
+</li>
+<li><p>Delete that record on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> with <code class="docutils literal notranslate"><span class="pre">replication_target</span></code>, since no source is left to tell it:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove edge01's record of the relationship from the lost dr01</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_target</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['dr01'].qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">cluster_baseline_connections['edge01']</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Declare the relationship again to the new <code class="docutils literal notranslate"><span class="pre">dr01</span></code>, as <a class="reference internal" href="replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another
+cluster</span></a> shows.
+Put the new cluster’s UUID in the inventory.</p></li>
+</ol>
+</section>
+<section id="what-is-left">
+<h2>What is left<a class="headerlink" href="#what-is-left" title="Link to this heading"></a></h2>
+<p>Each make-writable and each reverse leaves replication snapshots that nothing owns and nothing expires, on both
+clusters, and the role names none of them (G-REPL-SNAPSHOT in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).
+List them with <a class="reference internal" href="../collections/qumulo/cluster/snapshot_info_module.html"><span class="std std-doc">snapshot_info</span></a> and delete the ones you no longer want once the
+failback is done.
+The reconnect’s comparison takes one snapshot of its own and deletes it, and sets it to expire a day later should the
+run stop first.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../explanation/replication.html#failing-over"><span class="std std-ref">Replication</span></a>: why the role works as it does.</p></li>
+<li><p><a class="reference internal" href="replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a>: declare the relationship the role acts on.</p></li>
+<li><p><a class="reference internal" href="restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>: the way back after the source was formed again,
+not lost.</p></li>
+<li><p><a class="reference internal" href="../reference/playbooks-and-roles.html#replication-failover"><span class="std std-ref">Playbooks and roles</span></a> and
+<a class="reference internal" href="../reference/variables.html#replication-failover-variables"><span class="std std-ref">Inventory variables</span></a>: the role’s variables and facts.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html#failing-over"><span class="std std-ref">Troubleshooting</span></a>: each message the role stops with.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="restore-replica.html" class="btn btn-neutral float-left" title="Restore a rebuilt edge’s data from its replica" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="upgrade.html" class="btn btn-neutral float-right" title="Upgrade a fleet" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The qumulo.cluster documentation &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=7f41d439"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Your first cluster" href="tutorials/first-cluster.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="#" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">The qumulo.cluster documentation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="the-qumulo-cluster-documentation">
+<h1>The qumulo.cluster documentation<a class="headerlink" href="#the-qumulo-cluster-documentation" title="Link to this heading"></a></h1>
+<p>The pages are grouped by what you want from them:</p>
+<ul class="simple">
+<li><p>To learn the collection by using it, start with a tutorial.</p></li>
+<li><p>To get one task done, find its how-to guide.</p></li>
+<li><p>To look up a variable, a module option or a message, go to the reference.</p></li>
+<li><p>To understand why the collection works the way it does, read an explanation.</p></li>
+</ul>
+<section id="tutorials">
+<h2>Tutorials<a class="headerlink" href="#tutorials" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="tutorials/first-cluster.html"><span class="std std-doc">Your first cluster</span></a>: adopt a cluster you already run and pass the zero-diff gate.</p></li>
+<li><p><a class="reference internal" href="tutorials/first-fleet.html"><span class="std std-doc">Your first fleet</span></a>: adopt a hub and an edge you already run into one inventory.</p></li>
+</ul>
+</section>
+<section id="how-to-guides">
+<h2>How-to guides<a class="headerlink" href="#how-to-guides" title="Link to this heading"></a></h2>
+<p>Getting started:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="how-to/install-the-collection.html"><span class="std std-doc">Install and pin the collection</span></a>: install it on a controller and pin the version.</p></li>
+<li><p><a class="reference internal" href="how-to/set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>: lay out hubs and edges, and connect to each.</p></li>
+<li><p><a class="reference internal" href="how-to/store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>: encrypt passwords with Ansible Vault, or look them up.</p></li>
+<li><p><a class="reference internal" href="how-to/adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a>: capture a formed cluster’s settings into <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>.</p></li>
+<li><p><a class="reference internal" href="how-to/terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a>: read hosts from the <code class="docutils literal notranslate"><span class="pre">terraform</span></code> plugin.</p></li>
+<li><p><a class="reference internal" href="how-to/respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a>: what to read, and what lifts each kind of refusal.</p></li>
+</ul>
+<p>Configuring clusters:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="how-to/inventory-recipes.html"><span class="std std-doc">Declare common settings in the inventory</span></a>: network, DNS, roles, users, directories, ACLs,
+quotas, FTP, cluster settings and audit logs.</p></li>
+<li><p><a class="reference internal" href="how-to/tenants.html"><span class="std std-doc">Manage tenants</span></a>: declare tenants, bind networks to them, give them settings, shares and exports,
+rename and delete them.</p></li>
+<li><p><a class="reference internal" href="how-to/active-directory.html"><span class="std std-doc">Join a cluster to Active Directory</span></a>: the join, user mappings, home directories and SAML.</p></li>
+<li><p><a class="reference internal" href="how-to/manage-certificates.html"><span class="std std-doc">Manage the cluster’s TLS certificate</span></a>: replace the factory certificate, renew it, and
+set the cipher suites.</p></li>
+<li><p><a class="reference internal" href="how-to/nfs-kerberos.html"><span class="std std-doc">Serve NFS with Kerberos from a standalone KDC</span></a>: install the KDC’s keytab, turn on <code class="docutils literal notranslate"><span class="pre">krb5</span></code>, <code class="docutils literal notranslate"><span class="pre">krb5i</span></code> or
+<code class="docutils literal notranslate"><span class="pre">krb5p</span></code>, and require one on an export.</p></li>
+<li><p><a class="reference internal" href="how-to/s3.html"><span class="std std-doc">Serve a directory as an S3 bucket</span></a>: S3 settings, a bucket, its policy and an access key.</p></li>
+<li><p><a class="reference internal" href="how-to/nexus.html"><span class="std std-doc">Register a cluster with Nexus</span></a>: monitoring, the Nexus connection and registration, and retiring a
+UUID.</p></li>
+<li><p><a class="reference internal" href="how-to/look-up-identities-and-paths.html"><span class="std std-doc">Look up identities, DNS names and paths</span></a>: check trustees before an ACL or a
+mapping names them, read an Active Directory user’s SID, NFS uid and groups, check a name with the cluster’s resolver
+before an export names it, and turn a path into a file id and back.</p></li>
+</ul>
+<p>Edges, hubs and replication:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="how-to/pair-edge-with-hub.html"><span class="std std-doc">Pair an edge with its hub through a portal</span></a>: declare, apply, check and remove a portal.</p></li>
+<li><p><a class="reference internal" href="how-to/replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a>: declare a relationship and have the
+baseline make it.</p></li>
+<li><p><a class="reference internal" href="how-to/licensing.html"><span class="std std-doc">License an edge</span></a>: from no license to a license the cluster holds, with its clamp set.</p></li>
+<li><p><a class="reference internal" href="how-to/edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a>: set the clamp, grow it, and shrink by rebuilding.</p></li>
+<li><p><a class="reference internal" href="how-to/clone-edge.html"><span class="std std-doc">Clone an edge’s configuration onto a new edge</span></a>: a fresh edge with an existing edge’s settings.</p></li>
+<li><p><a class="reference internal" href="how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>: drain, form again and replay the inventory.</p></li>
+<li><p><a class="reference internal" href="how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>: bring the data back from the target.</p></li>
+<li><p><a class="reference internal" href="how-to/fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a>: make the target writable when the source is
+lost, copy its writes back, and return to the source.</p></li>
+</ul>
+<p>Upgrades and routine changes:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="how-to/upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a>: bring every cluster to its target release with the upgrade playbook.</p></li>
+<li><p><a class="reference internal" href="how-to/resume-an-upgrade.html"><span class="std std-doc">Recover an upgrade that stopped</span></a>: read the report, lift the cause and run again.</p></li>
+<li><p><a class="reference internal" href="how-to/rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a>: change <code class="docutils literal notranslate"><span class="pre">admin</span></code>’s password and keep the play connected.</p></li>
+<li><p><a class="reference internal" href="how-to/rotate-access-token.html"><span class="std std-doc">Rotate the access token a host connects with</span></a>: replace the token, keep the play connected
+and put the new bearer in the vault.</p></li>
+<li><p><a class="reference internal" href="how-to/rotate-encryption-key.html"><span class="std std-doc">Rotate the encryption key</span></a>: rotate the master key for data at rest.</p></li>
+<li><p><a class="reference internal" href="how-to/snapshot-before-a-change.html"><span class="std std-doc">Take a snapshot before a change</span></a>: a snapshot you can find again and lock.</p></li>
+<li><p><a class="reference internal" href="how-to/manage-lock-keys.html"><span class="std std-doc">Manage the keys that lock snapshots</span></a>: register, inspect, replace, disable and remove a
+key in the file system key store, and lock a snapshot policy’s snapshots with one.</p></li>
+<li><p><a class="reference internal" href="how-to/pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a>: pin the collection, pass secrets, and split check from apply.</p></li>
+</ul>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="reference/README.html"><span class="std std-doc">Reference</span></a>: <code class="docutils literal notranslate"><span class="pre">ansible-doc</span></code>, the return-value rules, and the pages below.</p></li>
+<li><p><a class="reference internal" href="reference/variables.html"><span class="std std-doc">Inventory variables</span></a>: the groups, the connection, each area’s variable and the run variables.</p></li>
+<li><p><a class="reference internal" href="reference/playbooks-and-roles.html"><span class="std std-doc">Playbooks and roles</span></a>: what each playbook and role does, reads and writes.</p></li>
+<li><p><a class="reference internal" href="reference/terraform-inventory.html"><span class="std std-doc">The Terraform inventory plugin</span></a>: the output’s fields and the hosts the plugin adds.</p></li>
+<li><p><a class="reference internal" href="reference/capture-and-clone.html"><span class="std std-doc">What capture and clone read and write</span></a>: the areas, files and refusals of each.</p></li>
+<li><p><a class="reference internal" href="reference/upgrade.html"><span class="std std-doc">The upgrade: variables, steps and files</span></a>: the upgrade playbook’s inputs, steps, report and
+records.</p></li>
+<li><p><a class="reference internal" href="reference/tested-versions.html"><span class="std std-doc">Tested Qumulo Core versions</span></a>: what each column of the tested-versions table means, and
+what the test lanes cannot show.</p></li>
+<li><p><a class="reference internal" href="reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a>: the messages a run can stop with, with the cause and the fix.</p></li>
+<li><p><a class="reference internal" href="reference/gaps.html"><span class="std std-doc">Gap register</span></a>: what the REST API does not let the collection make idempotent, and what each module
+does about it.</p></li>
+<li><p><a class="reference internal" href="reference/quirks.html"><span class="std std-doc">Quirk register</span></a>: server behaviour the collection works around.</p></li>
+</ul>
+</section>
+<section id="explanation">
+<h2>Explanation<a class="headerlink" href="#explanation" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="explanation/architecture.html"><span class="std std-doc">Architecture of the collection</span></a>: the parts, why the modules run on the controller, and
+the order of areas.</p></li>
+<li><p><a class="reference internal" href="explanation/authentication.html"><span class="std std-doc">Authentication, trust and secrets</span></a>: passwords and tokens, the identity guard, TLS and
+secrets.</p></li>
+<li><p><a class="reference internal" href="explanation/state-management.html"><span class="std std-doc">State management</span></a>: unset means unmanaged, capture, the zero-diff gate, check and
+diff, keys not ids, and maybe applied.</p></li>
+<li><p><a class="reference internal" href="explanation/refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a>: why a module refuses instead of guessing.</p></li>
+<li><p><a class="reference internal" href="explanation/edges-and-portals.html"><span class="std std-doc">Edges, hubs and portals</span></a>: the hub and spoke model, spoke roots and portal
+addresses.</p></li>
+<li><p><a class="reference internal" href="explanation/licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a>: a license per UUID, the two passes, the clamp and
+Nexus registration.</p></li>
+<li><p><a class="reference internal" href="explanation/rebuilds.html"><span class="std std-doc">Rebuilds</span></a>: why a rebuild replays the inventory and never repairs the old edge.</p></li>
+<li><p><a class="reference internal" href="explanation/replication.html"><span class="std std-doc">Replication</span></a>: relationships, releases, failing over, failing back and the restore.</p></li>
+<li><p><a class="reference internal" href="explanation/upgrades.html"><span class="std std-doc">How upgrades work</span></a>: hops, the order of commits across portals and replication, reboots and
+maintenance windows.</p></li>
+<li><p><a class="reference internal" href="explanation/terraform-ownership.html"><span class="std std-doc">Terraform ownership</span></a>: how Terraform and the collection share a cluster.</p></li>
+<li><p><a class="reference internal" href="explanation/multitenancy.html"><span class="std std-doc">Tenants and the continuity rule</span></a>: what a tenant partitions, the listener switch at the
+second tenant, and the rule that keeps the play connected.</p></li>
+<li><p><a class="reference internal" href="explanation/identity.html"><span class="std std-doc">Identity and Active Directory</span></a>: trustees, the computer account, mappings, home directories
+and SAML.</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorials/first-cluster.html" class="btn btn-neutral float-right" title="Your first cluster" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

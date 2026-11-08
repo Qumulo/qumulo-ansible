@@ -1,0 +1,539 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pair an edge with its hub through a portal &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Replicate a directory to another cluster" href="replicate-a-directory.html" />
+    <link rel="prev" title="Look up identities, DNS names and paths" href="look-up-identities-and-paths.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Pair an edge with its hub through a portal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#choose-the-addresses">Choose the addresses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#declare-and-apply-the-portal">Declare and apply the portal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pair-a-read-only-portal">Pair a read-only portal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pair-clusters-that-are-not-in-the-inventory">Pair clusters that are not in the inventory</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#remove-a-portal">Remove a portal</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-hub-sees-the-edge-disconnected">The hub sees the edge DISCONNECTED</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remove-only-the-hub-s-record-of-an-edge-that-no-longer-exists">Remove only the hub’s record of an edge that no longer exists</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#what-next">What next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Pair an edge with its hub through a portal</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="pair-an-edge-with-its-hub-through-a-portal">
+<h1>Pair an edge with its hub through a portal<a class="headerlink" href="#pair-an-edge-with-its-hub-through-a-portal" title="Link to this heading"></a></h1>
+<p>Declare a portal from an edge to its hub in the inventory, apply it in the right order, check that both clusters show it,
+and remove it.
+When you finish, the edge links the hub directories you named as roots, and both sides report the portal ACCEPTED and
+ACTIVE.
+A portal is what lets an edge cache a hub’s data (<a class="reference internal" href="../explanation/edges-and-portals.html"><span class="std std-doc">the model</span></a>).</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Put the edge and the hub in the inventory, each with <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, and bring both to a
+state where the baseline runs against them:
+<a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>, or the walk-through in
+<a class="reference internal" href="../tutorials/first-fleet.html"><span class="std std-doc">Your first fleet</span></a>.</p></li>
+<li><p>Check that both clusters run the same Qumulo Core version.
+The <code class="docutils literal notranslate"><span class="pre">portal_pair</span></code> role refuses to pair clusters on different versions.</p></li>
+<li><p>Choose the root pairs.
+Each <code class="docutils literal notranslate"><span class="pre">hub_root</span></code> is a directory on the hub. Step 3 creates it if it doesn’t exist yet.
+Each <code class="docutils literal notranslate"><span class="pre">spoke_root</span></code> is a path that does not exist on the edge, inside a parent that does.
+The portal creates it.</p></li>
+<li><p>Put the hub in the <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code> group and the edge in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>.
+Steps 3 and 4 select them by group, and an edge rebuild finds the hub in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code>.
+The Terraform inventory plugin never puts a host in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code>:
+<a class="reference internal" href="terraform.html#put-a-host-in-qumulo-hubs"><span class="std std-ref">Put a host in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code></span></a>.</p></li>
+<li><p>Have no quota, snapshot policy or S3 bucket declared under a spoke root.
+The cluster refuses quotas and snapshot policies there (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-SPOKE-PATHS</span></a>), and the baseline
+refuses a bucket there, which would serve the hub’s data.
+The baseline fails before it writes anything when it finds one.
+Declare them on local directories on the edge, or on the hub.</p></li>
+</ul>
+</section>
+<section id="choose-the-addresses">
+<h2>Choose the addresses<a class="headerlink" href="#choose-the-addresses" title="Link to this heading"></a></h2>
+<p>Each side of a portal reaches the other at IP addresses that you declare.
+The collection does not read them from the cluster’s network status, and it does not translate them.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Cluster</p></th>
+<th class="head"><p>Address to declare</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Has floating IPs</p></td>
+<td><p>The floating IPs, which the collection recommends.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Bare metal or edge without floating IPs</p></td>
+<td><p>Its node IPs.</p></td>
+</tr>
+<tr class="row-even"><td><p>Multi-AZ CNQ cluster in AWS</p></td>
+<td><p>Its network load balancer’s IPs</p></td>
+</tr>
+<tr class="row-odd"><td><p>(<a class="reference internal" href="../explanation/edges-and-portals.html#addresses-behind-a-load-balancer"><span class="std std-ref">why</span></a>;</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="terraform.html#publish-a-multi-az-cluster-in-aws"><span class="std std-ref">the task</span></a>).</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>Give them as <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>, a list of items with an <code class="docutils literal notranslate"><span class="pre">address</span></code> and an optional <code class="docutils literal notranslate"><span class="pre">port</span></code> (3713 by default).</p></li>
+<li><p>Never use <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> for this, since it may be a name.
+A portal takes IP addresses only.</p></li>
+<li><p>Behind NAT, making the addresses reachable from the other side is your job.
+The collection does nothing about NAT.</p></li>
+<li><p>If you use the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.terraform</span></code> inventory plugin, it sets <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> from the output’s
+<code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code>, or from the addresses its <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code> resolves to, and a <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> value outranks it.
+<a class="reference internal" href="../reference/terraform-inventory.html"><span class="std std-doc">The Terraform inventory plugin</span></a> lists the output’s format, and
+<a class="reference internal" href="terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> shows the task.</p></li>
+</ul>
+<p><a class="reference internal" href="../explanation/edges-and-portals.html#which-address-to-choose"><span class="std std-ref">Why these addresses</span></a>.</p>
+</section>
+<section id="declare-and-apply-the-portal">
+<h2>Declare and apply the portal<a class="headerlink" href="#declare-and-apply-the-portal" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Give the hub its addresses in <code class="docutils literal notranslate"><span class="pre">host_vars/hub01.yml</span></code>.
+List the addresses that every edge pairing with it can reach it at:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/hub01.yml</span>
+<span class="nt">qumulo_portal_hosts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.10</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.11</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.0.12</span>
+</pre></div>
+</div>
+</li>
+<li><p>Declare the portal and the edge’s own address in <code class="docutils literal notranslate"><span class="pre">host_vars/edge01.yml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_portal</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">hub</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hub01</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read_write</span>
+<span class="w">  </span><span class="nt">roots</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">spoke_root</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">      </span><span class="nt">hub_root</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="nt">qumulo_portal_hosts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.20.0.5</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hub</span></code> names an inventory host, and that host needs a <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code> is <code class="docutils literal notranslate"><span class="pre">read_write</span></code> (the default) or <code class="docutils literal notranslate"><span class="pre">read_only</span></code>.</p></li>
+<li><p>Each item of <code class="docutils literal notranslate"><span class="pre">roots</span></code> pairs one <code class="docutils literal notranslate"><span class="pre">spoke_root</span></code> on the edge with one <code class="docutils literal notranslate"><span class="pre">hub_root</span></code> on the hub.</p></li>
+</ul>
+</li>
+<li><p>Bring the hub to its baseline first, so that every <code class="docutils literal notranslate"><span class="pre">hub_root</span></code> exists on it before the edge pairs.
+Check, then apply:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>qumulo_hubs<span class="w"> </span>--check<span class="w"> </span>--diff
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>qumulo_hubs
+</pre></div>
+</div>
+<p>Declare each <code class="docutils literal notranslate"><span class="pre">hub_root</span></code> in the hub’s <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>, so that this run creates it.
+Don’t pair an edge in the same run that creates its <code class="docutils literal notranslate"><span class="pre">hub_root</span></code>
+(<a class="reference internal" href="../explanation/edges-and-portals.html#why-the-hub-goes-first"><span class="std std-ref">why the hub goes first</span></a>).</p>
+</li>
+<li><p>Check and apply the edge:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>qumulo_edges<span class="w"> </span>--check<span class="w"> </span>--diff
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>qumulo_edges
+</pre></div>
+</div>
+<p>Step 16 runs the <a class="reference internal" href="../collections/qumulo/cluster/portal_pair_role.html"><span class="std std-doc">portal_pair</span></a> role from the edge.
+It checks that both clusters run the same Qumulo Core version, proposes the portal and its roots on the edge with
+<code class="docutils literal notranslate"><span class="pre">portal_spoke</span></code>, accepts it and authorizes the roots on the hub with <code class="docutils literal notranslate"><span class="pre">portal_hub</span></code>, and waits until the edge shows the
+portal ACCEPTED and ACTIVE with its roots authorized.
+The check run predicts each side’s change and waits for nothing.
+Accepting the portal makes both clusters unavailable briefly, and the run waits until they serve requests again.</p>
+<p>To pair one edge, give <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">hub01</span></code> and <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">edge01</span></code> instead.</p>
+</li>
+</ol>
+<p>If the edge’s <code class="docutils literal notranslate"><span class="pre">qumulo_portal.hub</span></code> names no inventory host, or a host without a <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, or either side
+lacks <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>, the run fails before anything changes with this message:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>edge01: qumulo_portal.hub must name an inventory host with qumulo_cluster_uuid, and both the spoke and the hub need
+qumulo_portal_hosts, the IP addresses the other side reaches them at
+</pre></div>
+</div>
+<p><a class="reference internal" href="../reference/troubleshooting.html#the-inventory-and-the-cluster-disagree"><span class="std std-ref">Troubleshooting</span></a> lists the other messages.</p>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<p>Run the edge’s baseline again with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code>.
+It reports no change when the inventory and both clusters agree.</p>
+<p>To read each cluster’s own record, run <a class="reference internal" href="../collections/qumulo/cluster/portal_info_module.html"><span class="std std-doc">portal_info</span></a> on both:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># read_portals.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the portals on both sides</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hub01,edge01</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read this cluster's spoke and hub portals</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.portal_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">spokes</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">hubs</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">portals</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show them</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">portals.portals</span>
+</pre></div>
+</div>
+<p>Run it with <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">-i</span> <span class="pre">inventory</span> <span class="pre">read_portals.yml</span></code>.
+The edge lists the portal under <code class="docutils literal notranslate"><span class="pre">spokes</span></code>, and the hub lists it under <code class="docutils literal notranslate"><span class="pre">hubs</span></code>.
+Both entries show <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">ACCEPTED</span></code> and <code class="docutils literal notranslate"><span class="pre">status:</span> <span class="pre">ACTIVE</span></code>, with every root <code class="docutils literal notranslate"><span class="pre">authorized:</span> <span class="pre">true</span></code>.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="pair-a-read-only-portal">
+<h3>Pair a read-only portal<a class="headerlink" href="#pair-a-read-only-portal" title="Link to this heading"></a></h3>
+<p>Set <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">read_only</span></code> in the edge’s <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code>.
+The edge then reads the hub’s data and writes none through the portal.
+A later change of <code class="docutils literal notranslate"><span class="pre">type</span></code> is applied on the hub, and changing <code class="docutils literal notranslate"><span class="pre">read_write</span></code> to <code class="docutils literal notranslate"><span class="pre">read_only</span></code> drains the edge first.
+The change makes both clusters unavailable briefly.</p>
+</section>
+<section id="pair-clusters-that-are-not-in-the-inventory">
+<h3>Pair clusters that are not in the inventory<a class="headerlink" href="#pair-clusters-that-are-not-in-the-inventory" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">portal_pair</span></code> role takes no inventory variables.
+To pair two clusters outside the inventory, run it from a playbook of your own, once per pairing.
+It takes each cluster’s connection options, with <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> set on each, both address lists and the roots:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pair the edge with the hub</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.portal_pair</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">portal_pair_spoke</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01.example.com</span>
+<span class="w">          </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">edge01_password</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">edge01_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">portal_pair_hub</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hub01.example.com</span>
+<span class="w">          </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hub01_password</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hub01_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">portal_pair_hub_hosts</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="nv">10.0.0.10</span><span class="p p-Indicator">}]</span>
+<span class="w">        </span><span class="nt">portal_pair_spoke_hosts</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt">address</span><span class="p">:</span><span class="w"> </span><span class="nv">10.20.0.5</span><span class="p p-Indicator">}]</span>
+<span class="w">        </span><span class="nt">portal_pair_roots</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">spoke_root</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">,</span><span class="nt"> hub_root</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">-t</span> <span class="pre">role</span> <span class="pre">qumulo.cluster.portal_pair</span></code> lists every variable.</p>
+</section>
+</section>
+<section id="remove-a-portal">
+<h2>Remove a portal<a class="headerlink" href="#remove-a-portal" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">portal_pair_state:</span> <span class="pre">absent</span></code> drains the portal before it deletes it.
+The role sets the portal read-only on the hub, waits until both sides show it, deletes the edge’s portal, and waits
+until the hub’s record is gone too.
+The drain hands the edge’s outstanding writes to the hub first
+(<a class="reference internal" href="../explanation/edges-and-portals.html#removing-a-portal-drain-then-delete"><span class="std std-ref">why</span></a>).</p>
+<ol class="arabic">
+<li><p>Remove <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code> from the edge’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>.
+While it stays, the next baseline run pairs the edge again.
+Leave <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> on the hub if another edge pairs with it.</p></li>
+<li><p>Run the role with the same connection options and <code class="docutils literal notranslate"><span class="pre">portal_pair_state:</span> <span class="pre">absent</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># remove_portal.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove the edge's portal to the hub</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.portal_pair</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">portal_pair_state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">        </span><span class="nt">portal_pair_spoke</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">portal_pair_hub</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">          </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['hub01'].qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p>Run it with <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">-i</span> <span class="pre">inventory</span> <span class="pre">remove_portal.yml</span> <span class="pre">--check</span></code> first, and then the same command without
+<code class="docutils literal notranslate"><span class="pre">--check</span></code>.</p>
+</li>
+<li><p>Check that neither side holds the portal.
+Run <code class="docutils literal notranslate"><span class="pre">read_portals.yml</span></code> again: neither cluster lists a portal to the other.</p></li>
+</ol>
+<section id="the-hub-sees-the-edge-disconnected">
+<h3>The hub sees the edge DISCONNECTED<a class="headerlink" href="#the-hub-sees-the-edge-disconnected" title="Link to this heading"></a></h3>
+<p>A portal whose edge the hub sees DISCONNECTED cannot be drained.
+The role fails before any change, and the message says so.
+If the edge is up, the status may be brief: run the role again later.
+If the hub reaches the edge at a wrong address, correct the edge’s <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>, put <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code> back, and
+run the edge’s baseline.
+Step 16 changes the hub’s addresses for the edge in place (<a class="reference internal" href="../collections/qumulo/cluster/portal_hub_module.html"><span class="std std-doc">portal_hub</span></a>
+documents <code class="docutils literal notranslate"><span class="pre">spoke_hosts</span></code> as “Changed in place when they differ”), though this has not been run against a DISCONNECTED
+portal.
+Then remove the portal again.
+To delete the portal anyway, set <code class="docutils literal notranslate"><span class="pre">portal_pair_allow_data_loss:</span> <span class="pre">true</span></code>.
+That loses the edge’s writes that the hub has not received.</p>
+<p>A PENDING portal holds no writes, and the role deletes it without a drain.</p>
+</section>
+<section id="remove-only-the-hub-s-record-of-an-edge-that-no-longer-exists">
+<h3>Remove only the hub’s record of an edge that no longer exists<a class="headerlink" href="#remove-only-the-hub-s-record-of-an-edge-that-no-longer-exists" title="Link to this heading"></a></h3>
+<p>When an edge was rebuilt with a new UUID or destroyed, the role cannot reach it.
+Delete the hub’s record of the old UUID with <code class="docutils literal notranslate"><span class="pre">portal_hub</span></code>, run against the hub:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># delete_edge_record.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete the hub's record of the old edge</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hub01</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete the hub's record of the old edge</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.portal_hub</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># The UUID the edge had before it was rebuilt or destroyed.</span>
+<span class="w">        </span><span class="nt">spoke_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">625d63a2-9663-4b0e-9d45-ec119a5a9a49</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">        </span><span class="nt">allow_data_loss</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p>Run it with <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">-i</span> <span class="pre">inventory</span> <span class="pre">delete_edge_record.yml</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> forces the delete and loses edge writes the hub never received.
+An <a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">edge rebuild</span></a> drains the old portal and deletes this record for you.</p>
+</section>
+</section>
+<section id="what-next">
+<h2>What next<a class="headerlink" href="#what-next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a> copies data the portal does not carry.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Inventory variables</span></a> lists <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>.</p></li>
+<li><p><a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a> and
+<a class="reference internal" href="terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> cover an edge’s other lifecycle tasks.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="look-up-identities-and-paths.html" class="btn btn-neutral float-left" title="Look up identities, DNS names and paths" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="replicate-a-directory.html" class="btn btn-neutral float-right" title="Replicate a directory to another cluster" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

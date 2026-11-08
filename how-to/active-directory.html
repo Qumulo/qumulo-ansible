@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join a cluster to Active Directory &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Manage the cluster’s TLS certificate" href="manage-certificates.html" />
+    <link rel="prev" title="Manage tenants" href="tenants.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Join a cluster to Active Directory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#join-the-domain">Join the domain</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#variants">Variants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#if-the-join-is-refused">If the join is refused</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#change-the-join-in-place">Change the join in place</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rejoin-active-directory">Rejoin Active Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-mappings-home-directories-and-saml">Add mappings, home directories and SAML</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#map-active-directory-users-to-ldap-users">Map Active Directory users to LDAP users</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#check-that-a-mapping-took-effect">Check that a mapping took effect</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#give-an-active-directory-identity-a-home-directory">Give an Active Directory identity a home directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clear-the-authentication-cache">Clear the authentication cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sign-in-through-an-identity-provider">Sign in through an identity provider</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#join-an-edge-so-that-it-can-be-rebuilt">Join an edge so that it can be rebuilt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Join a cluster to Active Directory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="join-a-cluster-to-active-directory">
+<h1>Join a cluster to Active Directory<a class="headerlink" href="#join-a-cluster-to-active-directory" title="Link to this heading"></a></h1>
+<p>This page joins a cluster to an Active Directory domain with the <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> variable, changes the join afterwards, and
+adds the settings that depend on it: user mappings, home directories and SAML sign-in.
+The baseline applies all of them with the <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role, in the order the join needs
+(<a class="reference internal" href="../explanation/identity.html#why-the-name-is-set-before-the-join"><span class="std std-ref">why</span></a>).</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up the inventory: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+The cluster needs a host entry with a working connection.</p></li>
+<li><p>Declare what the join needs, in the same inventory.
+The baseline applies <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_dns</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_time</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code> before <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>
+(<a class="reference internal" href="../explanation/architecture.html#the-order-of-areas"><span class="std std-ref">the order of areas</span></a>).
+The cluster must resolve the domain’s names through its DNS servers, and its time must be within Kerberos’s tolerance
+of the domain’s.</p></li>
+<li><p>Choose the cluster’s name now.
+The name is its computer account in the domain, and a rename later needs a leave and a join
+(<a class="reference internal" href="#rejoin-active-directory">Rejoin Active Directory</a>).
+Check that no other cluster or machine uses a computer account of that name, because a join under an existing name
+takes the account over (<a class="reference internal" href="../explanation/identity.html#what-the-collection-can-and-cannot-see"><span class="std std-ref">why</span></a>).</p></li>
+<li><p>Have the password of a domain user that may join machines.
+Keep it in a vault, as <a class="reference internal" href="store-secrets.html"><span class="std std-doc">Store secrets</span></a> shows.</p></li>
+</ul>
+</section>
+<section id="join-the-domain">
+<h2>Join the domain<a class="headerlink" href="#join-the-domain" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Declare <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> in the cluster’s group or host variables.
+Only <code class="docutils literal notranslate"><span class="pre">domain</span></code> is required; <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code> are needed for the cluster to join.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_ad</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">corp.example.com</span>
+<span class="w">  </span><span class="nt">join_user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">svc-qumulo-join</span>
+<span class="w">  </span><span class="nt">join_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_qumulo_ad_join_password</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Preview the run.
+The check run predicts the join from the cluster’s state.
+Whether Active Directory accepts it is known only by doing it.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+</li>
+<li><p>Apply it.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+</li>
+<li><p>Verify.
+Run the check run again: the <code class="docutils literal notranslate"><span class="pre">Join</span> <span class="pre">the</span> <span class="pre">domain</span></code> task reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>.
+To read the membership, gather the <code class="docutils literal notranslate"><span class="pre">ad</span></code> subset of <a class="reference internal" href="../collections/qumulo/cluster/identity_info_module.html"><span class="std std-doc">identity_info</span></a>.
+Run these tasks in a play that starts with the <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> header from
+<a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Set up an inventory for your clusters</span></a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the Active Directory membership</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ad</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad_membership</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the domain the cluster is joined to</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">ad_membership.identity.ad.domain</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('not</span><span class="nv"> </span><span class="s">joined',</span><span class="nv"> </span><span class="s">true)</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">identity.ad.status</span></code> is <code class="docutils literal notranslate"><span class="pre">JOINED_TO_DOMAIN</span></code> after a join and <code class="docutils literal notranslate"><span class="pre">NOT_IN_DOMAIN</span></code> before one.</p>
+</li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> takes these keys, each as <a class="reference internal" href="../collections/qumulo/cluster/ad_domain_module.html"><span class="std std-doc">ad_domain</span></a> takes it:
+<code class="docutils literal notranslate"><span class="pre">domain</span></code>, <code class="docutils literal notranslate"><span class="pre">domain_netbios</span></code>, <code class="docutils literal notranslate"><span class="pre">ou</span></code>, <code class="docutils literal notranslate"><span class="pre">join_user</span></code>, <code class="docutils literal notranslate"><span class="pre">join_password</span></code>, <code class="docutils literal notranslate"><span class="pre">search_trusted_domains</span></code>, <code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">base_dn</span></code> and <code class="docutils literal notranslate"><span class="pre">domain_controllers</span></code>.
+<code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.ad_domain</span></code> describes each, and
+<a class="reference internal" href="../reference/variables.html#active-directory"><span class="std std-ref">Inventory variables</span></a> lists the variable among the others.</p>
+<section id="variants">
+<h3>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Name the organizational unit and the domain’s NetBIOS name at the join:
+add <code class="docutils literal notranslate"><span class="pre">ou:</span> <span class="pre">OU=Edges,DC=corp,DC=example,DC=com</span></code> and <code class="docutils literal notranslate"><span class="pre">domain_netbios:</span> <span class="pre">CORP</span></code> to <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>.
+Only a join sets these two (<a class="reference internal" href="#change-the-join-in-place">Change the join</a>;
+<a class="reference internal" href="../explanation/identity.html#settings-only-a-join-can-set"><span class="std std-ref">why</span></a>).</p></li>
+<li><p>Take time from the domain controller once joined: set <code class="docutils literal notranslate"><span class="pre">use_ad_for_primary:</span> <span class="pre">true</span></code> under <code class="docutils literal notranslate"><span class="pre">qumulo_time</span></code>.
+The baseline applies it right after the join.</p></li>
+<li><p>Read POSIX ids from Active Directory: set <code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes:</span> <span class="pre">true</span></code>.
+The cluster takes user-defined mappings only while this is off, so leave it off when you declare any.</p></li>
+</ul>
+</section>
+<section id="if-the-join-is-refused">
+<h3>If the join is refused<a class="headerlink" href="#if-the-join-is-refused" title="Link to this heading"></a></h3>
+<p>Messages and what to do for each are in
+<a class="reference internal" href="../reference/troubleshooting.html#the-inventory-and-the-cluster-disagree"><span class="std std-ref">Troubleshooting</span></a>.
+A join without <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code> is refused.
+A join that fails because a computer account of the cluster’s name already exists, and the join user may not take it
+over, is <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-AD-JOIN</span></a>: the module cannot see the account, because it lives in Active Directory.
+If no running machine uses that account, have a domain administrator delete it, then run the baseline again.
+Otherwise give this cluster a name of its own in <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code>.</p>
+<p>A cluster that holds a Kerberos keytab cannot join, and a joined cluster takes no keytab
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-KRB-AD</span></a>; <a class="reference internal" href="../explanation/identity.html#where-kerberos-for-nfs-gets-its-keys"><span class="std std-ref">why</span></a>).
+The cluster answers the join with <code class="docutils literal notranslate"><span class="pre">ad_domain_standalone_kdc_error</span></code>.
+The baseline refuses a keytab declared under <code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code> beside <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> before it writes anything.</p>
+<ul class="simple">
+<li><p>To join a cluster that holds a keytab, delete the keytab first: set <code class="docutils literal notranslate"><span class="pre">keytab_state:</span> <span class="pre">absent</span></code> under <code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code>,
+and the step <code class="docutils literal notranslate"><span class="pre">Install</span> <span class="pre">or</span> <span class="pre">delete</span> <span class="pre">the</span> <span class="pre">Kerberos</span> <span class="pre">keytab</span></code>, which runs before <code class="docutils literal notranslate"><span class="pre">Join</span> <span class="pre">the</span> <span class="pre">domain</span></code>, deletes it in the same
+run.
+Outside the baseline, run <a class="reference internal" href="../collections/qumulo/cluster/kerberos_keytab_module.html"><span class="std std-doc">kerberos_keytab</span></a> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>.</p></li>
+<li><p>To move a joined cluster to a standalone KDC, leave the domain first with <code class="docutils literal notranslate"><span class="pre">ad_domain</span></code> and <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>
+(<a class="reference internal" href="#rejoin-active-directory">Rejoin Active Directory</a> shows the leave), then run the baseline with the keytab and
+without <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="change-the-join-in-place">
+<h2>Change the join in place<a class="headerlink" href="#change-the-join-in-place" title="Link to this heading"></a></h2>
+<p>Edit <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> and run the baseline, with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code> first.
+These keys change on a joined cluster without credentials:
+<code class="docutils literal notranslate"><span class="pre">search_trusted_domains</span></code>, <code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes</span></code>, <code class="docutils literal notranslate"><span class="pre">base_dn</span></code> and <code class="docutils literal notranslate"><span class="pre">domain_controllers</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_ad</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">corp.example.com</span>
+<span class="w">  </span><span class="nt">join_user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">svc-qumulo-join</span>
+<span class="w">  </span><span class="nt">join_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_qumulo_ad_join_password</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">domain_controllers</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">dc1.corp.example.com</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dc2.corp.example.com</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">search_trusted_domains</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">domain_netbios</span></code>, <code class="docutils literal notranslate"><span class="pre">ou</span></code> and <code class="docutils literal notranslate"><span class="pre">domain</span></code> are set only by a join.
+A different value for any of them on a joined cluster fails the task.
+Leave the domain and join again (<a class="reference internal" href="#rejoin-active-directory">Rejoin Active Directory</a>;
+<a class="reference internal" href="../explanation/identity.html#settings-only-a-join-can-set"><span class="std std-ref">why</span></a>).</p>
+<p>If the result’s notes say the domain controllers were not compared (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-AD-DCS</span></a>), they were not
+sent.
+To set them, leave and join again (<a class="reference internal" href="#rejoin-active-directory">Rejoin Active Directory</a>): a join sends them
+(<a class="reference internal" href="../explanation/identity.html#what-the-collection-can-and-cannot-see"><span class="std std-ref">why</span></a>).</p>
+</section>
+<section id="rejoin-active-directory">
+<h2>Rejoin Active Directory<a class="headerlink" href="#rejoin-active-directory" title="Link to this heading"></a></h2>
+<p>Do this to move the cluster to another domain, to change <code class="docutils literal notranslate"><span class="pre">domain_netbios</span></code> or <code class="docutils literal notranslate"><span class="pre">ou</span></code>, or to rename a joined cluster.
+The baseline never leaves a domain, so you leave with a task of your own and then let the baseline join again.</p>
+<ol class="arabic">
+<li><p>Write the play that leaves, under the collection’s play header.
+With <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code> the leave deletes the computer account.
+Without them it leaves the account in Active Directory and warns, so a cluster joined without credentials can use the
+same play.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># leave-domain.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Leave the domain</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Leave the domain, deleting the computer account when the credentials are given</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.ad_domain</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">domain</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ad.domain</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">join_user</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ad.join_user</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">join_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ad.join_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+</pre></div>
+</div>
+<p>The header is the one <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/baseline.yml">playbooks/baseline.yml</a> carries; a play of your own copies it.</p>
+</li>
+<li><p>Leave.
+Run the leave play before you edit the inventory, because it reads the domain from <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>leave-domain.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>leave-domain.yml<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+</li>
+<li><p>Change the inventory: the new <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> values, or the new <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name</span></code>.</p></li>
+<li><p>Join again with the baseline.
+It sets the cluster’s name before the join, so a rename and a join happen in one run.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+</li>
+<li><p>Verify as in <a class="reference internal" href="#join-the-domain">Join the domain</a>: <code class="docutils literal notranslate"><span class="pre">identity.ad.domain</span></code>, <code class="docutils literal notranslate"><span class="pre">identity.ad.domain_netbios</span></code> and
+<code class="docutils literal notranslate"><span class="pre">identity.ad.ou</span></code> show the new values.</p></li>
+<li><p>If the leave deleted the computer account, grant the new account the group memberships and delegations the old one
+had, in Active Directory.</p></li>
+</ol>
+<p>To leave a domain and not join another, run steps 1 and 2, then remove <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> from the inventory together with what
+builds on the join: <code class="docutils literal notranslate"><span class="pre">qumulo_user_defined_mappings</span></code>, the <code class="docutils literal notranslate"><span class="pre">ad:</span></code> entries of <code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code> and any ACL or share permissions, and <code class="docutils literal notranslate"><span class="pre">qumulo_saml</span></code>.
+Outside a domain those <code class="docutils literal notranslate"><span class="pre">ad:</span></code> trustees, except <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, do not resolve, and the tasks that
+name them fail.
+Then run the baseline with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code>.</p>
+</section>
+<section id="add-mappings-home-directories-and-saml">
+<h2>Add mappings, home directories and SAML<a class="headerlink" href="#add-mappings-home-directories-and-saml" title="Link to this heading"></a></h2>
+<p>These variables build on the join, so the baseline applies them after <code class="docutils literal notranslate"><span class="pre">ad_domain</span></code>.
+Declare any of them, preview with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code>, and apply:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_user_defined_mappings</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">down_level_logon_name</span><span class="p">:</span><span class="w"> </span><span class="s">'CORP\alice'</span><span class="p p-Indicator">,</span><span class="nt"> ldap_name</span><span class="p">:</span><span class="w"> </span><span class="nv">alice</span><span class="p p-Indicator">}</span>
+<span class="nt">qumulo_identity_attributes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">trustee</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span><span class="p p-Indicator">,</span><span class="nt"> home_directory</span><span class="p">:</span><span class="w"> </span><span class="nv">/home/alice</span><span class="p p-Indicator">}</span>
+<span class="nt">qumulo_saml</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">idp_sso_url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://idp.example.com/saml2/sso</span>
+<span class="w">  </span><span class="nt">idp_entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://idp.example.com/metadata</span>
+<span class="w">  </span><span class="nt">idp_certificate</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">lookup('ansible.builtin.file',</span><span class="nv"> </span><span class="s">'files/idp-signing.crt')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">cluster_dns_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.corp.example.com</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ad:</span></code> trustees, such as <code class="docutils literal notranslate"><span class="pre">ad:CORP\Engineering</span></code> in a share’s permissions or in <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code>, resolve only after
+the join, which the baseline runs first; <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code> resolves joined or not.</p>
+<section id="map-active-directory-users-to-ldap-users">
+<h3>Map Active Directory users to LDAP users<a class="headerlink" href="#map-active-directory-users-to-ldap-users" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_user_defined_mappings</span></code> is the whole set.
+Add an entry to add a mapping, remove an entry to remove it, and declare <code class="docutils literal notranslate"><span class="pre">[]</span></code> to remove every mapping.</p></li>
+<li><p>The cluster takes mappings only while it is joined and <code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes</span></code> is off.
+Otherwise <code class="docutils literal notranslate"><span class="pre">user_defined_mappings</span></code> refuses before it writes, and in a check run it notes that an earlier task is
+expected to join (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-031</span></a>).</p></li>
+<li><p>To check a user and her LDAP user before the mapping names them, see
+<a class="reference internal" href="look-up-identities-and-paths.html#check-an-ldap-user-before-a-mapping-names-her"><span class="std std-ref">Check an LDAP user before a mapping names her</span></a>.
+To check that the mapping took effect, see <a class="reference internal" href="#check-that-a-mapping-took-effect">Check that a mapping took effect</a>.</p></li>
+</ul>
+</section>
+<section id="check-that-a-mapping-took-effect">
+<h3>Check that a mapping took effect<a class="headerlink" href="#check-that-a-mapping-took-effect" title="Link to this heading"></a></h3>
+<p>Clear the cache, then expand the mapped Active Directory user and read <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code>.
+Run these tasks in a play with the <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> header from
+<a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Set up an inventory for your clusters</span></a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Clear the authentication cache before the check</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.auth_cache_clear</span><span class="p">:</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Expand the mapped Active Directory user</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">expand_trustees</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"{{</span><span class="nv"> </span><span class="s">alice</span><span class="nv"> </span><span class="s">}}"</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mapped_alice</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the identity the cluster uses over NFS</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">mapped_alice.identity.expanded_trustees[alice].nfs_identity</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>A mapping adds the LDAP user’s uid and gid to the user’s <code class="docutils literal notranslate"><span class="pre">equivalents</span></code>, and <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code> then comes from that uid.
+No lane runs an LDAP server for a mapping to name, so this is not tested end to end
+(<a class="reference internal" href="../reference/tested-versions.html#what-the-lanes-cannot-test"><span class="std std-ref">What the lanes cannot test</span></a>).</p></li>
+<li><p>Without a mapping, and without RFC 2307 attributes that the cluster reads, the expansion is <code class="docutils literal notranslate"><span class="pre">UNKNOWN</span></code>:
+<a class="reference internal" href="look-up-identities-and-paths.html#find-an-active-directory-user-s-sid-nfs-uid-and-groups"><span class="std std-ref">Find an Active Directory user’s SID, NFS uid and groups</span></a>
+shows it.</p></li>
+<li><p>The clear matters.
+The cluster caches identities (<a class="reference internal" href="../explanation/identity.html#the-identity-cache"><span class="std std-ref">why</span></a>), so without the clear the
+expansion may show the answer from before the mapping.
+The clear empties the cache of the node it reaches; whether it reaches every node of a cluster has not been seen.
+In a check run the clear clears nothing, so check the change in a real run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expand_trustees</span></code> finds the user first, so a user the cluster does not know has <code class="docutils literal notranslate"><span class="pre">found:</span> <span class="pre">false</span></code>.
+<a class="reference internal" href="look-up-identities-and-paths.html"><span class="std std-doc">Look up identities, DNS names and paths</span></a> has the lookups.</p></li>
+</ul>
+</section>
+<section id="give-an-active-directory-identity-a-home-directory">
+<h3>Give an Active Directory identity a home directory<a class="headerlink" href="#give-an-active-directory-identity-a-home-directory" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Declare one entry per identity in <code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code>: the <code class="docutils literal notranslate"><span class="pre">trustee</span></code> in the collection’s trustee grammar,
+such as <code class="docutils literal notranslate"><span class="pre">ad:CORP\alice</span></code>, and its <code class="docutils literal notranslate"><span class="pre">home_directory</span></code>.
+Set <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> on an entry to remove an identity’s attributes.</p></li>
+<li><p>Declare it by hand.
+The cluster cannot list which identities have attributes, so capture never writes this variable
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ID-ATTRIBUTES</span></a>).</p></li>
+<li><p>A local user’s home directory is the <code class="docutils literal notranslate"><span class="pre">home_directory</span></code> key of its <code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code> entry
+(<a class="reference internal" href="../collections/qumulo/cluster/local_user_module.html"><span class="std std-doc">local_user</span></a>); a local trustee here is refused.</p></li>
+</ul>
+</section>
+<section id="clear-the-authentication-cache">
+<h3>Clear the authentication cache<a class="headerlink" href="#clear-the-authentication-cache" title="Link to this heading"></a></h3>
+<p>When a mapping or a home directory changes, the baseline clears the cache with <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.auth_cache_clear</span></code>, so a
+user the cluster has already seen gets the new value.
+A run that changes neither skips the clear.
+The clear runs after a mapping or a home directory changed, even when a later step of the two fails, and a failed clear
+fails the run
+(<a class="reference internal" href="../explanation/identity.html#the-identity-cache"><span class="std std-ref">why</span></a>).</p>
+<p>When a clear failed, the next run finds nothing to change and skips it, so clear by hand.
+Run <a class="reference internal" href="../collections/qumulo/cluster/auth_cache_clear_module.html"><span class="std std-doc">auth_cache_clear</span></a> on that cluster as a task in a play with the
+<code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> header from
+<a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Set up an inventory for your clusters</span></a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Clear the authentication cache</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.auth_cache_clear</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>The task always reports a change (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ACTIONS</span></a>).</p>
+</section>
+<section id="sign-in-through-an-identity-provider">
+<h3>Sign in through an identity provider<a class="headerlink" href="#sign-in-through-an-identity-provider" title="Link to this heading"></a></h3>
+<p>Join the domain first: only its users sign in through the identity provider, and turning sign-in on outside a domain
+warns.</p>
+<ol class="arabic simple">
+<li><p>Declare <code class="docutils literal notranslate"><span class="pre">qumulo_saml</span></code> with the certificate.
+Give the identity provider’s signing certificate as PEM text in <code class="docutils literal notranslate"><span class="pre">idp_certificate</span></code>.
+Text around the PEM block is ignored.</p></li>
+<li><p>Run the baseline.</p></li>
+<li><p>Sign in once through the identity provider, in a browser.
+The cluster stores the settings without reaching the provider, so a successful run does not show that sign-in works
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ID-SAML</span></a>).</p></li>
+</ol>
+<p>Variants:</p>
+<ul class="simple">
+<li><p>Keep the certificate the cluster holds by leaving <code class="docutils literal notranslate"><span class="pre">idp_certificate</span></code> out.
+Turning sign-in on then warns.
+With no certificate on the cluster either, <code class="docutils literal notranslate"><span class="pre">saml_settings</span></code> refuses (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-032</span></a>).</p></li>
+<li><p>Turn sign-in off with <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code>.
+Setting <code class="docutils literal notranslate"><span class="pre">idp_certificate:</span> <span class="pre">&quot;&quot;</span></code> to remove the certificate fails when one is set
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ID-SAML-CERT</span></a>;
+<a class="reference internal" href="../explanation/identity.html#the-certificate-cannot-be-removed"><span class="std std-ref">why</span></a>).</p></li>
+<li><p>Require sign-in through the provider with <code class="docutils literal notranslate"><span class="pre">require_sso:</span> <span class="pre">true</span></code>.
+Active Directory users can then no longer sign in with a password to the Web UI, <code class="docutils literal notranslate"><span class="pre">qq</span></code> or the REST API while sign-in is
+on, and a task that makes both true warns.
+Keep a local user that signs in with a password, such as <code class="docutils literal notranslate"><span class="pre">admin</span></code>.</p></li>
+</ul>
+</section>
+</section>
+<section id="join-an-edge-so-that-it-can-be-rebuilt">
+<h2>Join an edge so that it can be rebuilt<a class="headerlink" href="#join-an-edge-so-that-it-can-be-rebuilt" title="Link to this heading"></a></h2>
+<p>Give <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code> in <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> on an edge.
+A rebuild’s predestroy phase then leaves the domain with them, which deletes the computer account, and the replay joins
+again under the same name.
+The leave deletes the old computer account, so grant the new account the group memberships and delegations the old one
+had, in Active Directory.
+Without credentials the leave keeps the computer account, and the replay refuses to join under the old name unless a
+predestroy record shows the old edge left with credentials, or you set <code class="docutils literal notranslate"><span class="pre">edge_rebuild_old_edge_destroyed:</span> <span class="pre">true</span></code> to say
+the old edge is gone (<a class="reference internal" href="edge-rebuild.html#if-the-old-edge-was-lost"><span class="std std-ref">Rebuild an unprotected edge</span></a>).</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../explanation/identity.html"><span class="std std-doc">Identity and Active Directory</span></a>: why the name is the computer account, what a join
+sets, what the collection cannot see, and why mappings and SAML follow the join.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html#active-directory"><span class="std std-ref">Inventory variables</span></a>: <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>;
+<a class="reference internal" href="../reference/variables.html#mappings-home-directories-and-saml"><span class="std std-ref">mappings, home directories and SAML</span></a>.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html#the-inventory-and-the-cluster-disagree"><span class="std std-ref">Troubleshooting</span></a>: the Active Directory
+refusals, with their exact text.</p></li>
+<li><p><a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>: the predestroy leave and the replay’s join.</p></li>
+<li><p><a class="reference internal" href="inventory-recipes.html"><span class="std std-doc">Inventory recipes</span></a>: custom roles and their members, and when a local user’s password is sent.</p></li>
+<li><p><a class="reference internal" href="respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a>: reading any refusal the collection gives.</p></li>
+<li><p><a class="reference internal" href="look-up-identities-and-paths.html"><span class="std std-doc">Look up identities, DNS names and paths</span></a>: check trustees, an Active Directory
+user’s SID, NFS uid and groups, and an LDAP user, before a task names them.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tenants.html" class="btn btn-neutral float-left" title="Manage tenants" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="manage-certificates.html" class="btn btn-neutral float-right" title="Manage the cluster’s TLS certificate" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

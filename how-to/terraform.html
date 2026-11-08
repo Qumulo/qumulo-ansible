@@ -1,0 +1,713 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Use a Terraform root’s output as the inventory &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Respond to a refusal" href="respond-to-a-refusal.html" />
+    <link rel="prev" title="Adopt a cluster you already run" href="adopt-a-cluster.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Use a Terraform root’s output as the inventory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#publish-the-output">Publish the output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#point-the-plugin-at-the-output">Point the plugin at the output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#declare-the-areas-the-root-owns">Declare the areas the root owns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#read-a-saved-output-instead-of-running-terraform">Read a saved output instead of running Terraform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#select-a-workspace-cache-the-output-or-change-the-binary">Select a workspace, cache the output or change the binary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#put-a-host-in-qumulo-hubs">Put a host in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#publish-a-bare-metal-edge">Publish a bare-metal edge</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#publish-a-multi-az-cluster-in-aws">Publish a multi-AZ cluster in AWS</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#publish-the-load-balancer-s-ips">Publish the load balancer’s IPs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#publish-the-load-balancer-s-name">Publish the load balancer’s name</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#rebuild-an-edge-that-terraform-formed">Rebuild an edge that Terraform formed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adopt-a-host-from-this-plugin">Adopt a host from this plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Use a Terraform root’s output as the inventory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="use-a-terraform-root-s-output-as-the-inventory">
+<h1>Use a Terraform root’s output as the inventory<a class="headerlink" href="#use-a-terraform-root-s-output-as-the-inventory" title="Link to this heading"></a></h1>
+<p>This page publishes one output from a Terraform root that forms Qumulo clusters, points the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.terraform</span></code>
+inventory plugin at it, and resolves the admin password.
+When you finish, each cluster the root forms is a host in your inventory, with its address, UUID and ownership set from
+the output, and a check run of the baseline reaches it.
+Terraform forms the clusters and this collection configures them afterwards; the two meet only in this output
+(<a class="reference internal" href="../explanation/terraform-ownership.html"><span class="std std-doc">why</span></a>).</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up the inventory directory: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+The plugin’s source file goes in it, in place of the <code class="docutils literal notranslate"><span class="pre">hosts.yml</span></code> entries for these clusters.</p></li>
+<li><p>Have a Terraform root that forms the clusters, and run Terraform 1.11 or later if you use the write-only password
+argument below.</p></li>
+<li><p>Have Terraform on the controller, or a saved copy of the output (see
+<a class="reference internal" href="#read-a-saved-output-instead-of-running-terraform">Read a saved output</a>).</p></li>
+<li><p>Install the collection that holds the lookup for the store your passwords are in.
+This collection depends on none.</p></li>
+<li><p>For a cluster Terraform did not form, such as an edge formed by Qumulo’s installer, write its host entry by hand and
+<a class="reference internal" href="adopt-a-cluster.html"><span class="std std-doc">adopt it</span></a> instead.</p></li>
+</ul>
+</section>
+<section id="publish-the-output">
+<h2>Publish the output<a class="headerlink" href="#publish-the-output" title="Link to this heading"></a></h2>
+<p>This section uses a cluster formed by the <code class="docutils literal notranslate"><span class="pre">qumulo_filesystem_aws</span></code> resource.
+Other resources are under <a class="reference internal" href="#variants">Variants</a>.</p>
+<ol class="arabic">
+<li><p>Keep the admin password in an SSM SecureString, written write-only so that it is in neither the plan nor the state:</p>
+<div class="highlight-hcl notranslate"><div class="highlight"><pre><span></span><span class="kr">resource</span><span class="w"> </span><span class="nc">"aws_ssm_parameter"</span><span class="w"> </span><span class="nv">"cnq01"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">name</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s2">"/qumulo/cnq01/admin-password"</span>
+<span class="w">  </span><span class="na">type</span><span class="w">             </span><span class="o">=</span><span class="w"> </span><span class="s2">"SecureString"</span>
+<span class="w">  </span><span class="na">value_wo</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="nv">var.admin_password</span>
+<span class="w">  </span><span class="na">value_wo_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">1</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">value_wo</span></code> needs Terraform 1.11 or later and an AWS provider release that has it.</p>
+</li>
+<li><p>Form the cluster with the same password, and publish one output named <code class="docutils literal notranslate"><span class="pre">qumulo_ansible_inventory</span></code>, a map from the
+Ansible host name to the cluster’s fields:</p>
+<div class="highlight-hcl notranslate"><div class="highlight"><pre><span></span><span class="kr">resource</span><span class="w"> </span><span class="nc">"qumulo_filesystem_aws"</span><span class="w"> </span><span class="nv">"cnq01"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">cluster_name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"cnq01"</span>
+<span class="w">  </span><span class="na">admin_password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">var.admin_password</span>
+<span class="c1">  # region, subnet_ids, node_count, instance_type and the rest, as the root needs them</span>
+<span class="p">}</span>
+
+<span class="kr">output</span><span class="w"> </span><span class="nv">"qumulo_ansible_inventory"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Hosts for the qumulo.cluster.terraform inventory plugin. No secrets."</span>
+<span class="w">  </span><span class="nb">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">cnq01</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="na">api_host</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="nv">qumulo_filesystem_aws.cnq01.floating_ips[0</span><span class="p">]</span>
+<span class="w">      </span><span class="na">cluster_uuid</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="nv">qumulo_filesystem_aws.cnq01.cluster_uuid</span>
+<span class="w">      </span><span class="na">cluster_kind</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"cnq"</span>
+<span class="w">      </span><span class="na">managed_by</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s2">"terraform_provider"</span>
+<span class="w">      </span><span class="na">owned_areas</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"network.floating_ips"</span><span class="p">]</span>
+<span class="w">      </span><span class="nb">password_ref</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"aws_ssm_parameter"</span><span class="p">,</span><span class="w"> </span><span class="na">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">aws_ssm_parameter.cnq01.name</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="na">portal_hosts</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="nv">qumulo_filesystem_aws.cnq01.floating_ips</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">qumulo_filesystem_aws.cnq01.floating_ips</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">null</span>
+<span class="w">      </span><span class="na">replication_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="nv">qumulo_filesystem_aws.cnq01.floating_ips</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">qumulo_filesystem_aws.cnq01.floating_ips[0</span><span class="p">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">null</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The output carries no secret, so it need not be marked <code class="docutils literal notranslate"><span class="pre">sensitive</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">api_host</span></code> as written needs <code class="docutils literal notranslate"><span class="pre">floating_ip_count</span></code> of at least 1 on the resource.</p></li>
+<li><p>Publish <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_address</span></code> as null, not as an empty list, when the cluster has no addresses
+for them.
+Indexing an empty list fails the root’s own output, so check its length first, as above.</p></li>
+<li><p>The plugin publishes the addresses you give it and derives none.
+To declare them in <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> instead, leave both fields out; a <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> value outranks the plugin’s.
+<a class="reference internal" href="../reference/terraform-inventory.html"><span class="std std-doc">The Terraform inventory plugin</span></a> lists each field, the expression for each
+resource, and what the plugin refuses.</p></li>
+</ul>
+</li>
+<li><p>Apply, and read the output back:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>terraform<span class="w"> </span>apply
+terraform<span class="w"> </span>output<span class="w"> </span>-json<span class="w"> </span>qumulo_ansible_inventory
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="point-the-plugin-at-the-output">
+<h2>Point the plugin at the output<a class="headerlink" href="#point-the-plugin-at-the-output" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Create the inventory source.
+Its file name must end in <code class="docutils literal notranslate"><span class="pre">qumulo_terraform.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_terraform.yaml</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/prod.qumulo_terraform.yml: runs `terraform output -json qumulo_ansible_inventory` in the root</span>
+<span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">project_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform/prod</span><span class="w">      </span><span class="c1"># relative to this file</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">-t</span> <span class="pre">inventory</span> <span class="pre">qumulo.cluster.terraform</span></code> lists every option, and
+<a class="reference internal" href="../collections/qumulo/cluster/terraform_inventory.html"><span class="std std-doc">the plugin</span></a> carries examples for each.</p>
+</li>
+<li><p>Give the hosts their connection in <code class="docutils literal notranslate"><span class="pre">group_vars</span></code>.
+The hosts are REST endpoints and have no <code class="docutils literal notranslate"><span class="pre">ansible_connection</span></code>, so the modules run on the controller:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">ansible_connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="nt">ansible_python_interpreter</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">ansible_playbook_python</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="nt">qumulo_api_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="nt">qumulo_api_password</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">  </span><span class="no">{{ lookup('amazon.aws.ssm_parameter', qumulo_password_ref.id)</span>
+<span class="w">     </span><span class="no">if qumulo_password_ref.type == 'aws_ssm_parameter'</span>
+<span class="w">     </span><span class="no">else lookup('ansible.builtin.env', qumulo_password_ref.id) }}</span>
+<span class="nt">qumulo_validate_certs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../files/qumulo-ca.pem"</span>
+</pre></div>
+</div>
+<p>Ansible templates the password only when a task uses it, and the modules never log it.
+<a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory</span></a> covers the other connection variables.</p>
+</li>
+<li><p>Resolve the password with the lookup for your <code class="docutils literal notranslate"><span class="pre">password_ref.type</span></code>:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><code class="docutils literal notranslate"><span class="pre">password_ref.type</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">password_ref.id</span></code></p></th>
+<th class="head"><p>Lookup in <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">env</span></code></p></td>
+<td><p>An environment variable’s name</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lookup('ansible.builtin.env',</span> <span class="pre">qumulo_password_ref.id)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">aws_ssm_parameter</span></code></p></td>
+<td><p>An SSM parameter’s name</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lookup('amazon.aws.ssm_parameter',</span> <span class="pre">qumulo_password_ref.id)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">aws_secrets_manager</span></code></p></td>
+<td><p>A Secrets Manager secret’s name or ARN</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lookup('amazon.aws.secretsmanager_secret',</span> <span class="pre">qumulo_password_ref.id)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">azure_key_vault</span></code></p></td>
+<td><p>A secret identifier, <code class="docutils literal notranslate"><span class="pre">https://&lt;vault&gt;.vault.azure.net/secrets/&lt;name&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lookup('azure.azcollection.azure_keyvault_secret',</span> <span class="pre">qumulo_password_ref.id.split('/secrets/')[1],</span> <span class="pre">vault_url=qumulo_password_ref.id.split('/secrets/')[0])</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">gcp_secret_manager</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">projects/&lt;project&gt;/secrets/&lt;name&gt;</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lookup('google.cloud.gcp_secret_manager',</span> <span class="pre">key=qumulo_password_ref.id.split('/')[3],</span> <span class="pre">project=qumulo_password_ref.id.split('/')[1])</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">hashicorp_vault</span></code></p></td>
+<td><p>A KV v2 API path, <code class="docutils literal notranslate"><span class="pre">&lt;mount&gt;/data/&lt;path&gt;</span></code>, such as <code class="docutils literal notranslate"><span class="pre">secret/data/qumulo/edge01</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">lookup('community.hashi_vault.vault_kv2_get',</span> <span class="pre">qumulo_password_ref.id.split('/',</span> <span class="pre">2)[2],</span> <span class="pre">engine_mount_point=qumulo_password_ref.id.split('/')[0]).secret.password</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li><p>A root that uses one store sets <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code> to that one lookup.</p></li>
+<li><p>For <code class="docutils literal notranslate"><span class="pre">hashicorp_vault</span></code>, the secret holds a map; <code class="docutils literal notranslate"><span class="pre">.secret.password</span></code> reads its <code class="docutils literal notranslate"><span class="pre">password</span></code> field, so change it to the
+field your root writes.
+The expression takes the mount as the id’s first segment.</p></li>
+<li><p>The legacy CNQ modules for AWS store a JSON map of <code class="docutils literal notranslate"><span class="pre">username</span></code> and <code class="docutils literal notranslate"><span class="pre">password</span></code> in the secret.
+Read its <code class="docutils literal notranslate"><span class="pre">password</span></code>: <code class="docutils literal notranslate"><span class="pre">(lookup('amazon.aws.secretsmanager_secret',</span> <span class="pre">qumulo_password_ref.id)</span> <span class="pre">|</span> <span class="pre">from_json).password</span></code>.</p></li>
+<li><p>Which type the output names depends on where the root keeps the password: the legacy CNQ modules use AWS Secrets
+Manager, Azure Key Vault or GCP Secret Manager, and the provider uses Azure Key Vault on Azure.
+Elsewhere the provider takes the password as an argument and the root decides.</p></li>
+</ul>
+</li>
+<li><p>If the store throttles, read each password once.
+The play header of the collection’s playbooks, such as <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/baseline.yml"><code class="docutils literal notranslate"><span class="pre">baseline.yml</span></code></a>, passes
+<code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code> to every module through <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code>, so the lookup runs once for each task on each host.
+A baseline run makes dozens of requests to the store, and a store that throttles, as SSM’s <code class="docutils literal notranslate"><span class="pre">GetParameter</span></code> does, can
+fail a large run.
+Either export the passwords into the environment before the run and use the <code class="docutils literal notranslate"><span class="pre">env</span></code> type, or wrap the playbook in
+one of your own:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># read-passwords-then-baseline.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read each cluster's password once</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Resolve the admin password</span>
+<span class="w">      </span><span class="nt">ansible.builtin.set_fact</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># the lookup for your password_ref.type, from the table in step 3</span>
+<span class="w">        </span><span class="nt">qumulo_api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">lookup('amazon.aws.ssm_parameter',</span><span class="nv"> </span><span class="s">qumulo_password_ref.id)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">no_log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">ansible.builtin.import_playbook</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.baseline</span>
+</pre></div>
+</div>
+<p>A fact outranks <code class="docutils literal notranslate"><span class="pre">group_vars</span></code>, so the lookups in step 2 no longer run.</p>
+</li>
+</ol>
+</section>
+<section id="declare-the-areas-the-root-owns">
+<h2>Declare the areas the root owns<a class="headerlink" href="#declare-the-areas-the-root-owns" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">owned_areas</span></code> lists the areas of the cluster that Terraform configures, and the <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role refuses to
+manage them.</p>
+<ol class="arabic simple">
+<li><p>With <code class="docutils literal notranslate"><span class="pre">managed_by</span></code> set to <code class="docutils literal notranslate"><span class="pre">terraform_provider</span></code> on a CNQ cluster, list <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>.
+The plugin refuses the entry otherwise.
+On an edge or bare-metal cluster the plugin does not ask for it. Leave it out when the baseline should manage the
+floating addresses, since the list you give is all that Terraform owns.</p></li>
+<li><p>List every other area the root also configures, such as <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> when it sets the provider’s <code class="docutils literal notranslate"><span class="pre">cluster_fqdn</span></code>, or
+<code class="docutils literal notranslate"><span class="pre">network</span></code> when it configures the networks.</p></li>
+<li><p>Run the baseline.
+It fails before the first write on any <code class="docutils literal notranslate"><span class="pre">qumulo_*</span></code> variable that declares an owned area.</p></li>
+</ol>
+<p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Variables</span></a> maps each area to the variables it guards, and
+<a class="reference internal" href="../explanation/terraform-ownership.html"><span class="std std-doc">Terraform ownership</span></a> explains the rules and how to take an area over.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="read-a-saved-output-instead-of-running-terraform">
+<h3>Read a saved output instead of running Terraform<a class="headerlink" href="#read-a-saved-output-instead-of-running-terraform" title="Link to this heading"></a></h3>
+<p>Use this in CI, or where the controller has no Terraform.
+Save the output where the source can read it, and name that file in <code class="docutils literal notranslate"><span class="pre">output_file</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>terraform<span class="w"> </span>-chdir<span class="o">=</span>terraform/prod<span class="w"> </span>output<span class="w"> </span>-json<span class="w"> </span>qumulo_ansible_inventory<span class="w"> </span>&gt;<span class="w"> </span>terraform-output/qumulo_ansible_inventory.json
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/ci.qumulo_terraform.yml</span>
+<span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">output_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform-output/qumulo_ansible_inventory.json</span><span class="w">   </span><span class="c1"># relative to this file</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Name the output in the command.
+The plugin refuses a file that holds what <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span> <span class="pre">-json</span></code> prints without a name, because that lists every
+output of the root, sensitive ones in plain text.</p></li>
+<li><p>Keep the file outside the inventory directory.
+Given a directory, Ansible’s <code class="docutils literal notranslate"><span class="pre">yaml</span></code> inventory plugin reads every <code class="docutils literal notranslate"><span class="pre">.json</span></code> file in it as an inventory.</p></li>
+</ul>
+</section>
+<section id="select-a-workspace-cache-the-output-or-change-the-binary">
+<h3>Select a workspace, cache the output or change the binary<a class="headerlink" href="#select-a-workspace-cache-the-output-or-change-the-binary" title="Link to this heading"></a></h3>
+<p>Set these in the source file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">project_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform/prod</span>
+<span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prod</span><span class="w">                        </span><span class="c1"># selected through TF_WORKSPACE for the one command</span>
+<span class="nt">binary_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/terraform/1.11.0/terraform</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span><span class="w">                           </span><span class="c1"># seconds; the default is 120</span>
+<span class="nt">cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">cache_plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ansible.builtin.jsonfile</span>
+<span class="nt">cache_connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">~/.cache/qumulo-inventory</span>
+<span class="nt">cache_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Without <code class="docutils literal notranslate"><span class="pre">workspace</span></code>, a <code class="docutils literal notranslate"><span class="pre">TF_WORKSPACE</span></code> in the environment applies, and otherwise the root’s selected workspace.
+<code class="docutils literal notranslate"><span class="pre">workspace</span></code>, <code class="docutils literal notranslate"><span class="pre">binary_path</span></code> and <code class="docutils literal notranslate"><span class="pre">timeout</span></code> are for <code class="docutils literal notranslate"><span class="pre">project_path</span></code>.
+<code class="docutils literal notranslate"><span class="pre">workspace</span></code> with <code class="docutils literal notranslate"><span class="pre">output_file</span></code> fails the source.</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">cache:</span> <span class="pre">true</span></code>, the plugin caches the hosts it read, after checking them, never the raw output.
+A workspace switched with <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">workspace</span> <span class="pre">select</span></code> is read once the cache times out.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">compose</span></code>, <code class="docutils literal notranslate"><span class="pre">groups</span></code> and <code class="docutils literal notranslate"><span class="pre">keyed_groups</span></code> work as for any constructed inventory.</p></li>
+</ul>
+</section>
+<section id="put-a-host-in-qumulo-hubs">
+<h3>Put a host in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code><a class="headerlink" href="#put-a-host-in-qumulo-hubs" title="Link to this heading"></a></h3>
+<p>The plugin never adds a host to <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code>.
+Add it with the <code class="docutils literal notranslate"><span class="pre">groups</span></code> option, or put it in a static inventory file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">project_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform/prod</span>
+<span class="nt">groups</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">qumulo_hubs</span><span class="p">:</span><span class="w"> </span><span class="s">"inventory_hostname</span><span class="nv"> </span><span class="s">==</span><span class="nv"> </span><span class="s">'hub01'"</span>
+</pre></div>
+</div>
+</section>
+<section id="publish-a-bare-metal-edge">
+<h3>Publish a bare-metal edge<a class="headerlink" href="#publish-a-bare-metal-edge" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">qumulo_filesystem_edge_baremetal</span></code> resource is create-only, so <code class="docutils literal notranslate"><span class="pre">managed_by</span></code> is <code class="docutils literal notranslate"><span class="pre">none</span></code>, and the edge’s <code class="docutils literal notranslate"><span class="pre">endpoint</span></code>
+is a URL, which <code class="docutils literal notranslate"><span class="pre">api_host</span></code> refuses:</p>
+<div class="highlight-hcl notranslate"><div class="highlight"><pre><span></span><span class="kr">output</span><span class="w"> </span><span class="nv">"qumulo_ansible_inventory"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nb">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">edge01</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="na">api_host</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="nv">qumulo_filesystem_edge_baremetal.edge01.node_ips[0</span><span class="p">]</span>
+<span class="w">      </span><span class="na">cluster_uuid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">qumulo_filesystem_edge_baremetal.edge01.cluster_uuid</span>
+<span class="w">      </span><span class="na">cluster_kind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"edge"</span>
+<span class="w">      </span><span class="na">managed_by</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"none"</span>
+<span class="w">      </span><span class="na">owned_areas</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">      </span><span class="nb">password_ref</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"env", id = "QUMULO_PASSWORD_EDGE01"</span><span class="w"> </span><span class="p">}</span>
+<span class="c1">      # The edge's node IP; give its floating IP instead when the root gives it one.</span>
+<span class="w">      </span><span class="na">portal_hosts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">qumulo_filesystem_edge_baremetal.edge01.node_ips</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Export <code class="docutils literal notranslate"><span class="pre">QUMULO_PASSWORD_EDGE01</span></code> before the run, or use another <code class="docutils literal notranslate"><span class="pre">password_ref.type</span></code>.</p>
+</section>
+<section id="publish-a-multi-az-cluster-in-aws">
+<h3>Publish a multi-AZ cluster in AWS<a class="headerlink" href="#publish-a-multi-az-cluster-in-aws" title="Link to this heading"></a></h3>
+<p>A multi-AZ <code class="docutils literal notranslate"><span class="pre">qumulo_filesystem_aws</span></code> cluster has no floating IPs, so <code class="docutils literal notranslate"><span class="pre">floating_ips[0]</span></code> fails.
+Its <code class="docutils literal notranslate"><span class="pre">endpoint_ips</span></code> are node IPs, which stay on their node when it goes down. Don’t publish them.
+Publish its network load balancer’s addresses instead (<a class="reference internal" href="../explanation/edges-and-portals.html#addresses-behind-a-load-balancer"><span class="std std-ref">why</span></a>).
+The provider forms no load balancer, so form one in the root, with TCP listeners on 8000 for the REST API
+(<code class="docutils literal notranslate"><span class="pre">qumulo_api_port</span></code>) when <code class="docutils literal notranslate"><span class="pre">api_host</span></code> is its name, 3713 for portals and 3712 for replication.</p>
+<p>Choose one of two routes.</p>
+<section id="publish-the-load-balancer-s-ips">
+<h4>Publish the load balancer’s IPs<a class="headerlink" href="#publish-the-load-balancer-s-ips" title="Link to this heading"></a></h4>
+<ol class="arabic">
+<li><p>Read the IPs from the load balancer’s network interfaces, one in each of its subnets.
+<code class="docutils literal notranslate"><span class="pre">count</span></code> follows the subnets, which the plan knows, so the first apply plans before the load balancer exists:</p>
+<div class="highlight-hcl notranslate"><div class="highlight"><pre><span></span><span class="c1"># One network interface per subnet; AWS describes it as "ELB" and the load balancer's ARN suffix.</span>
+<span class="kr">data</span><span class="w"> </span><span class="nc">"aws_network_interface"</span><span class="w"> </span><span class="nv">"nlb"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="nv">local.subnet_ids</span><span class="p">)</span>
+<span class="w">  </span><span class="nb">filter</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"description"</span>
+<span class="w">    </span><span class="na">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"ELB ${aws_lb.qumulo.arn_suffix}"</span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nb">filter</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="na">name</span><span class="w">   </span><span class="o">=</span><span class="w"> </span><span class="s2">"subnet-id"</span>
+<span class="w">    </span><span class="na">values</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="nv">local.subnet_ids[count.index</span><span class="p">]]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nb">locals</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="na">nlb_ips</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">sort</span><span class="p">(</span><span class="nv">data.aws_network_interface.nlb</span><span class="p">[</span><span class="err">*</span><span class="p">].</span><span class="err">private_ip</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>Publish them, with the load balancer’s <code class="docutils literal notranslate"><span class="pre">dns_name</span></code> as <code class="docutils literal notranslate"><span class="pre">api_host</span></code>:</p>
+<div class="highlight-hcl notranslate"><div class="highlight"><pre><span></span><span class="kr">output</span><span class="w"> </span><span class="nv">"qumulo_ansible_inventory"</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nb">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nb">cnq01</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="na">api_host</span><span class="w">            </span><span class="o">=</span><span class="w"> </span><span class="nv">aws_lb.qumulo.dns_name</span>
+<span class="w">      </span><span class="na">cluster_uuid</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="nv">qumulo_filesystem_aws.cluster.cluster_uuid</span>
+<span class="w">      </span><span class="na">cluster_kind</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="s2">"cnq"</span>
+<span class="w">      </span><span class="na">managed_by</span><span class="w">          </span><span class="o">=</span><span class="w"> </span><span class="s2">"terraform_provider"</span>
+<span class="w">      </span><span class="na">owned_areas</span><span class="w">         </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"network.floating_ips"</span><span class="p">]</span>
+<span class="w">      </span><span class="nb">password_ref</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="na">type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"aws_ssm_parameter"</span><span class="p">,</span><span class="w"> </span><span class="na">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">aws_ssm_parameter.cnq01.name</span><span class="w"> </span><span class="p">}</span>
+<span class="w">      </span><span class="na">portal_hosts</span><span class="w">        </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="nv">local.nlb_ips</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">local.nlb_ips</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">null</span>
+<span class="w">      </span><span class="na">replication_address</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="nv">local.nlb_ips</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;</span><span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="p">?</span><span class="w"> </span><span class="nv">local.nlb_ips[0</span><span class="p">]</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kt">null</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>A module that outputs its load balancer’s interface ids, as an <code class="docutils literal notranslate"><span class="pre">nlb_eni_ids</span></code> output does, can give each
+<code class="docutils literal notranslate"><span class="pre">aws_network_interface</span></code> its <code class="docutils literal notranslate"><span class="pre">id</span></code> instead of the filters.</p></li>
+<li><p>A root that pins the IPs with <code class="docutils literal notranslate"><span class="pre">subnet_mapping</span></code>’s <code class="docutils literal notranslate"><span class="pre">private_ipv4_address</span></code> can publish its own list instead.</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="publish-the-load-balancer-s-name">
+<h4>Publish the load balancer’s name<a class="headerlink" href="#publish-the-load-balancer-s-name" title="Link to this heading"></a></h4>
+<p>When the root has only the name, publish it as <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code> in place of the two address fields, and the plugin
+resolves it on the controller each time it reads the output.</p>
+<ol class="arabic">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code> to the load balancer’s fully qualified DNS name:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Root</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A root that forms the load balancer as in the provider’s NLB guide</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">aws_lb.qumulo.dns_name</span></code>; with <code class="docutils literal notranslate"><span class="pre">count</span></code> on the load balancer, <code class="docutils literal notranslate"><span class="pre">one(aws_lb.qumulo[*].dns_name)</span></code>, which is null when it forms none, and then <code class="docutils literal notranslate"><span class="pre">api_host</span></code> needs another value</p></td>
+</tr>
+<tr class="row-odd"><td><p>The legacy CNQ modules</p></td>
+<td><p>The value of their <code class="docutils literal notranslate"><span class="pre">qumulo_nlb_dns</span></code> output, or your module’s equivalent, such as <code class="docutils literal notranslate"><span class="pre">module.cnq.qumulo_nlb_dns</span></code> from a root that calls them as <code class="docutils literal notranslate"><span class="pre">module.cnq</span></code>; null when they provision no load balancer</p></td>
+</tr>
+</tbody>
+</table>
+</li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_ANY_UNPARSED_IS_FAILED=true</span></code> for runs that read a name.
+A name that fails takes every host of the source out of the run, and Ansible only warns about that by default.</p></li>
+<li><p>With <code class="docutils literal notranslate"><span class="pre">cache:</span> <span class="pre">true</span></code>, expect a failure when the name resolves to fewer addresses than the cache recorded.
+Give the addresses in <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_address</span></code>, or run once with <code class="docutils literal notranslate"><span class="pre">--flush-cache</span></code> to take the shorter
+list.</p></li>
+</ol>
+<p>The plugin fills only the fields the entry leaves null, with every address the name resolves to
+(<a class="reference internal" href="../reference/terraform-inventory.html#load-balancer-names"><span class="std std-ref">the rules</span></a>).
+Give <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code> yourself when the other side cannot reach IPv6.
+After the load balancer is formed again, the next run publishes its new IPs, and the portal modules and the baseline’s
+replication step change the cluster’s addresses in place.
+The resolved addresses are a snapshot, not failover
+(<a class="reference internal" href="../explanation/edges-and-portals.html#addresses-behind-a-load-balancer"><span class="std std-ref">why</span></a>).
+The collection was tested on a three-node cluster across three zones, behind a load balancer with cross-zone load
+balancing off: each zonal IP reached its own zone’s node on every connection, and a relationship created with a zonal IP
+as its <code class="docutils literal notranslate"><span class="pre">target_address</span></code> reached the target through it.</p>
+</section>
+</section>
+<section id="rebuild-an-edge-that-terraform-formed">
+<h3>Rebuild an edge that Terraform formed<a class="headerlink" href="#rebuild-an-edge-that-terraform-formed" title="Link to this heading"></a></h3>
+<p>Run the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_rebuild</span></code> playbook in one run, with <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_rebuild=true</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_phase=all</span></code> and
+reinstall tasks that replace the edge’s Terraform resource.
+Terraform then forms the new edge, the output names the new UUID, and the replay takes it from the plugin.
+Set <code class="docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_ANY_UNPARSED_IS_FAILED=true</span></code> for the run.
+With <code class="docutils literal notranslate"><span class="pre">output_file</span></code>, the reinstall tasks also save the output again.
+The tasks file, the commands and the checks are under
+<a class="reference internal" href="edge-rebuild.html#a-terraform-formed-edge"><span class="std std-ref">A Terraform-formed edge</span></a>.</p>
+<p>An edge the collection forms again without Terraform leaves Terraform’s state with the old UUID
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-TF-STALE</span></a>).
+Replace the resource, or override <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> in <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>.</p>
+</section>
+<section id="adopt-a-host-from-this-plugin">
+<h3>Adopt a host from this plugin<a class="headerlink" href="#adopt-a-host-from-this-plugin" title="Link to this heading"></a></h3>
+<p>A host from the plugin is adopted for the settings Terraform does not hold, with the same capture as any other.
+<a class="reference internal" href="adopt-a-cluster.html#adopt-a-host-from-the-terraform-inventory-plugin"><span class="std std-ref">Adopt a cluster you already run</span></a> has the steps.</p>
+</section>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>List the hosts and groups the plugin produced:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-inventory<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--graph
+</pre></div>
+</div>
+<p>Expect each cluster in <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>, in one group for its kind and one for who formed it:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>@all:
+  |--@ungrouped:
+  |--@qumulo_clusters:
+  |  |--@qumulo_cnq:
+  |  |  |--cnq01
+  |  |--@qumulo_managed_by_terraform_provider:
+  |  |  |--cnq01
+</pre></div>
+</div>
+</li>
+<li><p>Read a host’s variables:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-inventory<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--host<span class="w"> </span>cnq01
+</pre></div>
+</div>
+<p>Expect these variables from the plugin, next to the ones <code class="docutils literal notranslate"><span class="pre">group_vars</span></code> sets: <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_password_ref</span></code>, and, when the entry gives addresses, <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> as a list of <code class="docutils literal notranslate"><span class="pre">address</span></code> items and
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">"qumulo_api_host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.1.20"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"qumulo_cluster_kind"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cnq"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"qumulo_cluster_uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7c1e0d4a-77c1-4b8e-9a51-2f0e6c3d9e02"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"qumulo_managed_by"</span><span class="p">:</span><span class="w"> </span><span class="s2">"terraform_provider"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"qumulo_password_ref"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/qumulo/cnq01/admin-password"</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"aws_ssm_parameter"</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">"qumulo_portal_hosts"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.1.20"</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.1.21"</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.1.22"</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nt">"qumulo_replication_address"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.0.1.20"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"qumulo_terraform_owned_areas"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="s2">"network.floating_ips"</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code> shows as its unrendered lookup, because <code class="docutils literal notranslate"><span class="pre">ansible-inventory</span></code> does not run lookups, so this step
+does not read the store.</p>
+</li>
+<li><p>Run the baseline as a check, which changes nothing:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>cnq01<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+<p>The run reaches the cluster, passes the identity guard with the UUID Terraform recorded, and, while <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>
+declare nothing yet, reports <code class="docutils literal notranslate"><span class="pre">changed=0</span></code>.</p>
+</li>
+</ol>
+<p>An entry with a missing, unknown or malformed field fails the whole source, and the message names every bad entry and
+field.
+A field whose name looks like a secret, such as <code class="docutils literal notranslate"><span class="pre">password</span></code> or <code class="docutils literal notranslate"><span class="pre">api_token</span></code>, fails it the same way; the message never
+quotes a value.
+<a class="reference internal" href="../reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a> has the messages.</p>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a> to capture the settings Terraform does not hold.</p></li>
+<li><p><a class="reference internal" href="pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a> to run these checks and the apply from CI.</p></li>
+<li><p><a class="reference internal" href="pair-edge-with-hub.html"><span class="std std-doc">Pair an edge with its hub through a portal</span></a> once the hosts publish <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code>.</p></li>
+<li><p><a class="reference internal" href="../reference/terraform-inventory.html"><span class="std std-doc">The Terraform inventory plugin</span></a> for the output’s fields and the plugin’s
+options.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="adopt-a-cluster.html" class="btn btn-neutral float-left" title="Adopt a cluster you already run" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="respond-to-a-refusal.html" class="btn btn-neutral float-right" title="Respond to a refusal" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

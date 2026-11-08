@@ -1,0 +1,799 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.snapshot_info module – Read a Qumulo cluster’s snapshots, snapshot policies, snapshot capacity and lock keys &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.snapshot_lock module – Lock or unlock a snapshot on a Qumulo cluster with a key from its key store" href="snapshot_lock_module.html" />
+    <link rel="prev" title="qumulo.cluster.snapshot module – Take a snapshot of a directory on a Qumulo cluster" href="snapshot_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.snapshot_info module – Read a Qumulo cluster’s snapshots, snapshot policies, snapshot capacity and lock keys</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-snapshot-info-module"></span><section id="qumulo-cluster-snapshot-info-module-read-a-qumulo-cluster-s-snapshots-snapshot-policies-snapshot-capacity-and-lock-keys">
+<h1>qumulo.cluster.snapshot_info module – Read a Qumulo cluster’s snapshots, snapshot policies, snapshot capacity and lock keys<a class="headerlink" href="#qumulo-cluster-snapshot-info-module-read-a-qumulo-cluster-s-snapshots-snapshot-policies-snapshot-capacity-and-lock-keys" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.snapshot_info</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Gathers the snapshots, snapshot policies, snapshot capacity and lock keys of one cluster, and changes nothing.</p></li>
+<li><p>Each policy comes back in the option shape of <a class="reference internal" href="snapshot_policy_module.html#ansible-collections-qumulo-cluster-snapshot-policy-module"><span class="std std-ref">qumulo.cluster.snapshot_policy</span></a>, so it carries its name and no id.</p></li>
+<li><p>Each key comes back in the option shape of <a class="reference internal" href="security_key_module.html#ansible-collections-qumulo-cluster-security-key-module"><span class="std std-ref">qumulo.cluster.security_key</span></a>, with its id and what uses it.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-gather_subset"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-gather-subset"><strong>gather_subset</strong></p>
+<a class="ansibleOptionLink" href="#parameter-gather_subset" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The subsets of facts to gather. <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code> gathers every subset.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">snapshots</span></code> is every snapshot, <code class="ansible-value docutils literal notranslate"><span class="pre">policies</span></code> every snapshot policy, <code class="ansible-value docutils literal notranslate"><span class="pre">capacity</span></code> the space the snapshots use, and <code class="ansible-value docutils literal notranslate"><span class="pre">security_keys</span></code> every key in the file system key store with what uses it.</p>
+<p>When the API user may not read the key store, <code class="ansible-value docutils literal notranslate"><span class="pre">security_keys</span></code> is listed in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-snapshot-info-module-return-unavailable-subsets"><span class="std std-ref"><span class="pre">unavailable_subsets</span></span></a></code> and the other subsets are gathered. A key deleted while the keys are read is left out.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;all&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;snapshots&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;policies&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;capacity&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;security_keys&quot;</span></code></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[&quot;all&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: <code class="ansible-value docutils literal notranslate"><span class="pre">snapshots</span></code> GET /v4/snapshots/status/; <code class="ansible-value docutils literal notranslate"><span class="pre">policies</span></code> GET /v3/snapshots/policies/status/; <code class="ansible-value docutils literal notranslate"><span class="pre">capacity</span></code> GET /v1/snapshots/total-used-capacity; <code class="ansible-value docutils literal notranslate"><span class="pre">security_keys</span></code> GET /v1/file-system/security/keys/ and GET /v1/file-system/security/keys/{id}/usages for each key.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># These tasks carry no connection options. Set them once for the play with module_defaults for</span>
+<span class="c1"># group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the snapshots, policies, capacity and lock keys</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.snapshot_info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snapshots</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List the snapshots that are not being deleted</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">snapshots.snapshots.snapshots</span> <span class="o">|</span> <span class="nf">rejectattr</span><span class="o">(</span><span class="s1">'in_delete'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'name'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List the snapshots of the project tree</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.snapshot_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snapshots</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">project_snapshots</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the names of the project tree's snapshots</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">project_snapshots.snapshots.snapshots</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'path'</span><span class="o">,</span> <span class="s1">'equalto'</span><span class="o">,</span> <span class="s1">'/data/projects'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'name'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the snapshot policies</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.snapshot_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">policies</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">policy_facts</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List the policies that are switched off</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">policy_facts.snapshots.policies</span> <span class="o">|</span> <span class="nf">rejectattr</span><span class="o">(</span><span class="s1">'enabled'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'policy_name'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read how much space the snapshots use</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.snapshot_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">capacity</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snapshot_capacity</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the space deleting every snapshot would free</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">snapshot_capacity.snapshots.capacity.used_bytes</span> <span class="cp">}}</span><span class="nv"> </span><span class="s">bytes"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the lock keys and what uses each</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.snapshot_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">security_keys</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key_facts</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List the ids of the snapshots the legal-hold key locks</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">      </span><span class="cp">{{</span> <span class="nv">key_facts.snapshots.security_keys</span> <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'name'</span><span class="o">,</span> <span class="s1">'equalto'</span><span class="o">,</span> <span class="s1">'legal-hold'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'usages'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">flatten</span>
+         <span class="o">|</span> <span class="nf">selectattr</span><span class="o">(</span><span class="s1">'type'</span><span class="o">,</span> <span class="s1">'equalto'</span><span class="o">,</span> <span class="s1">'snapshot'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'id'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots"><strong>snapshots</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The gathered facts. Each key is present only when its subset was gathered.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/capacity"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-capacity"><strong>capacity</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/capacity" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Snapshot capacity in bytes.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/capacity/used_bytes"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-capacity-used-bytes"><strong>used_bytes</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/capacity/used_bytes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>About how many bytes deleting every snapshot would free.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">1048576</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies"><strong>policies</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every snapshot policy, in the option shape of <a class="reference internal" href="snapshot_policy_module.html#ansible-collections-qumulo-cluster-snapshot-policy-module"><span class="std std-ref">qumulo.cluster.snapshot_policy</span></a>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies/enabled"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies-enabled"><strong>enabled</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies/enabled" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the policy takes snapshots.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">true</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies/expiration_time_to_live"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies-expiration-time-to-live"><strong>expiration_time_to_live</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies/expiration_time_to_live" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>How long the policy’s snapshots are kept, as the cluster stores it; an empty string for never.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;7days&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies/lock_key"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies-lock-key"><strong>lock_key</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies/lock_key" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The name of the key that locks each snapshot the policy takes, or null for none.</p>
+<p>The key’s id when the API user may not read the key store, with a warning, or when the key has no name (QUIRK-120).</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;legal-hold&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies/path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies-path"><strong>path</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies/path" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The directory the policy snapshots.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;/data/projects&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies/policy_name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies-policy-name"><strong>policy_name</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies/policy_name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The policy’s name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;projects-hourly&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies/schedule"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies-schedule"><strong>schedule</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies/schedule" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When the policy takes snapshots, in the fields of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="snapshot_policy_module.html#ansible-collections-qumulo-cluster-snapshot-policy-module-parameter-schedule"><span class="std std-ref"><span class="pre">schedule</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;frequency&quot;:</span> <span class="pre">&quot;SCHEDULE_DAILY_OR_WEEKLY&quot;,</span> <span class="pre">&quot;hour&quot;:</span> <span class="pre">2,</span> <span class="pre">&quot;minute&quot;:</span> <span class="pre">0,</span> <span class="pre">&quot;on_days&quot;:</span> <span class="pre">[&quot;MON&quot;,</span> <span class="pre">&quot;TUE&quot;,</span> <span class="pre">&quot;WED&quot;,</span> <span class="pre">&quot;THU&quot;,</span> <span class="pre">&quot;FRI&quot;],</span> <span class="pre">&quot;timezone&quot;:</span> <span class="pre">&quot;UTC&quot;}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/policies/snapshot_name_template"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-policies-snapshot-name-template"><strong>snapshot_name_template</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/policies/snapshot_name_template" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>How the policy names its snapshots.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;{ID}_{Policy}_{Directory}&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/security_keys"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-security-keys"><strong>security_keys</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/security_keys" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every key in the file system key store, in the option shape of <a class="reference internal" href="security_key_module.html#ansible-collections-qumulo-cluster-security-key-module"><span class="std std-ref">qumulo.cluster.security_key</span></a>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/security_keys/comment"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-security-keys-comment"><strong>comment</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/security_keys/comment" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The key’s comment.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;Locks</span> <span class="pre">the</span> <span class="pre">snapshots</span> <span class="pre">kept</span> <span class="pre">for</span> <span class="pre">legal</span> <span class="pre">holds&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/security_keys/enabled"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-security-keys-enabled"><strong>enabled</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/security_keys/enabled" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the key can lock snapshots.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">true</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/security_keys/id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-security-keys-id"><strong>id</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/security_keys/id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The key’s id, which a snapshot’s <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> names.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;2&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/security_keys/name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-security-keys-name"><strong>name</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/security_keys/name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The key’s name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;legal-hold&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/security_keys/public_key"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-security-keys-public-key"><strong>public_key</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/security_keys/public_key" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The key’s public half, as base64 DER.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE...&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/security_keys/usages"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-security-keys-usages"><strong>usages</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/security_keys/usages" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>What uses the key, each <code class="docutils literal notranslate"><span class="pre">type</span></code> and <code class="docutils literal notranslate"><span class="pre">id</span></code>, sorted by type and then id. <code class="docutils literal notranslate"><span class="pre">type</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">snapshot</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">snapshot_policy</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">replication_target</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;id&quot;:</span> <span class="pre">&quot;12&quot;,</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;snapshot&quot;},</span> <span class="pre">{&quot;id&quot;:</span> <span class="pre">&quot;1&quot;,</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;snapshot_policy&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots"><strong>snapshots</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every snapshot as the cluster reports it, with <code class="docutils literal notranslate"><span class="pre">path</span></code>, the snapshotted directory without a trailing slash.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/expiration"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-expiration"><strong>expiration</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/expiration" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When the snapshot expires, in RFC 3339; an empty string for never.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;2026-11-07T02:41:36.296864386Z&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-id"><strong>id</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshot’s id.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">3</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/in_delete"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-in-delete"><strong>in_delete</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/in_delete" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the cluster is deleting the snapshot.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">false</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/lock_key"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-lock-key"><strong>lock_key</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/lock_key" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">any</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The id of the key the snapshot is locked with, as the cluster reports it, or null when it is unlocked.</p>
+<p><a class="reference internal" href="snapshot_lock_module.html#ansible-collections-qumulo-cluster-snapshot-lock-module"><span class="std std-ref">qumulo.cluster.snapshot_lock</span></a> returns the key’s name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;1&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-name"><strong>name</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshot’s full name: its id, then the name the task gave, <code class="ansible-value docutils literal notranslate"><span class="pre">OnDemand</span></code>, or what the policy’s <code class="docutils literal notranslate"><span class="pre">snapshot_name_template</span></code> made.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;3_projects-daily_projects&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/owners"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-owners"><strong>owners</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/owners" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The replication relationships that hold the snapshot, each as <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-path"><strong>path</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/path" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshotted directory, without a trailing slash.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;/data/projects&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/policy_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-policy-id"><strong>policy_id</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/policy_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The id of the policy that took the snapshot, or null for an on-demand snapshot.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/policy_name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-policy-name"><strong>policy_name</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/policy_name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The name of that policy, or null.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/source_file_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-source-file-id"><strong>source_file_id</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/source_file_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshotted directory’s file id.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;100&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/source_file_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-source-file-path"><strong>source_file_path</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/source_file_path" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshotted directory as the cluster reports it, with a trailing slash.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;/data/projects/&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/snapshots/timestamp"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-snapshots-snapshots-timestamp"><strong>timestamp</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/snapshots/timestamp" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When the snapshot was taken.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;2026-10-31T02:41:36.296864386Z&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unavailable_subsets"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-snapshot-info-module-return-unavailable-subsets"><strong>unavailable_subsets</strong></p>
+<a class="ansibleOptionLink" href="#return-unavailable_subsets" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The subsets that could not be gathered, each with the reason, such as <code class="ansible-value docutils literal notranslate"><span class="pre">security_keys</span></code> for an API user who may not read the key store.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when a subset could not be gathered</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;security_keys&quot;:</span> <span class="pre">&quot;the</span> <span class="pre">API</span> <span class="pre">user</span> <span class="pre">may</span> <span class="pre">not</span> <span class="pre">read</span> <span class="pre">the</span> <span class="pre">key</span> <span class="pre">store:</span> <span class="pre">...&quot;}</span></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="snapshot_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.snapshot module – Take a snapshot of a directory on a Qumulo cluster" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="snapshot_lock_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.snapshot_lock module – Lock or unlock a snapshot on a Qumulo cluster with a key from its key store" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

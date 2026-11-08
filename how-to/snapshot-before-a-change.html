@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Take a snapshot before a change &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Manage the keys that lock snapshots" href="manage-lock-keys.html" />
+    <link rel="prev" title="Rotate the encryption key" href="rotate-encryption-key.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Take a snapshot before a change</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#write-the-play">Write the play</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#take-the-snapshot">Take the snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lock-the-snapshot">Lock the snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#make-the-change-then-check-the-snapshot">Make the change, then check the snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unlock-the-snapshot">Unlock the snapshot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#lock-a-snapshot-that-never-expires">Lock a snapshot that never expires</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#when-it-fails">When it fails</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Take a snapshot before a change</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="take-a-snapshot-before-a-change">
+<h1>Take a snapshot before a change<a class="headerlink" href="#take-a-snapshot-before-a-change" title="Link to this heading"></a></h1>
+<p>This page takes a snapshot of a directory before a change of your own, such as an upgrade or a migration, finds that
+snapshot again when you rerun the play, and locks it so that nothing deletes it early.
+When you finish, the cluster holds one named snapshot of the directory, a rerun takes no second one, and, if you locked
+it, nothing deletes the snapshot before it expires, and only the key’s private key unlocks it sooner.</p>
+<p>The baseline’s snapshot policies take snapshots on a schedule
+(<a class="reference internal" href="inventory-recipes.html"><span class="std std-doc">Declare common settings in the inventory</span></a>).
+This page is for the one-off snapshot you take by hand.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up the inventory: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+The example inventory vaults its API passwords, so the commands on this page pass <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code>; use
+<code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> in place of it if you keep the vault password in a file.</p></li>
+<li><p>Use a directory that exists on the cluster.
+The play refuses a missing directory, except in a check run, where it reports that an earlier task is expected to
+create it.</p></li>
+<li><p>On an edge, snapshot a directory that is not on or under a portal’s spoke root.
+The cluster takes no snapshot there, so the play refuses before it sends the request, in a check run too
+(G-SPOKE-PATHS, <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>); snapshot that data on the hub
+(<a class="reference internal" href="../explanation/edges-and-portals.html#spoke-roots-hold-the-hub-s-data"><span class="std std-ref">why</span></a>).
+The play below uses <code class="docutils literal notranslate"><span class="pre">/local/scratch</span></code>, the example inventory’s directory on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> outside its spoke root
+<code class="docutils literal notranslate"><span class="pre">/projects</span></code>.</p></li>
+<li><p>To lock the snapshot, have the lock key in the cluster’s file system key store, or have its private key in
+unencrypted PEM form in an ansible-vault and the <code class="docutils literal notranslate"><span class="pre">openssl</span></code> command on the controller, so that
+<a class="reference internal" href="#lock-the-snapshot">Lock the snapshot</a> registers it.
+<a class="reference internal" href="manage-lock-keys.html"><span class="std std-doc">Manage the keys that lock snapshots</span></a> covers registering a key without its private key.</p></li>
+<li><p>To unlock the snapshot, or to lock one that never expires, have the key’s private key in an ansible-vault and
+<code class="docutils literal notranslate"><span class="pre">openssl</span></code> on the controller as well.</p></li>
+</ul>
+</section>
+<section id="write-the-play">
+<h2>Write the play<a class="headerlink" href="#write-the-play" title="Link to this heading"></a></h2>
+<p>Put the play in a file of your own.
+The <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> block is the header every playbook of the collection starts with; it hands the inventory’s
+connection variables to each module (<a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory</span></a>).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># snapshot-before-change.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Snapshot a directory before a change</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Snapshot the scratch directory before the migration</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.snapshot</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/local/scratch</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">before-migration</span>
+<span class="w">        </span><span class="nt">expiration_time_to_live</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2weeks</span>
+<span class="w">        </span><span class="nt">reuse_existing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">before_migration</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snapshot</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the snapshot's id and full name</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">before_migration.snapshot.id</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('not</span><span class="nv"> </span><span class="s">taken</span><span class="nv"> </span><span class="s">yet')</span><span class="nv"> </span><span class="s">}}:</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">before_migration.snapshot.name</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snapshot</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">reuse_existing:</span> <span class="pre">true</span></code> with a <code class="docutils literal notranslate"><span class="pre">name</span></code> is what makes a rerun safe.
+The cluster names each snapshot <code class="docutils literal notranslate"><span class="pre">&lt;id&gt;_&lt;name&gt;</span></code>, with an id it generates, so a plain rerun takes another snapshot;
+with <code class="docutils literal notranslate"><span class="pre">reuse_existing</span></code>, the module looks for a snapshot of the directory named <code class="docutils literal notranslate"><span class="pre">&lt;id&gt;_before-migration</span></code> and takes none
+when it finds one (<a class="reference internal" href="../explanation/state-management.html#keys-not-ids"><span class="std std-ref">why</span></a>, and
+<a class="reference internal" href="../explanation/state-management.html#actions-are-not-settings"><span class="std std-ref">the trade-off</span></a>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">expiration_time_to_live</span></code> is a whole number and a unit: <code class="docutils literal notranslate"><span class="pre">90minutes</span></code>, <code class="docutils literal notranslate"><span class="pre">12hours</span></code>, <code class="docutils literal notranslate"><span class="pre">7days</span></code>, <code class="docutils literal notranslate"><span class="pre">2weeks</span></code> or <code class="docutils literal notranslate"><span class="pre">6months</span></code>.
+The time counts from when the task runs on the controller.
+When the task finds an existing snapshot, that snapshot keeps its own expiration, whatever the task says.</p>
+</section>
+<section id="take-the-snapshot">
+<h2>Take the snapshot<a class="headerlink" href="#take-the-snapshot" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Preview the run on one host:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>snapshot<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The check run reports the snapshot it would take, with its expiration.
+The id is known only once the snapshot is taken, so the <code class="docutils literal notranslate"><span class="pre">debug</span></code> task shows <code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">taken</span> <span class="pre">yet</span></code>.</p>
+</li>
+<li><p>Take it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>snapshot<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">debug</span></code> task prints the snapshot’s id and full name, such as <code class="docutils literal notranslate"><span class="pre">12:</span> <span class="pre">12_before-migration</span></code>.</p>
+</li>
+<li><p>Run it again.
+The <code class="docutils literal notranslate"><span class="pre">snapshot</span></code> task reports <code class="docutils literal notranslate"><span class="pre">ok</span></code> and returns the snapshot the first run took.</p></li>
+</ol>
+</section>
+<section id="lock-the-snapshot">
+<h2>Lock the snapshot<a class="headerlink" href="#lock-the-snapshot" title="Link to this heading"></a></h2>
+<p>Lock the snapshot so that nothing deletes it, or shortens its life, before it expires or you unlock it.
+Only a signature made with the key’s private key unlocks it, and the cluster keeps only the public key.</p>
+<ol class="arabic">
+<li><p>If the key store already holds the key, go to step 3.
+Otherwise add the private key to the inventory, unencrypted and inside an ansible-vault, as
+<code class="docutils literal notranslate"><span class="pre">vault_legal_hold_private_key</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-vault<span class="w"> </span>encrypt_string<span class="w"> </span>--stdin-name<span class="w"> </span>vault_legal_hold_private_key<span class="w"> </span>&lt;<span class="w"> </span>legal-hold.pem
+</pre></div>
+</div>
+<p>Paste the output into the host’s vars file, such as <code class="docutils literal notranslate"><span class="pre">inventory/host_vars/edge01.yml</span></code>.</p>
+</li>
+<li><p>Register the key in the key store.
+Add the task to the play, after the tasks above:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Register the legal-hold key in the key store</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.security_key</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">legal-hold</span>
+<span class="w">        </span><span class="nt">private_key</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_legal_hold_private_key</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Locks the snapshots kept before a change</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snapshot</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">key</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>The module derives the public key from the private key and signs the name <code class="docutils literal notranslate"><span class="pre">legal-hold</span></code> with it, because the cluster
+registers a key only with that signature.
+The private key appears in no result, log or diff.
+When the key store already holds that key, the task reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>.
+<a class="reference internal" href="manage-lock-keys.html"><span class="std std-doc">Manage the keys that lock snapshots</span></a> shows how to see what the store holds, and how to
+register a key without its private key.
+Preview and run the task by itself, before the lock task exists:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>key<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>key<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The check run shows the key’s <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">comment</span></code>, <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">public_key</span></code> in the diff, and the real run reports a
+change.
+Rerun it: it reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>.
+Run the key task first because, in a check run, the lock task fails while the key store holds no such key.</p>
+</li>
+<li><p>Add the lock task to the play, after the tasks above:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lock the snapshot until it expires</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.snapshot_lock</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">snapshot_id</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">before_migration.snapshot.id</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">lock_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">legal-hold</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">before_migration.snapshot.id is defined</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snapshot</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">lock_key</span></code> is the key’s name or id in the key store.
+The <code class="docutils literal notranslate"><span class="pre">when</span></code> skips the task in a check run before the snapshot exists, because there is no id to lock yet.
+To preview the lock, check-run the play after step 2 of <a class="reference internal" href="#take-the-snapshot">Take the snapshot</a> has taken the
+snapshot and the key store holds the key.</p>
+</li>
+<li><p>Preview and run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>snapshot<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>snapshot<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The first run reports a change, and <code class="docutils literal notranslate"><span class="pre">--diff</span></code> shows <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> going from null to <code class="docutils literal notranslate"><span class="pre">legal-hold</span></code>.
+The task returns the lock in <code class="docutils literal notranslate"><span class="pre">snapshot_lock</span></code>: the <code class="docutils literal notranslate"><span class="pre">snapshot_id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">expiration</span></code> and <code class="docutils literal notranslate"><span class="pre">lock_key</span></code>.
+Rerun it: it reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>.</p>
+</li>
+</ol>
+<p>A snapshot locked with another key is refused; unlock it with that key first.</p>
+</section>
+<section id="make-the-change-then-check-the-snapshot">
+<h2>Make the change, then check the snapshot<a class="headerlink" href="#make-the-change-then-check-the-snapshot" title="Link to this heading"></a></h2>
+<p>Make your change.
+<code class="docutils literal notranslate"><span class="pre">before_migration.snapshot</span></code> holds the snapshot’s <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">timestamp</span></code> and <code class="docutils literal notranslate"><span class="pre">expiration</span></code>.</p>
+<p>To read the snapshots back, add tasks that use <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.snapshot_info</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the cluster's snapshots</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.snapshot_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">snapshots</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">snapshot_facts</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">verify</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the snapshots of the scratch directory and whether each is locked</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">item.name</span><span class="nv"> </span><span class="s">}}:</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">'locked</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">key</span><span class="nv"> </span><span class="s">'</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">item.lock_key</span><span class="nv"> </span><span class="s">if</span><span class="nv"> </span><span class="s">item.lock_key</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">none</span><span class="nv"> </span><span class="s">else</span><span class="nv"> </span><span class="s">'unlocked'</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">loop</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">        </span><span class="no">{{ snapshot_facts.snapshots.snapshots</span>
+<span class="w">           </span><span class="no">| selectattr('path', 'equalto', '/local/scratch') | list }}</span>
+<span class="w">      </span><span class="nt">loop_control</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">item.name</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">verify</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>verify<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>Each entry of <code class="docutils literal notranslate"><span class="pre">snapshots.snapshots</span></code> has <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">expiration</span></code>, <code class="docutils literal notranslate"><span class="pre">in_delete</span></code> and <code class="docutils literal notranslate"><span class="pre">lock_key</span></code>, the id of the key that locks
+the snapshot, or null while it is unlocked.</p>
+</section>
+<section id="unlock-the-snapshot">
+<h2>Unlock the snapshot<a class="headerlink" href="#unlock-the-snapshot" title="Link to this heading"></a></h2>
+<p>The unlock signs the cluster’s unlock challenge with the key’s private key.</p>
+<ol class="arabic">
+<li><p>Add the private key to the inventory, unencrypted and inside an ansible-vault.
+A PEM spans several lines, so give it to the command on standard input:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-vault<span class="w"> </span>encrypt_string<span class="w"> </span>--stdin-name<span class="w"> </span>vault_legal_hold_private_key<span class="w"> </span>&lt;<span class="w"> </span>legal-hold.pem
+</pre></div>
+</div>
+<p>Paste the output into the host’s vars file, such as <code class="docutils literal notranslate"><span class="pre">inventory/host_vars/edge01.yml</span></code>, or into a group’s
+(<a class="reference internal" href="store-secrets.html#encrypt-a-license-document"><span class="std std-ref">Keep secrets out of the inventory</span></a>).</p>
+</li>
+<li><p>Add a task that runs only when asked for, and give it the snapshot’s full name:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Unlock the snapshot once the migration is signed off</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.snapshot_lock</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">snapshot_name</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unlocked</span>
+<span class="w">        </span><span class="nt">private_key</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_legal_hold_private_key</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">tags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">never</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">unlock</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run it with the snapshot’s full name, as the <code class="docutils literal notranslate"><span class="pre">verify</span></code> run lists it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>snapshot-before-change.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--tags<span class="w"> </span>unlock<span class="w"> </span>-e<span class="w"> </span><span class="nv">snapshot_name</span><span class="o">=</span>12_before-migration<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The module checks the key against the key store before it asks the cluster for an unlock challenge.
+A check run (<code class="docutils literal notranslate"><span class="pre">--check</span></code>) checks the key and asks for no challenge.
+Unlocking a snapshot that is already unlocked changes nothing.</p>
+</section>
+<section id="lock-a-snapshot-that-never-expires">
+<h2>Lock a snapshot that never expires<a class="headerlink" href="#lock-a-snapshot-that-never-expires" title="Link to this heading"></a></h2>
+<p>The module locks a snapshot that never expires only when the task gives the matching <code class="docutils literal notranslate"><span class="pre">private_key</span></code>
+(<a class="reference internal" href="../explanation/refusals-and-guards.html#refuse-don-t-guess"><span class="std std-ref">why</span></a>).
+Add the private key to the inventory as in step 1 of <a class="reference internal" href="#unlock-the-snapshot">Unlock the snapshot</a>, then take a snapshot
+with no expiration and lock it with the key:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Snapshot the scratch directory and keep it until it is deleted</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.snapshot</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/local/scratch</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audit-hold</span>
+<span class="w">        </span><span class="nt">reuse_existing</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audit_hold</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Lock the snapshot that never expires, proving the key can unlock it</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.snapshot_lock</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">snapshot_id</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">audit_hold.snapshot.id</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">lock_key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">legal-hold</span>
+<span class="w">        </span><span class="nt">private_key</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_legal_hold_private_key</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audit_hold.snapshot.id is defined</span>
+</pre></div>
+</div>
+<p>A snapshot with no <code class="docutils literal notranslate"><span class="pre">expiration_time_to_live</span></code>, or with <code class="docutils literal notranslate"><span class="pre">never</span></code>, is kept until you delete it.
+To lock such a snapshot with the key’s name alone, give it an expiration first, for example with
+<code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">snapshot_modify_snapshot</span> <span class="pre">--id</span> <span class="pre">&lt;id&gt;</span> <span class="pre">--expiration</span> <span class="pre">&lt;time&gt;</span></code>.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>A snapshot without a name of your own.</strong>
+Leave out <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">reuse_existing</span></code>.
+The cluster names the snapshot <code class="docutils literal notranslate"><span class="pre">&lt;id&gt;_OnDemand</span></code>, and every run takes a new one.
+Without <code class="docutils literal notranslate"><span class="pre">reuse_existing</span></code>, every run of the task takes another snapshot and reports a change.</p></li>
+<li><p><strong>Lock a snapshot from an earlier run.</strong>
+<code class="docutils literal notranslate"><span class="pre">snapshot_lock</span></code> takes the snapshot’s full name in <code class="docutils literal notranslate"><span class="pre">name</span></code> instead of <code class="docutils literal notranslate"><span class="pre">snapshot_id</span></code>; give one, not both.</p></li>
+</ul>
+</section>
+<section id="when-it-fails">
+<h2>When it fails<a class="headerlink" href="#when-it-fails" title="Link to this heading"></a></h2>
+<p>Each refusal names what to change; connection and identity failures are in
+<a class="reference internal" href="../reference/troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a>.
+The usual ones:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;path&gt;</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">exist;</span> <span class="pre">create</span> <span class="pre">it</span> <span class="pre">first</span></code>: create the directory, for example with <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.directory</span></code>.
+A path that is a file is refused too.</p></li>
+<li><p>The directory is under a spoke root: snapshot it on the hub.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">there</span> <span class="pre">is</span> <span class="pre">no</span> <span class="pre">snapshot</span> <span class="pre">named</span> <span class="pre">&lt;name&gt;</span></code>: <code class="docutils literal notranslate"><span class="pre">snapshot_lock</span></code> takes the full name, <code class="docutils literal notranslate"><span class="pre">&lt;id&gt;_&lt;name&gt;</span></code>, not the name the task
+gave; read it from the <code class="docutils literal notranslate"><span class="pre">verify</span></code> run.</p></li>
+<li><p>The key store holds no such key: register it with <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.security_key</span></code>, as in
+<a class="reference internal" href="#lock-the-snapshot">Lock the snapshot</a>.
+A check run of the lock task fails this way until a real run of the key task registers the key.</p></li>
+<li><p>The snapshot is locked with another key: unlock it with that key’s private key first.</p></li>
+<li><p>The snapshot is being deleted: it cannot be locked.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">to</span> <span class="pre">unlock</span> <span class="pre">the</span> <span class="pre">snapshot,</span> <span class="pre">give</span> <span class="pre">private_key</span></code>: add <code class="docutils literal notranslate"><span class="pre">private_key</span></code> to the task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">private_key</span></code> does not match the key store: give the key whose public half the store holds.</p></li>
+<li><p>The snapshot never expires and the task gives no <code class="docutils literal notranslate"><span class="pre">private_key</span></code>: give the key, or set an expiration with
+<code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">snapshot_modify_snapshot</span></code> first, as in <a class="reference internal" href="#lock-a-snapshot-that-never-expires">Lock a snapshot that never expires</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">the</span> <span class="pre">key</span> <span class="pre">&lt;name&gt;</span> <span class="pre">is</span> <span class="pre">disabled</span></code>: the cluster locks nothing with a disabled key; set <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">true</span></code> on the key task.
+A snapshot the disabled key already locks reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, and the key still unlocks it.</p></li>
+<li><p>Refusals of the <code class="docutils literal notranslate"><span class="pre">security_key</span></code> task, such as a key that cannot be created, replaced, removed or disabled, are in
+<a class="reference internal" href="manage-lock-keys.html#when-it-fails"><span class="std std-ref">Manage the keys that lock snapshots</span></a>.</p></li>
+<li><p>The connection dropped after the request was sent: the module does not send it again.
+With a <code class="docutils literal notranslate"><span class="pre">name</span></code>, it lists the directory’s snapshots to find the one the request took, and reports a note saying so.
+With a <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">reuse_existing</span></code>, a rerun finds the snapshot or takes it.
+Without a <code class="docutils literal notranslate"><span class="pre">name</span></code>, or when it finds none, the task fails and says a snapshot may have been taken: run the <code class="docutils literal notranslate"><span class="pre">verify</span></code>
+tasks to list the directory’s snapshots before you run it again
+(<a class="reference internal" href="../explanation/state-management.html#maybe-applied"><span class="std std-ref">what <code class="docutils literal notranslate"><span class="pre">maybe_applied</span></code> means</span></a>).</p></li>
+</ul>
+<p>Every option and return value is in <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.snapshot</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.snapshot_lock</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo.cluster.security_key</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.snapshot_info</span></code>.
+To upgrade after taking the snapshot, see <a class="reference internal" href="upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rotate-encryption-key.html" class="btn btn-neutral float-left" title="Rotate the encryption key" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="manage-lock-keys.html" class="btn btn-neutral float-right" title="Manage the keys that lock snapshots" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

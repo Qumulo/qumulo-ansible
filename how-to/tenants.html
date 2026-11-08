@@ -1,0 +1,601 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage tenants &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Join a cluster to Active Directory" href="active-directory.html" />
+    <link rel="prev" title="Declare common settings in the inventory" href="inventory-recipes.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Manage tenants</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-a-tenant">Add a tenant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bind-a-network-to-a-tenant">Bind a network to a tenant</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#on-managed-networking">On managed networking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#on-networking-the-host-manages">On networking the host manages</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#declare-the-management-network-and-the-cluster-port">Declare the management network and the cluster port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#give-a-tenant-its-own-smb-and-nfs-settings">Give a tenant its own SMB and NFS settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#declare-shares-and-exports">Declare shares and exports</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rename-a-tenant">Rename a tenant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete-a-tenant">Delete a tenant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prepare-backend-networks-before-the-second-tenant">Prepare backend networks before the second tenant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update-an-inventory-that-names-tenant-id">Update an inventory that names <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#regain-rest-access">Regain REST access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-tested">What is tested</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#if-a-run-refuses">If a run refuses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Manage tenants</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="manage-tenants">
+<h1>Manage tenants<a class="headerlink" href="#manage-tenants" title="Link to this heading"></a></h1>
+<p>Qumulo marks the multitenancy REST API as preview in Qumulo Core 7.10.3 and 7.11.0. The collection manages tenants
+through it on those releases, and a later Qumulo Core release may change it.</p>
+<p>This page declares tenants in the inventory and has the baseline create them, bind their networks, give them their own
+settings, shares and exports, and delete them. Each section starts with a run in check mode, which writes nothing and
+reports every refusal the real run would make. When you finish, each tenant serves the services you turned on, on the
+networks you listed under it, and a second run changes nothing.</p>
+<p>For what a tenant partitions, why the second tenant is different from the third, and the rule that keeps your play
+connected, see <a class="reference internal" href="../explanation/multitenancy.html"><span class="std std-doc">Tenants and the continuity rule</span></a>.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up the inventory with the cluster as a host, as <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>
+shows. The examples manage <code class="docutils literal notranslate"><span class="pre">cluster01</span></code>. If the inventory holds vault values, add <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> or
+<code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> to every <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> command (<a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>).</p></li>
+<li><p>Have an on-premises cluster: a hardware cluster or a virtual edge. No cloud cluster supports a second tenant, and the
+baseline refuses every tenant write to one (<a class="reference internal" href="../explanation/multitenancy.html#why-no-cloud-cluster-has-a-second-tenant"><span class="std std-ref">Why no cloud cluster has a second tenant</span></a>).</p></li>
+<li><p>Connect as a user that can read and write tenants and networks. Every baseline run whose inventory declares
+<code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_settings</span></code> or
+<code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> reads the tenant list first, which needs <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_TENANT_READ</span></code>.</p></li>
+<li><p>Declare <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind:</span> <span class="pre">edge</span></code> or <code class="docutils literal notranslate"><span class="pre">baremetal</span></code> for a cluster on premises. For tenants, a cluster with no kind is
+cloud only when its protection type is object-backed, and the kind settles that. The same kind also settles which
+areas Terraform owns on a provider-formed cluster, where an unset kind reads as <code class="docutils literal notranslate"><span class="pre">cnq</span></code>
+(<a class="reference internal" href="../explanation/terraform-ownership.html"><span class="std std-doc">Terraform ownership</span></a>).</p></li>
+<li><p>Adopt the cluster first if it has tenants already, so the inventory starts from what the cluster holds
+(<a class="reference internal" href="adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a>).</p></li>
+<li><p>Know how the play reaches the cluster. When it goes through NAT or a load balancer, or to a port the cluster maps
+onto another, <a class="reference internal" href="#declare-the-management-network-and-the-cluster-port">Declare the management network and the cluster port</a>
+comes first.</p></li>
+</ul>
+<p>Check each change before you apply it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>cluster01<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+</section>
+<section id="add-a-tenant">
+<h2>Add a tenant<a class="headerlink" href="#add-a-tenant" title="Link to this heading"></a></h2>
+<p>The Default tenant, which formation creates, is an entry like any other. A tenant with no network and no service on is a
+valid entry, and a service the entry leaves out is off on a new tenant and unchanged on an existing one. On networking
+the host manages, with no frontend network yet, this first run is refused; start from
+<a class="reference internal" href="#on-networking-the-host-manages">On networking the host manages</a>.</p>
+<ol class="arabic">
+<li><p>Add the tenant to the host’s <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>. A tenant that the list leaves out stays as it is, so the list may
+name only the new one:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/cluster01.yml</span>
+<span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">finance</span>
+<span class="w">    </span><span class="nt">smb_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">nfs_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run the check. It predicts the create, and warns that the first create of a second tenant rebinds every listener,
+which ends NFS and replication connections, and that every create removes the static routes of every node. Read both
+warnings before you apply.</p></li>
+<li><p>Apply it, then run the check again: it reports no change.</p></li>
+</ol>
+<p>The tenant serves nothing until a network is bound to it. Until then, with two tenants, the Default tenant’s services
+listen only on the Default tenant’s networks.</p>
+</section>
+<section id="bind-a-network-to-a-tenant">
+<h2>Bind a network to a tenant<a class="headerlink" href="#bind-a-network-to-a-tenant" title="Link to this heading"></a></h2>
+<p>A network belongs to one tenant, and you declare the binding by listing the network under its tenant. The baseline builds
+one network document from every tenant’s networks and <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>, so a network moves between tenants in one write.</p>
+<p>Once one present tenant declares <code class="docutils literal notranslate"><span class="pre">networks</span></code>, every present tenant must, with <code class="docutils literal notranslate"><span class="pre">[]</span></code> for none. The tenants’ networks and
+<code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> together are then the whole set, and a network that none of them lists is removed.
+Three consequences follow:</p>
+<ul class="simple">
+<li><p>Keep the backend-bond networks, and any network no tenant holds, in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>, or the run
+removes them or the cluster refuses the document.
+A network that shares a cluster VLAN with a tenant’s network needs more: kept flat, it is refused. List it under that tenant with the VLAN’s <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code>, or give each network a VLAN of its own; a <code class="docutils literal notranslate"><span class="pre">tenant</span></code> on its <code class="docutils literal notranslate"><span class="pre">frontend_networks</span></code> entry does not clear the refusal. When the run drops the other network of a VLAN, keep the VLAN with the network in <code class="docutils literal notranslate"><span class="pre">qumulo_network.managed_interfaces.frontend_vlans</span></code>, or list the network under a tenant with the VLAN’s <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code> (<a class="reference internal" href="../reference/troubleshooting.html#the-inventory-s-tenants"><span class="std std-ref">the refusals</span></a>).</p></li>
+<li><p>Move a network out of <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> when you list it under a tenant. A network listed twice, or
+under two present tenants, is refused.</p></li>
+<li><p>A run that would remove a network held by a tenant the inventory does not declare is refused, naming both: declare
+that tenant and list the network under it, or keep the network in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>.</p></li>
+</ul>
+<section id="on-managed-networking">
+<h3>On managed networking<a class="headerlink" href="#on-managed-networking" title="Link to this heading"></a></h3>
+<p>A second tenant needs its own interface: the untagged bond has one tenant’s networks, and a VLAN, with STATIC
+addresses, serves the other. This example gives <code class="docutils literal notranslate"><span class="pre">finance</span></code> a network on VLAN 200:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/cluster01.yml</span>
+<span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Default</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">Default</span><span class="p p-Indicator">,</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">STATIC</span><span class="p p-Indicator">,</span><span class="nt"> netmask</span><span class="p">:</span><span class="w"> </span><span class="nv">255.255.255.0</span><span class="p p-Indicator">,</span><span class="nt"> default_gateway</span><span class="p">:</span><span class="w"> </span><span class="nv">192.0.2.1</span><span class="p p-Indicator">,</span>
+<span class="nt">         ip_ranges</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">192.0.2.11-14</span><span class="p p-Indicator">],</span><span class="nt"> floating_ip_ranges</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">192.0.2.21-24</span><span class="p p-Indicator">]}</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">finance</span>
+<span class="w">    </span><span class="nt">smb_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">nfs_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">2</span><span class="p p-Indicator">,</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">finance</span><span class="p p-Indicator">,</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">STATIC</span><span class="p p-Indicator">,</span><span class="nt"> vlan_id</span><span class="p">:</span><span class="w"> </span><span class="nv">200</span><span class="p p-Indicator">,</span><span class="nt"> mtu</span><span class="p">:</span><span class="w"> </span><span class="nv">1500</span><span class="p p-Indicator">,</span><span class="nt"> netmask</span><span class="p">:</span><span class="w"> </span><span class="nv">255.255.255.0</span><span class="p p-Indicator">,</span>
+<span class="nt">         ip_ranges</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">198.51.100.11-14</span><span class="p p-Indicator">],</span><span class="nt"> floating_ip_ranges</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">198.51.100.21-24</span><span class="p p-Indicator">]}</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Run the check. It creates <code class="docutils literal notranslate"><span class="pre">finance</span></code>, if the cluster does not have it yet, and the network in the order the cluster
+accepts, validates the document with the cluster, and reports the network step as pending the tenant’s create. When
+<code class="docutils literal notranslate"><span class="pre">finance</span></code> exists already, the network step is reported as a change of its own.</p></li>
+<li><p>Apply it. One network write binds network 2 to <code class="docutils literal notranslate"><span class="pre">finance</span></code> and leaves network 1 in <code class="docutils literal notranslate"><span class="pre">Default</span></code>.</p></li>
+</ol>
+<p>Four rules shape the document. Each refusal names the entry to change.</p>
+<ul class="simple">
+<li><p><strong>One tenant per VLAN.</strong> The IPv4 and IPv6 networks of one VLAN belong to one tenant, and two networks of one address
+family, or two <code class="docutils literal notranslate"><span class="pre">mtu</span></code> values, on one VLAN are refused. Two tenants on the untagged bond are refused too.</p></li>
+<li><p><strong>STATIC on the VLAN.</strong> A managed document that holds a DHCP network holds no other network (G-NET-DHCP). On a
+cluster whose untagged network is DHCP, move that network to STATIC first, in a run of its own, while the cluster has
+one tenant. The move drops the address the play connects to, so that run takes <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_allow_management_disruption=true</span> <span class="pre">-e</span> <span class="pre">qumulo_api_host_after=&lt;the</span> <span class="pre">new</span> <span class="pre">address&gt;</span></code>, as <a class="reference internal" href="inventory-recipes.html#change-the-network-without-cutting-the-play-off"><span class="std std-ref">Change the network without
+cutting the play off</span></a> shows. Add the tenant and
+its VLAN in a later run without the consent, so that the continuity rule still guards the create.</p></li>
+<li><p><strong>One default gateway per IP version.</strong> At most one STATIC network, across the tenants and
+<code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>, carries an IPv4 <code class="docutils literal notranslate"><span class="pre">default_gateway</span></code>, and at most one an IPv6 one. The step refuses a
+second on every cluster, and the message says to set <code class="docutils literal notranslate"><span class="pre">default_gateway:</span> <span class="pre">&quot;&quot;</span></code> on the others. Keep the gateway on the
+network the play connects on.</p></li>
+<li><p><strong>A tenant serves clients on its own subnet.</strong> A VLAN network with no gateway of its own answers only clients on its
+subnet. A tenant whose clients are on other subnets needs routes out of the VLAN, and the collection does not manage
+static routes. Creating a tenant, and binding a network to a tenant, removes the static routes of every node
+(G-TENANT-ROUTES), so apply them again after every run that does either.</p></li>
+</ul>
+<p>A network that stays in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> and names no tenant keeps the tenant the cluster reports. Name
+its tenant there with <code class="docutils literal notranslate"><span class="pre">tenant:</span> <span class="pre">&lt;name&gt;</span></code>. The tenant need not be declared in <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> when the cluster has it.</p>
+</section>
+<section id="on-networking-the-host-manages">
+<h3>On networking the host manages<a class="headerlink" href="#on-networking-the-host-manages" title="Link to this heading"></a></h3>
+<p>On networking its host manages, every network has type <code class="docutils literal notranslate"><span class="pre">HOST</span></code> and takes neither <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code> nor STATIC addressing. A second
+tenant needs the cluster to have a frontend network already, so the order is fixed. The second tenant’s network
+serves nothing until the host associates its id with an interface, such as a second NIC, which the collection cannot do.</p>
+<ol class="arabic">
+<li><p>Declare the HOST network under the one tenant, and run the baseline once:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/cluster01.yml</span>
+<span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Default</span>
+<span class="w">    </span><span class="nt">networks</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="nv">1</span><span class="p p-Indicator">,</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">Default</span><span class="p p-Indicator">,</span><span class="nt"> type</span><span class="p">:</span><span class="w"> </span><span class="nv">HOST</span><span class="p p-Indicator">}</span><span class="w">   </span><span class="c1"># the id your host associates with the interface</span>
+</pre></div>
+</div>
+<p>A run that adds the second tenant first stops at step 2 with “The cluster’s networking is host-managed and it has no
+frontend network yet”.</p>
+</li>
+<li><p>Add the second tenant and its HOST network, and declare <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> as the id of the HOST network
+the play connects on, 1 in the example, before you run the check:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_management_network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+</pre></div>
+</div>
+<p>Declare it on every host-managed cluster with two tenants, whatever the network status answers. Once the second HOST
+network exists the document has two, and status shows only that some HOST network is served, not which one
+(a limit of the cluster’s status report), so an undeclared address is refused with the message about
+NAT or a load balancer, which does not mention HOST networks. A declared network is taken on your word, and the
+declaration also covers a cluster whose network status answers HTTP 500 (G-NET-APPLY).</p>
+</li>
+<li><p>Apply it, then run the check again: it reports no change.</p></li>
+</ol>
+</section>
+</section>
+<section id="declare-the-management-network-and-the-cluster-port">
+<h2>Declare the management network and the cluster port<a class="headerlink" href="#declare-the-management-network-and-the-cluster-port" title="Link to this heading"></a></h2>
+<p>With two or more tenants, the baseline refuses a write that would leave the network the play connects on in a tenant
+without REST. It finds that network from <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> and the network document, and the two variables below tell it
+what it cannot see. Declare them in the host’s file, with <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_api_port</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Behind NAT or a load balancer</strong>, set <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> to the id of the network <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> is
+forwarded to, or a list of two ids for a name that has an IPv4 and an IPv6 network. Network id 0 is a real id.</p></li>
+<li><p><strong>To a port the cluster maps onto another</strong>, set <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_port</span></code> to the port the cluster listens on for the play.
+At port 443 the play reaches REST through the web UI listener, so set <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_port:</span> <span class="pre">443</span></code> for a tunnel or a
+balancer that maps your port onto 443. Without it, a play that connects on 443 fails closed: the refusal asks for
+<code class="docutils literal notranslate"><span class="pre">rest_api_enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">web_ui_enabled</span></code> both on the tenant that holds the play’s network, on a single-tenant cluster
+too.</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/cluster01.yml</span>
+<span class="nt">qumulo_api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">203.0.113.10</span><span class="w">          </span><span class="c1"># the load balancer's address</span>
+<span class="nt">qumulo_api_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">18000</span><span class="w">                 </span><span class="c1"># the port the play connects to on it</span>
+<span class="nt">qumulo_management_network</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">           </span><span class="c1"># the network the balancer forwards to</span>
+<span class="nt">qumulo_cluster_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">443</span><span class="w">               </span><span class="c1"># the port the balancer maps it onto on the cluster</span>
+</pre></div>
+</div>
+<p>A single-tenant cluster behind a load balancer needs neither, unless the port the play connects on, or the port the
+balancer maps it onto, is 443. Run the check with the
+variables set, and read the refusals that remain: each says which variable to set.</p>
+</section>
+<section id="give-a-tenant-its-own-smb-and-nfs-settings">
+<h2>Give a tenant its own SMB and NFS settings<a class="headerlink" href="#give-a-tenant-its-own-smb-and-nfs-settings" title="Link to this heading"></a></h2>
+<p>A tenant’s override replaces the cluster’s SMB or NFS settings for that tenant, and it is a full copy: once it exists, a
+later change to the cluster’s settings does not reach it.</p>
+<ol class="arabic">
+<li><p>Declare the override under the tenant. A dict sets only the keys it gives, and the keyword <code class="docutils literal notranslate"><span class="pre">inherit</span></code> removes the
+override:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">finance</span>
+<span class="w">    </span><span class="nt">smb_settings</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">session_encryption</span><span class="p">:</span><span class="w"> </span><span class="nv">REQUIRED</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">nfs_settings</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inherit</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run the check and apply it. A tenant with no override gets one, built from the cluster’s settings with your keys
+changed. A second run changes nothing.</p></li>
+</ol>
+<p>Leaving <code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> out leaves the override as it is. Turning NFSv4.1 on for a tenant, or removing an override that
+keeps it off while the cluster has it on, is refused when two of the tenant’s export paths nest, and the message gives
+the pair. Remove or move one export first, or declare one <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> in the same run: the removals run first.</p>
+</section>
+<section id="declare-shares-and-exports">
+<h2>Declare shares and exports<a class="headerlink" href="#declare-shares-and-exports" title="Link to this heading"></a></h2>
+<p>A share or export is declared under its tenant, in <code class="docutils literal notranslate"><span class="pre">smb_shares</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_exports</span></code>, or once for several tenants in the
+flat <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">finance</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">ledger</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/finance/ledger</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">nfs_exports</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">export_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/ledger</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/finance/ledger</span><span class="p p-Indicator">}</span>
+
+<span class="nt">qumulo_smb_shares</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">home</span><span class="p p-Indicator">,</span><span class="nt"> tenants</span><span class="p">:</span><span class="w"> </span><span class="nv">all</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/home</span><span class="p p-Indicator">,</span><span class="nt"> expand_fs_path_variables</span><span class="p">:</span><span class="w"> </span><span class="nv">true</span><span class="p p-Indicator">}</span>
+<span class="nt">qumulo_nfs_exports</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">export_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/scratch</span><span class="p p-Indicator">,</span><span class="nt"> tenants</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">Default</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">finance</span><span class="p p-Indicator">],</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/scratch</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<p>Run the check and apply it. <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">all</span></code> gives each tenant the inventory declares present a copy, and a list gives
+each named tenant one. Declare every tenant that should carry the entry, if only by name: a tenant left out of
+<code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, such as <code class="docutils literal notranslate"><span class="pre">Default</span></code> when the list names only <code class="docutils literal notranslate"><span class="pre">finance</span></code>, gets no copy from <code class="docutils literal notranslate"><span class="pre">all</span></code>. A second run changes
+nothing.</p>
+<ul>
+<li><p>An entry of the flat lists needs <code class="docutils literal notranslate"><span class="pre">tenants</span></code> once the inventory or the cluster has more than one tenant. A tenant’s
+nested entry takes neither <code class="docutils literal notranslate"><span class="pre">tenants</span></code> nor <code class="docutils literal notranslate"><span class="pre">tenant</span></code>.</p></li>
+<li><p>A shared entry acts only on the pairs it claims. A tenant that leaves an explicit list keeps its copy, so take one
+tenant out by declaring that pair <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, under the tenant or in the flat list:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_smb_shares</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">forms</span><span class="p p-Indicator">,</span><span class="nt"> tenants</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">hr</span><span class="p p-Indicator">],</span><span class="nt"> state</span><span class="p">:</span><span class="w"> </span><span class="nv">absent</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><p>A pair comes from one entry only. A share declared both under <code class="docutils literal notranslate"><span class="pre">finance</span></code> and in a shared entry that lists <code class="docutils literal notranslate"><span class="pre">finance</span></code> is
+refused, naming both.</p></li>
+<li><p>Declare <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">all</span></code> for a share every tenant carries. A tenant leaves <code class="docutils literal notranslate"><span class="pre">all</span></code> through its own <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, which
+removes its copy without an edit to the shared entry.</p></li>
+<li><p>The modules never move a share or export between tenants. Declare a removal in one tenant and a create in the other.</p></li>
+</ul>
+</section>
+<section id="rename-a-tenant">
+<h2>Rename a tenant<a class="headerlink" href="#rename-a-tenant" title="Link to this heading"></a></h2>
+<p>Rename with <code class="docutils literal notranslate"><span class="pre">previous_name</span></code>, which names the tenant’s name on the cluster now:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">accounts</span>
+<span class="w">    </span><span class="nt">previous_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">finance</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Run the check. It reports one rename, and the tenant keeps its networks, shares and exports. A check run of the
+rename still finds the tenant under its old name, so its shares, exports and settings show as creates under the new
+name and its removals as no change. A shared entry, network or settings entry that still names <code class="docutils literal notranslate"><span class="pre">finance</span></code> is refused
+at step 2, and the message gives the old name: change it to <code class="docutils literal notranslate"><span class="pre">accounts</span></code>.</p></li>
+<li><p>Apply it.</p></li>
+</ol>
+<p>Keep <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> in the inventory after the rename: a run that finds the tenant already renamed ignores it. A swap
+of two names, or a chain of renames, is refused, because each step needs a name the cluster does not hold; make each
+step in a run of its own.</p>
+</section>
+<section id="delete-a-tenant">
+<h2>Delete a tenant<a class="headerlink" href="#delete-a-tenant" title="Link to this heading"></a></h2>
+<p>Deleting a tenant is one line: its entry’s <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>. Keep what is declared under it, so that the baseline removes
+it before the tenant:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_tenants</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">finance</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">    </span><span class="nt">smb_shares</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">share_name</span><span class="p">:</span><span class="w"> </span><span class="nv">ledger</span><span class="p p-Indicator">,</span><span class="nt"> fs_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/finance/ledger</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="c1"># ...and every other share, export and network declared under finance</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Run the check. It predicts every removal and the delete. A tenant that holds a share, an export or a network that no
+entry declares or claims for it, and the networks the run would not remove, are refused: declare each share and
+export under the tenant, or list the tenant in the shared entry that has it. Its networks go when the inventory
+declares the network set, through every present tenant’s <code class="docutils literal notranslate"><span class="pre">networks</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>, and the
+tenant’s own are left out of it or listed under a tenant that stays. When no present tenant declares <code class="docutils literal notranslate"><span class="pre">networks</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> is unset, the run is refused instead, since nothing removes the network.</p></li>
+<li><p>Apply it. The baseline removes the tenant’s networks at the network step, its shares and exports at the start of the
+share and export steps, its SMB and NFS overrides, and then the tenant, so the cluster’s cascade removes nothing.</p></li>
+<li><p>Run it again. An entry for a tenant the cluster lacks is already satisfied, and so is everything under it.</p></li>
+</ol>
+<p>Every shared entry that lists the tenant, or is <code class="docutils literal notranslate"><span class="pre">all</span></code>, removes that tenant’s copy with it. No shared entry is edited.</p>
+<ul class="simple">
+<li><p>The last tenant is never deleted. An inventory that declares every tenant <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> is refused.</p></li>
+<li><p>A delete that leaves two or more tenants is judged on the management network, so a play behind NAT or a load
+balancer declares <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> first. A delete that leaves one tenant is judged on the survivor alone,
+and rebinds every listener, which ends NFS and replication connections.</p></li>
+<li><p>Deleting tenant 1 removes the factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export with it. <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> has no effect on
+a tenant declared absent, and the run says so.</p></li>
+</ul>
+</section>
+<section id="prepare-backend-networks-before-the-second-tenant">
+<h2>Prepare backend networks before the second tenant<a class="headerlink" href="#prepare-backend-networks-before-the-second-tenant" title="Link to this heading"></a></h2>
+<p>A cluster whose network document lists a backend-bond network holds it in the Default tenant, because the collection’s
+own network write leaves a network in the only tenant. With a second tenant such a network aborts every node. The
+baseline refuses the second tenant at step 2 while any tenant holds one, and the message gives the network
+(G-TENANT-BACKEND).</p>
+<ol class="arabic simple">
+<li><p>Unbind the backend network from the Default tenant with a tenant PATCH of <code class="docutils literal notranslate"><span class="pre">networks</span></code> that leaves it out. On a
+node, open the node’s Qumulo shell with <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">/opt/qumulo/bin/qsh</span></code>, which has <code class="docutils literal notranslate"><span class="pre">qq</span></code> and needs no <code class="docutils literal notranslate"><span class="pre">--host</span></code>. From
+another machine, install the <code class="docutils literal notranslate"><span class="pre">qumulo-api</span></code> package and give each <code class="docutils literal notranslate"><span class="pre">qq</span></code> command <code class="docutils literal notranslate"><span class="pre">--host</span> <span class="pre">&lt;address&gt;</span></code> before its subcommand.
+Run <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">login</span> <span class="pre">-u</span> <span class="pre">&lt;user&gt;</span></code>, then <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">multitenancy_list_tenants</span></code> for the tenant’s id, then
+<code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">multitenancy_modify_tenant</span> <span class="pre">--id</span> <span class="pre">&lt;tenant</span> <span class="pre">id&gt;</span> <span class="pre">--network-id</span> <span class="pre">&lt;ids&gt;</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;ids&gt;</span></code> lists every network the tenant
+keeps, separated by spaces, and not the backend network. The list must be complete: a network it leaves out is
+unassigned, and a call without <code class="docutils literal notranslate"><span class="pre">--network-id</span></code> leaves the networks as they are.
+Do not use <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">network_mod_network</span> <span class="pre">--clear-tenant-id</span></code>: on a single-tenant cluster it puts the network back in the one
+tenant.</p></li>
+<li><p>Run the baseline that adds the second tenant straight away, with no network change before it. Any network write on a
+single-tenant cluster binds the backend network again.</p></li>
+</ol>
+<p>Keep the backend networks out of every tenant’s <code class="docutils literal notranslate"><span class="pre">networks</span></code>, and declare them in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code>
+without a <code class="docutils literal notranslate"><span class="pre">tenant</span></code>.</p>
+</section>
+<section id="update-an-inventory-that-names-tenant-id">
+<h2>Update an inventory that names <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code><a class="headerlink" href="#update-an-inventory-that-names-tenant-id" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> on a network, share or export is deprecated, and release 0.3.0 removes it. Until then the baseline accepts it,
+translates the id to the tenant’s name, and warns once for each entry. Write <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">[&lt;name&gt;]</span></code> or <code class="docutils literal notranslate"><span class="pre">tenant:</span> <span class="pre">&lt;name&gt;</span></code>
+instead.</p>
+<ol class="arabic simple">
+<li><p>Run the check and read the warnings. Each gives the name to use.</p></li>
+<li><p>On a share or export, write <code class="docutils literal notranslate"><span class="pre">tenants:</span> <span class="pre">[&lt;name&gt;]</span></code> in place of <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code>. On a flat network, write <code class="docutils literal notranslate"><span class="pre">tenant:</span> <span class="pre">&lt;name&gt;</span></code>. An
+entry names its tenant once: <code class="docutils literal notranslate"><span class="pre">tenant</span></code> beside <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code>, or <code class="docutils literal notranslate"><span class="pre">tenants</span></code> beside <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code>, is refused.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">tenant_id</span></code> the cluster lacks skips a share or export with a warning, because ids are never reused: name the tenant.</p></li>
+</ol>
+</section>
+<section id="regain-rest-access">
+<h2>Regain REST access<a class="headerlink" href="#regain-rest-access" title="Link to this heading"></a></h2>
+<p>A change that leaves the network the play connects on in a tenant without REST ends the connection mid-run. The baseline
+refuses that write before it sends it, so you reach this section only after <code class="docutils literal notranslate"><span class="pre">qumulo_allow_management_disruption</span></code>, a
+change made outside the collection, or a mistaken <code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code>.</p>
+<p>REST still answers on loopback on every node. Reach a node from its console, or over SSH on a tenant that has
+<code class="docutils literal notranslate"><span class="pre">ssh_enabled:</span> <span class="pre">true</span></code>, and fix it there with <code class="docutils literal notranslate"><span class="pre">qq</span></code>:</p>
+<ol class="arabic simple">
+<li><p>On the node, open the node’s Qumulo shell with <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">/opt/qumulo/bin/qsh</span></code>, which has <code class="docutils literal notranslate"><span class="pre">qq</span></code> and needs no <code class="docutils literal notranslate"><span class="pre">--host</span></code>.
+From another machine that reaches an address where REST answers, install the <code class="docutils literal notranslate"><span class="pre">qumulo-api</span></code> package and give each
+command <code class="docutils literal notranslate"><span class="pre">--host</span> <span class="pre">&lt;address&gt;</span></code> before its subcommand.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">login</span> <span class="pre">-u</span> <span class="pre">&lt;user&gt;</span></code>, and <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">multitenancy_list_tenants</span></code> for the tenants’ ids.</p></li>
+<li><p>Turn REST back on for the tenant that holds your network with
+<code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">multitenancy_modify_tenant</span> <span class="pre">--id</span> <span class="pre">&lt;tenant</span> <span class="pre">id&gt;</span> <span class="pre">--enable-rest-api</span></code>, which leaves every other setting as it is, or bind
+the network to a tenant that serves REST with <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">network_mod_network</span> <span class="pre">--network-id</span> <span class="pre">&lt;id&gt;</span> <span class="pre">--tenant-id</span> <span class="pre">&lt;tenant</span> <span class="pre">id&gt;</span></code>.</p></li>
+<li><p>Run the check from the controller.</p></li>
+</ol>
+</section>
+<section id="what-is-tested">
+<h2>What is tested<a class="headerlink" href="#what-is-tested" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../reference/tested-versions.html#tier-3-tenants-and-managed-networking"><span class="std std-ref">Tested Qumulo Core versions</span></a> says which tenant
+cases are tested, and how: on a hardware cluster with VLAN-bound tenants, those cases include the <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code>
+runs and the capture this page relies on.</p>
+</section>
+<section id="if-a-run-refuses">
+<h2>If a run refuses<a class="headerlink" href="#if-a-run-refuses" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../reference/troubleshooting.html#tenants"><span class="std std-ref">Troubleshooting</span></a> quotes each refusal with its remedy, and
+<a class="reference internal" href="respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a> says how to read one. The refusals that name
+<code class="docutils literal notranslate"><span class="pre">qumulo_management_network</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_port</span></code> are in
+<a class="reference internal" href="#declare-the-management-network-and-the-cluster-port">Declare the management network and the cluster port</a>.</p>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../explanation/multitenancy.html"><span class="std std-doc">Tenants and the continuity rule</span></a>: why the rule asks what it asks.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html#tenants"><span class="std std-ref">Inventory variables</span></a>: every key of a tenant entry.</p></li>
+<li><p><a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>: what the rebuild’s drift check does with tenants, and
+<code class="docutils literal notranslate"><span class="pre">previous_name:</span> <span class="pre">Default</span></code>.</p></li>
+<li><p><a class="reference internal" href="../reference/capture-and-clone.html"><span class="std std-doc">What capture and clone read and write</span></a>: how adoption writes tenants.</p></li>
+<li><p><a class="reference internal" href="../explanation/terraform-ownership.html#tenants-and-the-network-document"><span class="std std-ref">Terraform ownership</span></a>: what a Terraform root
+that omits tenants does to the bindings.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="inventory-recipes.html" class="btn btn-neutral float-left" title="Declare common settings in the inventory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="active-directory.html" class="btn btn-neutral float-right" title="Join a cluster to Active Directory" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

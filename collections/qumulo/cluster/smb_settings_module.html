@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.smb_settings module – Manage a Qumulo cluster’s SMB server settings &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.smb_share module – Manage an SMB share on a Qumulo cluster" href="smb_share_module.html" />
+    <link rel="prev" title="qumulo.cluster.smb_info module – Read a Qumulo cluster’s SMB shares, SMB server settings and open SMB sessions" href="smb_info_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.smb_settings module – Manage a Qumulo cluster’s SMB server settings</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-smb-settings-module"></span><section id="qumulo-cluster-smb-settings-module-manage-a-qumulo-cluster-s-smb-server-settings">
+<h1>qumulo.cluster.smb_settings module – Manage a Qumulo cluster’s SMB server settings<a class="headerlink" href="#qumulo-cluster-smb-settings-module-manage-a-qumulo-cluster-s-smb-server-settings" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.smb_settings</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Sets the cluster-wide SMB server settings, or with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code> one tenant’s override of them. Options left unset keep the cluster’s values.</p></li>
+<li><p>Only the settings that differ are written, in one PATCH. With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code>, a new override is created with one PUT, and <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-state"><span class="std std-ref"><span class="pre">state=inherit</span></span></a></code> deletes the override.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-bypass_traverse_checking"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-bypass-traverse-checking"><strong>bypass_traverse_checking</strong></p>
+<a class="ansibleOptionLink" href="#parameter-bypass_traverse_checking" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Let users reach a directory without the right to traverse its parents.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-hide_shares_from_unauthorized_hosts"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-hide-shares-from-unauthorized-hosts"><strong>hide_shares_from_unauthorized_hosts</strong></p>
+<a class="ansibleOptionLink" href="#parameter-hide_shares_from_unauthorized_hosts" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Hide shares from hosts that have no access to them.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-hide_shares_from_unauthorized_users"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-hide-shares-from-unauthorized-users"><strong>hide_shares_from_unauthorized_users</strong></p>
+<a class="ansibleOptionLink" href="#parameter-hide_shares_from_unauthorized_users" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Hide shares from users who have no access to them.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-session_encryption"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-session-encryption"><strong>session_encryption</strong></p>
+<a class="ansibleOptionLink" href="#parameter-session_encryption" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether SMB sessions are encrypted.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;NONE&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;PREFERRED&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;REQUIRED&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-signing_required"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-signing-required"><strong>signing_required</strong></p>
+<a class="ansibleOptionLink" href="#parameter-signing_required" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Require SMB clients to sign their messages.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-snapshot_directory_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-snapshot-directory-mode"><strong>snapshot_directory_mode</strong></p>
+<a class="ansibleOptionLink" href="#parameter-snapshot_directory_mode" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>How the <code class="docutils literal notranslate"><span class="pre">.snapshot</span></code> directory appears to SMB clients.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;VISIBLE&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;HIDDEN&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;DISABLED&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">present</span></code> makes sure the settings are as declared. With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code> it creates the tenant’s override when it has none, even with no settings declared, in which case the override holds the global settings’ current values, and otherwise changes only the settings that differ.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">inherit</span></code> removes the tenant’s override, so that the tenant uses the global settings. It needs <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code>, the settings options are not used with it, and it changes nothing when the tenant has no override.</p>
+<p>A tenant has no override only when the cluster answers api_smb_tenant_settings_do_not_exist_error; any other error answer to the read of the override fails the task (QUIRK-112).</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;inherit&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-supported_dialects"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-supported-dialects"><strong>supported_dialects</strong></p>
+<a class="ansibleOptionLink" href="#parameter-supported_dialects" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The SMB dialects the cluster offers, compared as a set.</p>
+<p>An empty list turns the SMB server off.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;SMB2_DIALECT_2_002&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;SMB2_DIALECT_2_1&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;SMB2_DIALECT_3_0&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;SMB2_DIALECT_3_11&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-tenant"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><strong>tenant</strong></p>
+<a class="ansibleOptionLink" href="#parameter-tenant" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The tenant whose override of the SMB server settings the task manages, by name, compared exactly. Unset, the task manages the global settings.</p>
+<p>With a tenant, the settings options describe that tenant’s override. A new override is created with a PUT whose body is the global settings document as the cluster returns it, with the declared options over it, so a setting that this module does not model keeps its global value. An existing override keeps the values of the options left unset.</p>
+<p>Outside check mode, a name that no tenant has fails, and the message lists the tenants. In check mode such a name is taken as a tenant an earlier task creates, so the task reports a change with a note in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-return-notes"><span class="std std-ref"><span class="pre">notes</span></span></a></code>. With <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-state"><span class="std std-ref"><span class="pre">state=inherit</span></span></a></code> such a name is satisfied, and the task changes nothing.</p>
+<p>Needs the tenant list, which needs PRIVILEGE_TENANT_READ.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: without <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code>, GET and PATCH /v1/smb/settings. With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code>: GET /v1/multitenancy/tenants/, which needs PRIVILEGE_TENANT_READ; GET, PATCH (If-Match) and DELETE (If-Match) /v1/multitenancy/smb/settings/{tenant_id}; PUT to the same route, without If-Match, to create the override, with the global settings document as the cluster returns it and the task’s options over it (QUIRK-113); and GET /v1/smb/settings for that document.</p></li>
+<li><p>The PATCH of the global settings carries no If-Match, so a change another client makes between the module’s read and its write is overwritten (QUIRK-001). The PATCH of a tenant’s override carries the If-Match of its read.</p></li>
+<li><p><code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code> resolves through the multitenancy REST API, which Qumulo marks as preview; a later Qumulo Core release may change it.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># These tasks carry no connection options. Set them once for the play with module_defaults for</span>
+<span class="c1"># group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Require signing and offer only SMB 3</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">signing_required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">supported_dialects</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">SMB2_DIALECT_3_0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SMB2_DIALECT_3_11</span><span class="p p-Indicator">]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Encrypt sessions with clients that support it</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">session_encryption</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PREFERRED</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Refuse sessions that do not encrypt</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">session_encryption</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">REQUIRED</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Hide shares from users and hosts that have no access to them</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">hide_shares_from_unauthorized_users</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">hide_shares_from_unauthorized_hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview hiding the .snapshot directory from SMB clients</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">snapshot_directory_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">HIDDEN</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">diff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">smb_preview</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show how the .snapshot directory appears now</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"snapshot_directory_mode</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="cp">{{</span> <span class="nv">smb_preview.diff.before.snapshot_directory_mode</span> <span class="cp">}}</span><span class="nv"> </span><span class="s">and</span><span class="nv"> </span><span class="s">would</span><span class="nv"> </span><span class="s">become</span><span class="nv"> </span><span class="s">HIDDEN"</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">smb_preview.changed</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop requiring signing, and offer SMB 2.1 again</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">signing_required</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">supported_dialects</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">SMB2_DIALECT_2_1</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SMB2_DIALECT_3_0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SMB2_DIALECT_3_11</span><span class="p p-Indicator">]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Turn the SMB server off</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">supported_dialects</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview giving the eng tenant its own SMB settings that require encryption</span>
+<span class="w">  </span><span class="c1"># The new override holds the global settings as the cluster has them now, with session_encryption changed. The diff</span>
+<span class="w">  </span><span class="c1"># shows {} for before, since the tenant has no override yet, and the full override for after. A tenant the cluster</span>
+<span class="w">  </span><span class="c1"># lacks reports the same change in check mode.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tenant</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eng</span>
+<span class="w">    </span><span class="nt">session_encryption</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">REQUIRED</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">diff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eng_smb_preview</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the override the eng tenant would get</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eng_smb_preview.diff.after</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eng_smb_preview.changed</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Require encrypted sessions for the eng tenant only</span>
+<span class="w">  </span><span class="c1"># The first run creates the override, from the global settings with session_encryption changed. A second run changes</span>
+<span class="w">  </span><span class="c1"># nothing. The global settings and the other tenants are left alone.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tenant</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eng</span>
+<span class="w">    </span><span class="nt">session_encryption</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">REQUIRED</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Let the eng tenant use the global SMB settings again</span>
+<span class="w">  </span><span class="c1"># Removes the eng tenant's override. When the tenant has none, the task changes nothing.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.smb_settings</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tenant</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">eng</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inherit</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-diff"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-diff"><strong>diff</strong></p>
+<a class="ansibleOptionLink" href="#return-diff" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The settings before and after the task, with the option names above.</p>
+<p>With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code>, each side is the tenant’s override with every setting, and <code class="ansible-value docutils literal notranslate"><span class="pre">{}</span></code> for a side where the tenant has none. In check mode, the after of a create is the global settings the cluster holds now with the declared options changed.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when the task runs with diff mode on</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-diff/after"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-diff-after"><strong>after</strong></p>
+<a class="ansibleOptionLink" href="#return-diff/after" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The settings after the task.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-diff/after_header"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-diff-after-header"><strong>after_header</strong></p>
+<a class="ansibleOptionLink" href="#return-diff/after_header" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The label of the after side: <code class="docutils literal notranslate"><span class="pre">tenant</span></code> and the tenant’s name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code></p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;tenant</span> <span class="pre">eng&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-diff/before"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-diff-before"><strong>before</strong></p>
+<a class="ansibleOptionLink" href="#return-diff/before" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The settings before the task.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-diff/before_header"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-diff-before-header"><strong>before_header</strong></p>
+<a class="ansibleOptionLink" href="#return-diff/before_header" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The label of the before side: <code class="docutils literal notranslate"><span class="pre">tenant</span></code> and the tenant’s name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code></p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;tenant</span> <span class="pre">eng&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-expected"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-expected"><strong>expected</strong></p>
+<a class="ansibleOptionLink" href="#return-expected" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The values the module wrote, for the options the read-back after the write did not return as written.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on a failure when the read-back after a write differs from what was written, except after a lost connection, which returns maybe_applied instead</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-maybe_applied"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-maybe-applied"><strong>maybe_applied</strong></p>
+<a class="ansibleOptionLink" href="#return-maybe_applied" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>True when a write was sent and the read-back did not confirm it. The module fails with <code class="docutils literal notranslate"><span class="pre">changed</span></code> true.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on such a failure</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">true</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-notes"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-notes"><strong>notes</strong></p>
+<a class="ansibleOptionLink" href="#return-notes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What the module noticed, such as, with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code> in check mode, a tenant that does not exist yet, or a write it confirmed by reading back after the connection was lost.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when there is something to note</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;tenant</span> <span class="pre">'finance'</span> <span class="pre">does</span> <span class="pre">not</span> <span class="pre">exist</span> <span class="pre">yet;</span> <span class="pre">an</span> <span class="pre">earlier</span> <span class="pre">task</span> <span class="pre">is</span> <span class="pre">expected</span> <span class="pre">to</span> <span class="pre">create</span> <span class="pre">it&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-observed"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-observed"><strong>observed</strong></p>
+<a class="ansibleOptionLink" href="#return-observed" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The values the cluster returned on that read-back, for the options in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-return-expected"><span class="std std-ref"><span class="pre">expected</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on a failure when the read-back after a write differs from what was written, except after a lost connection, which returns maybe_applied instead</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-smb_settings"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-smb-settings-module-return-smb-settings"><strong>smb_settings</strong></p>
+<a class="ansibleOptionLink" href="#return-smb_settings" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The settings after the task, with the option names above.</p>
+<p>In check mode they are the settings the task would leave.</p>
+<p>With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-tenant"><span class="std std-ref"><span class="pre">tenant</span></span></a></strong></code>, they are the tenant’s override, with every setting, and an empty dict after <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-smb-settings-module-parameter-state"><span class="std std-ref"><span class="pre">state=inherit</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;bypass_traverse_checking&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;hide_shares_from_unauthorized_hosts&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;hide_shares_from_unauthorized_users&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;session_encryption&quot;:</span> <span class="pre">&quot;NONE&quot;,</span> <span class="pre">&quot;signing_required&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;snapshot_directory_mode&quot;:</span> <span class="pre">&quot;VISIBLE&quot;,</span> <span class="pre">&quot;supported_dialects&quot;:</span> <span class="pre">[&quot;SMB2_DIALECT_3_0&quot;,</span> <span class="pre">&quot;SMB2_DIALECT_3_11&quot;]}</span></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="smb_info_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.smb_info module – Read a Qumulo cluster’s SMB shares, SMB server settings and open SMB sessions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="smb_share_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.smb_share module – Manage an SMB share on a Qumulo cluster" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

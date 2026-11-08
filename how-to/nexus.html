@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register a cluster with Nexus &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Look up identities, DNS names and paths" href="look-up-identities-and-paths.html" />
+    <link rel="prev" title="Serve a directory as an S3 bucket" href="s3.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Register a cluster with Nexus</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#declare-monitoring-and-the-nexus-connection">Declare monitoring and the Nexus connection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#register-with-a-join-key">Register with a join key</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#register-with-an-api-token">Register with an API token</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#apply-the-registration">Apply the registration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#change-what-the-cluster-allows-through-nexus">Change what the cluster allows through Nexus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#disconnect-a-cluster-from-nexus">Disconnect a cluster from Nexus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#let-terraform-own-monitoring">Let Terraform own monitoring</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#retire-a-uuid-in-nexus">Retire a UUID in Nexus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Register a cluster with Nexus</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="register-a-cluster-with-nexus">
+<h1>Register a cluster with Nexus<a class="headerlink" href="#register-a-cluster-with-nexus" title="Link to this heading"></a></h1>
+<p>This page turns on cloud monitoring and the Nexus connection for a cluster, registers it with Nexus, and retires a
+cluster UUID that no cluster will use again.
+When you finish, <code class="docutils literal notranslate"><span class="pre">monitoring_info</span></code> reports the cluster’s registration as <code class="docutils literal notranslate"><span class="pre">REGISTERED</span></code>, and a second baseline run
+reports no change for the registration.
+Nexus is Qumulo’s service for registration, remote support and licenses; a new cluster’s license is issued for the
+UUID Nexus sees once the cluster is registered
+(<a class="reference internal" href="../explanation/licensing-and-capacity.html#nexus-and-registration"><span class="std std-ref">why</span></a>).</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up the inventory and a working connection: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.</p></li>
+<li><p>Choose how the cluster registers, and have what it needs:</p>
+<ul>
+<li><p>A join key made in the Nexus web interface, one for each cluster.</p></li>
+<li><p>Or a Nexus user’s API token.
+The user needs a Nexus role that may create API tokens in the organization.</p></li>
+</ul>
+</li>
+<li><p>Plan to encrypt the key or token (<a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>).</p></li>
+<li><p>Turn cloud monitoring on in the same declaration, unless the cluster already has it on.
+The Nexus connection needs it, and <code class="docutils literal notranslate"><span class="pre">nexus_connection</span></code> fails before it writes when monitoring is off.</p></li>
+</ul>
+</section>
+<section id="declare-monitoring-and-the-nexus-connection">
+<h2>Declare monitoring and the Nexus connection<a class="headerlink" href="#declare-monitoring-and-the-nexus-connection" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Declare <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code> for the clusters, in <code class="docutils literal notranslate"><span class="pre">group_vars/qumulo_clusters.yml</span></code>.
+The baseline applies it at step 7, in this order: <code class="docutils literal notranslate"><span class="pre">monitoring_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">nexus_connection</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">nexus_registration</span></code>.
+A key you leave out keeps the cluster’s value.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_monitoring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nexus</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nexus_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">nexus_capability_remote_support</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/examples/inventory/group_vars/qumulo_clusters.yml"><code class="docutils literal notranslate"><span class="pre">examples/inventory/group_vars/qumulo_clusters.yml</span></code></a>
+declares the same.
+The keys are in <a class="reference internal" href="../reference/variables.html#monitoring-and-nexus"><span class="std std-ref">Variables</span></a>.</p>
+<p>A host whose <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> declares its own <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code>, as an adopted or cloned host does, ignores the
+group’s.
+Change that host’s dict instead.</p>
+</li>
+<li><p>Give the baseline a way to register.
+The baseline registers a cluster only when <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring.nexus.nexus_enabled</span></code> is true and the inventory gives
+a join key or an API token.
+With neither, it applies the settings and skips the registration without a message.
+Pick one of the two sections below.</p></li>
+</ol>
+<section id="register-with-a-join-key">
+<h3>Register with a join key<a class="headerlink" href="#register-with-a-join-key" title="Link to this heading"></a></h3>
+<p>A join key registers one cluster only (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-NEXUS-KEY</span></a>), so each cluster has its own, and a rebuilt
+edge needs a new one.</p>
+<ol class="arabic">
+<li><p>Encrypt the key, giving <code class="docutils literal notranslate"><span class="pre">vault_nexus_join_key</span></code> at the variable name prompt.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-vault<span class="w"> </span>encrypt_string<span class="w"> </span>--prompt
+</pre></div>
+</div>
+</li>
+<li><p>Paste the output into the host’s file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">vault_nexus_join_key</span><span class="p">:</span><span class="w"> </span><span class="kt">!vault</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="no">$ANSIBLE_VAULT;1.1;AES256</span>
+<span class="w">  </span><span class="no">...</span>
+</pre></div>
+</div>
+</li>
+<li><p>Refer to it from the group’s <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code>, once.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_monitoring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nexus</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nexus_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">nexus_capability_remote_support</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nexus_join_key</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_nexus_join_key</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>A host that declares its own <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code> ignores the group’s, so put <code class="docutils literal notranslate"><span class="pre">nexus_join_key</span></code> inside that dict, as an
+encrypted value
+(<a class="reference internal" href="store-secrets.html#encrypt-a-value-inside-a-dict-or-a-list-item"><span class="std std-ref">Keep secrets out of the inventory</span></a>).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_monitoring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nexus</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nexus_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">nexus_capability_remote_support</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nexus_join_key</span><span class="p">:</span><span class="w"> </span><span class="kt">!vault</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">$ANSIBLE_VAULT;1.1;AES256</span>
+<span class="w">    </span><span class="no">...</span>
+</pre></div>
+</div>
+</section>
+<section id="register-with-an-api-token">
+<h3>Register with an API token<a class="headerlink" href="#register-with-an-api-token" title="Link to this heading"></a></h3>
+<p>With a token, the registration mints a single-use join key for each cluster, so no key is kept in the inventory.</p>
+<ol class="arabic">
+<li><p>Encrypt the token, giving <code class="docutils literal notranslate"><span class="pre">qumulo_nexus_api_token</span></code> at the variable name prompt, and paste the output into the group
+file.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-vault<span class="w"> </span>encrypt_string<span class="w"> </span>--prompt
+</pre></div>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_nexus_api_token</span><span class="p">:</span><span class="w"> </span><span class="kt">!vault</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">  </span><span class="no">$ANSIBLE_VAULT;1.1;AES256</span>
+<span class="w">  </span><span class="no">...</span>
+</pre></div>
+</div>
+</li>
+<li><p>When the token’s user belongs to more than one Nexus organization, say which one the cluster joins.
+Add <code class="docutils literal notranslate"><span class="pre">nexus_account_id</span></code> to <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_monitoring</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nexus</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nexus_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">nexus_capability_remote_support</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">nexus_account_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1234</span>
+</pre></div>
+</div>
+</li>
+<li><p>To use a Nexus API other than the modules’ default, set <code class="docutils literal notranslate"><span class="pre">qumulo_nexus_api_url</span></code> to its <code class="docutils literal notranslate"><span class="pre">https</span></code> URL.</p></li>
+</ol>
+</section>
+</section>
+<section id="apply-the-registration">
+<h2>Apply the registration<a class="headerlink" href="#apply-the-registration" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Preview the change for one cluster.
+The check run predicts the registration and mints no key.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+<p>The run reports every change the baseline would make for the host, not only these.
+With cloud monitoring or the Nexus connection off on the cluster, the check run warns that the earlier task in the
+same run turned nothing on, and still predicts the later one.</p>
+</li>
+<li><p>Apply it, with the vault option your inventory needs.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>When the registration fails, the task fails with Nexus’s reason
+(<a class="reference internal" href="../explanation/licensing-and-capacity.html#why-registration-is-synchronous"><span class="std std-ref">why</span></a>).</p>
+</li>
+</ol>
+<p>A cluster that is already registered is left alone, so a later run neither spends a join key nor mints one.
+Registering does not issue a license: <a class="reference internal" href="licensing.html"><span class="std std-doc">License an edge</span></a> is the next step for a new edge.</p>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<p>Read the registration back with <code class="docutils literal notranslate"><span class="pre">monitoring_info</span></code>, which returns no secret.
+Save this as <code class="docutils literal notranslate"><span class="pre">nexus-check.yml</span></code> in the project directory; its header is the one in
+<a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Set up an inventory for your clusters</span></a>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check the Nexus registration, changing nothing</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the Nexus connection and registration</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">nexus_connection</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">nexus_registration</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nexus_state</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show them</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">          </span><span class="no">Nexus connection on: {{ nexus_state.monitoring.nexus_connection.nexus_enabled }},</span>
+<span class="w">          </span><span class="no">registration: {{ nexus_state.monitoring.nexus_registration.registration_status }}</span>
+</pre></div>
+</div>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>nexus-check.yml<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The registration status is <code class="docutils literal notranslate"><span class="pre">REGISTERED</span></code>.
+Then run the baseline again with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code>: it reports no change for the registration.</p>
+<p>If registration fails, or the status stays <code class="docutils literal notranslate"><span class="pre">PENDING_REGISTRATION</span></code>, a join key may be spent: replace
+<code class="docutils literal notranslate"><span class="pre">vault_nexus_join_key</span></code> with a new key, or delete it and set <code class="docutils literal notranslate"><span class="pre">qumulo_nexus_api_token</span></code>.
+A join key in the inventory is always tried before the token.
+<a class="reference internal" href="../reference/troubleshooting.html#a-change-that-may-or-may-not-have-been-applied"><span class="std std-ref">Troubleshooting</span></a> lists the message
+for a registration whose answer was lost.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="change-what-the-cluster-allows-through-nexus">
+<h3>Change what the cluster allows through Nexus<a class="headerlink" href="#change-what-the-cluster-allows-through-nexus" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">nexus_capability_remote_support</span></code> lets Qumulo Care reach the cluster through Nexus, and <code class="docutils literal notranslate"><span class="pre">nexus_capability_sso</span></code> lets
+users sign in through Nexus single sign-on.
+<code class="docutils literal notranslate"><span class="pre">nexus_host</span></code>, <code class="docutils literal notranslate"><span class="pre">nexus_port</span></code> and <code class="docutils literal notranslate"><span class="pre">nexus_interval</span></code> set where the cluster connects and how often.
+Change them under <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring.nexus</span></code> and apply the baseline as above.</p>
+</section>
+<section id="disconnect-a-cluster-from-nexus">
+<h3>Disconnect a cluster from Nexus<a class="headerlink" href="#disconnect-a-cluster-from-nexus" title="Link to this heading"></a></h3>
+<p>Set <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring.nexus.nexus_enabled:</span> <span class="pre">false</span></code>.
+The baseline then skips the registration step, and the cluster’s registration stays.
+To turn cloud monitoring off too, set <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring.enabled:</span> <span class="pre">false</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_monitoring.nexus.nexus_enabled:</span> <span class="pre">false</span></code> together.
+With <code class="docutils literal notranslate"><span class="pre">nexus_enabled</span></code> still true, the connection task fails once monitoring is off, and a check run shows only a
+warning.</p>
+</section>
+<section id="let-terraform-own-monitoring">
+<h3>Let Terraform own monitoring<a class="headerlink" href="#let-terraform-own-monitoring" title="Link to this heading"></a></h3>
+<p>If a Terraform root configures monitoring, list <code class="docutils literal notranslate"><span class="pre">monitoring</span></code> in <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> and remove
+<code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code> from the inventory.
+The baseline refuses it at step 2 otherwise, and without it the baseline neither connects nor registers the cluster.
+On a cluster of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or unset that the Terraform provider formed, keep <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code> in the list,
+because a list replaces that default.
+<a class="reference internal" href="../reference/variables.html#ownership"><span class="std std-ref">Variables</span></a> lists the areas, and
+<a class="reference internal" href="../explanation/terraform-ownership.html"><span class="std std-doc">how Terraform and the collection share a cluster</span></a> says why.</p>
+</section>
+</section>
+<section id="retire-a-uuid-in-nexus">
+<h2>Retire a UUID in Nexus<a class="headerlink" href="#retire-a-uuid-in-nexus" title="Link to this heading"></a></h2>
+<p>A rebuilt edge gets a new UUID, and its old one stays listed in Nexus
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-NEXUS-RETIRE</span></a>; <a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>).
+If the rebuild ran with <code class="docutils literal notranslate"><span class="pre">qumulo_nexus_api_token</span></code>, its predestroy phase or its replay already retired the old UUID.
+Skip this section.
+Otherwise the rebuild’s report names the UUID.
+Retire it with the play below, which needs a Nexus API token, or ask Qumulo Care to retire it.</p>
+<p>Retire a UUID that no cluster will use again.
+Nexus offers no way back, and a cluster given a new join key under a retired UUID registers again while Nexus keeps
+listing it as decommissioned.</p>
+<ol class="arabic">
+<li><p>Save this as <code class="docutils literal notranslate"><span class="pre">nexus-retire.yml</span></code> in the project directory.
+The connection options must name a reachable cluster with its credentials, such as the new edge, although the
+cluster that had the UUID no longer exists.
+The token’s user needs a Nexus role that may decommission clusters in the cluster’s organization.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Retire a UUID in Nexus</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Retire the UUID the edge had before its rebuild</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.nexus_cluster</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">nexus_retire_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">nexus_api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_nexus_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">nexus_api_url</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_nexus_api_url</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Give the play a token: put it in the inventory, encrypted as in
+<a class="reference internal" href="#register-with-an-api-token">Register with an API token</a>, or export <code class="docutils literal notranslate"><span class="pre">QUMULO_NEXUS_API_TOKEN</span></code> for the run.
+The <code class="docutils literal notranslate"><span class="pre">nexus_cluster</span></code> module reads that variable when <code class="docutils literal notranslate"><span class="pre">nexus_api_token</span></code> is unset.</p></li>
+<li><p>Preview it with the old UUID.
+Check mode reads Nexus, so it needs the token too, and it sends nothing.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>nexus-retire.yml<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-e<span class="w"> </span><span class="nv">nexus_retire_uuid</span><span class="o">=</span>&lt;old<span class="w"> </span>UUID&gt;<span class="w"> </span>--ask-vault-pass<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+<p>If the preview or the run fails because Nexus still reports the cluster connected, which it may for a short while
+after the registration was removed, add <code class="docutils literal notranslate"><span class="pre">allow_connected:</span> <span class="pre">true</span></code> to the task.</p>
+</li>
+<li><p>Run it without <code class="docutils literal notranslate"><span class="pre">--check</span></code>.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>nexus-retire.yml<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-e<span class="w"> </span><span class="nv">nexus_retire_uuid</span><span class="o">=</span>&lt;old<span class="w"> </span>UUID&gt;<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+</li>
+</ol>
+<p>To verify, run step 4 again: Nexus lists the UUID as decommissioned, so the task reports no change.</p>
+<p>To retire a cluster that still exists, remove its registration first with <code class="docutils literal notranslate"><span class="pre">nexus_registration</span></code> and <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>;
+<code class="docutils literal notranslate"><span class="pre">nexus_cluster</span></code> checks that the registration is gone when the connection names the cluster being retired.
+Removing the registration does not retire the UUID.</p>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Reference: <a class="reference internal" href="../reference/variables.html#monitoring-and-nexus"><span class="std std-ref">Variables</span></a> for the <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code> keys,
+<a class="reference internal" href="../collections/qumulo/cluster/nexus_connection_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">nexus_connection</span></code></span></a>,
+<a class="reference internal" href="../collections/qumulo/cluster/nexus_registration_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">nexus_registration</span></code></span></a>,
+<a class="reference internal" href="../collections/qumulo/cluster/nexus_cluster_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">nexus_cluster</span></code></span></a> and
+<a class="reference internal" href="../collections/qumulo/cluster/monitoring_info_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">monitoring_info</span></code></span></a>, and the registers
+<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-NEXUS-KEY and G-NEXUS-RETIRE</span></a>.</p></li>
+<li><p>Why: <a class="reference internal" href="../explanation/licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a>.</p></li>
+<li><p>Next: <a class="reference internal" href="licensing.html"><span class="std std-doc">License an edge</span></a>.</p></li>
+<li><p>Related: <a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>,
+<a class="reference internal" href="inventory-recipes.html#send-the-audit-log-to-syslog"><span class="std std-ref">Send the audit log to syslog</span></a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="s3.html" class="btn btn-neutral float-left" title="Serve a directory as an S3 bucket" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="look-up-identities-and-paths.html" class="btn btn-neutral float-right" title="Look up identities, DNS names and paths" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

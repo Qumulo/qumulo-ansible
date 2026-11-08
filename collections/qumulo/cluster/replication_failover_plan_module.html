@@ -1,0 +1,677 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.replication_failover_plan module – Choose the next step of a replication failover, resync or failback, from fresh reads of both clusters &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.replication_info module – Read a Qumulo cluster’s replication relationships, as source, as target and to object storage" href="replication_info_module.html" />
+    <link rel="prev" title="qumulo.cluster.portal_spoke module – Propose a spoke portal to a hub cluster, or delete it" href="portal_spoke_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.replication_failover_plan module – Choose the next step of a replication failover, resync or failback, from fresh reads of both clusters</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-replication-failover-plan-module"></span><section id="qumulo-cluster-replication-failover-plan-module-choose-the-next-step-of-a-replication-failover-resync-or-failback-from-fresh-reads-of-both-clusters">
+<h1>qumulo.cluster.replication_failover_plan module – Choose the next step of a replication failover, resync or failback, from fresh reads of both clusters<a class="headerlink" href="#qumulo-cluster-replication-failover-plan-module-choose-the-next-step-of-a-replication-failover-resync-or-failback-from-fresh-reads-of-both-clusters" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.replication_failover_plan</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.replication_failover</span></code> role calls this module before every step, with fresh reads of both clusters, and runs only the step it returns. Its first answer lists every step left, which is the role’s dry run.</p></li>
+<li><p>A pure computation. It sends no request, takes no connection options, and is not in the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.qumulo</span></code> action group, so <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> for that group do not reach it.</p></li>
+<li><p>The source and the target are the relationship’s declared ones, whatever direction the records run in. In the declared direction the target holds a target record from the source’s UUID with the two paths; after a reverse it holds a source record of the target path to the source’s UUID. The module matches both clusters’ records against both forms.</p></li>
+<li><p>It names the relationship’s state, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-return-state"><span class="std std-ref"><span class="pre">state</span></span></a></code>, and lists the steps <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-action"><span class="std std-ref"><span class="pre">action</span></span></a></strong></code> has left from it, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-return-steps"><span class="std std-ref"><span class="pre">steps</span></span></a></code>.</p></li>
+<li><p>Each verb moves the record of the cluster it is sent to first, and the peer’s record follows seconds later. The module reads the state from the record a verb moves first, and the other record may lag.</p></li>
+<li><p>Two pairs of states read the same. The source’s target record DISCONNECTED after a reverse reads as the resync’s state before its reconnect, unless <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-last-verb"><span class="std std-ref"><span class="pre">last_verb</span></span></a></strong></code> is the failback’s make-writable on the source. The target’s record DISCONNECTED in the declared direction reads as failed over, unless <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-last-verb"><span class="std std-ref"><span class="pre">last_verb</span></span></a></strong></code> is the failback’s reverse.</p></li>
+<li><p>It fails, before any step, when no record of the relationship is on the target, when records run in both directions or two run in one, when a live record on the target is from a previous UUID of the source, when the state is one <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-action"><span class="std std-ref"><span class="pre">action</span></span></a></strong></code> does not start from, when a make-writable has no recovery point or the source answers with a job running and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-allow-partial-job"><span class="std std-ref"><span class="pre">allow_partial_job</span></span></a></strong></code> is false, when a resync or failback has no answer from the source or no record on it, when a reverse is toward an address that is not an IP literal, and when a new target’s tenant has replication off. The message says what would lift it, where something does.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-action"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-action"><strong>action</strong></p>
+<a class="ansibleOptionLink" href="#parameter-action" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">failover</span></code> makes the target’s copy writable. <code class="ansible-value docutils literal notranslate"><span class="pre">resync</span></code> reverses the relationship and reconnects it, so the target replicates its writes to the source. <code class="ansible-value docutils literal notranslate"><span class="pre">failback</span></code> resyncs when needed, then waits for a current recovery point, makes the source writable, reverses it back and reconnects the target, and applies the declared settings.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;failover&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;resync&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;failback&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-allow_partial_job"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-allow-partial-job"><strong>allow_partial_job</strong></p>
+<a class="ansibleOptionLink" href="#parameter-allow_partial_job" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Let a failover discard the changes of a job the source, which answers, is running.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-last_verb"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-last-verb"><strong>last_verb</strong></p>
+<a class="ansibleOptionLink" href="#parameter-last_verb" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The name of the last verb step this run sent, the <code class="docutils literal notranslate"><span class="pre">name</span></code> of that answer’s <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-return-step"><span class="std std-ref"><span class="pre">step</span></span></a></code>, or unset before the run sends one.</p>
+<p>It decides the two states that read the same. A finished wait for the source’s record to read DISCONNECTED counts as <code class="ansible-value docutils literal notranslate"><span class="pre">make_writable_source</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-newer_writes_hosts"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-newer-writes-hosts"><strong>newer_writes_hosts</strong></p>
+<a class="ansibleOptionLink" href="#parameter-newer_writes_hosts" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory hosts that the role’s <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code> names, whose reconnects skip the comparison.</p>
+<p>The text of a reconnect step sent to one of them says that it does not compare first. Nothing else in the answer depends on it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-relationship"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-relationship"><strong>relationship</strong></p>
+<a class="ansibleOptionLink" href="#parameter-relationship" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The declared relationship, one entry of the source host’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>, with <code class="docutils literal notranslate"><span class="pre">source_path</span></code> and <code class="docutils literal notranslate"><span class="pre">target_path</span></code>, and the settings a failback applies at its end.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-cluster-uuid"><strong>source_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_error"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-error"><strong>source_error</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_error" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Why the source did not answer, when it did not. A resync or failback names it in its refusal.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-host"><strong>source_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source’s inventory host name.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_previous_cluster_uuids"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-previous-cluster-uuids"><strong>source_previous_cluster_uuids</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_previous_cluster_uuids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source host’s <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>. A live record on the target from one of them holds the replica a rebuilt source’s restore brings back, and the module refuses, naming the restore.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_relationships"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-relationships"><strong>source_relationships</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_relationships" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source’s <code class="docutils literal notranslate"><span class="pre">replication</span></code> facts from <a class="reference internal" href="replication_info_module.html#ansible-collections-qumulo-cluster-replication-info-module"><span class="std std-ref">qumulo.cluster.replication_info</span></a>.</p>
+<p>Leave it out when the source did not answer.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_replication_address"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-replication-address"><strong>source_replication_address</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_replication_address" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, which a resync’s reverse sends.</p>
+<p>Required, as an IP literal, when the steps left hold the resync’s reverse.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_replication_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-replication-port"><strong>source_replication_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_replication_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">3712</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_tenancy"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-tenancy"><strong>source_tenancy</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_tenancy" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source’s tenants, <code class="docutils literal notranslate"><span class="pre">tenants</span></code>, as <a class="reference internal" href="tenant_info_module.html#ansible-collections-qumulo-cluster-tenant-info-module"><span class="std std-ref">qumulo.cluster.tenant_info</span></a> gives them, and its network document, <code class="docutils literal notranslate"><span class="pre">document</span></code>, as <a class="reference internal" href="network_info_module.html#ansible-collections-qumulo-cluster-network-info-module"><span class="std std-ref">qumulo.cluster.network_info</span></a> gives it, for the check that the tenant serving its replication address has replication on. Required when the steps left hold a resync’s reverse.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-synced"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-synced"><strong>synced</strong></p>
+<a class="ansibleOptionLink" href="#parameter-synced" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether this run’s wait for a current recovery point, the step <code class="ansible-value docutils literal notranslate"><span class="pre">await_sync</span></code>, has finished, which drops that step.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-target-cluster-uuid"><strong>target_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-target-host"><strong>target_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s inventory host name.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_relationships"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-target-relationships"><strong>target_relationships</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_relationships" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s <code class="docutils literal notranslate"><span class="pre">replication</span></code> facts from <a class="reference internal" href="replication_info_module.html#ansible-collections-qumulo-cluster-replication-info-module"><span class="std std-ref">qumulo.cluster.replication_info</span></a>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_replication_address"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-target-replication-address"><strong>target_replication_address</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_replication_address" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, which a failback’s reverse sends.</p>
+<p>Required, as an IP literal, when the steps left hold the failback’s reverse.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_replication_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-target-replication-port"><strong>target_replication_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_replication_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">3712</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_tenancy"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-target-tenancy"><strong>target_tenancy</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_tenancy" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s tenants and network document, as <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-parameter-source-tenancy"><span class="std std-ref"><span class="pre">source_tenancy</span></span></a></strong></code>. Required when the steps left hold a failback’s reverse.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>While the source does not answer, the target’s record of a job the source was running reads REPLICATION_RUNNING for as long as it was watched (QUIRK-125), so the module refuses a make-writable for a running job only when the source answers, and otherwise notes the partial job the make-writable discards.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs/explanation/replication.md</span></code> says why the module reads the states as it does.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># The qumulo.cluster.replication_failover role does these reads and calls before every step. Use the module directly</span>
+<span class="c1"># to read what a failover would do without the role. The role goes on without the source only when its read gave up or</span>
+<span class="c1"># ended in a 502, 503 or 504; this recipe treats every failure of the read as the source not answering.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Record how to connect to edge01 and dr01</span>
+<span class="w">  </span><span class="c1"># The reads below take their connections from cluster_baseline_connections, which this include records first.</span>
+<span class="w">  </span><span class="nt">ansible.builtin.include_role</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.cluster_baseline</span>
+<span class="w">    </span><span class="nt">tasks_from</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">connections.yml</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cluster_baseline_connection_hosts</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">edge01</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dr01</span><span class="p p-Indicator">]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the source's relationships, which may not answer</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">target</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">cluster_baseline_connections</span><span class="o">[</span><span class="s1">'edge01'</span><span class="o">]</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01_replication</span>
+<span class="w">  </span><span class="nt">failed_when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the target's relationships</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">target</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">cluster_baseline_connections</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01_replication</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Plan the failover of edge01's projects to dr01</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_failover_plan</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">failover</span>
+<span class="w">    </span><span class="nt">relationship</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">,</span><span class="nt"> target</span><span class="p">:</span><span class="w"> </span><span class="nv">dr01</span><span class="p p-Indicator">,</span><span class="nt"> target_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/replicas/edge01-projects</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">source_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01</span>
+<span class="w">    </span><span class="nt">target_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">    </span><span class="nt">source_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'edge01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">source_relationships</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_replication.replication</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="nv">omit</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">source_error</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_replication.msg</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="nv">omit</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_relationships</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">dr01_replication.replication</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">failover_plan</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show every step left</span>
+<span class="w">  </span><span class="c1"># A second run, once dr01 is writable, lists no step, and done is true.</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">failover_plan.steps</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'text'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read edge01's tenants</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.tenant_info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">cluster_baseline_connections</span><span class="o">[</span><span class="s1">'edge01'</span><span class="o">]</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01_tenants</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read edge01's network document</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.network_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">document</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">cluster_baseline_connections</span><span class="o">[</span><span class="s1">'edge01'</span><span class="o">]</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01_networks</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read dr01's tenants</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.tenant_info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">cluster_baseline_connections</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01_tenants</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read dr01's network document</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.network_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">document</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">cluster_baseline_connections</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01_networks</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Plan the failback of edge01's projects with both addresses and both clusters' tenants</span>
+<span class="w">  </span><span class="c1"># A resync's reverse needs the source's address, and a failback's the target's, as an IP literal, and each reverse</span>
+<span class="w">  </span><span class="c1"># needs the tenants and the network document of the cluster that becomes the target. A failback takes both clusters'</span>
+<span class="w">  </span><span class="c1"># when it runs the resync's steps first. The source's relationships come from the reads at the top of these examples.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_failover_plan</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">failback</span>
+<span class="w">    </span><span class="nt">relationship</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/projects</span><span class="p p-Indicator">,</span><span class="nt"> target</span><span class="p">:</span><span class="w"> </span><span class="nv">dr01</span><span class="p p-Indicator">,</span><span class="nt"> target_path</span><span class="p">:</span><span class="w"> </span><span class="nv">/replicas/edge01-projects</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">source_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01</span>
+<span class="w">    </span><span class="nt">target_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">    </span><span class="nt">source_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'edge01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">source_replication_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">203.0.113.10</span>
+<span class="w">    </span><span class="nt">target_replication_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">203.0.113.40</span>
+<span class="w">    </span><span class="nt">source_relationships</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_replication.replication</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_relationships</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">dr01_replication.replication</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">source_tenancy</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">tenants</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_tenants.tenants</span> <span class="cp">}}</span><span class="s">"</span><span class="p p-Indicator">,</span><span class="nt"> document</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_networks.network.document</span> <span class="cp">}}</span><span class="s">"</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">target_tenancy</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">tenants</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">dr01_tenants.tenants</span> <span class="cp">}}</span><span class="s">"</span><span class="p p-Indicator">,</span><span class="nt"> document</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">dr01_networks.network.document</span> <span class="cp">}}</span><span class="s">"</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">failback_plan</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-direction"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-direction"><strong>direction</strong></p>
+<a class="ansibleOptionLink" href="#return-direction" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">declared</span></code> when the target holds the target record, <code class="ansible-value docutils literal notranslate"><span class="pre">reversed</span></code> when it holds a source record.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;declared&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-done"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-done"><strong>done</strong></p>
+<a class="ansibleOptionLink" href="#return-done" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the action has nothing left to do.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">false</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-notes"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-notes"><strong>notes</strong></p>
+<a class="ansibleOptionLink" href="#return-notes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What the module noticed, such as a source that did not answer.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;edge01</span> <span class="pre">did</span> <span class="pre">not</span> <span class="pre">answer</span> <span class="pre">(the</span> <span class="pre">cluster</span> <span class="pre">did</span> <span class="pre">not</span> <span class="pre">answer);</span> <span class="pre">the</span> <span class="pre">plan</span> <span class="pre">goes</span> <span class="pre">on</span> <span class="pre">from</span> <span class="pre">dr01's</span> <span class="pre">record</span> <span class="pre">alone&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-recovery_point"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-recovery-point"><strong>recovery_point</strong></p>
+<a class="ansibleOptionLink" href="#return-recovery_point" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s record’s recovery point, or <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> before the first job.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;2026-11-08T06:26:34.190479565Z&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-relationship-id"><strong>relationship_id</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The relationship’s id, which both records share and a reverse keeps.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;9465828e-7dcf-466e-a550-78ed0bd6b79b&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-state"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#return-state" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The relationship’s state, one of <code class="ansible-value docutils literal notranslate"><span class="pre">replicating</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">failing</span> <span class="pre">over</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">failed</span> <span class="pre">over</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">reconnecting</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">reversed</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">resyncing</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">resynced</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">source</span> <span class="pre">disconnecting</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">source</span> <span class="pre">writable</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">reversed</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;failed</span> <span class="pre">over&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-step"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-step"><strong>step</strong></p>
+<a class="ansibleOptionLink" href="#return-step" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The next step, the first of <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-return-steps"><span class="std std-ref"><span class="pre">steps</span></span></a></code>, or <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-failover-plan-module-return-done"><span class="std std-ref"><span class="pre">done</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;cluster&quot;:</span> <span class="pre">&quot;target&quot;,</span> <span class="pre">&quot;host&quot;:</span> <span class="pre">&quot;dr01&quot;,</span> <span class="pre">&quot;kind&quot;:</span> <span class="pre">&quot;verb&quot;,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;make_writable_target&quot;,</span> <span class="pre">&quot;polls&quot;:</span> <span class="pre">[{&quot;cluster&quot;:</span> <span class="pre">&quot;target&quot;,</span> <span class="pre">&quot;side&quot;:</span> <span class="pre">&quot;target&quot;,</span> <span class="pre">&quot;until&quot;:</span> <span class="pre">[&quot;DISCONNECTED&quot;]}],</span> <span class="pre">&quot;relationship_id&quot;:</span> <span class="pre">&quot;9465828e-7dcf-466e-a550-78ed0bd6b79b&quot;,</span> <span class="pre">&quot;text&quot;:</span> <span class="pre">&quot;dr01:</span> <span class="pre">make</span> <span class="pre">/replicas/edge01-projects</span> <span class="pre">writable.</span> <span class="pre">It</span> <span class="pre">goes</span> <span class="pre">back</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">recovery</span> <span class="pre">point</span> <span class="pre">2026-11-08T06:26:34.190479565Z;</span> <span class="pre">writes</span> <span class="pre">on</span> <span class="pre">edge01</span> <span class="pre">after</span> <span class="pre">it</span> <span class="pre">stay</span> <span class="pre">behind</span> <span class="pre">on</span> <span class="pre">edge01&quot;,</span> <span class="pre">&quot;verb&quot;:</span> <span class="pre">&quot;make_writable&quot;}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-steps"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-failover-plan-module-return-steps"><strong>steps</strong></p>
+<a class="ansibleOptionLink" href="#return-steps" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Every step left, in order. Each has <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">cluster</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">source</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">target</span></code>, the inventory role of the cluster it runs on, <code class="docutils literal notranslate"><span class="pre">host</span></code>, that cluster’s inventory host, <code class="docutils literal notranslate"><span class="pre">kind</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">verb</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">poll</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">sync</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">settings</span></code>, <code class="docutils literal notranslate"><span class="pre">relationship_id</span></code> and <code class="docutils literal notranslate"><span class="pre">text</span></code>, its line in the plan.</p>
+<p>A <code class="ansible-value docutils literal notranslate"><span class="pre">verb</span></code> step has <code class="docutils literal notranslate"><span class="pre">verb</span></code>, the <a class="reference internal" href="replication_reverse_module.html#ansible-collections-qumulo-cluster-replication-reverse-module"><span class="std std-ref">qumulo.cluster.replication_reverse</span></a> verb, <code class="docutils literal notranslate"><span class="pre">polls</span></code>, the records to wait for after it, and for <code class="ansible-value docutils literal notranslate"><span class="pre">reverse</span></code> <code class="docutils literal notranslate"><span class="pre">source_address</span></code> and <code class="docutils literal notranslate"><span class="pre">source_port</span></code>. A <code class="ansible-value docutils literal notranslate"><span class="pre">poll</span></code> step has <code class="docutils literal notranslate"><span class="pre">polls</span></code>, each <code class="docutils literal notranslate"><span class="pre">cluster</span></code>, <code class="docutils literal notranslate"><span class="pre">side</span></code> and <code class="docutils literal notranslate"><span class="pre">until</span></code>, the states that end it. A <code class="ansible-value docutils literal notranslate"><span class="pre">sync</span></code> step has <code class="docutils literal notranslate"><span class="pre">recovery_point</span></code>, the value the wait counts moves past. A <code class="ansible-value docutils literal notranslate"><span class="pre">settings</span></code> step has <code class="docutils literal notranslate"><span class="pre">options</span></code>, for <a class="reference internal" href="replication_relationship_module.html#ansible-collections-qumulo-cluster-replication-relationship-module"><span class="std std-ref">qumulo.cluster.replication_relationship</span></a>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;cluster&quot;:</span> <span class="pre">&quot;target&quot;,</span> <span class="pre">&quot;host&quot;:</span> <span class="pre">&quot;dr01&quot;,</span> <span class="pre">&quot;kind&quot;:</span> <span class="pre">&quot;verb&quot;,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;make_writable_target&quot;,</span> <span class="pre">&quot;polls&quot;:</span> <span class="pre">[{&quot;cluster&quot;:</span> <span class="pre">&quot;target&quot;,</span> <span class="pre">&quot;side&quot;:</span> <span class="pre">&quot;target&quot;,</span> <span class="pre">&quot;until&quot;:</span> <span class="pre">[&quot;DISCONNECTED&quot;]}],</span> <span class="pre">&quot;relationship_id&quot;:</span> <span class="pre">&quot;9465828e-7dcf-466e-a550-78ed0bd6b79b&quot;,</span> <span class="pre">&quot;text&quot;:</span> <span class="pre">&quot;dr01:</span> <span class="pre">make</span> <span class="pre">/replicas/edge01-projects</span> <span class="pre">writable.</span> <span class="pre">It</span> <span class="pre">goes</span> <span class="pre">back</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">recovery</span> <span class="pre">point</span> <span class="pre">2026-11-08T06:26:34.190479565Z;</span> <span class="pre">writes</span> <span class="pre">on</span> <span class="pre">edge01</span> <span class="pre">after</span> <span class="pre">it</span> <span class="pre">stay</span> <span class="pre">behind</span> <span class="pre">on</span> <span class="pre">edge01&quot;,</span> <span class="pre">&quot;verb&quot;:</span> <span class="pre">&quot;make_writable&quot;}]</span></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="portal_spoke_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.portal_spoke module – Propose a spoke portal to a hub cluster, or delete it" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="replication_info_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.replication_info module – Read a Qumulo cluster’s replication relationships, as source, as target and to object storage" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

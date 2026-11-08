@@ -1,0 +1,524 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage the cluster’s TLS certificate &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Serve NFS with Kerberos from a standalone KDC" href="nfs-kerberos.html" />
+    <link rel="prev" title="Join a cluster to Active Directory" href="active-directory.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Manage the cluster’s TLS certificate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#replace-the-factory-certificate">Replace the factory certificate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#serve-a-certificate-from-a-play-of-your-own">Serve a certificate from a play of your own</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#renew-the-certificate">Renew the certificate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#when-another-ca-signed-the-new-chain">When another CA signed the new chain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#when-the-certificate-is-self-signed">When the certificate is self-signed</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pin-the-tls-cipher-suites">Pin the TLS cipher suites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#change-one-tls-version-only">Change one TLS version only</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Manage the cluster’s TLS certificate</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="manage-the-cluster-s-tls-certificate">
+<h1>Manage the cluster’s TLS certificate<a class="headerlink" href="#manage-the-cluster-s-tls-certificate" title="Link to this heading"></a></h1>
+<p>This page installs a certificate chain on a cluster, renews it, and sets the TLS cipher suites the cluster accepts, all
+from the inventory.
+When you finish, the cluster serves the certificate you declared on its REST API and web UI, the controller verifies
+the cluster with your CA, and a second baseline run changes nothing.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul>
+<li><p>Have an inventory that reaches the cluster: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+Give the host its <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.
+The identity guard checks it before any password is sent, also while certificate verification is off.
+If you don’t have it, read it without verification and add it to the host entry in <code class="docutils literal notranslate"><span class="pre">hosts.yml</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-k<span class="w"> </span>https://10.20.0.5:8000/v1/node/state
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code> reports the UUID as <code class="docutils literal notranslate"><span class="pre">cluster_id</span></code> and needs no login.</p>
+</li>
+<li><p>Have the certificate chain in PEM, the cluster’s own certificate first and then any intermediates.
+The chain must reach a root certificate authority, or the cluster refuses it.
+The certificate must name the address in <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>, as a DNS name or IP address in its subject alternative
+names, and verify against your CA.
+The baseline installs a chain that doesn’t without checking it, and the next step then fails to verify the cluster.</p></li>
+<li><p>Have the private key of the first certificate in PEM.</p></li>
+<li><p>Have the certificate of the CA that signed the chain, in PEM.</p></li>
+<li><p>Keep the chain, the key and the CA certificate outside <code class="docutils literal notranslate"><span class="pre">inventory/</span></code>, for example in <code class="docutils literal notranslate"><span class="pre">files/</span></code> beside it, because
+Ansible reads every file in an inventory directory as inventory.</p></li>
+<li><p>A cluster you adopted has no <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code> in its <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>: the cluster returns neither its certificate nor its
+key (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-SSL-READBACK</span></a>), so the capture lists both under <code class="docutils literal notranslate"><span class="pre">capture.supply</span></code>.
+Declare <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code> yourself, as the steps below do.</p></li>
+</ul>
+</section>
+<section id="replace-the-factory-certificate">
+<h2>Replace the factory certificate<a class="headerlink" href="#replace-the-factory-certificate" title="Link to this heading"></a></h2>
+<p>A newly formed or rebuilt edge serves a factory certificate that no CA can verify (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-FACTORY-TLS</span></a>).
+Until a certificate your CA signed is installed, a run has to connect with verification off, and the <code class="docutils literal notranslate"><span class="pre">admin</span></code> password
+crosses the network unverified in it.
+So install the certificate first, on its own, in a run that changes nothing else, and apply the baseline only after
+verification is on.</p>
+<ol class="arabic">
+<li><p>Encrypt the private key as one value.
+A PEM key has several lines, so use <code class="docutils literal notranslate"><span class="pre">--stdin-name</span></code>, which reads the whole file, and not <code class="docutils literal notranslate"><span class="pre">--prompt</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-vault<span class="w"> </span>encrypt_string<span class="w"> </span>--stdin-name<span class="w"> </span>vault_edge01_tls_key<span class="w"> </span>&lt;<span class="w"> </span>files/edge01.key
+</pre></div>
+</div>
+<p>Paste the output into <code class="docutils literal notranslate"><span class="pre">inventory/host_vars/edge01.yml</span></code>.</p>
+</li>
+<li><p>Declare the certificate in the same file.
+<code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> names the CA that signed the chain:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_ssl</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">certificate</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">lookup('ansible.builtin.file',</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">'/../files/edge01-chain.pem')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">private_key</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_edge01_tls_key</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">ca_path_after</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../files/qumulo-ca.pem"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Turn verification off for the install, in the same host’s file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_validate_certs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</pre></div>
+</div>
+<p>A <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file outranks <code class="docutils literal notranslate"><span class="pre">group_vars/qumulo_clusters.yml</span></code>, which keeps <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs:</span> <span class="pre">true</span></code> for every
+other cluster.
+Passing <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_validate_certs=false</span></code> on the commands in steps 4 and 5 does the same for those runs, and then
+step 6 has no line to remove.</p>
+</li>
+<li><p>Write the play in <a class="reference internal" href="#serve-a-certificate-from-a-play-of-your-own">Serve a certificate from a play of your own</a> as
+<code class="docutils literal notranslate"><span class="pre">serve-certificate.yml</span></code>, and preview the install:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>serve-certificate.yml<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Install</span> <span class="pre">the</span> <span class="pre">certificate</span> <span class="pre">on</span> <span class="pre">the</span> <span class="pre">edge</span></code> task reports <code class="docutils literal notranslate"><span class="pre">changed</span></code>, and the diff lists the SHA-256 of the certificate
+each probed address serves now and the one it would serve.
+A check run installs nothing.</p>
+</li>
+<li><p>Install the certificate.
+This is the one run whose password crosses the network unverified:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>serve-certificate.yml<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The module installs the chain and waits until the address serves it.
+The play does not switch the connection to the new CA.</p>
+</li>
+<li><p>Turn verification on.
+Remove the <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs:</span> <span class="pre">false</span></code> line from <code class="docutils literal notranslate"><span class="pre">host_vars/edge01.yml</span></code>.
+Make sure <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> names the same CA, as the example’s <code class="docutils literal notranslate"><span class="pre">group_vars/qumulo_clusters.yml</span></code> does:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_validate_certs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../files/qumulo-ca.pem"</span>
+</pre></div>
+</div>
+<p>Keep <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.ca_path_after</span></code> in the host’s file; a rebuild of the edge needs it.
+While it is set, the certificate step installs a chain without checking it against your CA first, so when the CA
+changes, change <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> together with the chain.</p>
+</li>
+<li><p>Preview and apply the whole baseline, now over verified TLS:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The baseline’s <code class="docutils literal notranslate"><span class="pre">Install</span> <span class="pre">the</span> <span class="pre">certificate</span></code> task reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, because the cluster already serves the declared chain.</p>
+</li>
+</ol>
+<p>To verify, run the baseline once more with verification on:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Install</span> <span class="pre">the</span> <span class="pre">certificate</span></code> reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, and the run ends with <code class="docutils literal notranslate"><span class="pre">changed=0</span></code> for the host.
+To check from outside Ansible, read the cluster’s UUID with your CA and no <code class="docutils literal notranslate"><span class="pre">-k</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>--cacert<span class="w"> </span>files/qumulo-ca.pem<span class="w"> </span>https://10.20.0.5:8000/v1/node/state
+</pre></div>
+</div>
+<section id="serve-a-certificate-from-a-play-of-your-own">
+<h3>Serve a certificate from a play of your own<a class="headerlink" href="#serve-a-certificate-from-a-play-of-your-own" title="Link to this heading"></a></h3>
+<p>To install the certificate without the rest of the baseline, run <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.ssl_certificate</span></code> in a play of your
+own.
+The <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> block is the header of <code class="docutils literal notranslate"><span class="pre">playbooks/baseline.yml</span></code>
+(<a class="reference internal" href="../reference/playbooks-and-roles.html"><span class="std std-doc">what each line does</span></a>):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># serve-certificate.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Serve the edge's certificate</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Install the certificate on the edge</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.ssl_certificate</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">certificate</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ssl.certificate</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">private_key</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ssl.private_key</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p>Run it with <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">serve-certificate.yml</span> <span class="pre">-i</span> <span class="pre">inventory</span> <span class="pre">-l</span> <span class="pre">edge01</span> <span class="pre">--ask-vault-pass</span></code>.
+The play does not switch the connection afterwards.
+Set <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> for the next run yourself, as in step 6 of
+<a class="reference internal" href="#replace-the-factory-certificate">Replace the factory certificate</a>.</p>
+</section>
+</section>
+<section id="renew-the-certificate">
+<h2>Renew the certificate<a class="headerlink" href="#renew-the-certificate" title="Link to this heading"></a></h2>
+<p>To renew, replace the chain and the key in the host’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> and run the baseline.
+The chain is usually a file beside the inventory directory, and the key is encrypted.</p>
+<ol class="arabic">
+<li><p>Put the new chain at the path <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.certificate</span></code> reads, and encrypt the new key as in step 1 above.
+Replace the vaulted value in <code class="docutils literal notranslate"><span class="pre">host_vars/edge01.yml</span></code>.</p></li>
+<li><p>List every address that must serve the new certificate.
+Without <code class="docutils literal notranslate"><span class="pre">probe</span></code>, the module compares the certificate at <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> on the API port only.
+For a cluster of several nodes, list each node’s address, and port 443 for the web UI:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_ssl</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">certificate</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">lookup('ansible.builtin.file',</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">'/../files/edge01-chain.pem')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">private_key</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_edge01_tls_key</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">ca_path_after</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../files/qumulo-ca.pem"</span>
+<span class="w">  </span><span class="nt">probe</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}:8000"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}:443"</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>Preview, then apply:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The module installs the chain when any probed address serves another certificate, and waits up to 120 seconds
+until every probed address serves the new one.
+For a slower reload, use the module’s <code class="docutils literal notranslate"><span class="pre">wait_timeout</span></code> in a play of your own.</p>
+</li>
+</ol>
+<p>To verify, run step 3’s check command again.
+<code class="docutils literal notranslate"><span class="pre">Install</span> <span class="pre">the</span> <span class="pre">certificate</span></code> reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, because every probed address serves the declared certificate.</p>
+<section id="when-another-ca-signed-the-new-chain">
+<h3>When another CA signed the new chain<a class="headerlink" href="#when-another-ca-signed-the-new-chain" title="Link to this heading"></a></h3>
+<p>When the new chain is signed by the same CA, nothing else changes.
+When another CA signed it, a connection that verifies with the old CA could not verify the cluster after the install.
+Put the new chain and key where step 1 above puts them, and set <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.ca_path_after</span></code> to the new CA’s certificate:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_ssl</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ca_path_after</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../files/new-ca.pem"</span>
+</pre></div>
+</div>
+<p>The other keys of <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code> stay as they are.
+The certificate step installs the chain, and the steps after it verify the cluster with the new CA.
+Afterwards, set <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> in <code class="docutils literal notranslate"><span class="pre">host_vars/edge01.yml</span></code> to the new CA, so the next run starts with it, or make the
+group’s CA file hold both CAs while clusters are signed by either.
+Setting it in <code class="docutils literal notranslate"><span class="pre">group_vars/qumulo_clusters.yml</span></code> alone would break verification of every cluster still signed by the old
+CA.</p>
+<p>On a host with no <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code>, the step refuses a chain that does not verify against <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code>, and the message names
+<code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code>.
+Prefer <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> to that flag: the flag lets the install proceed, but later tasks then fail to verify the cluster.
+<a class="reference internal" href="respond-to-a-refusal.html#change-the-connection"><span class="std std-ref">Respond to a refusal</span></a> shows how to give the flag for one run, and
+<a class="reference internal" href="../reference/troubleshooting.html#refusals-that-wait-for-consent"><span class="std std-ref">Troubleshooting</span></a> quotes the message.</p>
+</section>
+<section id="when-the-certificate-is-self-signed">
+<h3>When the certificate is self-signed<a class="headerlink" href="#when-the-certificate-is-self-signed" title="Link to this heading"></a></h3>
+<p>Python 3.13 and later verify certificates strictly.
+A self-signed certificate that you pin through <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> or <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> must be a certificate authority
+itself, with <code class="docutils literal notranslate"><span class="pre">basicConstraints</span> <span class="pre">CA:TRUE</span></code>.
+The module warns when the first certificate of <code class="docutils literal notranslate"><span class="pre">certificate</span></code> is self-signed and not a CA.
+Issue it with that extension, or use a certificate your CA signs and pin that CA.
+<a class="reference internal" href="../explanation/authentication.html#tls"><span class="std std-ref">Authentication</span></a> explains why the controller’s Python version matters.</p>
+</section>
+</section>
+<section id="pin-the-tls-cipher-suites">
+<h2>Pin the TLS cipher suites<a class="headerlink" href="#pin-the-tls-cipher-suites" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_ssl_ciphers</span></code> sets the TLS 1.2 and TLS 1.3 suites the cluster accepts.
+Each list is in the order the cluster prefers its suites, and the order is part of the setting.
+A list you leave out keeps the cluster’s own.</p>
+<ol class="arabic">
+<li><p>Read the names the cluster holds now.
+A capture of an adopted cluster writes them to <code class="docutils literal notranslate"><span class="pre">qumulo_ssl_ciphers</span></code> in its <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>:
+<a class="reference internal" href="adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster you already run</span></a> shows the capture.
+For a cluster you did not adopt, run the baseline once with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code> and the lists you intend: the diff shows
+the lists the cluster stores now as <code class="docutils literal notranslate"><span class="pre">before</span></code>.
+Copy names from there rather than typing them.
+The cluster stores a TLS 1.2 name it does not know and never uses it (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-061</span></a>), so a misspelt name is not
+refused.</p></li>
+<li><p>Declare the lists you want, in order, for every cluster that shares them:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_ssl_ciphers</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tls_1_2</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ECDHE-RSA-AES256-GCM-SHA384</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">ECDHE-RSA-AES128-GCM-SHA256</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">tls_1_3</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">TLS_AES_256_GCM_SHA384</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">TLS_AES_128_GCM_SHA256</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>A list may not be empty, and may not name a suite twice.
+The module fails before it sends a request.
+To keep one version’s suites, leave that key out.</p>
+</li>
+<li><p>Preview, then apply:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>Drop <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">edge01</span></code> to apply the lists to every cluster.</p>
+<p>The cluster adds one suite of its own to the end of each list that leaves it out:
+<code class="docutils literal notranslate"><span class="pre">ECDHE-RSA-AES128-SHA256</span></code> for TLS 1.2 and <code class="docutils literal notranslate"><span class="pre">TLS_AES_128_GCM_SHA256</span></code> for TLS 1.3 (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-060</span></a>).
+The module adds it the same way before it compares, so with the lists above the preview shows
+<code class="docutils literal notranslate"><span class="pre">ECDHE-RSA-AES128-SHA256</span></code> at the end of the TLS 1.2 list.</p>
+</li>
+</ol>
+<p>To verify, run the apply command again.
+<code class="docutils literal notranslate"><span class="pre">Apply</span> <span class="pre">the</span> <span class="pre">TLS</span> <span class="pre">cipher</span> <span class="pre">suites</span></code> reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, and the run ends with <code class="docutils literal notranslate"><span class="pre">changed=0</span></code>.</p>
+<section id="change-one-tls-version-only">
+<h3>Change one TLS version only<a class="headerlink" href="#change-one-tls-version-only" title="Link to this heading"></a></h3>
+<p>A play of your own can set one version’s list and leave the other.
+The <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> block is the same header as in <a class="reference internal" href="#serve-a-certificate-from-a-play-of-your-own">the certificate play</a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># prefer-aes256.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Prefer the AES-256 suite for TLS 1.3, leaving TLS 1.2 as it is</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Set the TLS 1.3 suites</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.ssl_ciphers</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tls_1_3</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">TLS_AES_256_GCM_SHA384</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="store-secrets.html"><span class="std std-doc">Store secrets</span></a> covers the vault options for the key and the other values in the inventory.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html#connecting"><span class="std std-ref">Troubleshooting</span></a> lists the connection and verification messages.</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../explanation/authentication.html#tls"><span class="std std-ref">Authentication</span></a> explains why the factory certificate cannot be verified, why
+the module probes the cluster, and what <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> changes in the run.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Variables</span></a> lists <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_ssl_ciphers</span></code> with their keys.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/ssl_certificate_module.html"><span class="std std-doc">ssl_certificate</span></a> and <a class="reference internal" href="../collections/qumulo/cluster/ssl_ciphers_module.html"><span class="std std-doc">ssl_ciphers</span></a>
+document every option.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc">cluster_baseline</span></a> runs both in step 6 of its order, the certificate first.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="active-directory.html" class="btn btn-neutral float-left" title="Join a cluster to Active Directory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="nfs-kerberos.html" class="btn btn-neutral float-right" title="Serve NFS with Kerberos from a standalone KDC" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

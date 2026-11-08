@@ -1,0 +1,1446 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Playbooks and roles &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tested Qumulo Core versions" href="tested-versions.html" />
+    <link rel="prev" title="The upgrade: variables, steps and files" href="upgrade.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Playbooks and roles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#playbooks">Playbooks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#behaviour-under-check">Behaviour under <code class="docutils literal notranslate"><span class="pre">--check</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#variables-the-playbooks-read">Variables the playbooks read</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#files-the-playbooks-write">Files the playbooks write</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#roles">Roles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#facts-the-roles-set">Facts the roles set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-tenancy-steps-of-cluster-baseline">The tenancy steps of <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#edge-cache-resize-routes">Edge cache resize routes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#replication-restore">Replication restore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#records">Records</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-restore-s-files">The restore’s files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refusals-before-step-1">Refusals before step 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#outcomes">Outcomes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timeouts">Timeouts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#replication-failover">Replication failover</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#failover-states">Failover states</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#failover-steps">Failover steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#failover-refusals-before-the-first-write">Failover refusals before the first write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#failover-outcomes">Failover outcomes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#replication-failover-timeouts">Replication failover timeouts</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Playbooks and roles</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="playbooks-and-roles">
+<h1>Playbooks and roles<a class="headerlink" href="#playbooks-and-roles" title="Link to this heading"></a></h1>
+<p>The collection ships eleven playbooks in <code class="docutils literal notranslate"><span class="pre">playbooks/</span></code> and seven roles in <code class="docutils literal notranslate"><span class="pre">roles/</span></code>.
+This page lists what each one targets and does, the variables the playbooks read beyond the inventory’s, the facts and
+files the roles produce, the edge cache resize route table, the replication restore’s records, files and nine
+steps, and the replication failover’s states and steps.
+The task pages say when to run each one: <a class="reference internal" href="../how-to/set-up-inventory.html"><span class="std std-doc">Set up an inventory</span></a>,
+<a class="reference internal" href="../how-to/adopt-a-cluster.html"><span class="std std-doc">Adopt a cluster</span></a>, <a class="reference internal" href="../how-to/rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a>,
+<a class="reference internal" href="../how-to/licensing.html"><span class="std std-doc">License an edge</span></a>, <a class="reference internal" href="../how-to/edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a>,
+<a class="reference internal" href="../how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an edge</span></a>,
+<a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>,
+<a class="reference internal" href="../how-to/fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a>,
+<a class="reference internal" href="../how-to/clone-edge.html"><span class="std std-doc">Clone an edge’s configuration onto a new edge</span></a> and <a class="reference internal" href="../how-to/upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a>.
+<a class="reference internal" href="../explanation/architecture.html"><span class="std std-doc">Architecture</span></a> says how the pieces fit together.</p>
+<section id="playbooks">
+<h2>Playbooks<a class="headerlink" href="#playbooks" title="Link to this heading"></a></h2>
+<p>Each playbook in <code class="docutils literal notranslate"><span class="pre">playbooks/</span></code> is a worked example, with its usage in its header comment.
+Run one by name, as <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">qumulo.cluster.&lt;name&gt;</span></code>, or copy it as the start of a playbook of your own.</p>
+<p>All of them read the connection variables of <a class="reference internal" href="variables.html"><span class="std std-doc">the inventory</span></a> (<code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_api_port</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_api_username</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_api_token</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>) and hand them to the modules through <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> for <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code>.
+<code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code> take them from
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline_connections</span></code>, which the
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role’s <code class="docutils literal notranslate"><span class="pre">tasks/connections.yml</span></code> records for the edge and for the hosts its relationships target.
+<code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code> connects to <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_api_host</span></code> in place of <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> when it is set.</p>
+<p>No playbook targets the <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code> group itself.
+Hubs are in <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code> like every cluster.
+The group names the hubs that edges pair with, and a rebuild finds an edge’s hub there.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Playbook</p></th>
+<th class="head"><p>Hosts</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/admin_password_rotate.yml"><code class="docutils literal notranslate"><span class="pre">admin_password_rotate.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code></p></td>
+<td><p>Changes <code class="docutils literal notranslate"><span class="pre">admin</span></code>’s password to <code class="docutils literal notranslate"><span class="pre">qumulo_api_password_after</span></code>, unless <code class="docutils literal notranslate"><span class="pre">admin</span></code> already logs in with it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/baseline.yml"><code class="docutils literal notranslate"><span class="pre">baseline.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code></p></td>
+<td><p>Brings each cluster to its inventory with the <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role. A second run changes nothing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/capture.yml"><code class="docutils literal notranslate"><span class="pre">capture.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code></p></td>
+<td><p>Reads each cluster and writes its settings in inventory form; with <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_adopt=true</span></code>, its <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/clone_edge.yml"><code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code></a></p></td>
+<td><p>Two plays: <code class="docutils literal notranslate"><span class="pre">localhost</span></code> checks the variables; then the one host named by <code class="docutils literal notranslate"><span class="pre">clone_edge_target</span></code>, which is in <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code></p></td>
+<td><p>Gives a fresh cluster another cluster’s configuration under its own UUID and name: writes its <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file, then runs the baseline on it. Configuration only, no data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/edge_cache_resize.yml"><code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, one at a time</p></td>
+<td><p>Brings each edge’s cache to <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code> by the route the <code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code> role chooses (<a class="reference internal" href="#edge-cache-resize-routes">routes</a>). A last play fails the run, naming each edge that failed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/edge_license_complete.yml"><code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, one at a time, in three plays</p></td>
+<td><p>The second pass. The license play applies <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license_document</span></code>, then sets the clamp, then declares the relationships other inventory hosts have into the edge. An edge with neither an active license nor a document for its UUID fails at once, unless it declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license:</span> <span class="pre">none</span></code>; the other edges go on. The restore play, tagged <code class="docutils literal notranslate"><span class="pre">restore</span></code>, runs the <a class="reference internal" href="#replication-restore">replication restore</a>. The report play, tagged <code class="docutils literal notranslate"><span class="pre">always</span></code>, fails the run, naming each edge that failed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/edge_predestroy.yml"><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, one at a time</p></td>
+<td><p>Phase <code class="docutils literal notranslate"><span class="pre">predestroy</span></code> of the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role: drains an edge before a rebuild and records that it is safe to destroy.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/edge_rebuild.yml"><code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, one at a time</p></td>
+<td><p>Phase <code class="docutils literal notranslate"><span class="pre">replay</span></code> of the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role: forms the reinstalled edge, replays its inventory and pairs it with its hub again.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/replication_failover.yml"><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_hosts</span></code>, default <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>; the play refuses a run that names more than one host</p></td>
+<td><p>Runs the <a class="reference internal" href="#replication-failover">replication failover</a> action <code class="docutils literal notranslate"><span class="pre">replication_failover_action</span></code> names, for the relationships <code class="docutils literal notranslate"><span class="pre">replication_failover_relationships</span></code> names on one source host, and prints each one’s outcome.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/replication_restore.yml"><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_hosts</span></code>, default <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>; the play refuses a run that names more than one host</p></td>
+<td><p>Runs the <a class="reference internal" href="#replication-restore">replication restore</a> for one rebuilt edge.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/upgrade.yml"><code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>, every host at once, <code class="docutils literal notranslate"><span class="pre">strategy:</span> <span class="pre">linear</span></code></p></td>
+<td><p>Upgrades each cluster to its <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_target</span></code>, hop by hop through each quarterly release, in the order its portals and replication need, and writes a report after each hop. <a class="reference internal" href="upgrade.html"><span class="std std-doc">The upgrade</span></a> lists its variables, steps and files.</p></td>
+</tr>
+</tbody>
+</table>
+<section id="behaviour-under-check">
+<h3>Behaviour under <code class="docutils literal notranslate"><span class="pre">--check</span></code><a class="headerlink" href="#behaviour-under-check" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Playbook</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">--check</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">admin_password_rotate.yml</span></code></p></td>
+<td><p>Reports the change and writes nothing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">baseline.yml</span></code></p></td>
+<td><p>Reports what each area would change. With <code class="docutils literal notranslate"><span class="pre">--diff</span></code> it shows the difference. Step 2 reads and refuses as in a real run, so a refusal appears in the check.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">capture.yml</span></code></p></td>
+<td><p>Reads each cluster and writes no file. Without <code class="docutils literal notranslate"><span class="pre">--check</span></code> it changes nothing on a cluster either.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code></p></td>
+<td><p>With <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code>, writes no file and changes nothing anywhere. <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">clone_edge_check_only=true</span></code> writes the file, then runs the baseline in check mode; it refuses a target whose inventory declares a portal or replication relationships, before it reads or writes anything.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code></p></td>
+<td><p>The role reports the route and its inputs and writes nothing.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></p></td>
+<td><p>The license play predicts the license step, the clamp and the relationships into the edge. The restore play takes no lock and reports each relationship as <code class="docutils literal notranslate"><span class="pre">predicted</span></code>, with its steps.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code></p></td>
+<td><p>Predicts the changes, drains nothing and writes no record.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code></p></td>
+<td><p>A replay onto an UNCONFIGURED node stops after it predicts the formation. With <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">edge_rebuild_phase=all</span></code> the run stops before the reinstall.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></p></td>
+<td><p>The dry run. Reads both clusters, prints each relationship’s state and every step left, with the refusals a real run would make, and changes nothing. It needs no consent.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code></p></td>
+<td><p>Takes no lock, changes nothing and reports each relationship’s predicted steps.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code></p></td>
+<td><p>Predicts each host’s first hop and the locks, and changes nothing on the clusters.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="variables-the-playbooks-read">
+<h3>Variables the playbooks read<a class="headerlink" href="#variables-the-playbooks-read" title="Link to this heading"></a></h3>
+<p>These are the variables a playbook reads beyond the connection variables above and the area variables of the
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role.
+<a class="reference internal" href="variables.html"><span class="std std-doc">Inventory variables</span></a> lists the area variables, and <a class="reference internal" href="upgrade.html"><span class="std std-doc">The upgrade</span></a> the <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_*</span></code>
+variables.
+The variables of <code class="docutils literal notranslate"><span class="pre">capture.yml</span></code> are in <a class="reference internal" href="capture-and-clone.html#capture-playbook-variables"><span class="std std-ref">Capture and clone</span></a> and those of
+<code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code> in <a class="reference internal" href="capture-and-clone.html#clone-playbook-variables"><span class="std std-ref">Capture and clone</span></a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Playbook</p></th>
+<th class="head"><p>Variable</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">admin_password_rotate.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_api_password_after</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">admin</span></code>’s new password. The play fails for a host that does not set it.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_cache_resize_*</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_reinstall_tasks</span></code></p></td>
+<td><p>The target and the role’s variables. See <a class="reference internal" href="variables.html#other-roles-variables"><span class="std std-ref">Other roles’ variables</span></a>. The automatic <code class="docutils literal notranslate"><span class="pre">rebuild</span></code> route runs <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> with phase <code class="docutils literal notranslate"><span class="pre">all</span></code>, which needs that role’s variables, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_rebuild=true</span></code> and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_eula_accepted</span></code> among them.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">license_document</span></code>, <code class="docutils literal notranslate"><span class="pre">license</span></code>, <code class="docutils literal notranslate"><span class="pre">clamp</span></code> and <code class="docutils literal notranslate"><span class="pre">free_threshold</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_restore_*</span></code></p></td>
+<td><p>As for <code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code>. A run that carries <code class="docutils literal notranslate"><span class="pre">qumulo_replication_release</span></code> restores nothing, and fails for each relationship with a restore to do.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ad_leave</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_nexus_deregister</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_drain_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_ignore_drift</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_acknowledge</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role’s variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_rebuild</span></code></p></td>
+<td><p>Must be <code class="docutils literal notranslate"><span class="pre">true</span></code>, given with <code class="docutils literal notranslate"><span class="pre">-e</span></code>. The replay fails without it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_new_cluster_uuid</span></code></p></td>
+<td><p>The new edge’s UUID, for an edge formed by hand.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild_eula_accepted</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_admin_password</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_old_edge_destroyed</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_validate_factory_certs</span></code>, and the variables of <code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role’s variables. <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">edge_rebuild_phase=all</span></code> runs the predestroy phase, the tasks file in <code class="docutils literal notranslate"><span class="pre">edge_rebuild_reinstall_tasks</span></code> and the replay in one run.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_action</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover_relationships</span></code></p></td>
+<td><p>Required. The action and the relationships it acts on. See <a class="reference internal" href="variables.html#replication-failover-variables"><span class="std std-ref">Variables</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_allow_data_loss</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_partial_job</span></code></p></td>
+<td><p>The run’s consents. The role sets them in its own <code class="docutils literal notranslate"><span class="pre">vars/main.yml</span></code>, so a value in <code class="docutils literal notranslate"><span class="pre">group_vars</span></code>, <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>, a play’s <code class="docutils literal notranslate"><span class="pre">vars</span></code> or <code class="docutils literal notranslate"><span class="pre">vars_files</span></code> is ignored. Anything a playbook sets closer to the role or during the run lifts them: <code class="docutils literal notranslate"><span class="pre">-e</span></code>, the include’s <code class="docutils literal notranslate"><span class="pre">vars</span></code>, a block’s <code class="docutils literal notranslate"><span class="pre">vars</span></code>, role parameters, <code class="docutils literal notranslate"><span class="pre">set_fact</span></code> and <code class="docutils literal notranslate"><span class="pre">include_vars</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_artifact_dir</span></code></p></td>
+<td><p>Default: <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>. Where the restore’s records are. See <a class="reference internal" href="#failover-refusals-before-the-first-write">Failover refusals before the first write</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_wait_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover_sync_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover_source_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover_hosts</span></code></p></td>
+<td><p>See <a class="reference internal" href="#replication-failover-timeouts">Replication failover timeouts</a> and the play’s hosts.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code></p></td>
+<td><p>Which relationships to restore, each <code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;</span></code>. Default: every <code class="docutils literal notranslate"><span class="pre">present</span></code> relationship out of the edge.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_hosts</span></code></p></td>
+<td><p>The play’s hosts. Default: <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_restore_poll_delay</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_restore_reverse_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_restore_reconnect_timeout</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_restore_resume_window</span></code></p></td>
+<td><p>See <a class="reference internal" href="#timeouts">Timeouts</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_api_host</span></code></p></td>
+<td><p>The address to connect to in place of <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>. A prepare holds one request open for up to 45 minutes, which a load balancer or NAT gateway that closes idle connections cuts.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade_artifact_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code></p></td>
+<td><p>Where the commit records and reports go, and where the restore locks are.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="files-the-playbooks-write">
+<h3>Files the playbooks write<a class="headerlink" href="#files-the-playbooks-write" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;</span></code> is the <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> directory beside the outermost inventory source on disk that holds the file defining
+the host, never inside the source.
+The <a class="reference internal" href="../collections/qumulo/cluster/artifact_dir_filter.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">artifact_dir</span></code> filter</span></a> computes it.
+It is empty for a host that comes from no inventory file, as for <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">edge01,</span></code>.
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline_artifact_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> and <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_artifact_dir</span></code> override it for their
+roles, and <code class="docutils literal notranslate"><span class="pre">replication_pair_artifact_dir</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>.
+The files <code class="docutils literal notranslate"><span class="pre">capture.yml</span></code> writes are in <a class="reference internal" href="capture-and-clone.html#capture-files"><span class="std std-ref">Capture and clone</span></a> and those <code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code>
+writes in <a class="reference internal" href="capture-and-clone.html#clone-files"><span class="std std-ref">Capture and clone</span></a>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Written by</p></th>
+<th class="head"><p>File</p></th>
+<th class="head"><p>Contents</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;/&lt;edge&gt;/captured-&lt;UTC&gt;.yml</span></code></p></td>
+<td><p>The facts of the info modules, a record for people that nothing replays.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;/&lt;edge&gt;/predestroy-&lt;UTC&gt;.yml</span></code></p></td>
+<td><p>The old UUID, each portal and whether it was drained, deleted or forced, the drift (what the rebuild loses, tenant networks among it, and a tenant it gains or a network tenant 1 gains that the edge held in no tenant, each marked <code class="docutils literal notranslate"><span class="pre">added:</span> <span class="pre">true</span></code>) and the acknowledged areas, the <code class="docutils literal notranslate"><span class="pre">management_network</span></code> the preflight returned and the <code class="docutils literal notranslate"><span class="pre">management_api_host</span></code> it was found by, and <code class="docutils literal notranslate"><span class="pre">safe_to_destroy</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;/&lt;edge&gt;/rebuild-&lt;UTC&gt;.yml</span></code></p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> patch and what is left to do by hand, including the held relationships.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;/&lt;edge&gt;/restore/</span></code></p></td>
+<td><p>The restore’s lock, record and stamp. <code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code> takes and renews only the lock. See <a class="reference internal" href="#the-restore-s-files">The restore’s files</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;cluster_upgrade_artifact_dir&gt;/&lt;host&gt;/upgrade/commit.yml</span></code> and the reports</p></td>
+<td><p>See <a class="reference internal" href="upgrade.html"><span class="std std-doc">The upgrade</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>the <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> role (<code class="docutils literal notranslate"><span class="pre">baseline.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">&lt;cluster_baseline_artifact_dir&gt;/&lt;host&gt;/secrets/s3-&lt;user&gt;-&lt;access_key_id&gt;.yml</span></code>, one for each new S3 access key</p></td>
+<td><p>The secret, which the cluster shows once. The directory and the file are readable only by their owner.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="roles">
+<h2>Roles<a class="headerlink" href="#roles" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">-t</span> <span class="pre">role</span> <span class="pre">qumulo.cluster.&lt;role&gt;</span></code> lists a role’s entry points and variables from <code class="docutils literal notranslate"><span class="pre">meta/argument_specs.yml</span></code>.
+Each role directory has a README.
+<a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/README.md#roles">The role catalog</a> in the README gives each role’s one-line summary.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Role</p></th>
+<th class="head"><p>Entry points</p></th>
+<th class="head"><p>Called by</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code>; <code class="docutils literal notranslate"><span class="pre">connections.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">license.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">replication.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">spoke_paths.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">mode_and_acl.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">ownership.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">tenants.yml</span></code> (<code class="docutils literal notranslate"><span class="pre">tasks_from</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code>: <code class="docutils literal notranslate"><span class="pre">baseline.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code>, the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role. The other entry points: see below</p></td>
+<td><p>Brings a cluster to the baseline its inventory declares, in the order of the 22 numbered steps in its README, with the tenant steps 3a, 3b and 20a, area by area, in the order the server needs. An unset area is left alone.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/portal_pair_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">portal_pair</span></code></span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> (step 16), <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> (the drain)</p></td>
+<td><p>Pairs a spoke with its hub through a portal, or, with <code class="docutils literal notranslate"><span class="pre">portal_pair_state:</span> <span class="pre">absent</span></code>, drains and deletes the pairing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/replication_pair_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_pair</span></code></span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code>; <code class="docutils literal notranslate"><span class="pre">restore.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">restore_targets.yml</span></code> and <code class="docutils literal notranslate"><span class="pre">restore_claims.yml</span></code> (<code class="docutils literal notranslate"><span class="pre">tasks_from</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> (step 21) for <code class="docutils literal notranslate"><span class="pre">main</span></code>; <code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code> and the second pass for <code class="docutils literal notranslate"><span class="pre">restore</span></code>; see below for the others</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code> declares a replication relationship between two clusters, or removes it, refusing before any write. <code class="docutils literal notranslate"><span class="pre">restore.yml</span></code>, the <code class="docutils literal notranslate"><span class="pre">restore</span></code> entry point, is the <a class="reference internal" href="#replication-restore">replication restore</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/replication_failover_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_failover</span></code></span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code></p></td>
+<td><p>Fails a source host’s named relationships over to their targets, copies the targets’ writes back, or fails them back, one step at a time from fresh reads of both clusters (<a class="reference internal" href="#replication-failover">states and steps</a>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/edge_cache_resize_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code></span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code></p></td>
+<td><p>Brings an edge’s cache to a target size by the least disruptive route (<a class="reference internal" href="#edge-cache-resize-routes">routes</a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../collections/qumulo/cluster/edge_rebuild_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code></span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code>, with <code class="docutils literal notranslate"><span class="pre">edge_rebuild_phase</span></code> set to <code class="docutils literal notranslate"><span class="pre">predestroy</span></code>, <code class="docutils literal notranslate"><span class="pre">replay</span></code> or <code class="docutils literal notranslate"><span class="pre">all</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_predestroy.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_rebuild.yml</span></code>, the <code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code> role (its <code class="docutils literal notranslate"><span class="pre">rebuild</span></code> route)</p></td>
+<td><p>Drains an edge and records that it is safe to destroy; after the edge is reinstalled, forms it again, replays its inventory, pairs it with its hub and reports what is left to do by hand.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../collections/qumulo/cluster/cluster_upgrade_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_upgrade</span></code></span></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">main</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code></p></td>
+<td><p>Runs an upgrade plan’s hops across a fleet in lock-step. It runs only in a linear play without <code class="docutils literal notranslate"><span class="pre">serial</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Entry points other than <code class="docutils literal notranslate"><span class="pre">main</span></code>, with the files that run them:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Role</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">tasks_from</span></code></p></th>
+<th class="head"><p>Run by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">connections.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">replication_failover.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code>, the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">license.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">replication.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">spoke_paths.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">mode_and_acl.yml</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role (<code class="docutils literal notranslate"><span class="pre">preconditions.yml</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ownership.yml</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role (<code class="docutils literal notranslate"><span class="pre">predestroy.yml</span></code>, and <code class="docutils literal notranslate"><span class="pre">replay.yml</span></code>’s tenant 1 pass)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenants.yml</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role (<code class="docutils literal notranslate"><span class="pre">replay.yml</span></code>’s tenant 1 pass)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_pair</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">restore.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_pair</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">restore_targets.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">restore_claims.yml</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_license_complete.yml</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">connections.yml</span></code> takes <code class="docutils literal notranslate"><span class="pre">cluster_baseline_connection_hosts</span></code>, the list of inventory hosts whose connection options it
+records in <code class="docutils literal notranslate"><span class="pre">cluster_baseline_connections</span></code> (<a class="reference internal" href="#facts-the-roles-set">Facts the roles set</a>). It reads each host’s
+<code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>, which the host must define, and its other <code class="docutils literal notranslate"><span class="pre">qumulo_api_*</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">portal_pair</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> take role arguments, <code class="docutils literal notranslate"><span class="pre">portal_pair_*</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_pair_*</span></code>, and no <code class="docutils literal notranslate"><span class="pre">qumulo_*</span></code>
+inventory variable.
+<code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> and <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> build their arguments from <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>, and from the target host’s variables.
+<code class="docutils literal notranslate"><span class="pre">replication_pair</span></code>’s <code class="docutils literal notranslate"><span class="pre">main</span></code> entry point also reads the <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code> of the source
+host named in <code class="docutils literal notranslate"><span class="pre">replication_pair_source_host</span></code>, that host’s <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>, and that host’s membership in
+<code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">replication_failover</span></code> role takes role arguments, <code class="docutils literal notranslate"><span class="pre">replication_failover_*</span></code>, and reads the source host’s
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>
+and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>, and each target host’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>.
+It also looks for a restore record in <code class="docutils literal notranslate"><span class="pre">&lt;replication_failover_artifact_dir&gt;/&lt;source</span> <span class="pre">host&gt;/restore/</span></code>, and writes nothing
+there.
+The <code class="docutils literal notranslate"><span class="pre">restore</span></code> entry point reads the edge’s own <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>, its <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>, its membership in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_release</span></code>.
+It reads the <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code> of each target host, and the
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> of every inventory host.</p>
+<section id="facts-the-roles-set">
+<h3>Facts the roles set<a class="headerlink" href="#facts-the-roles-set" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Role</p></th>
+<th class="head"><p>Fact</p></th>
+<th class="head"><p>Holds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline_connections</span></code></p></td>
+<td><p>The connection options of each host that <code class="docutils literal notranslate"><span class="pre">connections.yml</span></code> was run for, by inventory host.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cluster_baseline_s3_access_keys</span></code></p></td>
+<td><p>Each new S3 access key with the file that holds its secret, never the secret.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">portal_pair</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">portal_pair_portals</span></code></p></td>
+<td><p>The portal as each side reports it, under <code class="docutils literal notranslate"><span class="pre">spoke</span></code> and <code class="docutils literal notranslate"><span class="pre">hub</span></code>, in the shape of <code class="docutils literal notranslate"><span class="pre">portal_info</span></code>. After a decommission both are <code class="docutils literal notranslate"><span class="pre">null</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> (<code class="docutils literal notranslate"><span class="pre">main</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_pair_result</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">status</span></code> of <code class="docutils literal notranslate"><span class="pre">paired</span></code>, <code class="docutils literal notranslate"><span class="pre">failover</span></code>, <code class="docutils literal notranslate"><span class="pre">deferred</span></code>, <code class="docutils literal notranslate"><span class="pre">held</span></code> or <code class="docutils literal notranslate"><span class="pre">removed</span></code>, with <code class="docutils literal notranslate"><span class="pre">hand_off</span></code> for <code class="docutils literal notranslate"><span class="pre">deferred</span></code> and <code class="docutils literal notranslate"><span class="pre">message</span></code>, <code class="docutils literal notranslate"><span class="pre">releases</span></code>, <code class="docutils literal notranslate"><span class="pre">holders</span></code>, <code class="docutils literal notranslate"><span class="pre">key</span></code> and <code class="docutils literal notranslate"><span class="pre">restore_form</span></code> for <code class="docutils literal notranslate"><span class="pre">held</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> (<code class="docutils literal notranslate"><span class="pre">restore</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_pair_restore_outcomes</span></code></p></td>
+<td><p>One entry for each relationship. See <a class="reference internal" href="#outcomes">Outcomes</a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_results</span></code></p></td>
+<td><p>One entry for each relationship. See <a class="reference internal" href="#failover-outcomes">Outcomes</a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_resize_route</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_cache_resize_plan</span></code>, <code class="docutils literal notranslate"><span class="pre">edge_cache_resize_rebuilding</span></code></p></td>
+<td><p>The route taken, the result of <code class="docutils literal notranslate"><span class="pre">edge_cache_route</span></code>, and whether the <code class="docutils literal notranslate"><span class="pre">rebuild</span></code> route has started the rebuild.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cluster_upgrade</span></code></p></td>
+<td><p>See <a class="reference internal" href="upgrade.html#facts-the-role-sets"><span class="std std-ref">The upgrade</span></a></p></td>
+<td><p>The hop’s state.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-tenancy-steps-of-cluster-baseline">
+<h3>The tenancy steps of <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code><a class="headerlink" href="#the-tenancy-steps-of-cluster-baseline" title="Link to this heading"></a></h3>
+<p>Qumulo marks the multitenancy REST API as preview in Qumulo Core 7.10.3 and 7.11.0. The collection manages tenants
+through it on those releases, and a later Qumulo Core release may change it.</p>
+<p>The role’s <code class="docutils literal notranslate"><span class="pre">tasks/tenants.yml</span></code> runs steps 3a, 3 and 3b, and <code class="docutils literal notranslate"><span class="pre">tasks/tenants_absent.yml</span></code> runs step 20a, both included from
+<code class="docutils literal notranslate"><span class="pre">tasks/main.yml</span></code>. <a class="reference internal" href="../collections/qumulo/cluster/tenancy_plan_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code></span></a>, which sends no request, computes what they
+send.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Step</p></th>
+<th class="head"><p>Runs</p></th>
+<th class="head"><p>Reads and writes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>The ownership check, then, when the inventory declares <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_settings</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code>, one read of the cluster and <code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code></p></td>
+<td><p>Reads the tenants (<code class="docutils literal notranslate"><span class="pre">tenant_info</span></code>), the network document (<code class="docutils literal notranslate"><span class="pre">network_info</span></code>), its status only when the cluster has two or more tenants or the run creates one, the shares (<code class="docutils literal notranslate"><span class="pre">smb_info</span></code>), the exports and the NFS settings and overrides (<code class="docutils literal notranslate"><span class="pre">nfs_info</span></code>), and <code class="docutils literal notranslate"><span class="pre">cluster_info</span></code>’s protection type when <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code> is declared and <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> is not. Refuses before any write. When step 3a will write and step 3’s document differs from the cluster’s, checks that document with <code class="docutils literal notranslate"><span class="pre">network_config</span></code> in check mode. Writes nothing.</p></td>
+</tr>
+<tr class="row-odd"><td><p>3a</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenant</span></code>: the renames, then the services turned on, then the creates</p></td>
+<td><p>Tenant PATCH and POST</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">network_config</span></code>, with the document the plan built from the tenants’ <code class="docutils literal notranslate"><span class="pre">networks</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code></p></td>
+<td><p>One network PUT, each network with its tenant</p></td>
+</tr>
+<tr class="row-odd"><td><p>3b</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenant</span></code>: the services turned off</p></td>
+<td><p>Tenant PATCH</p></td>
+</tr>
+<tr class="row-even"><td><p>18, 19</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">smb_settings</span></code>, <code class="docutils literal notranslate"><span class="pre">smb_share</span></code>, <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_export</span></code>, from the plan: removals first, then the cluster’s settings, then each tenant’s override, then the shares and exports in each tenant their entry names</p></td>
+<td><p>Share and export writes, and each override’s PUT, PATCH or DELETE</p></td>
+</tr>
+<tr class="row-odd"><td><p>20a</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">inherit</span></code> for each tenant declared absent, then <code class="docutils literal notranslate"><span class="pre">tenant</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code></p></td>
+<td><p>Override DELETEs, then the tenant DELETE</p></td>
+</tr>
+<tr class="row-even"><td><p>21</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_pair</span></code>, whose <code class="docutils literal notranslate"><span class="pre">replication_target</span></code> check reads the target’s tenants, and with two or more tenants its network document</p></td>
+<td><p>Reads only, for the replication address (<a class="reference internal" href="variables.html#replication"><span class="std std-ref">Replication</span></a>)</p></td>
+</tr>
+</tbody>
+</table>
+<p>The order of 3a, 3 and 3b has its reason in
+<a class="reference internal" href="../explanation/architecture.html#the-order-of-areas"><span class="std std-ref">The order of areas</span></a>. In a check run, <code class="docutils literal notranslate"><span class="pre">tenant</span></code> and <code class="docutils literal notranslate"><span class="pre">network_config</span></code> take the
+planned networks and tenants from the plan, so each write is judged as it will be immediately after it.
+A tenant that step 3a renames is still under its old name in a check run, so its shares, exports and settings show as
+creates under the new name.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tenancy_plan</span></code> is not in the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.qumulo</span></code> action group and takes no connection options. A run that passes
+returns an empty <code class="docutils literal notranslate"><span class="pre">refusals</span></code> and the items of <code class="docutils literal notranslate"><span class="pre">step_3a</span></code>, <code class="docutils literal notranslate"><span class="pre">step_3b</span></code> and <code class="docutils literal notranslate"><span class="pre">step_20a</span></code>, step 3’s <code class="docutils literal notranslate"><span class="pre">network</span></code> document with
+<code class="docutils literal notranslate"><span class="pre">network_changes</span></code>, <code class="docutils literal notranslate"><span class="pre">bindings</span></code> and <code class="docutils literal notranslate"><span class="pre">validate</span></code>, step 18’s <code class="docutils literal notranslate"><span class="pre">smb</span></code> and step 19’s <code class="docutils literal notranslate"><span class="pre">nfs</span></code> lists, the <code class="docutils literal notranslate"><span class="pre">tenants</span></code> that remain, and
+the continuity <code class="docutils literal notranslate"><span class="pre">verdicts</span></code>. A run that refuses fails with <code class="docutils literal notranslate"><span class="pre">msg</span></code>, which holds each refusal’s message on a line, and
+<code class="docutils literal notranslate"><span class="pre">refusals</span></code>, each message with the names it gives, such as tenants, networks, entries and the play’s <code class="docutils literal notranslate"><span class="pre">api_host</span></code>, and
+nothing else of the plan. At verbosity 3 or more (<code class="docutils literal notranslate"><span class="pre">-vvv</span></code>) the failure also carries <code class="docutils literal notranslate"><span class="pre">plan</span></code>, the keys the module had
+computed when it stopped: none after the renames, the cloud refusal, or the entry, claim and NFSv4.1 rules, the share,
+export and tenant lists after the network rules, and every key, the network document and its address ranges included, after the continuity rule.
+<a class="reference internal" href="troubleshooting.html#tenants"><span class="std std-ref">Troubleshooting</span></a> quotes its messages.</p>
+</section>
+</section>
+<section id="edge-cache-resize-routes">
+<h2>Edge cache resize routes<a class="headerlink" href="#edge-cache-resize-routes" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">edge_cache_resize</span></code> role reads the edge’s file system size, its stored clamp, its license ceiling and its product
+type, and the <a class="reference internal" href="../collections/qumulo/cluster/edge_cache_route_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">edge_cache_route</span></code></span></a> module chooses one route.
+The role fails when the product type is unknown, or when the cluster does not answer for one of these reads.</p>
+<p>The route is the first that applies, in the order of the table.
+The module compares sizes with a margin, <code class="docutils literal notranslate"><span class="pre">edge_cache_resize_margin_bytes</span></code>, which defaults to 10% of the target.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Input</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>T</p></td>
+<td><p>The target, <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>R</p></td>
+<td><p>The stored clamp. <code class="docutils literal notranslate"><span class="pre">unset</span></code> when none is stored.</p></td>
+</tr>
+<tr class="row-even"><td><p>L</p></td>
+<td><p>The license ceiling: the license’s usable capacity cap. On an unprotected edge without a license it is 1 TB. <code class="docutils literal notranslate"><span class="pre">none</span></code> when there is no ceiling.</p></td>
+</tr>
+<tr class="row-odd"><td><p>C</p></td>
+<td><p>The file system’s size, which stands in for the provisioned capacity because no API reports it (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-CLAMP-TOL</span></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p>floor</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">edge_cache_resize_floor_bytes</span></code>, default 1000000000000: what a rebuilt edge provisions at formation, if its platform is larger.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Route</p></th>
+<th class="head"><p>When</p></th>
+<th class="head"><p>What the role does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">within</span></code></p></td>
+<td><p>C is within the margin of T.</p></td>
+<td><p>Applies <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.free_threshold</span></code> if declared.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">below_floor</span></code></p></td>
+<td><p>C is more than the margin above T, and T is below the floor.</p></td>
+<td><p>Fails unless <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.free_threshold</span></code> is declared; applies it when it is.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">rebuild</span></code></p></td>
+<td><p>C is more than the margin above T, and T is not below the floor.</p></td>
+<td><p>Fails with the plan to rebuild the edge. With <code class="docutils literal notranslate"><span class="pre">edge_cache_resize_allow_rebuild:</span> <span class="pre">true</span></code> and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_reinstall_tasks</span></code>, runs the <code class="docutils literal notranslate"><span class="pre">edge_rebuild</span></code> role with phase <code class="docutils literal notranslate"><span class="pre">all</span></code> instead, which needs that role’s variables, <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_rebuild=true</span></code> and <code class="docutils literal notranslate"><span class="pre">edge_rebuild_eula_accepted</span></code> among them.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">blocked_license</span></code></p></td>
+<td><p>C is more than the margin below T, and L is below T.</p></td>
+<td><p>Fails. The message names T, the cluster’s UUID, <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license_document</span></code> and the <code class="docutils literal notranslate"><span class="pre">edge_license_complete</span></code> playbook.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">platform_limited</span></code></p></td>
+<td><p>C is more than the margin below T, and R already allows T.</p></td>
+<td><p>Writes no clamp and reports why. Applies <code class="docutils literal notranslate"><span class="pre">free_threshold</span></code> if declared.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">grow</span></code></p></td>
+<td><p>Otherwise: C is more than the margin below T, R does not allow T yet, and L allows T.</p></td>
+<td><p>Raises the clamp to T with <code class="docutils literal notranslate"><span class="pre">capacity_clamp</span></code>, which re-forms quorum once, then reads the file system size again. If C is still more than the margin below T, the route becomes <code class="docutils literal notranslate"><span class="pre">platform_limited</span></code> and the role reports it. Applies <code class="docutils literal notranslate"><span class="pre">free_threshold</span></code> if declared.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The role prints <code class="docutils literal notranslate"><span class="pre">&lt;route&gt;:</span> <span class="pre">&lt;reason&gt;</span> <span class="pre">(T=…,</span> <span class="pre">R=…,</span> <span class="pre">L=…,</span> <span class="pre">C=…,</span> <span class="pre">margin=…)</span></code> before it takes the route.
+With <code class="docutils literal notranslate"><span class="pre">edge_cache_resize_plan_only</span></code>, which defaults to <code class="docutils literal notranslate"><span class="pre">ansible_check_mode</span></code>, it prints that and goes no further.</p>
+<p>A clamp write re-forms quorum, which pauses the edge, and its portal on its hub, for less than 30 seconds.
+<code class="docutils literal notranslate"><span class="pre">edge_cache_resize.yml</span></code> runs one edge at a time.
+A route that fails ends only that edge, and the last play fails the run naming each edge that failed.
+A failed automatic rebuild ends the run.</p>
+<p>The message of each failing route is in <a class="reference internal" href="troubleshooting.html#the-edge-s-cache"><span class="std std-ref">Troubleshooting</span></a>.
+The registers explain the routes: <a class="reference internal" href="gaps.html"><span class="std std-doc">G-CLAMP-BOUNCE, G-CLAMP-SHRINK, G-EDGE-FLOOR, G-LICENSE and G-UUID</span></a>.
+<a class="reference internal" href="../explanation/licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> says why provisioned capacity never shrinks, what
+the floor is, and
+<a class="reference internal" href="../explanation/licensing-and-capacity.html#a-failed-automatic-rebuild-ends-the-run"><span class="std std-ref">why a failed automatic rebuild ends the run</span></a>.</p>
+</section>
+<section id="replication-restore">
+<h2>Replication restore<a class="headerlink" href="#replication-restore" title="Link to this heading"></a></h2>
+<p>The restore brings back the replicas of a rebuilt edge.
+For each <code class="docutils literal notranslate"><span class="pre">present</span></code> relationship out of the edge whose old record on the target, from one of the edge’s
+<code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>, still holds the replica, it syncs the replica back into the edge’s source directory,
+turns the relationship around and reconnects it, so that it runs from the edge’s current UUID with its declared
+settings.
+The <code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> role’s <code class="docutils literal notranslate"><span class="pre">restore</span></code> entry point runs it, from <code class="docutils literal notranslate"><span class="pre">playbooks/replication_restore.yml</span></code> and from the
+restore play of <code class="docutils literal notranslate"><span class="pre">playbooks/edge_license_complete.yml</span></code>.
+The messages of the restore name the records and steps below.
+<a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a> has the task and
+<a class="reference internal" href="../explanation/replication.html"><span class="std std-doc">Replication</span></a> says why a restore keeps X and reverses R.</p>
+<section id="records">
+<h3>Records<a class="headerlink" href="#records" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Is</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>X</p></td>
+<td><p>The old record on the target that holds the replica: a live record at the target path from one of the edge’s <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>R</p></td>
+<td><p>The restore relationship, from the target’s replica directory to the edge’s declared source path. Before step 6 its source record is on the target and its target record on the edge. After step 6 it is the other way round, in the declared relationship’s orientation.</p></td>
+</tr>
+<tr class="row-even"><td><p>The restore record</p></td>
+<td><p>A file on the controller under <code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;/&lt;edge&gt;/restore/</span></code>. Step 7 writes it after X’s delete, step 8 marks it before the reconnect, and step 9 removes it.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The restore stamp</p></td>
+<td><p>A file in the same directory that step 9 writes. It retires the newest rebuild report’s claim on the relationship.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="the-restore-s-files">
+<h3>The restore’s files<a class="headerlink" href="#the-restore-s-files" title="Link to this heading"></a></h3>
+<p>All of them are under <code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;/&lt;edge&gt;/restore/</span></code>, with mode 0700 for the directory and 0600 for the files.
+A record and a stamp are named by the SHA-256 of the relationship’s key: its source path, the target’s UUID in lower
+case and its target path, each path without a trailing slash.
+The target host’s name is not hashed.
+Another controller, or an inventory that adds a trailing slash or renames the target host, finds the same files.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Contents</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&lt;digest&gt;.yml</span></code></p></td>
+<td><p>The restore record, <code class="docutils literal notranslate"><span class="pre">format:</span> <span class="pre">1</span></code>: <code class="docutils literal notranslate"><span class="pre">key</span></code> (<code class="docutils literal notranslate"><span class="pre">source_path</span></code>, <code class="docutils literal notranslate"><span class="pre">target_host</span></code>, <code class="docutils literal notranslate"><span class="pre">target_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">target_path</span></code>), <code class="docutils literal notranslate"><span class="pre">r_id</span></code>, <code class="docutils literal notranslate"><span class="pre">x_id</span></code>, <code class="docutils literal notranslate"><span class="pre">x_source_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">x_source_path</span></code>, <code class="docutils literal notranslate"><span class="pre">x_snapshot_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">recovery_point</span></code>, <code class="docutils literal notranslate"><span class="pre">recovery_point_snapshot_id</span></code>, <code class="docutils literal notranslate"><span class="pre">written_at</span></code>, and <code class="docutils literal notranslate"><span class="pre">reconnected:</span> <span class="pre">true</span></code> once step 8 has marked it. A record of another format fails the edge’s run, naming the file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">done-&lt;digest&gt;.yml</span></code></p></td>
+<td><p>The restore stamp: <code class="docutils literal notranslate"><span class="pre">format</span></code>, <code class="docutils literal notranslate"><span class="pre">key</span></code>, <code class="docutils literal notranslate"><span class="pre">r_id</span></code>, <code class="docutils literal notranslate"><span class="pre">report</span></code>, <code class="docutils literal notranslate"><span class="pre">written_at</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lock</span></code></p></td>
+<td><p>The controller’s lock on the edge’s restore. A JSON file, <code class="docutils literal notranslate"><span class="pre">format</span></code> 1, with the holder, a random token for the run, the controller’s host name, boot id and PID namespace, the <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process’s id, its start in clock ticks and its start time, and the lease’s expiry.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">lock.guard</span></code></p></td>
+<td><p>The file a takeover or a removal holds an exclusive <code class="docutils literal notranslate"><span class="pre">flock</span></code> on while it reads the lock again. The file is kept. A run waits at most 60 seconds for it, then refuses.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">lock.tmp-&lt;token&gt;</span></code></p></td>
+<td><p>A lock being written. The take removes any older than its lease.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The lock keeps a second restore, or a restore and an upgrade, of the same host from running at once on the same
+controller.
+A restore takes it with holder <code class="docutils literal notranslate"><span class="pre">restore</span></code>, and <a class="reference internal" href="upgrade.html#restore-locks"><span class="std std-ref">an upgrade</span></a> with holder <code class="docutils literal notranslate"><span class="pre">upgrade</span></code>.
+It belongs to the controller: two controllers can both restore one edge.
+A real run takes it before its first step and removes it however the run ends; check mode takes none, and neither does
+a run whose artifact directory is empty.
+The lease is the longest the restore of the picked relationships can take: the number of picked relationships times
+(<code class="docutils literal notranslate"><span class="pre">replication_pair_wait_timeout</span></code> + <code class="docutils literal notranslate"><span class="pre">replication_restore_reverse_timeout</span></code> + <code class="docutils literal notranslate"><span class="pre">replication_restore_reconnect_timeout</span></code> + 600)
+seconds, plus <code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code>.
+The run renews the lock to the full lease before phase 2.
+Another run’s lock is taken over, with a warning, when its process is gone, if it was taken on this controller (the same
+host name, boot id and PID namespace), or once its lease has run out, if it was taken on another controller or on one without <code class="docutils literal notranslate"><span class="pre">/proc</span></code>.
+A lock whose process is alive on this controller is never taken over.
+Any other lock refuses, naming its holder, its process, its controller and the end of its lease.
+A run that is killed leaves its lock.
+<a class="reference internal" href="troubleshooting.html#restore-locks"><span class="std std-ref">Troubleshooting</span></a> lists the lock’s messages.</p>
+</section>
+<section id="steps">
+<h3>Steps<a class="headerlink" href="#steps" title="Link to this heading"></a></h3>
+<p>Phase 1 takes each picked relationship in turn up to step 4, before the next relationship’s step 1.
+Phase 2 waits for the full syncs together, in rounds spaced <code class="docutils literal notranslate"><span class="pre">replication_restore_poll_delay</span></code> seconds apart, and finishes
+each relationship as its sync lands.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Step</p></th>
+<th class="head"><p>Runs on</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>Edge, controller</p></td>
+<td><p>Checks that the restore can start (the <a class="reference internal" href="#refusals-before-step-1">refusals</a>). Creates the source path and its missing declared ancestors on the edge, and the restore directory on the controller.</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>Target</p></td>
+<td><p>Creates R on the target: source path the target’s replica directory, target path the edge’s source path, target address and port the edge’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>, enabled, no blackout windows. If the target cannot reach the edge there, nothing is written on either cluster and the restore stops with a hand-off.</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>Edge</p></td>
+<td><p>Authorizes R on the edge, which waits up to <code class="docutils literal notranslate"><span class="pre">replication_pair_wait_timeout</span></code> seconds (default 600) until R reads ESTABLISHED on the edge.</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>Edge</p></td>
+<td><p>Waits for R’s first recovery point, which is the full sync of the replica, up to <code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code> seconds.</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>Edge</p></td>
+<td><p>Makes the edge’s directory writable, then waits up to <code class="docutils literal notranslate"><span class="pre">replication_restore_reverse_timeout</span></code> seconds until R reads DISCONNECTED on the edge.</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>Edge</p></td>
+<td><p>Reverses R, sending the address and port at which the edge reaches the target: the target’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>. If the edge cannot reach the target there, the reverse fails, neither record changes, and the restore stops.</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>Target, controller</p></td>
+<td><p>Requires R DISCONNECTED on both clusters. Deletes X on the target, reads R’s record on the target, and writes the restore record.</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>Target</p></td>
+<td><p>Marks the restore record, reconnects R on the target, and waits up to <code class="docutils literal notranslate"><span class="pre">replication_restore_reconnect_timeout</span></code> seconds until R reads ESTABLISHED on both clusters.</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>Edge</p></td>
+<td><p>Applies the declared relationship’s settings to R (<code class="docutils literal notranslate"><span class="pre">replication_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code>, <code class="docutils literal notranslate"><span class="pre">source_root_read_only</span></code>, <code class="docutils literal notranslate"><span class="pre">blackout_windows</span></code> and <code class="docutils literal notranslate"><span class="pre">blackout_window_timezone</span></code>, as the entry sets them), writes the restore stamp, and removes the restore record.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The restore sets no blackout window on R until step 9.</p>
+<p>Before every step the role calls
+<a class="reference internal" href="../collections/qumulo/cluster/replication_restore_step_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_restore_step</span></code></span></a> with fresh reads of both clusters and runs
+only the step it returns, so a later run resumes where the records show.
+The module decides in this order, and the first that applies wins.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Reads show</p></th>
+<th class="head"><p>Next</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>The target did not answer</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span></code> while the relationship has a restore to do, otherwise <code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">applicable</span></code> with a warning.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A restore record whose R is ENDED, or missing on a cluster</p></td>
+<td><p>The record is removed, and the decision goes on without it.</p></td>
+</tr>
+<tr class="row-even"><td><p>A restore record, unmarked, with R reconnected</p></td>
+<td><p>The record is marked, and the decision goes on.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A marked record, R ESTABLISHED on both clusters in the declared orientation</p></td>
+<td><p>Step 9.</p></td>
+</tr>
+<tr class="row-even"><td><p>A marked record, R in the declared orientation, at least one side RECONNECTING, REESTABLISHING or ESTABLISHED, and the other one of those or DISCONNECTED</p></td>
+<td><p>Step 8’s wait.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Any other marked record</p></td>
+<td><p>A refusal that names the record. A marked record never sends a reconnect.</p></td>
+</tr>
+<tr class="row-even"><td><p>The declared relationship ESTABLISHED, and no record</p></td>
+<td><p>Outcome <code class="docutils literal notranslate"><span class="pre">done</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>R’s pair exists before the reverse, X ESTABLISHED, PENDING on the edge</p></td>
+<td><p>Step 3.</p></td>
+</tr>
+<tr class="row-even"><td><p>The same pair, ESTABLISHED on the edge with no recovery point</p></td>
+<td><p>Step 4.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The same pair, ESTABLISHED with a recovery point</p></td>
+<td><p>Step 5.</p></td>
+</tr>
+<tr class="row-even"><td><p>The same pair, DISCONNECTING</p></td>
+<td><p>Step 5’s wait.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The same pair, DISCONNECTED</p></td>
+<td><p>Step 6.</p></td>
+</tr>
+<tr class="row-even"><td><p>R reversed, X exists, both sides DISCONNECTED</p></td>
+<td><p>Step 7.</p></td>
+</tr>
+<tr class="row-odd"><td><p>R reversed, X deleted, both sides DISCONNECTED, with an unmarked restore record whose guards hold</p></td>
+<td><p>Step 8.</p></td>
+</tr>
+<tr class="row-even"><td><p>R reversed, no X, no record, both sides DISCONNECTED</p></td>
+<td><p>No step: the stranded pair (see <a class="reference internal" href="#outcomes">Outcomes</a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p>X exists and R has no pair</p></td>
+<td><p>Step 1 when the source path or a declared ancestor is missing on the edge, otherwise step 2, once the refusals pass.</p></td>
+</tr>
+<tr class="row-even"><td><p>Anything else</p></td>
+<td><p>A stop or a refusal, with its way on.</p></td>
+</tr>
+</tbody>
+</table>
+<p>An unmarked record resumes step 8 only within <code class="docutils literal notranslate"><span class="pre">replication_restore_resume_window</span></code> seconds of its write time, and only
+while R’s recovery point and recovery-point snapshot are those the record holds.
+Otherwise the restore stops and says to remove the record.</p>
+</section>
+<section id="refusals-before-step-1">
+<h3>Refusals before step 1<a class="headerlink" href="#refusals-before-step-1" title="Link to this heading"></a></h3>
+<p>The restore refuses a relationship, before step 1 and before any write, with a message that names its way on, when:</p>
+<ul class="simple">
+<li><p>X is not both ESTABLISHED and read-only, an ENDED record lies at the target path beside X, or X has no recovery point;</p></li>
+<li><p>the edge’s source directory holds a file;</p></li>
+<li><p>the edge’s or the target’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> is missing or not an IP literal;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> is empty, or the restore directory cannot be written;</p></li>
+<li><p>the edge is in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, expects a license (<code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license</span></code> other than <code class="docutils literal notranslate"><span class="pre">none</span></code>) and holds no active
+license;</p></li>
+<li><p>the edge declares a <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code> that differs from the stored clamp, or the clamp plan fails;</p></li>
+<li><p>the target path, or the edge’s source path, is, lies under or holds a portal spoke root;</p></li>
+<li><p>the edge has a live relationship record whose source path is the same as or nested with this one’s, or whose target
+path on the edge overlaps it;</p></li>
+<li><p>leftover records with R’s paths exist;</p></li>
+<li><p>the check of the create on the target or of the authorize on the edge refuses.</p></li>
+</ul>
+<p>Step 1’s refusals are per relationship, with outcome <code class="docutils literal notranslate"><span class="pre">refused</span></code>, on both entry points.
+<code class="docutils literal notranslate"><span class="pre">replication_restore.yml</span></code> (entry point <code class="docutils literal notranslate"><span class="pre">playbook</span></code>) also refuses the whole run, before any relationship, for a release in
+the run, an edge with no <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>, a name in <code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code> that is not
+<code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;</span></code> or matches no <code class="docutils literal notranslate"><span class="pre">present</span></code> relationship, and nested source paths among the relationships to
+restore whose X exists.
+On the second pass (entry point <code class="docutils literal notranslate"><span class="pre">second_pass</span></code>), nested relationships are each <code class="docutils literal notranslate"><span class="pre">refused</span></code>, and a name that matches nothing
+fails the run in the report play.</p>
+</section>
+<section id="outcomes">
+<h3>Outcomes<a class="headerlink" href="#outcomes" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">replication_pair_restore_outcomes</span></code> holds one entry for each relationship: <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">outcome</span></code>, <code class="docutils literal notranslate"><span class="pre">fails</span></code>, <code class="docutils literal notranslate"><span class="pre">message</span></code>,
+<code class="docutils literal notranslate"><span class="pre">summary</span></code> and <code class="docutils literal notranslate"><span class="pre">note</span></code>, in check mode <code class="docutils literal notranslate"><span class="pre">sequence</span></code>, and for <code class="docutils literal notranslate"><span class="pre">restored</span></code> also <code class="docutils literal notranslate"><span class="pre">snapshots_left</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Outcome</p></th>
+<th class="head"><p>Fails the run</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">restored</span></code></p></td>
+<td><p>No</p></td>
+<td><p>Step 9 finished. <code class="docutils literal notranslate"><span class="pre">snapshots_left</span></code> lists the replication snapshots X left on the target, each with <code class="docutils literal notranslate"><span class="pre">host</span></code> and <code class="docutils literal notranslate"><span class="pre">id</span></code> (<a class="reference internal" href="gaps.html"><span class="std std-doc">G-REPL-SNAPSHOT</span></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">done</span></code></p></td>
+<td><p>No</p></td>
+<td><p>The declared relationship is ESTABLISHED and has no record. Nothing to restore.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">applicable</span></code></p></td>
+<td><p>No</p></td>
+<td><p>The relationship has nothing to restore. <code class="docutils literal notranslate"><span class="pre">note</span></code> says why.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">predicted</span></code></p></td>
+<td><p>No</p></td>
+<td><p>Check mode: <code class="docutils literal notranslate"><span class="pre">sequence</span></code> holds the steps the run would take.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">refused</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>A condition refuses it before any write.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stopped</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>The restore stopped at a step and a later run resumes it.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">not</span> <span class="pre">restored</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>The relationship has a restore to do and none can run, as for a held relationship with no replica left or a stranded pair on the second pass. <code class="docutils literal notranslate"><span class="pre">message</span></code> gives the way on.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refused</span> <span class="pre">by</span> <span class="pre">step</span> <span class="pre">21</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>Step 21 of the baseline (the <code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> role) refuses the declared relationship in its check pass.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failed</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>A failure inside this relationship. The other relationships go on.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Any failure that is not inside one relationship, such as a lock another run holds, fails the task.
+The fact keeps the outcomes decided before it.</p>
+</section>
+<section id="timeouts">
+<h3>Timeouts<a class="headerlink" href="#timeouts" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Bounds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_pair_wait_timeout</span></code></p></td>
+<td><p>600</p></td>
+<td><p>Step 3’s authorize.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code></p></td>
+<td><p>86400</p></td>
+<td><p>Step 4, the full sync, from the end of the relationship’s step 3 in this run, or from the end of phase 1 for one resumed at step 4. A full sync of a large replica takes hours.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_poll_delay</span></code></p></td>
+<td><p>30</p></td>
+<td><p>The seconds between phase 2’s reads of the edge’s target list.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_reverse_timeout</span></code></p></td>
+<td><p>300</p></td>
+<td><p>Step 5’s poll after the make-writable.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_reconnect_timeout</span></code></p></td>
+<td><p>1800</p></td>
+<td><p>Step 8’s two polls together. A timeout leaves the restore record marked, so the next run only polls.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_restore_resume_window</span></code></p></td>
+<td><p>86400</p></td>
+<td><p>How long after its write time an unmarked restore record still resumes step 8.</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="troubleshooting.html#rebuilds"><span class="std std-ref">Troubleshooting</span></a> lists the messages the steps print.
+<a class="reference internal" href="gaps.html"><span class="std std-doc">G-REPL-IDMAP, G-REPL-ONESHOT and G-REPL-PEER</span></a> record the server limits the restore works around.</p>
+</section>
+</section>
+<section id="replication-failover">
+<h2>Replication failover<a class="headerlink" href="#replication-failover" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">replication_failover</span></code> role fails a declared relationship over to its target, copies the target’s writes back to the
+source, and fails it back.
+<code class="docutils literal notranslate"><span class="pre">playbooks/replication_failover.yml</span></code> runs it for the relationships of one source host, named in
+<code class="docutils literal notranslate"><span class="pre">replication_failover_relationships</span></code>, each <code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;</span></code>.
+The source and the target are the declared ones, whatever direction the records run in.
+Before each step the role reads both clusters with <code class="docutils literal notranslate"><span class="pre">replication_info</span></code> and
+<a class="reference internal" href="../collections/qumulo/cluster/replication_failover_plan_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_failover_plan</span></code></span></a> names the relationship’s state and
+the steps its action has left.
+<a class="reference internal" href="../how-to/fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a> has the task, and
+<a class="reference internal" href="../explanation/replication.html#failing-over"><span class="std std-ref">Replication</span></a> says why the role works as it does.</p>
+<section id="failover-states">
+<h3>Failover states<a class="headerlink" href="#failover-states" title="Link to this heading"></a></h3>
+<p>The plan names the state from the records.
+<code class="docutils literal notranslate"><span class="pre">A</span></code> is the source’s record, <code class="docutils literal notranslate"><span class="pre">B</span></code> the target’s.
+Each direction’s state is read from the record a verb moves first, so the other may lag.
+Two states, marked with an asterisk, read the same as another; the plan reads such records as the asterisked state
+unless the run’s last verb says otherwise.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>State</p></th>
+<th class="head"><p>The records</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">failover</span></code> starts from it</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">resync</span></code> starts from it</p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">failback</span></code> starts from it</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replicating</span></code></p></td>
+<td><p>Declared direction, <code class="docutils literal notranslate"><span class="pre">B</span></code> ESTABLISHED; for <code class="docutils literal notranslate"><span class="pre">resync</span></code> and <code class="docutils literal notranslate"><span class="pre">failback</span></code>, <code class="docutils literal notranslate"><span class="pre">A</span></code> ESTABLISHED or absent.</p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+<td><p>Only to apply settings, when <code class="docutils literal notranslate"><span class="pre">A</span></code> differs from a declared setting</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">over</span></code></p></td>
+<td><p>Declared direction, <code class="docutils literal notranslate"><span class="pre">B</span></code> DISCONNECTING.</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">over</span></code> *</p></td>
+<td><p>Declared direction, <code class="docutils literal notranslate"><span class="pre">B</span></code> DISCONNECTED, and the run’s last verb is not the failback’s reverse on the source.</p></td>
+<td><p>Yes, nothing left</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reconnecting</span></code></p></td>
+<td><p>Declared direction, <code class="docutils literal notranslate"><span class="pre">B</span></code> RECONNECTING or REESTABLISHING, or <code class="docutils literal notranslate"><span class="pre">B</span></code> ESTABLISHED while <code class="docutils literal notranslate"><span class="pre">A</span></code> is present and neither ESTABLISHED, AWAITING_AUTHORIZATION nor ENDED.</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reversed</span></code> *</p></td>
+<td><p>Reversed direction, <code class="docutils literal notranslate"><span class="pre">A</span></code> absent or DISCONNECTED, and the run’s last verb is not the failback’s make-writable on the source.</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resyncing</span></code></p></td>
+<td><p>Reversed direction, <code class="docutils literal notranslate"><span class="pre">A</span></code> in any other state.</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resynced</span></code></p></td>
+<td><p>Reversed direction, <code class="docutils literal notranslate"><span class="pre">A</span></code> and <code class="docutils literal notranslate"><span class="pre">B</span></code> ESTABLISHED.</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">source</span> <span class="pre">disconnecting</span></code></p></td>
+<td><p>Reversed direction, <code class="docutils literal notranslate"><span class="pre">A</span></code> DISCONNECTING.</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">source</span> <span class="pre">writable</span></code></p></td>
+<td><p>Reversed direction, <code class="docutils literal notranslate"><span class="pre">A</span></code> DISCONNECTED after the failback’s make-writable on the source.</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">reversed</span></code></p></td>
+<td><p>Declared direction, <code class="docutils literal notranslate"><span class="pre">B</span></code> DISCONNECTED after the failback’s reverse on the source.</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+<td><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+<p>A record AWAITING_AUTHORIZATION or ENDED is refused by every action, and so is a relationship with no record on <code class="docutils literal notranslate"><span class="pre">B</span></code>.
+A resync or a failback also refuses an <code class="docutils literal notranslate"><span class="pre">A</span></code> that is AWAITING_AUTHORIZATION or ENDED beside a <code class="docutils literal notranslate"><span class="pre">B</span></code> that reads ESTABLISHED
+in the declared direction, since a wait for <code class="docutils literal notranslate"><span class="pre">A</span></code> would never end. The message names both records and the way on
+(<a class="reference internal" href="troubleshooting.html#failing-over"><span class="std std-ref">Troubleshooting</span></a>).
+A state an action does not start from is refused, naming the action that does.</p>
+</section>
+<section id="failover-steps">
+<h3>Failover steps<a class="headerlink" href="#failover-steps" title="Link to this heading"></a></h3>
+<p>A verb step runs the polls beside it after the verb, each read every 5 seconds within <code class="docutils literal notranslate"><span class="pre">replication_failover_wait_timeout</span></code>.
+Each step is the plan’s answer for the records at that moment, so a step already done is dropped.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Step</p></th>
+<th class="head"><p>Runs on</p></th>
+<th class="head"><p>What it does</p></th>
+<th class="head"><p>Polls until</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">make_writable_target</span></code></p></td>
+<td><p>Target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> make-writable, with the run’s consent. The directory goes back to the recovery point.</p></td>
+<td><p>Target’s record DISCONNECTED</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wait_target_writable</span></code></p></td>
+<td><p>Target</p></td>
+<td><p>Waits for a make-writable that is under way.</p></td>
+<td><p>Target’s record DISCONNECTED</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wait_source_disconnected</span></code></p></td>
+<td><p>Source</p></td>
+<td><p>Waits, only while the source’s record is not DISCONNECTED.</p></td>
+<td><p>Source’s record DISCONNECTED</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reverse_to_source</span></code></p></td>
+<td><p>Target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> reverse, toward the source’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and port.</p></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">apply_mapping</span></code></p></td>
+<td><p>Target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_relationship</span></code> turns <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code> on in the target’s source record. Only when the declared entry maps ids and the record does not.</p></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reconnect_source</span></code></p></td>
+<td><p>Source</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> reconnect. It compares the directory with the recovery point first, unless the source host is in <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code>, where the plan’s line says it does not compare.</p></td>
+<td><p>Both records ESTABLISHED</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wait_resynced</span></code></p></td>
+<td><p>Source</p></td>
+<td><p>Waits for both records.</p></td>
+<td><p>Both records ESTABLISHED</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">await_sync</span></code></p></td>
+<td><p>Target</p></td>
+<td><p>A failback’s wait for the target’s recovery point to move twice past the one the wait reads first, within <code class="docutils literal notranslate"><span class="pre">replication_failover_sync_timeout</span></code>. The waiting relationships of one target host are polled together. Dropped once the run’s wait has finished.</p></td>
+<td><p>The recovery point has moved twice</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">make_writable_source</span></code></p></td>
+<td><p>Source</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> make-writable. The directory goes back to the recovery point.</p></td>
+<td><p>Source’s record DISCONNECTED</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">wait_source_writable</span></code></p></td>
+<td><p>Source</p></td>
+<td><p>Waits for a make-writable that is under way.</p></td>
+<td><p>Source’s record DISCONNECTED</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">reverse_to_target</span></code></p></td>
+<td><p>Source</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> reverse, toward the target’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> and port.</p></td>
+<td><p>none</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">reconnect_target</span></code></p></td>
+<td><p>Target</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code> reconnect, compared as <code class="docutils literal notranslate"><span class="pre">reconnect_source</span></code>, unless the target host is in <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code>.</p></td>
+<td><p>Both records ESTABLISHED</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">wait_replicating</span></code></p></td>
+<td><p>Target</p></td>
+<td><p>Waits for both records.</p></td>
+<td><p>Both records ESTABLISHED</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">apply_settings</span></code></p></td>
+<td><p>Source</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_relationship</span></code> applies the declared settings where the source’s record differs.</p></td>
+<td><p>none</p></td>
+</tr>
+</tbody>
+</table>
+<p>What each action has left, from each state it starts from:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Action</p></th>
+<th class="head"><p>From</p></th>
+<th class="head"><p>Steps</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failover</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replicating</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">make_writable_target</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failover</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">over</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wait_target_writable</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resync</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">over</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wait_target_writable</span></code>, then the next row’s steps</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resync</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">over</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wait_source_disconnected</span></code>, <code class="docutils literal notranslate"><span class="pre">reverse_to_source</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_mapping</span></code>, <code class="docutils literal notranslate"><span class="pre">reconnect_source</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resync</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reversed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_mapping</span></code>, <code class="docutils literal notranslate"><span class="pre">reconnect_source</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">resync</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">resyncing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_mapping</span></code>, <code class="docutils literal notranslate"><span class="pre">wait_resynced</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">resync</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">resynced</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_mapping</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failback</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">over</span></code>, <code class="docutils literal notranslate"><span class="pre">failed</span> <span class="pre">over</span></code>, <code class="docutils literal notranslate"><span class="pre">reversed</span></code>, <code class="docutils literal notranslate"><span class="pre">resyncing</span></code>, <code class="docutils literal notranslate"><span class="pre">resynced</span></code></p></td>
+<td><p>The resync’s steps from that state, then <code class="docutils literal notranslate"><span class="pre">await_sync</span></code>, <code class="docutils literal notranslate"><span class="pre">make_writable_source</span></code>, <code class="docutils literal notranslate"><span class="pre">reverse_to_target</span></code>, <code class="docutils literal notranslate"><span class="pre">reconnect_target</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_settings</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failback</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">source</span> <span class="pre">disconnecting</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wait_source_writable</span></code>, <code class="docutils literal notranslate"><span class="pre">reverse_to_target</span></code>, <code class="docutils literal notranslate"><span class="pre">reconnect_target</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_settings</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failback</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">source</span> <span class="pre">writable</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reverse_to_target</span></code>, <code class="docutils literal notranslate"><span class="pre">reconnect_target</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_settings</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failback</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">failing</span> <span class="pre">back,</span> <span class="pre">reversed</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reconnect_target</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_settings</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">failback</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">reconnecting</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wait_replicating</span></code>, <code class="docutils literal notranslate"><span class="pre">apply_settings</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">failback</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replicating</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">apply_settings</span></code>, only when the source’s record differs from a declared setting</p></td>
+</tr>
+</tbody>
+</table>
+<p>A failback runs each relationship up to <code class="docutils literal notranslate"><span class="pre">await_sync</span></code>, waits for the waiting relationships, those on one target host
+together and the target hosts one after another, then runs each to the end.
+The role runs at most twelve rounds of read, plan and step for a relationship in one pass, and fails naming the next
+step when they run out; run it again to resume.</p>
+</section>
+<section id="failover-refusals-before-the-first-write">
+<h3>Failover refusals before the first write<a class="headerlink" href="#failover-refusals-before-the-first-write" title="Link to this heading"></a></h3>
+<p>The role reads and plans every named relationship before the first write of any, and a refusal of one stops the run.
+<a class="reference internal" href="troubleshooting.html#failing-over"><span class="std std-ref">Troubleshooting</span></a> lists the messages.
+The role refuses:</p>
+<ul class="simple">
+<li><p>an empty <code class="docutils literal notranslate"><span class="pre">replication_failover_relationships</span></code>, a name that matches no <code class="docutils literal notranslate"><span class="pre">present</span></code> entry of the source host’s
+relationships, a target host outside the inventory, and a host without a <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>;</p></li>
+<li><p>a relationship with no record on the target, records in both directions or two in one, and a live target record from
+one of the source host’s <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>;</p></li>
+<li><p>a relationship AWAITING_AUTHORIZATION or ENDED, and, for a resync or failback, a source record AWAITING_AUTHORIZATION
+or ENDED beside a target record that reads ESTABLISHED, and a state the action does not start from;</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">resync</span></code> or <code class="docutils literal notranslate"><span class="pre">failback</span></code> when the source did not answer (read once in the run, then every relationship is refused) or
+holds no record of the relationship;</p></li>
+<li><p>a <code class="docutils literal notranslate"><span class="pre">resync</span></code> or <code class="docutils literal notranslate"><span class="pre">failback</span></code> of a relationship whose restore record is in
+<code class="docutils literal notranslate"><span class="pre">&lt;replication_failover_artifact_dir&gt;/&lt;source</span> <span class="pre">host&gt;/restore/</span></code>, which <code class="docutils literal notranslate"><span class="pre">playbooks/replication_restore.yml</span></code> finishes; a
+<code class="docutils literal notranslate"><span class="pre">failover</span></code> notes the record and goes on;</p></li>
+<li><p>a make-writable on a target with no recovery point, and a failover for a job running on a source that answers, unless
+<code class="docutils literal notranslate"><span class="pre">replication_failover_allow_partial_job</span></code> lifts it;</p></li>
+<li><p>a reverse toward an address that is not an IP literal, and a reverse into a tenant that has <code class="docutils literal notranslate"><span class="pre">replication_enabled</span></code> off
+(<a class="reference internal" href="troubleshooting.html#the-replication-address"><span class="std std-ref">The replication address</span></a>);</p></li>
+<li><p>a real run with a step left and no <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_data_loss</span></code>.</p></li>
+</ul>
+</section>
+<section id="failover-outcomes">
+<h3>Failover outcomes<a class="headerlink" href="#failover-outcomes" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">replication_failover_results</span></code> holds one entry for each relationship: <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">state_before</span></code>, <code class="docutils literal notranslate"><span class="pre">state_after</span></code>,
+<code class="docutils literal notranslate"><span class="pre">steps</span></code>, the names of the steps run, <code class="docutils literal notranslate"><span class="pre">plan</span></code>, the lines of the steps the first plan listed, and <code class="docutils literal notranslate"><span class="pre">notes</span></code>.
+A check run reports <code class="docutils literal notranslate"><span class="pre">steps</span></code> empty and <code class="docutils literal notranslate"><span class="pre">state_after</span></code> equal to <code class="docutils literal notranslate"><span class="pre">state_before</span></code>.
+The playbook prints each as <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;:</span> <span class="pre">&lt;state_before&gt;</span> <span class="pre">to</span> <span class="pre">&lt;state_after&gt;,</span> <span class="pre">steps</span> <span class="pre">&lt;steps&gt;</span></code>, then its notes.</p>
+</section>
+<section id="replication-failover-timeouts">
+<h3>Replication failover timeouts<a class="headerlink" href="#replication-failover-timeouts" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>What it bounds</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_wait_timeout</span></code></p></td>
+<td><p>1800</p></td>
+<td><p>Each wait for a record to read a state: a verb’s polls and the wait steps. A timeout sends nothing, and the next run resumes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_sync_timeout</span></code></p></td>
+<td><p>86400</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await_sync</span></code>, from when the waits begin, for all the target hosts together: the relationships on one target host are polled together, and the hosts one after another.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_source_timeout</span></code></p></td>
+<td><p>30</p></td>
+<td><p>A failover’s read of the source, as <code class="docutils literal notranslate"><span class="pre">retry_timeout</span></code> and <code class="docutils literal notranslate"><span class="pre">request_timeout</span></code>. In any action, a source that has not answered is not read again in the run.</p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="quirks.html"><span class="std std-doc">QUIRK-125</span></a> records the server behaviour the role works around, and
+<a class="reference internal" href="gaps.html"><span class="std std-doc">G-REPL-ONESHOT and G-REPL-SNAPSHOT</span></a> the limits of the verbs it sends.</p>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="variables.html"><span class="std std-doc">Inventory variables</span></a>: the area variables the baseline reads, and the <code class="docutils literal notranslate"><span class="pre">edge_rebuild_*</span></code> and
+<code class="docutils literal notranslate"><span class="pre">edge_cache_resize_*</span></code> variables.</p></li>
+<li><p><a class="reference internal" href="upgrade.html"><span class="std std-doc">The upgrade</span></a>: <code class="docutils literal notranslate"><span class="pre">upgrade.yml</span></code>’s variables, steps and files.</p></li>
+<li><p><a class="reference internal" href="capture-and-clone.html"><span class="std std-doc">Capture and clone</span></a>: what <code class="docutils literal notranslate"><span class="pre">capture.yml</span></code> reads and what <code class="docutils literal notranslate"><span class="pre">clone_edge.yml</span></code> copies.</p></li>
+<li><p><a class="reference internal" href="../explanation/architecture.html"><span class="std std-doc">Architecture</span></a>: how modules, roles and playbooks fit together.</p></li>
+<li><p><a class="reference internal" href="../explanation/rebuilds.html"><span class="std std-doc">Rebuilds</span></a> and <a class="reference internal" href="../explanation/replication.html"><span class="std std-doc">Replication</span></a>: why a rebuild and a restore
+work as they do.</p></li>
+<li><p><a class="reference internal" href="troubleshooting.html"><span class="std std-doc">Troubleshooting</span></a>: the messages, by symptom.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="upgrade.html" class="btn btn-neutral float-left" title="The upgrade: variables, steps and files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tested-versions.html" class="btn btn-neutral float-right" title="Tested Qumulo Core versions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

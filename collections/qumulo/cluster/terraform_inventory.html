@@ -1,0 +1,676 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.terraform inventory – Qumulo clusters from a Terraform root’s qumulo_ansible_inventory output &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.cluster_baseline role – Bring a Qumulo cluster to the baseline its inventory declares" href="cluster_baseline_role.html" />
+    <link rel="prev" title="qumulo.cluster.warn filter – Show a text as a warning of the task that renders it" href="warn_filter.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.terraform inventory – Qumulo clusters from a Terraform root’s qumulo_ansible_inventory output</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-terraform-inventory"></span><section id="qumulo-cluster-terraform-inventory-qumulo-clusters-from-a-terraform-root-s-qumulo-ansible-inventory-output">
+<h1>qumulo.cluster.terraform inventory – Qumulo clusters from a Terraform root’s qumulo_ansible_inventory output<a class="headerlink" href="#qumulo-cluster-terraform-inventory-qumulo-clusters-from-a-terraform-root-s-qumulo-ansible-inventory-output" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This inventory plugin is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.terraform</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id3">Notes</a></p></li>
+<li><p><a class="reference internal" href="#see-also" id="id4">See Also</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Adds one host for each entry of the <code class="docutils literal notranslate"><span class="pre">qumulo_ansible_inventory</span></code> output of a Terraform root, with the variables the collection’s playbooks and roles read.</p></li>
+<li><p>The inventory source is a YAML file whose name ends in <code class="docutils literal notranslate"><span class="pre">qumulo_terraform.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_terraform.yaml</span></code>.</p></li>
+<li><p>The output maps each host name to <code class="docutils literal notranslate"><span class="pre">api_host</span></code>, <code class="docutils literal notranslate"><span class="pre">cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">cluster_kind</span></code> (<code class="ansible-value docutils literal notranslate"><span class="pre">edge</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">cnq</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">baremetal</span></code>), <code class="docutils literal notranslate"><span class="pre">managed_by</span></code> (<code class="ansible-value docutils literal notranslate"><span class="pre">none</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">terraform_provider</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">legacy_provisioner</span></code>), <code class="docutils literal notranslate"><span class="pre">owned_areas</span></code> and <code class="docutils literal notranslate"><span class="pre">password_ref</span></code>. <code class="docutils literal notranslate"><span class="pre">docs/reference/terraform-inventory.md</span></code> lists the fields and the Terraform resources that fill them, and <code class="docutils literal notranslate"><span class="pre">docs/how-to/terraform.md</span></code> shows how to publish the output.</p></li>
+<li><p>Each host gets <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> and, unless the entry’s <code class="docutils literal notranslate"><span class="pre">password_ref</span></code> is null, <code class="docutils literal notranslate"><span class="pre">qumulo_password_ref</span></code>.</p></li>
+<li><p>Each host joins a group for its kind, <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_cnq</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_baremetal</span></code>, and one for who formed it, <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by_none</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by_terraform_provider</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_managed_by_legacy_provisioner</span></code>. All of these are children of <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">api_host</span></code> is a host name or an IP address. The modules build <code class="docutils literal notranslate"><span class="pre">https://&lt;api_host&gt;:&lt;api_port&gt;</span></code> themselves, so a URL, such as the <code class="docutils literal notranslate"><span class="pre">endpoint</span></code> the provider’s <code class="docutils literal notranslate"><span class="pre">qumulo_filesystem_edge_baremetal</span></code> resource exports, is refused, and so is a value with a user name in it, such as <code class="docutils literal notranslate"><span class="pre">admin&#64;10.20.0.5</span></code>.</p></li>
+<li><p>An IPv6 <code class="docutils literal notranslate"><span class="pre">api_host</span></code> is given bare, as <code class="docutils literal notranslate"><span class="pre">fd00::5</span></code>. A bracketed address is refused, and so is a zone id such as <code class="docutils literal notranslate"><span class="pre">fe80::1%eth0</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">owned_areas</span></code> is a list of area names, such as <code class="ansible-value docutils literal notranslate"><span class="pre">network.floating_ips</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">dns</span></code>. For a <code class="ansible-value docutils literal notranslate"><span class="pre">cnq</span></code> cluster with <code class="docutils literal notranslate"><span class="pre">managed_by</span></code> set to <code class="ansible-value docutils literal notranslate"><span class="pre">terraform_provider</span></code> it must list <code class="ansible-value docutils literal notranslate"><span class="pre">network.floating_ips</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">password_ref</span></code> is null, or a map of <code class="docutils literal notranslate"><span class="pre">type</span></code>, one of <code class="ansible-value docutils literal notranslate"><span class="pre">env</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">aws_ssm_parameter</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">aws_secrets_manager</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">azure_key_vault</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">gcp_secret_manager</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">hashicorp_vault</span></code>, and <code class="docutils literal notranslate"><span class="pre">id</span></code>, a non-empty string. The output never carries the password. <code class="docutils literal notranslate"><span class="pre">group_vars</span></code> resolve the reference into <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code> with a lookup.</p></li>
+<li><p>An entry may also give <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code>, the IP addresses the other side of a portal reaches the cluster at, and <code class="docutils literal notranslate"><span class="pre">replication_address</span></code>, the IP address a replication source reaches it at, which the replication step of the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.cluster_baseline</span></code> role gives the source. The host gets <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>, a list of <code class="docutils literal notranslate"><span class="pre">address</span></code> items on the default portal port, and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, each address in its canonical form. Null, or no field, sets neither unless <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code> fills it, and <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> outrank both.</p></li>
+<li><p>The plugin publishes the addresses the output gives, or those of a <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code> below, and derives none from the cluster. Each is an IP address without a host name, a port, brackets or a zone id; a URL, an unspecified, loopback or multicast address, an empty list and an address given twice are refused.</p></li>
+<li><p>An entry may instead give <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code>, the fully qualified DNS name of the load balancer in front of a multi-AZ cluster in AWS. The plugin resolves it on the controller each time it reads the output, a cached read included, and sets <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> to its IPv4 and IPv6 addresses, in canonical form, without repeats and sorted, IPv4 before IPv6, and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> to the first, wherever the entry’s <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code> or <code class="docutils literal notranslate"><span class="pre">replication_address</span></code> is null. Addresses the entry gives win. The name itself is never published as an address. A name that resolves to no address, or to a loopback, unspecified, multicast or zoned one, fails the source, and the message names it.</p></li>
+<li><p>With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-cache"><span class="std std-ref"><span class="pre">cache</span></span></a></strong></code>, a name whose addresses are now a strict subset of those the cache recorded fails the source, naming the missing ones. Giving the addresses in <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_address</span></code>, or running once with <code class="docutils literal notranslate"><span class="pre">--flush-cache</span></code>, ends the failure.</p></li>
+<li><p>The output’s schema is strict. An entry with a missing, unknown or malformed field fails the whole source, and the message names every such entry. So do two entries with the same <code class="docutils literal notranslate"><span class="pre">cluster_uuid</span></code>. A field whose name looks like a secret, such as <code class="docutils literal notranslate"><span class="pre">password</span></code> or <code class="docutils literal notranslate"><span class="pre">api_token</span></code>, is refused the same way, and its value is neither read into a variable, nor cached, nor shown.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-binary_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-binary-path"><strong>binary_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-binary_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The terraform executable that <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-project-path"><span class="std std-ref"><span class="pre">project_path</span></span></a></strong></code> runs.</p>
+<p>A name without a directory is looked up on <code class="docutils literal notranslate"><span class="pre">PATH</span></code>; a relative path is relative to the directory of the inventory source.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;terraform&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-cache"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-cache"><strong>cache</strong></p>
+<a class="ansibleOptionLink" href="#parameter-cache" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Toggle to enable/disable the caching of the inventory’s source data, requires a cache plugin setup to work.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-configuration">Configuration:</strong></p>
+<ul>
+<li><p>INI entry:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[inventory]</span>
+<span class="na">cache</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+</pre></div>
+</div>
+</li>
+<li><p>Environment variable: <span class="target" id="index-0"></span><a class="reference internal" href="../../environment_variables.html#envvar-ANSIBLE_INVENTORY_CACHE"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_CACHE</span></code></a></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-cache_connection"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-cache-connection"><strong>cache_connection</strong></p>
+<a class="ansibleOptionLink" href="#parameter-cache_connection" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Cache connection data or path, read cache plugin documentation for specifics.</p>
+<p class="ansible-option-line"><strong class="ansible-option-configuration">Configuration:</strong></p>
+<ul>
+<li><p>INI entries:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[defaults]</span>
+<span class="na">fact_caching_connection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">VALUE</span>
+</pre></div>
+</div>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[inventory]</span>
+<span class="na">cache_connection</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">VALUE</span>
+</pre></div>
+</div>
+</li>
+<li><p>Environment variable: <span class="target" id="index-1"></span><a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/config.html#envvar-ANSIBLE_CACHE_PLUGIN_CONNECTION" title="(in Ansible devel)"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_CACHE_PLUGIN_CONNECTION</span></code></a></p></li>
+<li><p>Environment variable: <span class="target" id="index-2"></span><a class="reference internal" href="../../environment_variables.html#envvar-ANSIBLE_INVENTORY_CACHE_CONNECTION"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_CACHE_CONNECTION</span></code></a></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-cache_plugin"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-cache-plugin"><strong>cache_plugin</strong></p>
+<a class="ansibleOptionLink" href="#parameter-cache_plugin" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Cache plugin to use for the inventory’s source data.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;memory&quot;</span></code></p>
+<p class="ansible-option-line"><strong class="ansible-option-configuration">Configuration:</strong></p>
+<ul>
+<li><p>INI entries:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[defaults]</span>
+<span class="na">fact_caching</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">memory</span>
+</pre></div>
+</div>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[inventory]</span>
+<span class="na">cache_plugin</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">memory</span>
+</pre></div>
+</div>
+</li>
+<li><p>Environment variable: <span class="target" id="index-3"></span><a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/config.html#envvar-ANSIBLE_CACHE_PLUGIN" title="(in Ansible devel)"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_CACHE_PLUGIN</span></code></a></p></li>
+<li><p>Environment variable: <span class="target" id="index-4"></span><a class="reference internal" href="../../environment_variables.html#envvar-ANSIBLE_INVENTORY_CACHE_PLUGIN"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_CACHE_PLUGIN</span></code></a></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-cache_prefix"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-cache-prefix"><strong>cache_prefix</strong></p>
+<a class="ansibleOptionLink" href="#parameter-cache_prefix" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Prefix to use for cache plugin files/tables.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;ansible_inventory_&quot;</span></code></p>
+<p class="ansible-option-line"><strong class="ansible-option-configuration">Configuration:</strong></p>
+<ul>
+<li><p>INI entries:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[defaults]</span>
+<span class="na">fact_caching_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ansible_inventory_</span>
+</pre></div>
+</div>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[inventory]</span>
+<span class="na">cache_prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">ansible_inventory_</span>
+</pre></div>
+</div>
+</li>
+<li><p>Environment variable: <span class="target" id="index-5"></span><a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/config.html#envvar-ANSIBLE_CACHE_PLUGIN_PREFIX" title="(in Ansible devel)"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_CACHE_PLUGIN_PREFIX</span></code></a></p></li>
+<li><p>Environment variable: <span class="target" id="index-6"></span><a class="reference internal" href="../../environment_variables.html#envvar-ANSIBLE_INVENTORY_CACHE_PLUGIN_PREFIX"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_CACHE_PLUGIN_PREFIX</span></code></a></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-cache_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-cache-timeout"><strong>cache_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-cache_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Cache duration in seconds.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">3600</span></code></p>
+<p class="ansible-option-line"><strong class="ansible-option-configuration">Configuration:</strong></p>
+<ul>
+<li><p>INI entries:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[defaults]</span>
+<span class="na">fact_caching_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3600</span>
+</pre></div>
+</div>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[inventory]</span>
+<span class="na">cache_timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3600</span>
+</pre></div>
+</div>
+</li>
+<li><p>Environment variable: <span class="target" id="index-7"></span><a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/config.html#envvar-ANSIBLE_CACHE_PLUGIN_TIMEOUT" title="(in Ansible devel)"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_CACHE_PLUGIN_TIMEOUT</span></code></a></p></li>
+<li><p>Environment variable: <span class="target" id="index-8"></span><a class="reference internal" href="../../environment_variables.html#envvar-ANSIBLE_INVENTORY_CACHE_TIMEOUT"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_CACHE_TIMEOUT</span></code></a></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-compose"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-compose"><strong>compose</strong></p>
+<a class="ansibleOptionLink" href="#parameter-compose" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Create vars from jinja2 expressions.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-groups"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-groups"><strong>groups</strong></p>
+<a class="ansibleOptionLink" href="#parameter-groups" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Add hosts to group based on Jinja2 conditionals.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-keyed_groups"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups"><strong>keyed_groups</strong></p>
+<a class="ansibleOptionLink" href="#parameter-keyed_groups" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Add hosts to group based on the values of a variable.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-keyed_groups/default_value"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-default-value"><strong>default_value</strong></p>
+<a class="ansibleOptionLink" href="#parameter-keyed_groups/default_value" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+<p><em class="ansible-option-versionadded">added in ansible-core 2.12</em></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The default value when the host variable’s value is <code class="ansible-value docutils literal notranslate"><span class="pre">None</span></code> or an empty string.</p>
+<p>This option is mutually exclusive with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-trailing-separator"><span class="std std-ref"><span class="pre">keyed_groups[].trailing_separator</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-keyed_groups/key"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-key"><strong>key</strong></p>
+<a class="ansibleOptionLink" href="#parameter-keyed_groups/key" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The key from input dictionary used to generate groups.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-keyed_groups/parent_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-parent-group"><strong>parent_group</strong></p>
+<a class="ansibleOptionLink" href="#parameter-keyed_groups/parent_group" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>parent group for keyed group.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-keyed_groups/prefix"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-prefix"><strong>prefix</strong></p>
+<a class="ansibleOptionLink" href="#parameter-keyed_groups/prefix" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>A keyed group name will start with this prefix.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-keyed_groups/separator"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-separator"><strong>separator</strong></p>
+<a class="ansibleOptionLink" href="#parameter-keyed_groups/separator" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>separator used to build the keyed group name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;_&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-keyed_groups/trailing_separator"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-trailing-separator"><strong>trailing_separator</strong></p>
+<a class="ansibleOptionLink" href="#parameter-keyed_groups/trailing_separator" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+<p><em class="ansible-option-versionadded">added in ansible-core 2.12</em></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Set this option to <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> to omit the <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-separator"><span class="std std-ref"><span class="pre">keyed_groups[].separator</span></span></a></strong></code> after the host variable when the value is <code class="ansible-value docutils literal notranslate"><span class="pre">None</span></code> or an empty string.</p>
+<p>This option is mutually exclusive with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups-default-value"><span class="std std-ref"><span class="pre">keyed_groups[].default_value</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-leading_separator"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-leading-separator"><strong>leading_separator</strong></p>
+<a class="ansibleOptionLink" href="#parameter-leading_separator" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+<p><em class="ansible-option-versionadded">added in ansible-core 2.11</em></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use in conjunction with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-keyed-groups"><span class="std std-ref"><span class="pre">keyed_groups</span></span></a></strong></code>.</p>
+<p>By default, a keyed group that does not have a prefix or a separator provided will have a name that starts with an underscore.</p>
+<p>This is because the default prefix is <code class="ansible-value docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> and the default separator is <code class="ansible-value docutils literal notranslate"><span class="pre">&quot;_&quot;</span></code>.</p>
+<p>Set this option to <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> to omit the leading underscore (or other separator) if no prefix is given.</p>
+<p>If the group name is derived from a mapping the separator is still used to concatenate the items.</p>
+<p>To not use a separator in the group name at all, set the separator for the keyed group to an empty string instead.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-output_file"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-output-file"><strong>output_file</strong></p>
+<a class="ansibleOptionLink" href="#parameter-output_file" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>A file to read the output from instead of running terraform.</p>
+<p>It holds what <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span> <span class="pre">-json</span> <span class="pre">qumulo_ansible_inventory</span></code> prints. A file holding every output, as <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span> <span class="pre">-json</span></code> without a name prints them, is refused.</p>
+<p>A relative path is relative to the directory of the inventory source.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">ansible.builtin.yaml</span></code> inventory plugin reads <code class="docutils literal notranslate"><span class="pre">.json</span></code> files in an inventory directory as inventories of their own, so a file kept in a directory given to <code class="docutils literal notranslate"><span class="pre">-i</span></code> is parsed as one too.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-plugin"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-plugin"><strong>plugin</strong></p>
+<a class="ansibleOptionLink" href="#parameter-plugin" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The name of this plugin.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;qumulo.cluster.terraform&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-project_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-project-path"><strong>project_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-project_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The Terraform root to run <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span> <span class="pre">-json</span> <span class="pre">qumulo_ansible_inventory</span></code> in.</p>
+<p>A relative path is relative to the directory of the inventory source.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-project-path"><span class="std std-ref"><span class="pre">project_path</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-output-file"><span class="std std-ref"><span class="pre">output_file</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-strict"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-strict"><strong>strict</strong></p>
+<a class="ansibleOptionLink" href="#parameter-strict" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>If <code class="ansible-value docutils literal notranslate"><span class="pre">yes</span></code> make invalid entries a fatal error, otherwise skip and continue.</p>
+<p>Since it is possible to use facts in the expressions they might not always be available and we ignore those errors by default.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-timeout"><strong>timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span></code> before failing the source, as when the root’s backend does not answer.</p>
+<p>Only with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-project-path"><span class="std std-ref"><span class="pre">project_path</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">120</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-use_extra_vars"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-use-extra-vars"><strong>use_extra_vars</strong></p>
+<a class="ansibleOptionLink" href="#parameter-use_extra_vars" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+<p><em class="ansible-option-versionadded">added in ansible-core 2.11</em></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Merge extra vars into the available variables for composition (highest precedence).</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-configuration">Configuration:</strong></p>
+<ul>
+<li><p>INI entry:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[inventory_plugins]</span>
+<span class="na">use_extra_vars</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+</pre></div>
+</div>
+</li>
+<li><p>Environment variable: <span class="target" id="index-9"></span><a class="reference internal" href="../../environment_variables.html#envvar-ANSIBLE_INVENTORY_USE_EXTRA_VARS"><code class="xref std std-envvar docutils literal notranslate"><span class="pre">ANSIBLE_INVENTORY_USE_EXTRA_VARS</span></code></a></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-workspace"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-terraform-inventory-parameter-workspace"><strong>workspace</strong></p>
+<a class="ansibleOptionLink" href="#parameter-workspace" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The Terraform workspace to read, selected through <code class="docutils literal notranslate"><span class="pre">TF_WORKSPACE</span></code> for the one command.</p>
+<p>Without it, <code class="docutils literal notranslate"><span class="pre">TF_WORKSPACE</span></code> from the environment when it is set, and otherwise the root’s selected workspace.</p>
+<p>Only with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-project-path"><span class="std std-ref"><span class="pre">project_path</span></span></a></strong></code>.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Configuration entries listed above for each entry type (Ansible variable, environment variable, and so on) have a low to high priority order.
+For example, a variable that is lower in the list will override a variable that is higher up.
+The entry types are also ordered by precedence from low to high priority order.
+For example, an ansible.cfg entry (further up in the list) is overwritten by an Ansible variable (further down in the list).</p>
+</div>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-cache"><span class="std std-ref"><span class="pre">cache</span></span></a></strong></code>, the plugin caches the hosts it read, after checking them, never the raw output. The cache key covers the source, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-project-path"><span class="std std-ref"><span class="pre">project_path</span></span></a></strong></code> or <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-output-file"><span class="std std-ref"><span class="pre">output_file</span></span></a></strong></code>, and the workspace, from <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-terraform-inventory-parameter-workspace"><span class="std std-ref"><span class="pre">workspace</span></span></a></strong></code> or <code class="docutils literal notranslate"><span class="pre">TF_WORKSPACE</span></code>; a workspace switched with <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">workspace</span> <span class="pre">select</span></code> is read once the cache times out or is refreshed.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">TF_LOG</span></code> variables are removed from the environment terraform runs in.</p></li>
+<li><p>The hosts have no <code class="docutils literal notranslate"><span class="pre">ansible_connection</span></code>. The collection’s modules run on the controller, with <code class="docutils literal notranslate"><span class="pre">ansible_connection=local</span></code>, which the <code class="docutils literal notranslate"><span class="pre">group_vars</span></code> example below sets.</p></li>
+<li><p>Inventories are not finalized at this stage, so the auto populated <code class="docutils literal notranslate"><span class="pre">all</span></code> and <code class="docutils literal notranslate"><span class="pre">ungrouped</span></code> groups will only reflect what previous inventory sources explicitly added to them.</p></li>
+<li><p>Runtime ‘magic variables’ are not available during inventory construction. For example, <code class="docutils literal notranslate"><span class="pre">groups</span></code> and <code class="docutils literal notranslate"><span class="pre">hostvars</span></code> do not exist yet.</p></li>
+</ul>
+</div>
+</section>
+<section id="see-also">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">See Also</a><a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference external" href="https://developer.hashicorp.com/terraform/cli/commands/output">Terraform output command</a></dt><dd><p>What <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span> <span class="pre">-json</span></code> prints.</p>
+</dd>
+</dl>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/prod.qumulo_terraform.yml</span>
+<span class="c1"># Add the clusters of a Terraform root, in its prod workspace, to the inventory.</span>
+<span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">project_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform/prod</span>
+<span class="nt">workspace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prod</span>
+
+<span class="nn">---</span>
+<span class="c1"># inventory/ci.qumulo_terraform.yml</span>
+<span class="c1"># Read a saved `terraform output -json qumulo_ansible_inventory` where the controller has no Terraform, pin each</span>
+<span class="c1"># cluster's certificate authority, and group clusters by region from their host names.</span>
+<span class="c1"># Keep the saved file outside the directory given to -i, so that no other inventory plugin reads it.</span>
+<span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">output_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform-output/qumulo_ansible_inventory.json</span>
+<span class="nt">compose</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">qumulo_ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"inventory_dir</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">'/../files/'</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">inventory_hostname</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">'-ca.pem'"</span>
+<span class="nt">keyed_groups</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">inventory_hostname.split('-')[0]</span>
+<span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">region</span>
+
+<span class="nn">---</span>
+<span class="c1"># inventory/cached.qumulo_terraform.yml</span>
+<span class="c1"># Read the output once an hour instead of on every run.</span>
+<span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">project_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform/prod</span>
+<span class="nt">cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">cache_plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ansible.builtin.jsonfile</span>
+<span class="nt">cache_connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">~/.cache/qumulo-inventory</span>
+<span class="nt">cache_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3600</span>
+
+<span class="nn">---</span>
+<span class="c1"># inventory/lab.qumulo_terraform.yml</span>
+<span class="c1"># Run a Terraform binary that is not on PATH, and wait longer for a slow backend.</span>
+<span class="nt">plugin</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster.terraform</span>
+<span class="nt">project_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">../terraform/lab</span>
+<span class="nt">binary_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/opt/terraform/1.11.0/terraform</span>
+<span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">300</span>
+
+<span class="nn">---</span>
+<span class="c1"># inventory/group_vars/qumulo_clusters.yml</span>
+<span class="c1"># Connect from the controller, and read each cluster's admin password from SSM or an environment variable,</span>
+<span class="c1"># as its password_ref names. A host whose password_ref is null sets qumulo_api_password in its host_vars.</span>
+<span class="nt">ansible_connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local</span>
+<span class="nt">ansible_python_interpreter</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">ansible_playbook_python</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="nt">qumulo_api_username</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="nt">qumulo_api_password</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">  </span><span class="cp">{{</span> <span class="nv">lookup</span><span class="o">(</span><span class="s1">'amazon.aws.ssm_parameter'</span><span class="o">,</span> <span class="nv">qumulo_password_ref.id</span><span class="o">)</span>
+     <span class="k">if</span> <span class="nv">qumulo_password_ref.type</span> <span class="o">==</span> <span class="s1">'aws_ssm_parameter'</span>
+     <span class="k">else</span> <span class="nv">lookup</span><span class="o">(</span><span class="s1">'ansible.builtin.env'</span><span class="o">,</span> <span class="nv">qumulo_password_ref.id</span><span class="o">)</span>
+     <span class="k">if</span> <span class="nv">qumulo_password_ref.type</span> <span class="o">==</span> <span class="s1">'env'</span>
+     <span class="k">else</span> <span class="nv">undef</span><span class="o">(</span><span class="nv">hint</span><span class="o">=</span><span class="s1">'no lookup for password_ref type '</span> <span class="o">~</span> <span class="nv">qumulo_password_ref.type</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="nt">qumulo_validate_certs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">inventory_dir</span> <span class="cp">}}</span><span class="s">/../files/qumulo-ca.pem"</span>
+</pre></div>
+</div>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="warn_filter.html" class="btn btn-neutral float-left" title="qumulo.cluster.warn filter – Show a text as a warning of the task that renders it" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cluster_baseline_role.html" class="btn btn-neutral float-right" title="qumulo.cluster.cluster_baseline role – Bring a Qumulo cluster to the baseline its inventory declares" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

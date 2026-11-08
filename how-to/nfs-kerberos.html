@@ -1,0 +1,328 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serve NFS with Kerberos from a standalone KDC &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Serve a directory as an S3 bucket" href="s3.html" />
+    <link rel="prev" title="Manage the cluster’s TLS certificate" href="manage-certificates.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Serve NFS with Kerberos from a standalone KDC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-the-keytab-and-turn-the-flavours-on">Install the keytab and turn the flavours on</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-what-the-cluster-holds">Check what the cluster holds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Serve NFS with Kerberos from a standalone KDC</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="serve-nfs-with-kerberos-from-a-standalone-kdc">
+<h1>Serve NFS with Kerberos from a standalone KDC<a class="headerlink" href="#serve-nfs-with-kerberos-from-a-standalone-kdc" title="Link to this heading"></a></h1>
+<p>This page installs the keytab of a standalone Kerberos KDC on a cluster outside Active Directory, turns the Kerberos
+flavours of NFS on, and requires one of them on an export.
+When you finish, the cluster holds the keytab, its NFS server accepts the flavours you chose, the export refuses clients
+that use anything else, and a second baseline run changes nothing.
+A cluster joined to Active Directory needs none of this, because its computer account holds its Kerberos keys
+(<a class="reference internal" href="../explanation/identity.html#where-kerberos-for-nfs-gets-its-keys"><span class="std std-ref">why</span></a>).</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Have an inventory that reaches the cluster: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+The examples manage <code class="docutils literal notranslate"><span class="pre">edge01</span></code>.</p></li>
+<li><p>Have a cluster that is not joined to Active Directory, and declare no <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> for it.
+A joined cluster refuses a keytab, a cluster that holds one refuses a join, and the baseline refuses a keytab beside
+<code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code> before it writes anything (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-KRB-AD</span></a>).
+To move a cluster between the two, see <a class="reference internal" href="active-directory.html#if-the-join-is-refused"><span class="std std-ref">If the join is refused</span></a>.</p></li>
+<li><p>Have the keytab that the KDC’s administrator exported for the cluster’s NFS service principal, such as
+<code class="docutils literal notranslate"><span class="pre">nfs/edge01.corp.example.com&#64;CORP.EXAMPLE.COM</span></code>.
+The cluster stores any well-formed keytab without asking the KDC, so a keytab for another host, or one whose keys the
+KDC has since changed, installs and NFS with Kerberos then fails (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-KRB-KEYTAB</span></a>).
+The cluster’s name and clock must also agree with the KDC’s.</p></li>
+<li><p>Have a user that can write the keytab and the NFS settings.
+The keytab step needs <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_KERBEROS_KEYTAB_READ</span></code>, <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_KERBEROS_KEYTAB_WRITE</span></code> and, for a write,
+<code class="docutils literal notranslate"><span class="pre">PRIVILEGE_AD_READ</span></code>.
+Removing the keytab also needs <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_KERBEROS_SETTINGS_READ</span></code> and <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_KERBEROS_SETTINGS_WRITE</span></code>.</p></li>
+<li><p>If the inventory holds vault values, add <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> or <code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> to every
+<code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> command below.</p></li>
+</ul>
+</section>
+<section id="install-the-keytab-and-turn-the-flavours-on">
+<h2>Install the keytab and turn the flavours on<a class="headerlink" href="#install-the-keytab-and-turn-the-flavours-on" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Encrypt the keytab, and read it from the inventory.
+A keytab is binary, so <a class="reference internal" href="store-secrets.html#encrypt-a-binary-secret-such-as-a-keytab"><span class="std std-ref">Encrypt a binary secret such as a keytab</span></a>
+encodes it as base64, encrypts the file, and reads it with the file lookup.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_kerberos</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">keytab</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">lookup('ansible.builtin.file',</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">~</span><span class="nv"> </span><span class="s">'/../files/edge01.keytab.b64')</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+</li>
+<li><p>Turn on the flavours the clients will use, and require one of them on the export.
+<code class="docutils literal notranslate"><span class="pre">krb5</span></code> authenticates, <code class="docutils literal notranslate"><span class="pre">krb5i</span></code> also checks the integrity of each request, and <code class="docutils literal notranslate"><span class="pre">krb5p</span></code> also encrypts it.
+A flag you leave out keeps the cluster’s value.
+A tenant’s <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> takes the same three flags (<a class="reference internal" href="tenants.html"><span class="std std-doc">Manage tenants</span></a>).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_nfs_settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">krb5_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">krb5i_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">krb5p_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_nfs_exports</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">export_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/finance</span>
+<span class="w">    </span><span class="nt">fs_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/finance</span>
+<span class="w">    </span><span class="nt">restrictions</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host_restrictions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">required_authentication_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">AUTHENTICATION_MODE_KRB5P</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">required_authentication_mode</span></code> takes <code class="docutils literal notranslate"><span class="pre">AUTHENTICATION_MODE_NONE</span></code> (the default), <code class="docutils literal notranslate"><span class="pre">AUTHENTICATION_MODE_KRB5</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AUTHENTICATION_MODE_KRB5I</span></code> or <code class="docutils literal notranslate"><span class="pre">AUTHENTICATION_MODE_KRB5P</span></code>.
+An empty <code class="docutils literal notranslate"><span class="pre">host_restrictions</span></code> matches every host.
+The list replaces every restriction the export has, so give each restriction the export keeps.</p>
+</li>
+<li><p>Preview, apply and verify, as <a class="reference internal" href="inventory-recipes.html#preview-apply-and-verify"><span class="std std-ref">Preview, apply and verify</span></a> shows.
+The baseline installs the keytab at step 14, and applies the NFS settings and the export at step 19.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+<p>The preview shows each keytab entry’s principal, key version and encryption type, and never a key.
+The last run reports <code class="docutils literal notranslate"><span class="pre">changed=0</span></code>.</p>
+</li>
+</ol>
+</section>
+<section id="check-what-the-cluster-holds">
+<h2>Check what the cluster holds<a class="headerlink" href="#check-what-the-cluster-holds" title="Link to this heading"></a></h2>
+<p>Read the flags and the export back with <a class="reference internal" href="../collections/qumulo/cluster/nfs_info_module.html"><span class="std std-doc">nfs_info</span></a>, using <code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[settings]</span></code>
+and <code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[exports]</span></code>.
+<code class="docutils literal notranslate"><span class="pre">nfs.settings</span></code> shows the three <code class="docutils literal notranslate"><span class="pre">krb5*_enabled</span></code> flags, and each restriction of each export in
+<code class="docutils literal notranslate"><span class="pre">nfs.exports</span></code> shows its <code class="docutils literal notranslate"><span class="pre">required_authentication_mode</span></code>.</p>
+<p>The preview’s diff of the keytab step lists the entries before and after, as principal, key version and encryption type.
+A run that reports <code class="docutils literal notranslate"><span class="pre">changed=0</span></code> shows that the cluster holds the keytab the inventory declares.</p>
+<p>No test lane runs an NFS client with Kerberos, so nothing here shows that a client can sign in
+(<a class="reference internal" href="../reference/tested-versions.html#nfs-with-kerberos"><span class="std std-ref">NFS with Kerberos</span></a>).
+The last check is a client’s: mount the export with <code class="docutils literal notranslate"><span class="pre">sec=krb5p</span></code> from a host that holds a ticket for a principal the
+cluster knows.</p>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>To rotate the keytab after the KDC changes the service principal’s keys, replace the encrypted file and run the
+baseline again.
+The module compares each entry’s principal, key version and encryption type, and the keys through a digest, so a
+change of keys alone is a change.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">use_alt_security_identities_mapping</span></code> under <code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code> maps a principal to an Active Directory user through the
+user’s <code class="docutils literal notranslate"><span class="pre">altSecurityIdentities</span></code> attribute; the cluster takes it joined or not.</p></li>
+<li><p>To remove the keytab, set <code class="docutils literal notranslate"><span class="pre">keytab_state:</span> <span class="pre">absent</span></code> under <code class="docutils literal notranslate"><span class="pre">qumulo_kerberos</span></code>.
+The role then ignores <code class="docutils literal notranslate"><span class="pre">keytab</span></code> and <code class="docutils literal notranslate"><span class="pre">keytab_path</span></code>.
+Deleting the keytab turns <code class="docutils literal notranslate"><span class="pre">use_alt_security_identities_mapping</span></code> off on the cluster, and <code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> turns it back
+on when it was on (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-161</span></a>).</p></li>
+<li><p>A cluster is moved from a standalone KDC to Active Directory in one run: <code class="docutils literal notranslate"><span class="pre">keytab_state:</span> <span class="pre">absent</span></code> beside <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>
+deletes the keytab, then joins (<a class="reference internal" href="active-directory.html#if-the-join-is-refused"><span class="std std-ref">Join a cluster to Active Directory</span></a>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keytab_path</span></code> takes a plain file on the controller instead of base64, and cannot read a vaulted file
+(<a class="reference internal" href="store-secrets.html#encrypt-a-binary-secret-such-as-a-keytab"><span class="std std-ref">Keep secrets out of the inventory</span></a>).</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="manage-certificates.html" class="btn btn-neutral float-left" title="Manage the cluster’s TLS certificate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="s3.html" class="btn btn-neutral float-right" title="Serve a directory as an S3 bucket" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

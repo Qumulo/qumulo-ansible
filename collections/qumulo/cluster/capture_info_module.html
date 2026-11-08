@@ -1,0 +1,700 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.capture_info module – Read a Qumulo cluster’s configuration as the inventory variables that declare it &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.clone_host_vars module – Derive a fresh Qumulo cluster’s host_vars from another cluster’s capture" href="clone_host_vars_module.html" />
+    <link rel="prev" title="qumulo.cluster.capacity_clamp module – Set a Qumulo cluster’s capacity clamp, writing only when it must change" href="capacity_clamp_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.capture_info module – Read a Qumulo cluster’s configuration as the inventory variables that declare it</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-capture-info-module"></span><section id="qumulo-cluster-capture-info-module-read-a-qumulo-cluster-s-configuration-as-the-inventory-variables-that-declare-it">
+<h1>qumulo.cluster.capture_info module – Read a Qumulo cluster’s configuration as the inventory variables that declare it<a class="headerlink" href="#qumulo-cluster-capture-info-module-read-a-qumulo-cluster-s-configuration-as-the-inventory-variables-that-declare-it" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.capture_info</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Reads every setting the collection’s modules write and the cluster reads back, and returns it as the <code class="docutils literal notranslate"><span class="pre">qumulo_*</span></code> variables of the cluster_baseline role, in the shape the role passes to those modules. A check run of the role from the returned variables changes nothing.</p></li>
+<li><p>Changes nothing on the cluster. <code class="docutils literal notranslate"><span class="pre">playbooks/capture.yml</span></code> writes the result to a <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file.</p></li>
+<li><p>Values are canonical and lists sorted, so two reads of an unchanged cluster return the same variables.</p></li>
+<li><p>No secret is returned. The one secret read, the keytab’s keys in the <code class="ansible-value docutils literal notranslate"><span class="pre">kerberos</span></code> area, is registered for masking and dropped. Each secret the inventory must supply to manage an area, such as a local user’s password, the certificate’s private key, the AD join password or a Nexus join key, is named in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-supply"><span class="std std-ref"><span class="pre">capture.supply</span></span></a></code> instead.</p></li>
+<li><p>The cluster’s UUID is always returned; the license’s own UUID and any earlier UUID never are.</p></li>
+<li><p>Fails on a node that belongs to no cluster yet (state <code class="docutils literal notranslate"><span class="pre">UNCONFIGURED</span></code>), which has nothing to capture.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-gather_subset"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-gather-subset"><strong>gather_subset</strong></p>
+<a class="ansibleOptionLink" href="#parameter-gather_subset" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The areas to read, named as the cluster_baseline role names them. <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code> reads every area.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">cluster</span></code> the name.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">filesystem</span></code> the file system settings.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">web_ui</span></code> the Web UI’s banner and timeout.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code> the network document. With the <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> area, a tenant’s networks are written under its entry, each with <code class="docutils literal notranslate"><span class="pre">vlan_id</span></code> when a frontend VLAN carries it and <code class="docutils literal notranslate"><span class="pre">mtu</span></code> when that VLAN sets one, and <code class="docutils literal notranslate"><span class="pre">managed_interfaces</span></code> lists neither the VLANs that carry only tenant networks nor tenant networks on the frontend bond. A network on the backend bond, or one no tenant holds, stays in <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>. Without the <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> area, or on a cluster that does not offer the tenant list, every network is written in <code class="docutils literal notranslate"><span class="pre">qumulo_network</span></code>; on a cluster with two or more tenants, each network a tenant holds off the backend bond carries <code class="docutils literal notranslate"><span class="pre">tenant</span></code> by name.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">dns</span></code> the DNS settings, the lookup overrides and the authoritative DNS settings.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">time</span></code> the time settings.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">ssl</span></code> the cipher suites. The certificate and its key are not returned (G-SSL-READBACK); <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-supply"><span class="std std-ref"><span class="pre">capture.supply</span></span></a></code> names them.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">monitoring</span></code> cloud monitoring and the Nexus connection.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">audit</span></code> the audit log destinations.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">capacity</span></code> the clamp, the eviction threshold and the license. The license is <code class="ansible-value docutils literal notranslate"><span class="pre">required</span></code> when one is active for the cluster’s UUID, and <code class="ansible-value docutils literal notranslate"><span class="pre">none</span></code> on an unprotected edge that holds none.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">local_groups</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">local_users</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ad</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">roles</span></code> the identities.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">kerberos</span></code> the Kerberos settings. A keytab the cluster holds is never returned; a supply line names its principals.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">saml</span></code> the SAML settings once SAML is set up, the IdP certificate included, which is public.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">identity_mappings</span></code> the user-defined mappings, as <code class="docutils literal notranslate"><span class="pre">qumulo_user_defined_mappings</span></code>. <code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code> is never returned, since the cluster cannot list it (G-ID-ATTRIBUTES).</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">portal</span></code> the spoke portal.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">directories</span></code> each directory that a share, an export, a quota, a snapshot policy, an S3 bucket, the S3 base path or a replication target names, and each directory above one, the root included. A directory carries its ACL in place of its mode when the mode cannot express the ACL.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> the settings, the shares or exports, and whether the factory share and export are present in tenant 1. With the <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> area, each share or export is written under its tenant’s entry, and one identical in two or more tenants once in <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code>, with <code class="docutils literal notranslate"><span class="pre">tenants</span></code> set to <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code> when it is in every tenant, else to its tenants’ names, sorted. The factory <code class="docutils literal notranslate"><span class="pre">Files</span></code> share and <code class="docutils literal notranslate"><span class="pre">/</span></code> export stay under tenant 1 and are never merged. Without the <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> area, or on a cluster that does not offer the tenant list, on a cluster with one tenant they are written flat, with no tenant, and the tenant’s own settings are noted in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code>; on a cluster with two or more, <code class="docutils literal notranslate"><span class="pre">qumulo_smb_shares</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_exports</span></code> are written empty, and each tenant’s shares, exports and settings are noted in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code>.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, every tenant by name, sorted, with its six services, and with what the <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> areas read of it, its networks, <code class="ansible-value docutils literal notranslate"><span class="pre">[]</span></code> for none, its <code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">inherit</span></code> without settings of its own, else the full record, and its <code class="docutils literal notranslate"><span class="pre">smb_shares</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_exports</span></code>, each left out when it has none. Tenant 1 renamed carries <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>. A cluster without tenant 1 whose networking the host manages, with no managed interfaces and only HOST networks, gets <code class="docutils literal notranslate"><span class="pre">previous_name</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> on the one tenant that holds a network, and no entry <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>, when the <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> areas are read, every network has a tenant, no tenant is named <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>, and that tenant has no <code class="docutils literal notranslate"><span class="pre">/</span></code> export that the capture leaves out. A rebuild from the capture then renames the <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> the new edge forms with to that tenant. In that case <code class="docutils literal notranslate"><span class="pre">smb_files_share</span></code> in <code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">present</span></code> in place of <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code> when the capture writes a share named <code class="docutils literal notranslate"><span class="pre">Files</span></code> for that tenant, in any letter case, and <code class="docutils literal notranslate"><span class="pre">nfs_root_export</span></code> when it writes that tenant’s export at <code class="docutils literal notranslate"><span class="pre">/</span></code>. Any other cluster without tenant 1 gets an entry <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> with <code class="docutils literal notranslate"><span class="pre">state</span></code> <code class="ansible-value docutils literal notranslate"><span class="pre">absent</span></code>, unless another tenant is named <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>, or, with no network that no tenant holds, a network on the backend bond stays in <code class="docutils literal notranslate"><span class="pre">qumulo_network.frontend_networks</span></code> or <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-leave-out"><span class="std std-ref"><span class="pre">leave_out</span></span></a></strong></code> names <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code>. The <code class="docutils literal notranslate"><span class="pre">tenant</span> <span class="pre">1</span></code> note in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code> gives the reason for the form it writes. On a cluster whose protection type marks it as cloud, the services are left out.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">s3</span></code> the S3 server settings, buckets, bucket policies and access keys, without their secrets.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">ftp</span></code> the FTP server settings, as <code class="docutils literal notranslate"><span class="pre">qumulo_ftp_settings</span></code>. An anonymous user that names a deleted local user, or that is not a local user, is left out, and <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code> says so.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">quotas</span></code> the directory quotas.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">snapshots</span></code> the snapshot policies.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">replication</span></code> the relationships this cluster is the source of, and the address each source records for a target, for the target’s host.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;all&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;cluster&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;filesystem&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;web_ui&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;network&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;dns&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;time&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ssl&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;monitoring&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;audit&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;capacity&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;local_groups&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;local_users&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ad&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;kerberos&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;saml&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;identity_mappings&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;roles&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;portal&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;directories&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;smb&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;nfs&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;tenants&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;s3&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ftp&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;quotas&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;snapshots&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;replication&quot;</span></code></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[&quot;all&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-inventory_clusters"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-inventory-clusters"><strong>inventory_clusters</strong></p>
+<a class="ansibleOptionLink" href="#parameter-inventory_clusters" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The inventory’s clusters, each UUID mapped to its inventory host.</p>
+<p>A spoke portal’s hub and a replication relationship’s target are declared by their inventory host. One whose cluster is missing here is left out, and <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code> says so.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">{}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-leave_out"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-leave-out"><strong>leave_out</strong></p>
+<a class="ansibleOptionLink" href="#parameter-leave_out" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Areas, or parts of an area, that another tool owns and that are not read, such as those <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code> gives to Terraform.</p>
+<p>Each that applies is noted in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code>: an area named here and in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-gather-subset"><span class="std std-ref"><span class="pre">gather_subset</span></span></a></strong></code>, a part once its area is read, and <code class="ansible-value docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> once for each CloudWatch destination it leaves out.</p>
+<p>An area is any choice of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-gather-subset"><span class="std std-ref"><span class="pre">gather_subset</span></span></a></strong></code> other than <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code>.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">network.floating_ips</span></code> reads the network document without its floating IP ranges.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">dns.fqdn</span></code> reads the authoritative DNS settings without the name and whether the server answers.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> reads the audit log destinations without the CloudWatch ones.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> writes no <code class="docutils literal notranslate"><span class="pre">qumulo_tenants</span></code>, and the <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> areas write the form <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-gather-subset"><span class="std std-ref"><span class="pre">gather_subset</span></span></a></strong></code> describes without it.</p>
+<p>Any other name fails before a request is sent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: <code class="ansible-value docutils literal notranslate"><span class="pre">cluster</span></code> GET /v1/cluster/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">filesystem</span></code> GET /v1/file-system/settings/permissions, /atime and /notify; <code class="ansible-value docutils literal notranslate"><span class="pre">web_ui</span></code> GET /v1/web-ui/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code> GET /v3/network; <code class="ansible-value docutils literal notranslate"><span class="pre">dns</span></code> GET /v1/dns/configs/system, /v1/dns/lookup-override-config and /v1/authoritative-dns/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">time</span></code> GET /v2/time/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">ssl</span></code> GET /v2/cluster/settings/ssl/ciphers and the certificate served at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code>; <code class="ansible-value docutils literal notranslate"><span class="pre">monitoring</span></code> GET /v1/support/settings, /v1/nexus/connection and /v1/nexus/registration; <code class="ansible-value docutils literal notranslate"><span class="pre">audit</span></code> GET /v2/audit/destinations/; <code class="ansible-value docutils literal notranslate"><span class="pre">capacity</span></code> GET /v1/capacity/clamp, /v1/portal/spokes/eviction-settings and /v1/license/status, and without a license the product type as <a class="reference internal" href="cluster_info_module.html#ansible-collections-qumulo-cluster-cluster-info-module"><span class="std std-ref">qumulo.cluster.cluster_info</span></a> reads it; <code class="ansible-value docutils literal notranslate"><span class="pre">local_groups</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">local_users</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">roles</span></code> as <a class="reference internal" href="identity_info_module.html#ansible-collections-qumulo-cluster-identity-info-module"><span class="std std-ref">qumulo.cluster.identity_info</span></a> reads them; <code class="ansible-value docutils literal notranslate"><span class="pre">ad</span></code> GET /v1/ad/status and /v1/ad/monitor; <code class="ansible-value docutils literal notranslate"><span class="pre">kerberos</span></code> GET /v1/auth/kerberos-settings and /v1/auth/kerberos-keytab, whose keys are read and never returned, and which needs PRIVILEGE_KERBEROS_KEYTAB_READ; without it the area writes the setting and notes in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code> that the keytab could not be read; <code class="ansible-value docutils literal notranslate"><span class="pre">saml</span></code> GET /v1/saml/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">identity_mappings</span></code> GET /v1/auth/user-defined-mappings/; <code class="ansible-value docutils literal notranslate"><span class="pre">portal</span></code> GET /v2/portal/spokes/ and /v2/portal/hubs/; <code class="ansible-value docutils literal notranslate"><span class="pre">directories</span></code> GET /v1/files/{ref}/info/attributes and /v2/files/{ref}/info/acl and POST /v1/files/{ref}/info/acl/explain-set-mode, a preview that changes nothing, for each directory; <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code> GET /v1/smb/settings, /v3/smb/shares/ and /v1/multitenancy/smb/settings/; <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> GET /v2/nfs/settings, /v3/nfs/exports/ and /v1/multitenancy/nfs/settings/; <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> GET /v1/multitenancy/tenants/, which needs PRIVILEGE_TENANT_READ, so that without it the capture of any of the four areas fails; <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> GET /v1/cluster/protection/status; <code class="ansible-value docutils literal notranslate"><span class="pre">s3</span></code> GET /v1/s3/settings, /v1/s3/buckets/ and each bucket’s /v1/s3/buckets/{name}/policy, and /v1/s3/access-keys/; <code class="ansible-value docutils literal notranslate"><span class="pre">ftp</span></code> GET /v0/ftp/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">quotas</span></code> GET /v1/files/quotas/status/; <code class="ansible-value docutils literal notranslate"><span class="pre">snapshots</span></code> GET /v3/snapshots/policies/status/; <code class="ansible-value docutils literal notranslate"><span class="pre">replication</span></code> GET /v2/replication/source-relationships/status/ and /v2/replication/target-relationships/status/.</p></li>
+<li><p>Qumulo marks the <code class="docutils literal notranslate"><span class="pre">/v3/smb/shares/</span></code> and <code class="docutils literal notranslate"><span class="pre">/v3/nfs/exports/</span></code> routes the <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> areas read as preview in Qumulo Core 7.10.3 and 7.11.0; a later Qumulo Core release may change them.</p></li>
+<li><p>The <code class="ansible-value docutils literal notranslate"><span class="pre">network</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">smb</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">nfs</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> areas resolve tenants through the multitenancy REST API, which Qumulo marks as preview; a later Qumulo Core release may change it.</p></li>
+<li><p>Noted in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code>: a cloud cluster’s tenant services, since no cloud cluster accepts a tenant write (G-TENANT-CLOUD); a missing tenant 1, written as the rename of <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> to the tenant that holds the network on networking the host manages, else as <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> absent, and not written when another tenant is named <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> or a replay could not delete it; a tenant whose identity configuration differs from tenant 1’s, written in full but for its identity; with the <code class="ansible-value docutils literal notranslate"><span class="pre">tenants</span></code> area, or on a cluster with two or more tenants, a VLAN that carries networks of two tenants, or of a tenant and of no tenant; and, on a cluster with two or more tenants, a backend network a tenant holds (G-TENANT-BACKEND), and a network no tenant holds.</p></li>
+<li><p>The cluster lists no identity that has attributes, so <code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code> is never captured (G-ID-ATTRIBUTES).</p></li>
+<li><p>The cluster returns neither its certificate nor the key (G-SSL-READBACK), nor the configured domain controllers of a domain joined before the last AD operation (G-AD-DCS), nor a Nexus join key (G-NEXUS-KEY), nor the secret of an S3 access key (G-S3-KEY), which <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-supply"><span class="std std-ref"><span class="pre">capture.supply</span></span></a></code> names by the key’s id. A cluster other than an unprotected edge without an active license for its UUID needs a license document (G-LICENSE). An export mapped to a user or group that no longer exists is left out (G-MAPTO).</p></li>
+<li><p>Each side of a portal records only the other side’s addresses (G-PORTAL-HOSTS), and a replication source the address it reaches the target at, so <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-peer-values"><span class="std std-ref"><span class="pre">capture.peer_values</span></span></a></code> gives them for the peer’s host, and <code class="docutils literal notranslate"><span class="pre">playbooks/capture.yml</span></code> writes them as that host’s <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> or <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> when every record of them agrees and comes from a live portal or relationship.</p></li>
+<li><p>A directory, quota, snapshot policy or S3 bucket in a spoke root is the hub’s data and is left out. A replication target directory is declared by its path alone, and what lies inside it is left out.</p></li>
+<li><p>An area this cluster does not offer is listed in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-unavailable-subsets"><span class="std std-ref"><span class="pre">unavailable_subsets</span></span></a></code> and in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><span class="std std-ref"><span class="pre">capture.left_out</span></span></a></code>.</p></li>
+<li><p>Registers: G-AD-DCS, G-ID-ATTRIBUTES, G-LICENSE, G-MAPTO, G-NEXUS-KEY, G-PORTAL-HOSTS, G-S3-KEY, G-SSL-READBACK, G-TENANT-BACKEND, G-TENANT-CLOUD.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># These tasks carry no connection options. Set them once for the play with module_defaults for</span>
+<span class="c1"># group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the cluster's whole configuration</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.capture_info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">captured</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read only the DNS and time settings</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.capture_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">dns</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">time</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">network_services</span>
+
+<span class="c1"># Each tenant's networks, SMB and NFS settings, shares and exports go under its entry in qumulo_tenants.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the tenants with their networks, settings, shares and exports</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.capture_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">network</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">smb</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">nfs</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">tenants</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tenancy</span>
+
+<span class="c1"># On a cluster with two or more tenants, this writes each network a tenant holds flat with its tenant by name, and notes</span>
+<span class="c1"># each tenant's shares, exports and settings in left_out, since only the tenants area writes them there.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read a cluster whose tenants Terraform owns</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.capture_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">leave_out</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">tenants</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">captured</span>
+
+<span class="c1"># Without qumulo_terraform_owned_areas, the cluster_baseline role gives Terraform the floating IP ranges of a cluster whose</span>
+<span class="c1"># qumulo_managed_by is terraform_provider, unless its qumulo_cluster_kind is edge or baremetal, and this default does the same.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read a Terraform-managed cluster without the areas Terraform owns</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.capture_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">leave_out</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">      </span><span class="cp">{{</span> <span class="nv">qumulo_terraform_owned_areas</span>
+         <span class="o">|</span> <span class="nf">default</span><span class="o">([</span><span class="s1">'network.floating_ips'</span><span class="o">]</span> <span class="k">if</span> <span class="nv">qumulo_managed_by</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="s1">'none'</span><span class="o">)</span> <span class="o">==</span> <span class="s1">'terraform_provider'</span>
+                   <span class="k">and</span> <span class="nv">qumulo_cluster_kind</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="kp">none</span><span class="o">)</span> <span class="k">not</span> <span class="k">in</span> <span class="o">[</span><span class="s1">'edge'</span><span class="o">,</span> <span class="s1">'baremetal'</span><span class="o">]</span> <span class="k">else</span> <span class="o">[])</span> <span class="cp">}}</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">captured</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read a cluster without its floating IP ranges, the authoritative DNS name and the CloudWatch audit destinations</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.capture_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">leave_out</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">network.floating_ips</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dns.fqdn</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">audit.cloudwatch</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">captured</span>
+
+<span class="c1"># A portal's hub and a replication target are named by inventory host, so map each cluster UUID to its host. The keys are</span>
+<span class="c1"># cluster UUIDs and the values are inventory hosts. A host with no UUID yet, one awaiting adoption, has no entry.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read a cluster that is a spoke or a replication source, naming its peers by inventory host</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.capture_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">inventory_clusters</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">6f1c2c1e-5c3a-4c56-9d2e-3f8c1b0a7e11</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hub01</span>
+<span class="w">      </span><span class="nt">9533a9e2-e57a-454f-8aa0-9c77b706b7bd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">captured</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List what the capture left out, and the secrets the inventory must supply</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">left_out</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">captured.capture.left_out</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">      </span><span class="nt">supply</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">captured.capture.supply</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Render the capture as a host_vars file whose captured strings Ansible never templates</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.host_vars_text</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">variables</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">captured.capture.host_vars</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">header</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Captured from </span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="l l-Scalar l-Scalar-Plain">.</span>
+<span class="w">    </span><span class="nt">supply</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">captured.capture.supply</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">left_out</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">captured.capture.left_out</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rendered</span>
+<span class="w">  </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Write the capture as the host's variables, readable by its owner only</span>
+<span class="w">  </span><span class="nt">ansible.builtin.copy</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">dest</span><span class="p">:</span><span class="w"> </span><span class="s">"captures/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">.yml"</span>
+<span class="w">    </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">rendered.text</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="s">"0600"</span>
+<span class="w">  </span><span class="nt">delegate_to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">localhost</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture"><strong>capture</strong></p>
+<a class="ansibleOptionLink" href="#return-capture" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What was read.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture/from_peers"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture-from-peers"><strong>from_peers</strong></p>
+<a class="ansibleOptionLink" href="#return-capture/from_peers" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The variables of this cluster’s own that only its peers record, <code class="ansible-value docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> for a cluster in a portal and <code class="ansible-value docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> for a replication target.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;qumulo_portal_hosts&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture/host_vars"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture-host-vars"><strong>host_vars</strong></p>
+<a class="ansibleOptionLink" href="#return-capture/host_vars" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The <code class="docutils literal notranslate"><span class="pre">qumulo_*</span></code> variables, sorted by name, each in the shape the cluster_baseline role takes it, with keys whose value is unset left out. <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code> is always there.</p>
+<p>No tenant id is returned anywhere; tenants are named.</p>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code> lists the relationships this cluster is the source of, each entry’s settings as <a class="reference internal" href="replication_relationship_module.html#ansible-collections-qumulo-cluster-replication-relationship-module"><span class="std std-ref">qumulo.cluster.replication_relationship</span></a> takes them and its target named by inventory host.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;qumulo_cluster_name&quot;:</span> <span class="pre">&quot;edge01&quot;,</span> <span class="pre">&quot;qumulo_cluster_uuid&quot;:</span> <span class="pre">&quot;6f1c2c1e-5c3a-4c56-9d2e-3f8c1b0a7e11&quot;,</span> <span class="pre">&quot;qumulo_dns&quot;:</span> <span class="pre">{&quot;search_domains&quot;:</span> <span class="pre">[&quot;corp.example.com&quot;],</span> <span class="pre">&quot;servers&quot;:</span> <span class="pre">[&quot;10.0.0.2&quot;]},</span> <span class="pre">&quot;qumulo_factory_defaults&quot;:</span> <span class="pre">{&quot;nfs_root_export&quot;:</span> <span class="pre">&quot;absent&quot;,</span> <span class="pre">&quot;smb_files_share&quot;:</span> <span class="pre">&quot;present&quot;},</span> <span class="pre">&quot;qumulo_tenants&quot;:</span> <span class="pre">[{&quot;name&quot;:</span> <span class="pre">&quot;Default&quot;,</span> <span class="pre">&quot;networks&quot;:</span> <span class="pre">[],</span> <span class="pre">&quot;nfs_enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;nfs_settings&quot;:</span> <span class="pre">&quot;inherit&quot;,</span> <span class="pre">&quot;replication_enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;rest_api_enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;smb_enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;smb_settings&quot;:</span> <span class="pre">&quot;inherit&quot;,</span> <span class="pre">&quot;ssh_enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;web_ui_enabled&quot;:</span> <span class="pre">true}]}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture/left_out"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture-left-out"><strong>left_out</strong></p>
+<a class="ansibleOptionLink" href="#return-capture/left_out" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>What was read but is not in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-capture-info-module-return-capture-host-vars"><span class="std std-ref"><span class="pre">capture.host_vars</span></span></a></code>, or is written there in a form its note explains, such as a missing tenant 1 written as <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code> absent or as the rename of <code class="ansible-value docutils literal notranslate"><span class="pre">Default</span></code>, each with <code class="docutils literal notranslate"><span class="pre">what</span></code> and <code class="docutils literal notranslate"><span class="pre">why</span></code>, sorted by <code class="docutils literal notranslate"><span class="pre">what</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;what&quot;:</span> <span class="pre">&quot;the</span> <span class="pre">floating</span> <span class="pre">IP</span> <span class="pre">ranges&quot;,</span> <span class="pre">&quot;why&quot;:</span> <span class="pre">&quot;leave_out</span> <span class="pre">names</span> <span class="pre">network.floating_ips,</span> <span class="pre">as</span> <span class="pre">Terraform</span> <span class="pre">owns</span> <span class="pre">them&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture/peer_values"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture-peer-values"><strong>peer_values</strong></p>
+<a class="ansibleOptionLink" href="#return-capture/peer_values" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>What this cluster records of another cluster’s own variables, sorted. Each has <code class="docutils literal notranslate"><span class="pre">uuid</span></code>, the other cluster’s; <code class="docutils literal notranslate"><span class="pre">variable</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>; <code class="docutils literal notranslate"><span class="pre">value</span></code>, a list of <code class="docutils literal notranslate"><span class="pre">address</span></code> and <code class="docutils literal notranslate"><span class="pre">port</span></code> or one <code class="docutils literal notranslate"><span class="pre">address</span></code> and <code class="docutils literal notranslate"><span class="pre">port</span></code>; <code class="docutils literal notranslate"><span class="pre">recorded_by</span></code>, this cluster’s UUID; and <code class="docutils literal notranslate"><span class="pre">unusable</span></code>, why the record must not be copied, such as a portal that is not ACCEPTED and ACTIVE, or <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;recorded_by&quot;:</span> <span class="pre">&quot;6f1c2c1e-5c3a-4c56-9d2e-3f8c1b0a7e11&quot;,</span> <span class="pre">&quot;unusable&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;uuid&quot;:</span> <span class="pre">&quot;9533a9e2-e57a-454f-8aa0-9c77b706b7bd&quot;,</span> <span class="pre">&quot;value&quot;:</span> <span class="pre">[{&quot;address&quot;:</span> <span class="pre">&quot;10.0.1.20&quot;,</span> <span class="pre">&quot;port&quot;:</span> <span class="pre">3713}],</span> <span class="pre">&quot;variable&quot;:</span> <span class="pre">&quot;qumulo_portal_hosts&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture/replication_targets"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture-replication-targets"><strong>replication_targets</strong></p>
+<a class="ansibleOptionLink" href="#return-capture/replication_targets" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The directory of each replication relationship this cluster is the target of and that has not ENDED, sorted, as the <code class="ansible-value docutils literal notranslate"><span class="pre">directories</span></code> area reads them. A clone of this cluster leaves them out.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;/replicas/edge01-projects&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture/spoke_roots"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture-spoke-roots"><strong>spoke_roots</strong></p>
+<a class="ansibleOptionLink" href="#return-capture/spoke_roots" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The directory of each root of this cluster’s spoke portals, whatever their state, sorted, as the <code class="ansible-value docutils literal notranslate"><span class="pre">portal</span></code> area reads them. A clone of this cluster leaves out what lies in them, whose data the hub holds.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;/hub-projects&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-capture/supply"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-capture-supply"><strong>supply</strong></p>
+<a class="ansibleOptionLink" href="#return-capture/supply" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Each secret the inventory must supply to manage an area, with <code class="docutils literal notranslate"><span class="pre">variable</span></code> and <code class="docutils literal notranslate"><span class="pre">why</span></code>, sorted by variable.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;variable&quot;:</span> <span class="pre">&quot;qumulo_ssl.private_key&quot;,</span> <span class="pre">&quot;why&quot;:</span> <span class="pre">&quot;the</span> <span class="pre">cluster</span> <span class="pre">serves</span> <span class="pre">a</span> <span class="pre">certificate</span> <span class="pre">whose</span> <span class="pre">SHA-256</span> <span class="pre">is</span> <span class="pre">...&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unavailable_subsets"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-capture-info-module-return-unavailable-subsets"><strong>unavailable_subsets</strong></p>
+<a class="ansibleOptionLink" href="#return-unavailable_subsets" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Each requested area this cluster could not answer, mapped to the reason.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when an area was unavailable</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;portal&quot;:</span> <span class="pre">&quot;GET</span> <span class="pre">/v2/portal/spokes/</span> <span class="pre">failed:</span> <span class="pre">HTTP</span> <span class="pre">404</span> <span class="pre">...&quot;}</span></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="capacity_clamp_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.capacity_clamp module – Set a Qumulo cluster’s capacity clamp, writing only when it must change" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="clone_host_vars_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.clone_host_vars module – Derive a fresh Qumulo cluster’s host_vars from another cluster’s capture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

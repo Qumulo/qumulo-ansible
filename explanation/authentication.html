@@ -1,0 +1,585 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authentication, trust and secrets &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="State management" href="state-management.html" />
+    <link rel="prev" title="Architecture of the collection" href="architecture.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Authentication, trust and secrets</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-a-module-connects">How a module connects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#password-or-token">Password or token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-identity-guard">The identity guard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tls">TLS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-factory-certificate">The factory certificate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-not-e-qumulo-validate-certs-false">Why not <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_validate_certs=false</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-a-certificate-is-compared-by-probing-it">Why a certificate is compared by probing it</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#where-secrets-live">Where secrets live</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#passwords-the-cluster-does-not-show-back">Passwords the cluster does not show back</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#access-tokens-the-collection-makes">Access tokens the collection makes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#where-the-bearer-appears">Where the bearer appears</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-both-no-log-and-a-file-are-required">Why both <code class="docutils literal notranslate"><span class="pre">no_log</span></code> and a file are required</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-a-rotation-makes-the-new-token-before-it-deletes-the-old">Why a rotation makes the new token before it deletes the old</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-token-the-play-connects-with">The token the play connects with</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#files-that-stay-and-a-rebuild">Files that stay, and a rebuild</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-nexus-token-and-join-key">The Nexus token and join key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-more">Learn more</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Authentication, trust and secrets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="authentication-trust-and-secrets">
+<h1>Authentication, trust and secrets<a class="headerlink" href="#authentication-trust-and-secrets" title="Link to this heading"></a></h1>
+<p>This page explains how a module of the collection proves who it is to a cluster, what it checks about the cluster before
+it does, and why the collection treats certificates and secrets the way it does.
+It does not list the connection variables or give steps. The variables are in <a class="reference internal" href="../reference/variables.html#connection"><span class="std std-ref">Inventory variables</span></a>,
+and the steps are in the pages linked at the end.</p>
+<p>A module sends a credential only to a cluster it has identified, and the identity guard is how it identifies one.
+A module sends a credential only over a connection it has verified, unless you turn verification off for a stated reason.
+A secret lives outside the inventory’s plain text, in the places that can keep it.</p>
+<section id="how-a-module-connects">
+<h2>How a module connects<a class="headerlink" href="#how-a-module-connects" title="Link to this heading"></a></h2>
+<p>Every module that talks to a cluster takes the same connection options, which a shared documentation fragment
+(<a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/plugins/doc_fragments/connection.py"><code class="docutils literal notranslate"><span class="pre">plugins/doc_fragments/connection.py</span></code></a>) defines once.
+The modules run on the controller and call the cluster’s REST API (<a class="reference internal" href="architecture.html"><span class="std std-doc">Architecture of the collection</span></a> explains why), so the
+options describe one HTTPS connection: <code class="docutils literal notranslate"><span class="pre">api_host</span></code>, <code class="docutils literal notranslate"><span class="pre">api_port</span></code>, a login (<code class="docutils literal notranslate"><span class="pre">api_username</span></code> with <code class="docutils literal notranslate"><span class="pre">api_password</span></code>, or <code class="docutils literal notranslate"><span class="pre">api_token</span></code>),
+<code class="docutils literal notranslate"><span class="pre">validate_certs</span></code>, <code class="docutils literal notranslate"><span class="pre">ca_path</span></code>, two timeouts, and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code>.</p>
+<p>In a playbook of the collection the options come from the inventory.
+The header every playbook starts with sets them once for the whole play with <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> for
+<code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code>, reading each from a <code class="docutils literal notranslate"><span class="pre">qumulo_*</span></code> inventory variable, so that no task repeats them.
+Without the header, a module reads each option’s <code class="docutils literal notranslate"><span class="pre">QUMULO_*</span></code> environment variable when the task leaves the option out.
+The two sources do not mix for one option.
+The header passes <code class="docutils literal notranslate"><span class="pre">api_password</span></code> and <code class="docutils literal notranslate"><span class="pre">api_token</span></code> even when the variable is unset, as an empty string, and an option that
+a task passes, empty or not, is never replaced by its environment variable.
+In a play that uses the header, the environment variables therefore do nothing for the options the header sets.
+The exception is <code class="docutils literal notranslate"><span class="pre">ca_path</span></code>, which the header omits when <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> is unset.
+This is why the client counts an empty password or token as unset: the header would otherwise make “exactly one of the two”
+impossible to satisfy.</p>
+<p>A module given a password logs in once per run, with <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/session/login</span></code>, and sends the session token it gets with
+each later request.
+A module given an access token sends that token instead and never logs in.
+Sessions expire, so when the cluster answers 401 to a request, a module that logged in with a password logs in again
+and sends that request once more.
+A module that was given an access token cannot do that, because a token is not renewed by logging in, and it fails on
+the first 401.</p>
+<p><code class="docutils literal notranslate"><span class="pre">retry_timeout</span></code> bounds how long a module keeps retrying a request that is safe to resend, after a lost connection or an
+HTTP 502, 503 or 504, and the identity check and the login are retried under the same limit.
+A write that may already have been applied is not resent after a lost connection, which
+<a class="reference internal" href="state-management.html#maybe-applied"><span class="std std-ref">Maybe applied</span></a> explains.</p>
+</section>
+<section id="password-or-token">
+<h2>Password or token<a class="headerlink" href="#password-or-token" title="Link to this heading"></a></h2>
+<p>A module needs a login, and exactly one of <code class="docutils literal notranslate"><span class="pre">api_password</span></code> and <code class="docutils literal notranslate"><span class="pre">api_token</span></code> supplies it.
+The client refuses to start when both are set or neither is, and says so before it sends anything.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild (G-TOKEN in the
+<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gaps register</span></a>).
+A rebuilt edge is a new cluster, so a token that worked on the old edge is dead on the new one, and the module’s error
+for a rejected token says so.
+The edge rebuild’s pre-flight check treats any access token on the old edge as state the replay cannot create again, and
+refuses to go on until you acknowledge it.
+A password has no such tie: the replay connects to a newly formed edge as <code class="docutils literal notranslate"><span class="pre">admin</span></code>, with the password the edge forms with
+and no token.
+That is why the collection recommends a password for an edge.</p>
+</section>
+<section id="the-identity-guard">
+<h2>The identity guard<a class="headerlink" href="#the-identity-guard" title="Link to this heading"></a></h2>
+<p>Before a module first sends a credential, it asks the cluster at <code class="docutils literal notranslate"><span class="pre">api_host</span></code> which cluster it is.
+<code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code> answers without a login, and reports the cluster’s UUID.
+The module compares that UUID with <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code>, which the header fills from the host’s <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.
+When they differ, the module stops with a message that names both UUIDs and says that no credentials were sent.
+A node that is not yet part of a cluster reports an empty UUID, and the message calls it <code class="docutils literal notranslate"><span class="pre">UNCONFIGURED</span></code>.</p>
+<p>The UUID is read before the login for this reason.
+An address can come to answer for a different cluster than the one you wrote down, for example when a rebuilt edge takes
+the old edge’s address or a name is repointed.
+A module that logged in first would send the <code class="docutils literal notranslate"><span class="pre">admin</span></code> password to a cluster it was never meant to configure, and
+could then change that cluster.
+Reading the identity first turns every such mistake into a failure that has sent nothing.
+Each module run checks once, before it first sends a credential, so no credential reaches a cluster that has not passed.</p>
+<p>The guard compares an identity that the connection reports, so it catches mistakes and does not authenticate the cluster.
+It reads the UUID over the same connection that <a class="reference internal" href="#tls">TLS</a> protects, and it has no more protection than that connection
+does.
+It is a safeguard against the wrong cluster, and TLS is the safeguard against an impostor.</p>
+<p>An empty <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> switches the guard off.
+A module that goes on to log in then warns that the identity guard is disabled, on every run.
+The guard has no consent flag; the only way past it is to change or, for a single task, empty the expected UUID.
+<code class="docutils literal notranslate"><span class="pre">cluster_guard</span></code> itself refuses an empty expected UUID, and the baseline runs it first, so the baseline does not run
+against a host with no <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>; only a module run on its own warns and goes on.
+<a class="reference internal" href="refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a> explains why no consent lifts it.
+The UUID is an inventory fact that you, the Terraform plugin or a capture supply.
+A rebuilt edge has a new UUID, so the guard stops a play that still names the old one, and the rebuild report gives the
+patch to apply.
+The rebuild checks the old edge’s UUID during its pre-destroy phase and the new edge’s after formation.</p>
+<p><a class="reference internal" href="../collections/qumulo/cluster/cluster_guard_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_guard</span></code></span></a> is the one module whose job is the guard.
+Every module checks the UUID, but the other modules do not wait for the cluster to be ready, and a cluster that has just
+started can answer its node state before it can serve a login.
+<code class="docutils literal notranslate"><span class="pre">cluster_guard</span></code> in its default mode checks the UUID, and then waits until the node is <code class="docutils literal notranslate"><span class="pre">ACTIVE</span></code>, a login succeeds and the
+root directory’s attributes can be read, so that the tasks after it do not race the cluster’s start.
+A UUID that differs fails at once, and the module does not wait for a cluster it should not be talking to.
+It reads only, and never reports a change.
+With <code class="docutils literal notranslate"><span class="pre">wait:</span> <span class="pre">false</span></code> it checks the UUID once and logs in to nothing.</p>
+</section>
+<section id="tls">
+<h2>TLS<a class="headerlink" href="#tls" title="Link to this heading"></a></h2>
+<p>The REST API is served over HTTPS, and a module verifies the certificate by default (<code class="docutils literal notranslate"><span class="pre">validate_certs:</span> <span class="pre">true</span></code>).
+It verifies against the file <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> names, or against the controller’s trust store when <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> is unset.
+<code class="docutils literal notranslate"><span class="pre">ca_path</span></code> is the CA that signed the cluster’s certificate, not the certificate itself.
+That distinction matters on Python 3.13 and later, which verify certificates strictly: a self-signed certificate used as
+the trust anchor must itself be a certificate authority, with <code class="docutils literal notranslate"><span class="pre">basicConstraints</span> <span class="pre">CA:TRUE</span></code>.
+A bare self-signed leaf certificate cannot be pinned through <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> there, and only <code class="docutils literal notranslate"><span class="pre">validate_certs:</span> <span class="pre">false</span></code>
+accepts one.
+<code class="docutils literal notranslate"><span class="pre">ssl_certificate</span></code> warns when the certificate it installs is self-signed and not a CA, since it could not then be pinned.
+When verification fails, the error says to set <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> to the cluster’s CA, or to set <code class="docutils literal notranslate"><span class="pre">validate_certs:</span> <span class="pre">false</span></code> for a lab
+cluster.</p>
+<p>Turning verification off is a decision about what is on the wire.
+With it off, the admin password, the token and every secret a task sends can be read by anyone who can sit on the path,
+and the identity guard’s UUID is no more trustworthy than the connection it came over.
+The collection treats it as acceptable only for a lab cluster, for the run that installs a certificate on an edge that
+still serves its factory certificate, and for a rebuild’s replay, below.</p>
+<section id="the-factory-certificate">
+<h3>The factory certificate<a class="headerlink" href="#the-factory-certificate" title="Link to this heading"></a></h3>
+<p>A newly formed or rebuilt edge serves a factory certificate, a bare self-signed leaf, and no CA can verify it
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-FACTORY-TLS</span></a>).
+On Python 3.13 and later even a CA file holding that leaf is refused as a trust anchor.
+So the first run against such an edge cannot verify, and the collection gives that run a narrow way through instead
+of an instruction to disable verification for good.</p>
+<p>You declare the certificate the edge should serve in <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code>, with <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> naming the CA that signed it.
+<a class="reference internal" href="../how-to/manage-certificates.html#replace-the-factory-certificate"><span class="std std-ref">Manage certificates</span></a> installs it in a run of its own
+that changes nothing else, and applies the baseline afterwards with verification on.
+The reason is the password.
+A baseline run that starts with <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs:</span> <span class="pre">false</span></code> sends the <code class="docutils literal notranslate"><span class="pre">admin</span></code> password over unverified TLS for every
+step before the certificate step: the guard, network, DNS, time, name, file-system and web UI steps listed below.
+Installing the certificate first confines the unverified connection to a run that sends no other setting.</p>
+<p>The role can also switch inside one run, and the edge_rebuild replay uses that, because a replay connects to the edge
+it has just rebuilt, which serves its factory certificate, within the run that rebuilt it.
+The replay starts with <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs:</span> <span class="pre">false</span></code>.
+The baseline’s certificate step installs the declared certificate, and then sets <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> to <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs</span></code> to <code class="docutils literal notranslate"><span class="pre">true</span></code>, for the rest of the run.
+It sets them as facts under their inventory names, because the header reads those variables for every task that follows.
+Every later step, including those that send passwords such as an Active Directory join, therefore goes over verified TLS.
+In a check run that would change the certificate, the old certificate is still served, so the step leaves the switch alone.
+Verification is off only for the steps before the certificate step, and it comes back by itself.
+The facts last for the run only.
+Afterwards the inventory has to say what the run switched to: remove the <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs:</span> <span class="pre">false</span></code>, and set
+<code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> to the CA in <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code>, or the next run starts unverified again, or fails to verify.
+A <code class="docutils literal notranslate"><span class="pre">qumulo_validate_certs:</span> <span class="pre">false</span></code> left in <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> keeps the guard, network, DNS, time, name, file-system and web UI
+steps unverified on every later run, and after a renewal from another CA a <code class="docutils literal notranslate"><span class="pre">qumulo_ca_path</span></code> that still names the old CA
+fails the next run at its first step.</p>
+<p>When verification is on, <a class="reference internal" href="../collections/qumulo/cluster/ssl_certificate_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">ssl_certificate</span></code></span></a> checks before it installs, by
+serving the new chain to itself on the controller, that the chain verifies against <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> for <code class="docutils literal notranslate"><span class="pre">api_host</span></code>, and refuses
+one that does not unless <code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code> is set.
+The certificate step sets that option whenever <code class="docutils literal notranslate"><span class="pre">qumulo_ssl.ca_path_after</span></code> is declared, because that step is the switch.
+A certificate that later tasks cannot verify would cut the play off from the cluster it just configured, and the module
+declines to cause that unannounced.
+The same applies to a renewal signed by a different CA, where <code class="docutils literal notranslate"><span class="pre">ca_path_after</span></code> names the new CA.</p>
+</section>
+<section id="why-not-e-qumulo-validate-certs-false">
+<h3>Why not <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_validate_certs=false</span></code><a class="headerlink" href="#why-not-e-qumulo-validate-certs-false" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_validate_certs=false</span></code> does not have the same effect.
+An extra variable applies to every host of the play, and the baseline reads a portal’s hub connection from the hub’s
+variables, so the hub is then unverified too.
+An extra variable also outranks the facts a run sets, so the certificate step cannot turn verification back on.
+Every password the run sends after the certificate, the domain join’s among them, would go over unverified TLS.
+<a class="reference internal" href="../reference/variables.html#precedence"><span class="std std-ref">Inventory variables</span></a> gives the precedence rule that causes this.</p>
+<p>The edge rebuild gets the same effect without that risk.
+With <code class="docutils literal notranslate"><span class="pre">edge_rebuild_validate_factory_certs:</span> <span class="pre">false</span></code> in the new edge’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>, the replay switches verification off
+for that one host.
+The hub stays verified throughout, and the certificate step turns verification back on for the edge with
+<code class="docutils literal notranslate"><span class="pre">qumulo_ssl.ca_path_after</span></code>.
+The option exists beside the global switch because it is scoped to one cluster and ends at a known step.
+<a class="reference internal" href="../how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a> gives the steps.</p>
+</section>
+<section id="why-a-certificate-is-compared-by-probing-it">
+<h3>Why a certificate is compared by probing it<a class="headerlink" href="#why-a-certificate-is-compared-by-probing-it" title="Link to this heading"></a></h3>
+<p>The cluster has no call that returns the certificate it serves or its private key (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-SSL-READBACK</span></a>), so
+<code class="docutils literal notranslate"><span class="pre">ssl_certificate</span></code> cannot read what is installed and compare it with what you declared.
+It connects to each address in <code class="docutils literal notranslate"><span class="pre">probe</span></code> instead, and compares the certificate that address serves with the first
+certificate of the chain you declared.
+That probe stands in for a read-back.
+The module never compares keys, and does not need to: the cluster refuses a key that does not match its certificate,
+so a served certificate that matches the declared one means its key is installed.
+With no <code class="docutils literal notranslate"><span class="pre">probe</span></code>, the module compares only <code class="docutils literal notranslate"><span class="pre">api_host</span></code> on <code class="docutils literal notranslate"><span class="pre">api_port</span></code>.
+An address it does not probe is not compared, so a node or port left out can keep serving the old certificate unnoticed.</p>
+<p>After installing, the module waits until every probed address serves the new certificate, because the cluster takes a moment
+to reload it.
+A task that followed straight away could otherwise run against the old certificate.
+<a class="reference internal" href="../how-to/manage-certificates.html#renew-the-certificate"><span class="std std-ref">Manage the cluster’s TLS certificate</span></a> shows how to declare, replace
+and renew one.</p>
+</section>
+</section>
+<section id="where-secrets-live">
+<h2>Where secrets live<a class="headerlink" href="#where-secrets-live" title="Link to this heading"></a></h2>
+<p>The collection never needs a secret in plain text in the project.
+The secrets an inventory holds are the cluster passwords and tokens, the certificate key, local user passwords, the
+Active Directory join password, the keytab of a standalone Kerberos KDC, the license document and the Nexus
+credentials.
+<a class="reference internal" href="../how-to/store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a> shows how to encrypt each with Ansible Vault or look it up
+when a run starts.
+A capture writes no secret either. It reads one: the <code class="docutils literal notranslate"><span class="pre">kerberos</span></code> area reads the keytab’s keys with its entries, to name
+the principals, registers them for masking and never writes them. It names each secret the inventory must supply, in
+comments in the file it writes (<a class="reference internal" href="../reference/capture-and-clone.html"><span class="std std-doc">What capture and clone read and write</span></a>), and it does
+not write the connection variables into the file.</p>
+<p>The modules mark each secret option <code class="docutils literal notranslate"><span class="pre">no_log</span></code>, among them <code class="docutils literal notranslate"><span class="pre">api_password</span></code>, <code class="docutils literal notranslate"><span class="pre">api_token</span></code>, a local user’s <code class="docutils literal notranslate"><span class="pre">password</span></code>, the
+certificate’s <code class="docutils literal notranslate"><span class="pre">private_key</span></code>, the license document’s <code class="docutils literal notranslate"><span class="pre">license_key</span></code>, the Active Directory <code class="docutils literal notranslate"><span class="pre">join_password</span></code>, the Kerberos
+<code class="docutils literal notranslate"><span class="pre">keytab</span></code> (the keytab file in base64), a Nexus <code class="docutils literal notranslate"><span class="pre">join_key</span></code> and the Nexus API token, an unprotected edge’s
+<code class="docutils literal notranslate"><span class="pre">admin_password</span></code>, a snapshot lock’s <code class="docutils literal notranslate"><span class="pre">private_key</span></code> and an upgrade’s <code class="docutils literal notranslate"><span class="pre">image_secret</span></code>.
+Ansible therefore does not print them in task output or in logs.
+<code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> goes further, because the cluster returns the keys of the keytab it holds, as base64: no result, diff
+or message carries a key, the module compares keys through one digest, and it registers each key with
+<code class="docutils literal notranslate"><span class="pre">register_secret</span></code>, where ansible-core provides it, so that Ansible masks it too.
+Where ansible-core provides <code class="docutils literal notranslate"><span class="pre">register_secret</span></code>, the client also registers the session token a login returns, so that
+Ansible masks it too.
+A URL that an error message quotes has its query string and user information replaced before the message is shown.</p>
+<p>The Terraform inventory plugin applies the same rule to its input.
+A cluster’s admin password is never in the Terraform output the plugin reads.
+The output gives a <code class="docutils literal notranslate"><span class="pre">password_ref</span></code>, the type and id of the place that holds the password, and <code class="docutils literal notranslate"><span class="pre">group_vars</span></code> resolve it with
+a lookup into <code class="docutils literal notranslate"><span class="pre">qumulo_api_password</span></code>.
+The plugin refuses a field whose name looks like a secret, such as <code class="docutils literal notranslate"><span class="pre">password</span></code> or <code class="docutils literal notranslate"><span class="pre">api_token</span></code>, and reads, caches and shows
+none of its value, so a secret put into the output under a name such as <code class="docutils literal notranslate"><span class="pre">password</span></code> is refused, and its value never
+reaches a variable, the cache or a message.
+The output carries no secret, so it need not be marked <code class="docutils literal notranslate"><span class="pre">sensitive</span></code> in Terraform.
+<a class="reference internal" href="../how-to/terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> has the lookup for each store.</p>
+</section>
+<section id="passwords-the-cluster-does-not-show-back">
+<h2>Passwords the cluster does not show back<a class="headerlink" href="#passwords-the-cluster-does-not-show-back" title="Link to this heading"></a></h2>
+<p>The cluster never returns a local user’s password, so the collection cannot tell whether the stored one matches the one
+you declare (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-PASSWORD</span></a>), so the collection sends one only when <code class="docutils literal notranslate"><span class="pre">update_password</span></code> says to.
+<a class="reference internal" href="state-management.html#comparing-in-the-form-the-cluster-reads-back"><span class="std std-ref">Comparing in the form the cluster reads back</span></a>
+explains how this follows from the way modules compare, and gives the <code class="docutils literal notranslate"><span class="pre">on_create</span></code> and <code class="docutils literal notranslate"><span class="pre">always</span></code> behaviour.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">admin</span></code> password carries one more consequence.
+The server applies it to the console and SSH password of every node as well as to the REST API (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ADMIN-OS</span></a>).
+Changing it is a change to how people log in to the machines, not only to a setting.
+<code class="docutils literal notranslate"><span class="pre">local_user</span></code> therefore refuses to change <code class="docutils literal notranslate"><span class="pre">admin</span></code>’s password unless <code class="docutils literal notranslate"><span class="pre">allow_admin_password_change</span></code> is set.
+When the change is to the password the task itself connects with, later tasks must connect with the new one, and
+<code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code> says that you know this.
+The module reports <code class="docutils literal notranslate"><span class="pre">connection_password_changed</span></code> so that a play can switch to the new password for the rest of its run.
+<a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/admin_password_rotate.yml"><code class="docutils literal notranslate"><span class="pre">playbooks/admin_password_rotate.yml</span></code></a> does this.
+Because a password cannot be read back, it first tries to log in with the new password: a login that works means the
+password is already rotated, so a second run changes nothing.
+<a class="reference internal" href="../how-to/rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a> gives the steps.</p>
+</section>
+<section id="access-tokens-the-collection-makes">
+<h2>Access tokens the collection makes<a class="headerlink" href="#access-tokens-the-collection-makes" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../collections/qumulo/cluster/access_token_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">access_token</span></code></span></a> makes, keeps, rotates and revokes the access tokens of a user.
+The cluster returns a token’s bearer, the string that logs in, only in its answer to the request that makes the token,
+so the collection can never read one back (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-TOKEN</span></a>).
+The cluster also stores no name for a token, so the module manages a user’s tokens as one set, and a user holds at most
+two, expired ones counted.</p>
+<section id="where-the-bearer-appears">
+<h3>Where the bearer appears<a class="headerlink" href="#where-the-bearer-appears" title="Link to this heading"></a></h3>
+<p>The module puts the bearer in two places, both in the run that made the token: in <code class="docutils literal notranslate"><span class="pre">bearer_token</span></code> of the task’s result,
+also when a later step of that run fails, and in <code class="docutils literal notranslate"><span class="pre">access-token-&lt;user&gt;-&lt;id&gt;.yml</span></code> in <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code>, a file readable only by its owner in a directory readable
+only by its owner.
+No diff, note, warning or message holds it, and the module quotes none of the cluster’s answers to the create.
+<code class="docutils literal notranslate"><span class="pre">identity_info</span></code> lists every token with its user, creator, id, times and <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, and never a bearer, because the
+cluster’s list route returns none.
+Where ansible-core provides <code class="docutils literal notranslate"><span class="pre">register_secret</span></code>, the module also registers the bearer so that Ansible masks it.</p>
+</section>
+<section id="why-both-no-log-and-a-file-are-required">
+<h3>Why both <code class="docutils literal notranslate"><span class="pre">no_log</span></code> and a file are required<a class="headerlink" href="#why-both-no-log-and-a-file-are-required" title="Link to this heading"></a></h3>
+<p>The two protect against different losses.
+Without <code class="docutils literal notranslate"><span class="pre">no_log</span></code>, Ansible prints the task’s result, bearer included, to the terminal and to every log and callback.
+Without a file, the bearer exists only in that task’s result, and a play that fails before it stores the result has lost
+the bearer for good: the cluster will not show it again, and a rotation has deleted the old token by then.
+The module therefore refuses to make a token in a task without <code class="docutils literal notranslate"><span class="pre">no_log</span></code>, or without <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code>, before it
+writes anything, in check mode too.
+It also makes the directory, or makes the one there private, and writes and removes a probe file in it before it makes
+the token.</p>
+<p><code class="docutils literal notranslate"><span class="pre">no_log</span></code> hides a task’s result, its notes and diff included, and keeps its warnings; when the task fails, ansible-core
+still prints its <code class="docutils literal notranslate"><span class="pre">msg</span></code>, so a refusal is on screen.
+The module reports a token that is expired, and stays so, as a warning, because a note would be hidden.</p>
+</section>
+<section id="why-a-rotation-makes-the-new-token-before-it-deletes-the-old">
+<h3>Why a rotation makes the new token before it deletes the old<a class="headerlink" href="#why-a-rotation-makes-the-new-token-before-it-deletes-the-old" title="Link to this heading"></a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">rotated</span></code>, the module makes the new token, writes its bearer to the file, confirms the token in a listing,
+and only then deletes the tokens the user held before.
+The order protects two things.
+It protects the play’s own connection, because the token the play connects with is deleted last, and nothing is sent
+after it.
+It also protects the user’s tokens when a step fails: until the new token is stored and confirmed no old token is
+touched, and a failure after that keeps the old tokens not yet deleted.
+Such a failure can leave the user with two tokens, and the module has no way to delete only the old one.
+The failed result still carries <code class="docutils literal notranslate"><span class="pre">access_token_id</span></code>, <code class="docutils literal notranslate"><span class="pre">secret_file</span></code> and <code class="docutils literal notranslate"><span class="pre">bearer_token</span></code>, and the message, which the module
+also gives as a warning, names the new token, its file and the old tokens it kept, and says how to delete an old token
+by its id outside the collection, with <code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">auth_delete_access_token</span></code> or <code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/v1/auth/access-tokens/{id}</span></code>
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-TOKEN</span></a>).
+A user who already holds two tokens has no room for a third, so a rotation is refused before any write.
+The message names each token, marks the one the task connects with, and gives the same delete-by-id way out, or
+<code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> then <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">present</span></code> to replace both.
+A rotation with <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code> is refused when the token the task connects with is among the old ones, because the
+play would be left with no token to connect with.</p>
+<p>The order does not protect the token’s other consumers.
+The old tokens are deleted at the end of the same task, so every other holder of the user’s token loses access until it
+holds the new bearer, the same gap an S3 key’s replacement leaves (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-S3-ROTATE</span></a>).
+That is why each consumer should have a user of its own: one user’s tokens are one set, and a rotation for one consumer
+cuts off the rest.
+A token holds the roles of its user, so the token of a member of Administrators is a full administrator’s credential,
+and its file deserves the care an admin password gets.</p>
+</section>
+<section id="the-token-the-play-connects-with">
+<h3>The token the play connects with<a class="headerlink" href="#the-token-the-play-connects-with" title="Link to this heading"></a></h3>
+<p>A task that connects with <code class="docutils literal notranslate"><span class="pre">api_token</span></code> asks the cluster which token that is, with <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/session/who-am-i</span></code>, whose
+<code class="docutils literal notranslate"><span class="pre">access_token_id</span></code> names it.
+A task that would delete that token, disable it, or give it an expiration less than an hour after the controller’s
+clock is refused, unless it sets <code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code>.
+The hour covers the rest of the play, and a controller whose clock is behind the cluster’s.
+With the option set, the module sends the write that deletes, disables or expires that token after its other writes,
+and nothing after it, and reports <code class="docutils literal notranslate"><span class="pre">connection_token_changed</span></code> when it deleted the token.
+The play must connect with the new <code class="docutils literal notranslate"><span class="pre">bearer_token</span></code> from then on.
+A token that the task disabled or expired is not reported there; <code class="docutils literal notranslate"><span class="pre">access_tokens</span></code> in the result shows its <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and
+<code class="docutils literal notranslate"><span class="pre">expiration_time</span></code>.
+<a class="reference internal" href="../how-to/rotate-access-token.html"><span class="std std-doc">Rotate the access token a host connects with</span></a>
+gives the play.
+The admin password has the same rule, which <a class="reference internal" href="#passwords-the-cluster-does-not-show-back">above</a> describes.</p>
+</section>
+<section id="files-that-stay-and-a-rebuild">
+<h3>Files that stay, and a rebuild<a class="headerlink" href="#files-that-stay-and-a-rebuild" title="Link to this heading"></a></h3>
+<p>The module removes no file of a token it kept.
+The file of a token that a later task deletes stays, with a bearer that no longer works, and the newest file of a user
+holds the bearer of the token the user was last given.
+A token is also bound to its cluster, so a rebuilt cluster has none of the old tokens, and every file of the old
+cluster’s tokens is dead with it.</p>
+</section>
+</section>
+<section id="the-nexus-token-and-join-key">
+<h2>The Nexus token and join key<a class="headerlink" href="#the-nexus-token-and-join-key" title="Link to this heading"></a></h2>
+<p>A Nexus API token is a different credential from a cluster login.
+It belongs to a user of the Nexus service, it is sent to Nexus as a bearer token, and it is never sent to the cluster.
+What it may do depends on that user’s role in the Nexus organization, so each module that calls Nexus says which calls
+it makes.
+Calls to Nexus always verify the certificate, and the cluster’s <code class="docutils literal notranslate"><span class="pre">validate_certs</span></code> and <code class="docutils literal notranslate"><span class="pre">ca_path</span></code> do not apply to them, because
+Nexus presents a publicly trusted certificate.</p>
+<p><code class="docutils literal notranslate"><span class="pre">nexus_registration</span></code> registers a cluster with a join key.
+A join key is single use, the module sends it only when the cluster is not yet registered, and never returns it.
+Registration is decided by the cluster’s status, so a REGISTERED cluster is left alone and a rerun neither spends a key
+nor mints one.
+A key spent on a failed registration cannot be used again (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-NEXUS-KEY</span></a>).
+With <code class="docutils literal notranslate"><span class="pre">nexus_api_token</span></code> set and no <code class="docutils literal notranslate"><span class="pre">join_key</span></code>, the module mints a key in Nexus and uses that.
+<a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> covers what Nexus is for.</p>
+<p>Registration writes send no <code class="docutils literal notranslate"><span class="pre">If-Match</span></code>, because the cluster’s background rotation of its Nexus secret changes the shared
+ETag and no registration write depends on what it read
+(<a class="reference internal" href="state-management.html#how-a-write-is-sent"><span class="std std-ref">How a write is sent</span></a>).
+For the same reason, no other monitoring or Nexus setting should change while a registration runs.</p>
+</section>
+<section id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a> gives every host its connection.</p></li>
+<li><p><a class="reference internal" href="../how-to/store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a> encrypts or looks up each secret.</p></li>
+<li><p><a class="reference internal" href="../how-to/manage-certificates.html"><span class="std std-doc">Manage the cluster’s TLS certificate</span></a> replaces the factory certificate and renews one.</p></li>
+<li><p><a class="reference internal" href="../how-to/rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a> changes the password that logs every module in.</p></li>
+<li><p><a class="reference internal" href="../how-to/rotate-access-token.html"><span class="std std-doc">Rotate the access token a host connects with</span></a>
+replaces the token a play logs in with, and moves the new bearer into the vault.</p></li>
+<li><p><a class="reference internal" href="../how-to/nexus.html"><span class="std std-doc">Register a cluster with Nexus</span></a> registers a cluster with a join key or an API token.</p></li>
+<li><p><a class="reference internal" href="../how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a> replays the certificate switch for a rebuilt edge.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html#connection"><span class="std std-ref">Inventory variables</span></a> lists the connection variables and their defaults.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html#connecting"><span class="std std-ref">Troubleshooting</span></a> quotes the messages a failed connection gives.</p></li>
+<li><p><a class="reference internal" href="refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a> explains why the identity guard has no consent flag.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="architecture.html" class="btn btn-neutral float-left" title="Architecture of the collection" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="state-management.html" class="btn btn-neutral float-right" title="State management" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

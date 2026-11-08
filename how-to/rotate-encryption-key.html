@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rotate the encryption key &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Take a snapshot before a change" href="snapshot-before-a-change.html" />
+    <link rel="prev" title="Rotate the access token a host connects with" href="rotate-access-token.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rotate the encryption key</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rotate-the-key-when-it-is-older-than-a-given-age">Rotate the key when it is older than a given age</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify-the-rotation">Verify the rotation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rotate-now-whatever-the-key-s-age">Rotate now, whatever the key’s age</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fail-a-pipeline-when-the-key-is-overdue">Fail a pipeline when the key is overdue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rotate-a-kms-key">Rotate a KMS key</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#if-a-run-stops">If a run stops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-next">What next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Rotate the encryption key</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="rotate-the-encryption-key">
+<h1>Rotate the encryption key<a class="headerlink" href="#rotate-the-encryption-key" title="Link to this heading"></a></h1>
+<p>This page rotates the master key that encrypts a cluster’s data at rest, with a play of your own, and checks that the
+cluster reports the new rotation.
+The baseline never rotates the key, because a rotation is an action rather than a setting
+(G-ACTIONS in the <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gap register</span></a>;
+<a class="reference internal" href="../explanation/state-management.html#actions-are-not-settings"><span class="std std-ref">why</span></a>).</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up an inventory that connects to the cluster: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.</p></li>
+<li><p>Use a cluster formed with encryption at rest.
+Encryption is chosen when a cluster is formed, and on a cluster formed without it the task fails because there is no
+key to rotate.</p></li>
+<li><p>With a KMS key store, create the new key in the KMS first and have its id ready.
+The cluster rotates a KMS key only to another key the KMS holds (G-MON-KMS-ROTATE in the <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gap register</span></a>).
+The collection does not manage the KMS key store itself, its host or its certificates.</p></li>
+</ul>
+</section>
+<section id="rotate-the-key-when-it-is-older-than-a-given-age">
+<h2>Rotate the key when it is older than a given age<a class="headerlink" href="#rotate-the-key-when-it-is-older-than-a-given-age" title="Link to this heading"></a></h2>
+<p>This section is for a cluster with its own key store.
+With a KMS key store, use <a class="reference internal" href="#rotate-a-kms-key">Rotate a KMS key</a> instead.</p>
+<p>Save this play as <code class="docutils literal notranslate"><span class="pre">rotate-key.yml</span></code> in the project directory.
+The <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> block is the header every playbook of the collection starts with
+(<a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Check the connection</span></a> shows it).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># rotate-key.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rotate the encryption key</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rotate the encryption key when it is older than 90 days</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.encryption_key_rotation</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">max_age_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">90</span>
+</pre></div>
+</div>
+<p>Run it on one host first, with <code class="docutils literal notranslate"><span class="pre">-l</span></code>.
+Preview with a check run, then rotate:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>rotate-key.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass<span class="w"> </span>--check<span class="w"> </span>--diff
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>rotate-key.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> in place of <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> if you keep the vault password in a file, and leave both out
+when the inventory holds no vault values.</p>
+<p>When the key is due, the check run reports <code class="docutils literal notranslate"><span class="pre">changed</span></code>, and <code class="docutils literal notranslate"><span class="pre">--diff</span></code> shows its age and last rotation time.
+When the key is not older than <code class="docutils literal notranslate"><span class="pre">max_age_days</span></code>, the task reports <code class="docutils literal notranslate"><span class="pre">ok</span></code> and shows no age.
+The age is measured against the controller’s clock, in UTC.
+A key the cluster reports as never rotated is due.</p>
+<p>A play run on a schedule rotates the key at the first run after it passes <code class="docutils literal notranslate"><span class="pre">max_age_days</span></code>, and changes nothing on the
+runs between.
+With a KMS key store this play fails once the key is older than <code class="docutils literal notranslate"><span class="pre">max_age_days</span></code>, because the module has no key to
+rotate to without a <code class="docutils literal notranslate"><span class="pre">key_id</span></code>.</p>
+</section>
+<section id="verify-the-rotation">
+<h2>Verify the rotation<a class="headerlink" href="#verify-the-rotation" title="Link to this heading"></a></h2>
+<p>Run the check again.
+The task now reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, because the key is new:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>rotate-key.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+<p>To see when the cluster says the key was last rotated, read the key store with
+<a class="reference internal" href="../collections/qumulo/cluster/monitoring_info_module.html"><span class="std std-doc">monitoring_info</span></a>.
+Add these tasks to the play, or to a play of your own with the same header:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the encryption key store</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.monitoring_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">encryption</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encryption_state</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show when the key was last rotated</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encryption_state.monitoring.encryption.last_key_rotation_time</span>
+</pre></div>
+</div>
+<p>Or register the rotation task and read <code class="docutils literal notranslate"><span class="pre">key_store.last_key_rotation_time</span></code>.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="rotate-now-whatever-the-key-s-age">
+<h3>Rotate now, whatever the key’s age<a class="headerlink" href="#rotate-now-whatever-the-key-s-age" title="Link to this heading"></a></h3>
+<p>On a cluster with its own key store, <code class="docutils literal notranslate"><span class="pre">max_age_days:</span> <span class="pre">0</span></code> rotates on every run, so run such a task once.
+A schedule must not carry it.
+With a KMS key store, give a new <code class="docutils literal notranslate"><span class="pre">key_id</span></code> instead (<a class="reference internal" href="#rotate-a-kms-key">Rotate a KMS key</a>).</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rotate the encryption key now, whatever its age</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.encryption_key_rotation</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">max_age_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+</pre></div>
+</div>
+</section>
+<section id="fail-a-pipeline-when-the-key-is-overdue">
+<h3>Fail a pipeline when the key is overdue<a class="headerlink" href="#fail-a-pipeline-when-the-key-is-overdue" title="Link to this heading"></a></h3>
+<p>A check run reports <code class="docutils literal notranslate"><span class="pre">changed</span></code> when the key is due.
+Turn that into a failure, and rotate in a separate run:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail when the key is older than a year</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.encryption_key_rotation</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">max_age_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">365</span>
+<span class="w">      </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key_overdue</span>
+<span class="w">      </span><span class="nt">failed_when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">key_overdue is changed</span>
+</pre></div>
+</div>
+</section>
+<section id="rotate-a-kms-key">
+<h3>Rotate a KMS key<a class="headerlink" href="#rotate-a-kms-key" title="Link to this heading"></a></h3>
+<p>With a KMS key store the module rotates only when <code class="docutils literal notranslate"><span class="pre">key_id</span></code> differs from the key in use, whatever the key’s age, and
+leaves the key alone when <code class="docutils literal notranslate"><span class="pre">key_id</span></code> is the key in use.
+A schedule with one fixed <code class="docutils literal notranslate"><span class="pre">key_id</span></code> therefore rotates once and never again.
+Give a new <code class="docutils literal notranslate"><span class="pre">key_id</span></code> each period, for example from a variable you change when you create the next key in the KMS:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rotate to a new key the KMS holds</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.encryption_key_rotation</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">max_age_days</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">365</span>
+<span class="w">        </span><span class="nt">key_id</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_kms_key_id</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">key_id</span></code> set, <code class="docutils literal notranslate"><span class="pre">max_age_days</span></code> is not checked, but it is still required.
+Without <code class="docutils literal notranslate"><span class="pre">key_id</span></code>, a KMS key older than <code class="docutils literal notranslate"><span class="pre">max_age_days</span></code> fails, and the message names the key in use.
+A KMS key is aged from the later of its last rotation and when the KMS was configured, so a key never rotated is aged
+from the configuration.</p>
+</section>
+</section>
+<section id="if-a-run-stops">
+<h2>If a run stops<a class="headerlink" href="#if-a-run-stops" title="Link to this heading"></a></h2>
+<p>The module never sends a rotation twice.
+When the connection is lost after the module sent it, the module reads the key store again.
+If the key store shows the rotation, the task succeeds and <code class="docutils literal notranslate"><span class="pre">notes</span></code> says it was confirmed by reading back.
+If it does not, the task fails with <code class="docutils literal notranslate"><span class="pre">maybe_applied:</span> <span class="pre">true</span></code>.</p>
+<p>Run the check again and read what it says.
+If the key is still due, run the play again.
+<a class="reference internal" href="respond-to-a-refusal.html#a-run-that-stopped-in-the-middle"><span class="std std-ref">A run that stopped in the middle</span></a> says what to do with
+<code class="docutils literal notranslate"><span class="pre">maybe_applied</span></code>, and <a class="reference internal" href="../explanation/state-management.html#maybe-applied"><span class="std std-ref">why</span></a> the module never resends.</p>
+<p>If the cluster accepts the rotation but the key store still shows the old rotation time (or the old key), the task fails
+with <code class="docutils literal notranslate"><span class="pre">changed:</span> <span class="pre">true</span></code>.
+Run the check again before you retry.</p>
+</section>
+<section id="what-next">
+<h2>What next<a class="headerlink" href="#what-next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="snapshot-before-a-change.html"><span class="std std-doc">Take a snapshot before a change</span></a> is another action you run from a play of your own.</p></li>
+<li><p><a class="reference internal" href="../explanation/state-management.html#actions-are-not-settings"><span class="std std-ref">Actions are not settings</span></a> explains why the baseline
+never rotates the key and why a rerun does not rotate it again.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/encryption_key_rotation_module.html"><span class="std std-doc">encryption_key_rotation</span></a> lists every option and return value.</p></li>
+<li><p><a class="reference internal" href="respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a> and
+<a class="reference internal" href="../reference/troubleshooting.html#a-change-that-may-or-may-not-have-been-applied"><span class="std std-ref">A change that may or may not have been applied</span></a>
+cover a task that fails or stops in the middle.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rotate-access-token.html" class="btn btn-neutral float-left" title="Rotate the access token a host connects with" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="snapshot-before-a-change.html" class="btn btn-neutral float-right" title="Take a snapshot before a change" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

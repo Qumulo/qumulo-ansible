@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qumulo.Cluster &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.access_token module – Manage the access tokens of a user on a Qumulo cluster" href="access_token_module.html" />
+    <link rel="prev" title="Collections in the Qumulo Namespace" href="../index.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Qumulo.Cluster</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+      <li class="breadcrumb-item active">Qumulo.Cluster</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <section id="qumulo-cluster">
+<span id="plugins-in-qumulo-cluster"></span><h1>Qumulo.Cluster<a class="headerlink" href="#qumulo-cluster" title="Link to this heading"></a></h1>
+<p>Collection version 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#description" id="id1">Description</a></p></li>
+<li><p><a class="reference internal" href="#plugin-index" id="id2">Plugin Index</a></p></li>
+<li><p><a class="reference internal" href="#role-index" id="id3">Role Index</a></p></li>
+</ul>
+</nav>
+<section id="description">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Description</a><a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>Declarative, idempotent day-2 configuration of Qumulo Core clusters through the Qumulo REST API.</p>
+<p><strong>Authors:</strong></p>
+<ul class="simple">
+<li><p>Qumulo, Inc.</p></li>
+<li><p>Mark McCallister</p></li>
+</ul>
+<p><strong>Supported ansible-core versions:</strong></p>
+<ul class="simple">
+<li><p>2.20.0 or newer</p></li>
+</ul>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="plugin-index">
+<span id="plugin-index-for-qumulo-cluster"></span><h2><a class="toc-backref" href="#id2" role="doc-backlink">Plugin Index</a><a class="headerlink" href="#plugin-index" title="Link to this heading"></a></h2>
+<p>These are the plugins in the qumulo.cluster collection:</p>
+<section id="modules">
+<span id="module-plugins-in-qumulo-cluster"></span><h3>Modules<a class="headerlink" href="#modules" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="access_token_module.html#ansible-collections-qumulo-cluster-access-token-module"><span class="std std-ref">access_token module</span></a> – Manage the access tokens of a user on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="ad_domain_module.html#ansible-collections-qumulo-cluster-ad-domain-module"><span class="std std-ref">ad_domain module</span></a> – Join a Qumulo cluster to an Active Directory domain, or leave it</p></li>
+<li><p><a class="reference internal" href="audit_destination_module.html#ansible-collections-qumulo-cluster-audit-destination-module"><span class="std std-ref">audit_destination module</span></a> – Manage a Qumulo cluster’s audit log destination</p></li>
+<li><p><a class="reference internal" href="auth_cache_clear_module.html#ansible-collections-qumulo-cluster-auth-cache-clear-module"><span class="std std-ref">auth_cache_clear module</span></a> – Clear a Qumulo cluster’s cache of identities and group memberships</p></li>
+<li><p><a class="reference internal" href="authoritative_dns_module.html#ansible-collections-qumulo-cluster-authoritative-dns-module"><span class="std std-ref">authoritative_dns module</span></a> – Manage the DNS server a Qumulo cluster runs for its own name</p></li>
+<li><p><a class="reference internal" href="capacity_clamp_module.html#ansible-collections-qumulo-cluster-capacity-clamp-module"><span class="std std-ref">capacity_clamp module</span></a> – Set a Qumulo cluster’s capacity clamp, writing only when it must change</p></li>
+<li><p><a class="reference internal" href="capture_info_module.html#ansible-collections-qumulo-cluster-capture-info-module"><span class="std std-ref">capture_info module</span></a> – Read a Qumulo cluster’s configuration as the inventory variables that declare it</p></li>
+<li><p><a class="reference internal" href="clone_host_vars_module.html#ansible-collections-qumulo-cluster-clone-host-vars-module"><span class="std std-ref">clone_host_vars module</span></a> – Derive a fresh Qumulo cluster’s host_vars from another cluster’s capture</p></li>
+<li><p><a class="reference internal" href="cluster_guard_module.html#ansible-collections-qumulo-cluster-cluster-guard-module"><span class="std std-ref">cluster_guard module</span></a> – Check that a Qumulo cluster is the one a play expects, and wait until it is ready</p></li>
+<li><p><a class="reference internal" href="cluster_info_module.html#ansible-collections-qumulo-cluster-cluster-info-module"><span class="std std-ref">cluster_info module</span></a> – Read a Qumulo cluster’s identity, version, license, capacity and product type</p></li>
+<li><p><a class="reference internal" href="cluster_settings_module.html#ansible-collections-qumulo-cluster-cluster-settings-module"><span class="std std-ref">cluster_settings module</span></a> – Manage a Qumulo cluster’s name</p></li>
+<li><p><a class="reference internal" href="directory_module.html#ansible-collections-qumulo-cluster-directory-module"><span class="std std-ref">directory module</span></a> – Make sure a directory exists on a Qumulo cluster, with its mode, owner and group</p></li>
+<li><p><a class="reference internal" href="directory_quota_module.html#ansible-collections-qumulo-cluster-directory-quota-module"><span class="std std-ref">directory_quota module</span></a> – Manage the hard capacity quota of a directory on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="dns_cache_clear_module.html#ansible-collections-qumulo-cluster-dns-cache-clear-module"><span class="std std-ref">dns_cache_clear module</span></a> – Clear a Qumulo cluster’s DNS cache</p></li>
+<li><p><a class="reference internal" href="dns_lookup_overrides_module.html#ansible-collections-qumulo-cluster-dns-lookup-overrides-module"><span class="std std-ref">dns_lookup_overrides module</span></a> – Manage the names a Qumulo cluster resolves without asking DNS</p></li>
+<li><p><a class="reference internal" href="dns_settings_module.html#ansible-collections-qumulo-cluster-dns-settings-module"><span class="std std-ref">dns_settings module</span></a> – Manage the DNS servers and search domains a Qumulo cluster resolves names with</p></li>
+<li><p><a class="reference internal" href="edge_cache_route_module.html#ansible-collections-qumulo-cluster-edge-cache-route-module"><span class="std std-ref">edge_cache_route module</span></a> – Choose how to bring a Qumulo edge’s cache to a target size</p></li>
+<li><p><a class="reference internal" href="edge_rebuild_preflight_module.html#ansible-collections-qumulo-cluster-edge-rebuild-preflight-module"><span class="std std-ref">edge_rebuild_preflight module</span></a> – Check that a Qumulo edge’s live state can be replayed from its inventory before a rebuild destroys it</p></li>
+<li><p><a class="reference internal" href="encryption_key_rotation_module.html#ansible-collections-qumulo-cluster-encryption-key-rotation-module"><span class="std std-ref">encryption_key_rotation module</span></a> – Rotate a Qumulo cluster’s at-rest encryption key once it is older than a given age</p></li>
+<li><p><a class="reference internal" href="file_acl_module.html#ansible-collections-qumulo-cluster-file-acl-module"><span class="std std-ref">file_acl module</span></a> – Declare the access control list of a file or directory on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="filesystem_info_module.html#ansible-collections-qumulo-cluster-filesystem-info-module"><span class="std std-ref">filesystem_info module</span></a> – Read a Qumulo cluster’s file system capacity, root directory and quotas</p></li>
+<li><p><a class="reference internal" href="filesystem_settings_module.html#ansible-collections-qumulo-cluster-filesystem-settings-module"><span class="std std-ref">filesystem_settings module</span></a> – Manage a Qumulo cluster’s file system settings</p></li>
+<li><p><a class="reference internal" href="ftp_info_module.html#ansible-collections-qumulo-cluster-ftp-info-module"><span class="std std-ref">ftp_info module</span></a> – Read a Qumulo cluster’s FTP settings and each node’s FTP server status</p></li>
+<li><p><a class="reference internal" href="ftp_settings_module.html#ansible-collections-qumulo-cluster-ftp-settings-module"><span class="std std-ref">ftp_settings module</span></a> – Manage a Qumulo cluster’s FTP server settings</p></li>
+<li><p><a class="reference internal" href="host_vars_text_module.html#ansible-collections-qumulo-cluster-host-vars-text-module"><span class="std std-ref">host_vars_text module</span></a> – Write variables read from a Qumulo cluster as a host_vars file Ansible never templates</p></li>
+<li><p><a class="reference internal" href="identity_attributes_module.html#ansible-collections-qumulo-cluster-identity-attributes-module"><span class="std std-ref">identity_attributes module</span></a> – Manage the home directory a Qumulo cluster gives an Active Directory, LDAP or POSIX identity</p></li>
+<li><p><a class="reference internal" href="identity_info_module.html#ansible-collections-qumulo-cluster-identity-info-module"><span class="std std-ref">identity_info module</span></a> – Read a Qumulo cluster’s local users and groups, roles, directory services and sign-in settings</p></li>
+<li><p><a class="reference internal" href="kerberos_keytab_module.html#ansible-collections-qumulo-cluster-kerberos-keytab-module"><span class="std std-ref">kerberos_keytab module</span></a> – Install, replace or delete a Qumulo cluster’s Kerberos keytab</p></li>
+<li><p><a class="reference internal" href="kerberos_settings_module.html#ansible-collections-qumulo-cluster-kerberos-settings-module"><span class="std std-ref">kerberos_settings module</span></a> – Manage a Qumulo cluster’s Kerberos settings</p></li>
+<li><p><a class="reference internal" href="license_module.html#ansible-collections-qumulo-cluster-license-module"><span class="std std-ref">license module</span></a> – Make sure a Qumulo cluster holds a license for its current UUID</p></li>
+<li><p><a class="reference internal" href="local_group_module.html#ansible-collections-qumulo-cluster-local-group-module"><span class="std std-ref">local_group module</span></a> – Manage a Qumulo cluster’s local group and its members</p></li>
+<li><p><a class="reference internal" href="local_user_module.html#ansible-collections-qumulo-cluster-local-user-module"><span class="std std-ref">local_user module</span></a> – Manage a Qumulo cluster’s local user</p></li>
+<li><p><a class="reference internal" href="monitoring_info_module.html#ansible-collections-qumulo-cluster-monitoring-info-module"><span class="std std-ref">monitoring_info module</span></a> – Read a Qumulo cluster’s monitoring, Nexus, audit and encryption settings and status</p></li>
+<li><p><a class="reference internal" href="monitoring_settings_module.html#ansible-collections-qumulo-cluster-monitoring-settings-module"><span class="std std-ref">monitoring_settings module</span></a> – Manage a Qumulo cluster’s cloud monitoring settings</p></li>
+<li><p><a class="reference internal" href="network_config_module.html#ansible-collections-qumulo-cluster-network-config-module"><span class="std std-ref">network_config module</span></a> – Manage a Qumulo cluster’s network document</p></li>
+<li><p><a class="reference internal" href="network_info_module.html#ansible-collections-qumulo-cluster-network-info-module"><span class="std std-ref">network_info module</span></a> – Read a Qumulo cluster’s network and name resolution settings</p></li>
+<li><p><a class="reference internal" href="nexus_cluster_module.html#ansible-collections-qumulo-cluster-nexus-cluster-module"><span class="std std-ref">nexus_cluster module</span></a> – Retire a cluster in Qumulo’s Nexus service</p></li>
+<li><p><a class="reference internal" href="nexus_connection_module.html#ansible-collections-qumulo-cluster-nexus-connection-module"><span class="std std-ref">nexus_connection module</span></a> – Manage a Qumulo cluster’s connection to Qumulo’s Nexus service</p></li>
+<li><p><a class="reference internal" href="nexus_registration_module.html#ansible-collections-qumulo-cluster-nexus-registration-module"><span class="std std-ref">nexus_registration module</span></a> – Register a Qumulo cluster with Qumulo’s Nexus service</p></li>
+<li><p><a class="reference internal" href="nfs_export_module.html#ansible-collections-qumulo-cluster-nfs-export-module"><span class="std std-ref">nfs_export module</span></a> – Manage an NFS export on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="nfs_info_module.html#ansible-collections-qumulo-cluster-nfs-info-module"><span class="std std-ref">nfs_info module</span></a> – Read a Qumulo cluster’s NFS exports and NFS server settings</p></li>
+<li><p><a class="reference internal" href="nfs_settings_module.html#ansible-collections-qumulo-cluster-nfs-settings-module"><span class="std std-ref">nfs_settings module</span></a> – Manage a Qumulo cluster’s NFS server settings</p></li>
+<li><p><a class="reference internal" href="portal_eviction_settings_module.html#ansible-collections-qumulo-cluster-portal-eviction-settings-module"><span class="std std-ref">portal_eviction_settings module</span></a> – Manage the free-capacity threshold at which a cluster evicts cached spoke data</p></li>
+<li><p><a class="reference internal" href="portal_hub_module.html#ansible-collections-qumulo-cluster-portal-hub-module"><span class="std std-ref">portal_hub module</span></a> – Accept a spoke’s portal proposal on the hub, set its type and roots, or delete it</p></li>
+<li><p><a class="reference internal" href="portal_info_module.html#ansible-collections-qumulo-cluster-portal-info-module"><span class="std std-ref">portal_info module</span></a> – Read a Qumulo cluster’s spoke and hub portals, its eviction threshold and its cache size</p></li>
+<li><p><a class="reference internal" href="portal_spoke_module.html#ansible-collections-qumulo-cluster-portal-spoke-module"><span class="std std-ref">portal_spoke module</span></a> – Propose a spoke portal to a hub cluster, or delete it</p></li>
+<li><p><a class="reference internal" href="replication_failover_plan_module.html#ansible-collections-qumulo-cluster-replication-failover-plan-module"><span class="std std-ref">replication_failover_plan module</span></a> – Choose the next step of a replication failover, resync or failback, from fresh reads of both clusters</p></li>
+<li><p><a class="reference internal" href="replication_info_module.html#ansible-collections-qumulo-cluster-replication-info-module"><span class="std std-ref">replication_info module</span></a> – Read a Qumulo cluster’s replication relationships, as source, as target and to object storage</p></li>
+<li><p><a class="reference internal" href="replication_pair_plan_module.html#ansible-collections-qumulo-cluster-replication-pair-plan-module"><span class="std std-ref">replication_pair_plan module</span></a> – Join the source’s and the target’s check passes of a replication relationship into one decision</p></li>
+<li><p><a class="reference internal" href="replication_relationship_module.html#ansible-collections-qumulo-cluster-replication-relationship-module"><span class="std std-ref">replication_relationship module</span></a> – Declare a replication relationship on its source cluster, or delete the source’s records of it</p></li>
+<li><p><a class="reference internal" href="replication_restore_info_module.html#ansible-collections-qumulo-cluster-replication-restore-info-module"><span class="std std-ref">replication_restore_info module</span></a> – List the restore records and restore locks left on the controller, with their age</p></li>
+<li><p><a class="reference internal" href="replication_restore_lock_module.html#ansible-collections-qumulo-cluster-replication-restore-lock-module"><span class="std std-ref">replication_restore_lock module</span></a> – Hold the controller’s lock on an edge’s restore, so one restore runs per edge at a time</p></li>
+<li><p><a class="reference internal" href="replication_restore_step_module.html#ansible-collections-qumulo-cluster-replication-restore-step-module"><span class="std std-ref">replication_restore_step module</span></a> – Choose the next step of a rebuilt source’s restore from its replica, from fresh reads of both clusters</p></li>
+<li><p><a class="reference internal" href="replication_reverse_module.html#ansible-collections-qumulo-cluster-replication-reverse-module"><span class="std std-ref">replication_reverse module</span></a> – Make a replication target writable, reverse a relationship, or reconnect it, by its id</p></li>
+<li><p><a class="reference internal" href="replication_target_module.html#ansible-collections-qumulo-cluster-replication-target-module"><span class="std std-ref">replication_target module</span></a> – Authorize a replication relationship on its target cluster, or delete the target’s records of it</p></li>
+<li><p><a class="reference internal" href="role_module.html#ansible-collections-qumulo-cluster-role-module"><span class="std std-ref">role module</span></a> – Manage a custom Qumulo role and its privileges</p></li>
+<li><p><a class="reference internal" href="role_member_module.html#ansible-collections-qumulo-cluster-role-member-module"><span class="std std-ref">role_member module</span></a> – Manage the members of a Qumulo role</p></li>
+<li><p><a class="reference internal" href="s3_access_key_module.html#ansible-collections-qumulo-cluster-s3-access-key-module"><span class="std std-ref">s3_access_key module</span></a> – Manage the S3 access keys of a user on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="s3_bucket_module.html#ansible-collections-qumulo-cluster-s3-bucket-module"><span class="std std-ref">s3_bucket module</span></a> – Manage an S3 bucket on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="s3_bucket_policy_module.html#ansible-collections-qumulo-cluster-s3-bucket-policy-module"><span class="std std-ref">s3_bucket_policy module</span></a> – Manage the policy of an S3 bucket on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="s3_info_module.html#ansible-collections-qumulo-cluster-s3-info-module"><span class="std std-ref">s3_info module</span></a> – Read a Qumulo cluster’s S3 settings, buckets, bucket policies and access keys</p></li>
+<li><p><a class="reference internal" href="s3_settings_module.html#ansible-collections-qumulo-cluster-s3-settings-module"><span class="std std-ref">s3_settings module</span></a> – Manage a Qumulo cluster’s S3 server settings</p></li>
+<li><p><a class="reference internal" href="saml_settings_module.html#ansible-collections-qumulo-cluster-saml-settings-module"><span class="std std-ref">saml_settings module</span></a> – Manage a Qumulo cluster’s SAML single sign-on settings</p></li>
+<li><p><a class="reference internal" href="security_key_module.html#ansible-collections-qumulo-cluster-security-key-module"><span class="std std-ref">security_key module</span></a> – Manage a key that locks snapshots in a Qumulo cluster’s file system key store</p></li>
+<li><p><a class="reference internal" href="smb_info_module.html#ansible-collections-qumulo-cluster-smb-info-module"><span class="std std-ref">smb_info module</span></a> – Read a Qumulo cluster’s SMB shares, SMB server settings and open SMB sessions</p></li>
+<li><p><a class="reference internal" href="smb_settings_module.html#ansible-collections-qumulo-cluster-smb-settings-module"><span class="std std-ref">smb_settings module</span></a> – Manage a Qumulo cluster’s SMB server settings</p></li>
+<li><p><a class="reference internal" href="smb_share_module.html#ansible-collections-qumulo-cluster-smb-share-module"><span class="std std-ref">smb_share module</span></a> – Manage an SMB share on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="snapshot_module.html#ansible-collections-qumulo-cluster-snapshot-module"><span class="std std-ref">snapshot module</span></a> – Take a snapshot of a directory on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="snapshot_info_module.html#ansible-collections-qumulo-cluster-snapshot-info-module"><span class="std std-ref">snapshot_info module</span></a> – Read a Qumulo cluster’s snapshots, snapshot policies, snapshot capacity and lock keys</p></li>
+<li><p><a class="reference internal" href="snapshot_lock_module.html#ansible-collections-qumulo-cluster-snapshot-lock-module"><span class="std std-ref">snapshot_lock module</span></a> – Lock or unlock a snapshot on a Qumulo cluster with a key from its key store</p></li>
+<li><p><a class="reference internal" href="snapshot_policy_module.html#ansible-collections-qumulo-cluster-snapshot-policy-module"><span class="std std-ref">snapshot_policy module</span></a> – Manage a snapshot policy on a Qumulo cluster</p></li>
+<li><p><a class="reference internal" href="ssl_certificate_module.html#ansible-collections-qumulo-cluster-ssl-certificate-module"><span class="std std-ref">ssl_certificate module</span></a> – Install the TLS certificate a Qumulo cluster serves</p></li>
+<li><p><a class="reference internal" href="ssl_ciphers_module.html#ansible-collections-qumulo-cluster-ssl-ciphers-module"><span class="std std-ref">ssl_ciphers module</span></a> – Manage the TLS cipher suites a Qumulo cluster accepts</p></li>
+<li><p><a class="reference internal" href="tenancy_plan_module.html#ansible-collections-qumulo-cluster-tenancy-plan-module"><span class="std std-ref">tenancy_plan module</span></a> – Check a cluster’s tenants, networks, shares and exports before the baseline writes any of them</p></li>
+<li><p><a class="reference internal" href="tenant_module.html#ansible-collections-qumulo-cluster-tenant-module"><span class="std std-ref">tenant module</span></a> – Manage a Qumulo cluster’s network tenant</p></li>
+<li><p><a class="reference internal" href="tenant_info_module.html#ansible-collections-qumulo-cluster-tenant-info-module"><span class="std std-ref">tenant_info module</span></a> – Read a Qumulo cluster’s network tenants</p></li>
+<li><p><a class="reference internal" href="time_settings_module.html#ansible-collections-qumulo-cluster-time-settings-module"><span class="std std-ref">time_settings module</span></a> – Manage where a Qumulo cluster gets its time</p></li>
+<li><p><a class="reference internal" href="unprotected_edge_create_module.html#ansible-collections-qumulo-cluster-unprotected-edge-create-module"><span class="std std-ref">unprotected_edge_create module</span></a> – Form a single-node unprotected edge from an unconfigured Qumulo node</p></li>
+<li><p><a class="reference internal" href="upgrade_module.html#ansible-collections-qumulo-cluster-upgrade-module"><span class="std std-ref">upgrade module</span></a> – Upgrade a Qumulo cluster by one hop, from verify to its reboots</p></li>
+<li><p><a class="reference internal" href="upgrade_plan_module.html#ansible-collections-qumulo-cluster-upgrade-plan-module"><span class="std std-ref">upgrade_plan module</span></a> – Plan a fleet’s Qumulo Core upgrade, hop by hop, before anything is sent</p></li>
+<li><p><a class="reference internal" href="upgrade_report_module.html#ansible-collections-qumulo-cluster-upgrade-report-module"><span class="std std-ref">upgrade_report module</span></a> – Turn one hop’s upgrade results into the hop’s report</p></li>
+<li><p><a class="reference internal" href="user_defined_mappings_module.html#ansible-collections-qumulo-cluster-user-defined-mappings-module"><span class="std std-ref">user_defined_mappings module</span></a> – Manage which Active Directory users a Qumulo cluster maps to which LDAP users</p></li>
+<li><p><a class="reference internal" href="web_ui_settings_module.html#ansible-collections-qumulo-cluster-web-ui-settings-module"><span class="std std-ref">web_ui_settings module</span></a> – Manage a Qumulo cluster’s Web UI login banner and inactivity timeout</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="filter-plugins">
+<span id="filter-plugins-in-qumulo-cluster"></span><h3>Filter Plugins<a class="headerlink" href="#filter-plugins" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="artifact_dir_filter.html#ansible-collections-qumulo-cluster-artifact-dir-filter"><span class="std std-ref">artifact_dir filter</span></a> – Where the collection’s roles keep a host’s records and secrets</p></li>
+<li><p><a class="reference internal" href="host_vars_duplicates_filter.html#ansible-collections-qumulo-cluster-host-vars-duplicates-filter"><span class="std std-ref">host_vars_duplicates filter</span></a> – A host_vars file’s variables without the shares and exports the inventory already declares</p></li>
+<li><p><a class="reference internal" href="item_areas_filter.html#ansible-collections-qumulo-cluster-item-areas-filter"><span class="std std-ref">item_areas filter</span></a> – The keys inside list items that put a declared variable in an area</p></li>
+<li><p><a class="reference internal" href="policy_lock_keys_filter.html#ansible-collections-qumulo-cluster-policy-lock-keys-filter"><span class="std std-ref">policy_lock_keys filter</span></a> – What the cluster_baseline role applies of the snapshot policies, given the key store</p></li>
+<li><p><a class="reference internal" href="redact_images_filter.html#ansible-collections-qumulo-cluster-redact-images-filter"><span class="std std-ref">redact_images filter</span></a> – An upgrade images list without the secret parts of its URLs</p></li>
+<li><p><a class="reference internal" href="restore_key_hash_filter.html#ansible-collections-qumulo-cluster-restore-key-hash-filter"><span class="std std-ref">restore_key_hash filter</span></a> – The digest that names a relationship’s restore record and restore stamp</p></li>
+<li><p><a class="reference internal" href="restore_report_claims_filter.html#ansible-collections-qumulo-cluster-restore-report-claims-filter"><span class="std std-ref">restore_report_claims filter</span></a> – The rebuild report’s claim on a host’s relationships, read on the controller</p></li>
+<li><p><a class="reference internal" href="tenancy_first_pass_filter.html#ansible-collections-qumulo-cluster-tenancy-first-pass-filter"><span class="std std-ref">tenancy_first_pass filter</span></a> – What the edge_rebuild replay declares in its tenant 1 pass, before the baseline</p></li>
+<li><p><a class="reference internal" href="tenancy_status_due_filter.html#ansible-collections-qumulo-cluster-tenancy-status-due-filter"><span class="std std-ref">tenancy_status_due filter</span></a> – Whether the cluster_baseline role’s step 2 reads the cluster’s network status</p></li>
+<li><p><a class="reference internal" href="url_secret_filter.html#ansible-collections-qumulo-cluster-url-secret-filter"><span class="std std-ref">url_secret filter</span></a> – The secret parts of an upgrade image’s URL</p></li>
+<li><p><a class="reference internal" href="warn_filter.html#ansible-collections-qumulo-cluster-warn-filter"><span class="std std-ref">warn filter</span></a> – Show a text as a warning of the task that renders it</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="inventory-plugins">
+<span id="inventory-plugins-in-qumulo-cluster"></span><h3>Inventory Plugins<a class="headerlink" href="#inventory-plugins" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="terraform_inventory.html#ansible-collections-qumulo-cluster-terraform-inventory"><span class="std std-ref">terraform inventory</span></a> – Qumulo clusters from a Terraform root’s qumulo_ansible_inventory output</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+<section id="role-index">
+<span id="role-plugins-in-qumulo-cluster"></span><h2><a class="toc-backref" href="#id3" role="doc-backlink">Role Index</a><a class="headerlink" href="#role-index" title="Link to this heading"></a></h2>
+<p>These are the roles in the qumulo.cluster collection:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="cluster_baseline_role.html#ansible-collections-qumulo-cluster-cluster-baseline-role"><span class="std std-ref">cluster_baseline role</span></a> – Bring a Qumulo cluster to the baseline its inventory declares</p></li>
+<li><p><a class="reference internal" href="cluster_upgrade_role.html#ansible-collections-qumulo-cluster-cluster-upgrade-role"><span class="std std-ref">cluster_upgrade role</span></a> – Upgrade a fleet of Qumulo clusters hop by hop, in the order the upgrade plan gives</p></li>
+<li><p><a class="reference internal" href="edge_cache_resize_role.html#ansible-collections-qumulo-cluster-edge-cache-resize-role"><span class="std std-ref">edge_cache_resize role</span></a> – Bring a Qumulo edge’s cache to a target size, by the least disruptive route</p></li>
+<li><p><a class="reference internal" href="edge_rebuild_role.html#ansible-collections-qumulo-cluster-edge-rebuild-role"><span class="std std-ref">edge_rebuild role</span></a> – Rebuild a Qumulo unprotected edge, draining it first, and bring the new edge back to its baseline</p></li>
+<li><p><a class="reference internal" href="portal_pair_role.html#ansible-collections-qumulo-cluster-portal-pair-role"><span class="std std-ref">portal_pair role</span></a> – Pair a spoke cluster with a hub cluster through a portal, or drain and decommission the pairing</p></li>
+<li><p><a class="reference internal" href="replication_failover_role.html#ansible-collections-qumulo-cluster-replication-failover-role"><span class="std std-ref">replication_failover role</span></a> – Fail a replication relationship over to its target, copy the target’s writes back, or fail it back</p></li>
+<li><p><a class="reference internal" href="replication_pair_role.html#ansible-collections-qumulo-cluster-replication-pair-role"><span class="std std-ref">replication_pair role</span></a> – Declare a replication relationship between two clusters, or remove it, refusing before any write</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>List of <a class="reference internal" href="../../index.html#list-of-collections"><span class="std std-ref">collections</span></a> with docs hosted here.</p>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Collections in the Qumulo Namespace" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="access_token_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.access_token module – Manage the access tokens of a user on a Qumulo cluster" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

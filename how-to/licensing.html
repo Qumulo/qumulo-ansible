@@ -1,0 +1,478 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>License an edge &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Size and resize an edge’s cache" href="edge-sizing.html" />
+    <link rel="prev" title="Replicate a directory to another cluster" href="replicate-a-directory.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">License an edge</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-first-pass">Run the first pass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-the-license-document">Get the license document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#put-the-document-in-the-inventory">Put the document in the inventory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-the-second-pass">Run the second pass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-the-license">Check the license</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#run-an-edge-without-a-license">Run an edge without a license</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#flag-a-missing-license">Flag a missing license</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#replace-a-document-for-another-uuid">Replace a document for another UUID</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#skip-the-restore">Skip the restore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#renew-a-license">Renew a license</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grow-the-clamp-after-a-larger-cap">Grow the clamp after a larger cap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#license-an-edge-before-an-upgrade">License an edge before an upgrade</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#if-a-run-stops">If a run stops</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">License an edge</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="license-an-edge">
+<h1>License an edge<a class="headerlink" href="#license-an-edge" title="Link to this heading"></a></h1>
+<p>This page takes a new edge, or an edge rebuilt with a new UUID, from no license to a license the cluster holds, with
+its capacity clamp set.
+A license is bound to one cluster UUID, so a new UUID takes two passes of the same step with a hand-off between them:
+the first pass registers the cluster and names the UUID, and the second applies the document Qumulo issued for it.
+When you finish, <a class="reference internal" href="../collections/qumulo/cluster/license_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">license</span></code></span></a> reports the license as <code class="docutils literal notranslate"><span class="pre">active</span></code> on the edge, and a repeat run changes
+nothing.</p>
+<p>For why a license needs two passes, and how the clamp, the license’s cap and the 1 TB floor interact, see
+<a class="reference internal" href="../explanation/licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a>.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Have an inventory that connects to the edge and declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>, with a <code class="docutils literal notranslate"><span class="pre">clamp</span></code> if the edge’s cache
+should be limited: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+The license step runs whenever <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code> is declared.
+<a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/examples/inventory/group_vars/qumulo_edges.yml"><code class="docutils literal notranslate"><span class="pre">examples/inventory/group_vars/qumulo_edges.yml</span></code></a> is a
+working block.</p></li>
+<li><p>Declare <code class="docutils literal notranslate"><span class="pre">qumulo_monitoring</span></code> with a registration, so that the first pass registers the edge with Nexus and Qumulo can
+see its UUID: <a class="reference internal" href="nexus.html"><span class="std std-doc">Register a cluster with Nexus</span></a>.</p></li>
+<li><p>Know how you keep secrets: <a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>.
+The license document goes in the inventory encrypted.</p></li>
+<li><p>Connect as the built-in <code class="docutils literal notranslate"><span class="pre">admin</span></code> user, which holds the <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_DEBUG</span></code> privilege.
+Applying a document uses the cluster’s debug license routes (G-LICENSE, see <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).</p></li>
+</ul>
+</section>
+<section id="run-the-first-pass">
+<h2>Run the first pass<a class="headerlink" href="#run-the-first-pass" title="Link to this heading"></a></h2>
+<p>Run the baseline on the edge, adding <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> or <code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> when the inventory holds vault
+values:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The license step finds that the cluster holds no license for its UUID and that the inventory holds no document for it.
+It succeeds and nothing waits.
+It leaves the clamp unset, because the clamp’s write is what applies a license’s cap.
+It prints a hand-off that starts <code class="docutils literal notranslate"><span class="pre">edge01:</span> <span class="pre">The</span> <span class="pre">cluster</span> <span class="pre">holds</span> <span class="pre">no</span> <span class="pre">license</span> <span class="pre">for</span> <span class="pre">its</span> <span class="pre">UUID,</span> <span class="pre">&lt;uuid&gt;.</span></code></p>
+<p>Copy the UUID from the hand-off.
+<a class="reference internal" href="../reference/troubleshooting.html#the-license"><span class="std std-ref">Troubleshooting</span></a> has the whole message.</p>
+<p>If the edge already has a clamp stored that the declared one would not raise, as on an edge moved from <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">none</span></code>
+to <code class="docutils literal notranslate"><span class="pre">pending</span></code>, the hand-off ends <code class="docutils literal notranslate"><span class="pre">Its</span> <span class="pre">clamp</span> <span class="pre">is</span> <span class="pre">already</span> <span class="pre">set,</span> <span class="pre">so</span> <span class="pre">the</span> <span class="pre">license's</span> <span class="pre">cap</span> <span class="pre">applies</span> <span class="pre">at</span> <span class="pre">the</span> <span class="pre">next</span> <span class="pre">quorum</span> <span class="pre">formation</span> <span class="pre">after</span> <span class="pre">the</span> <span class="pre">license</span> <span class="pre">arrives.</span></code>
+The second pass then writes no clamp.</p>
+</section>
+<section id="get-the-license-document">
+<h2>Get the license document<a class="headerlink" href="#get-the-license-document" title="Link to this heading"></a></h2>
+<p>Ask Qumulo for the license for the UUID the hand-off names.
+The document is a JSON file for that one UUID.
+How Qumulo delivers the document to a customer is not yet defined (G-LICENSE).</p>
+<p>Qumulo may instead issue the license to the cluster directly, and it reaches the cluster on its own, which can take
+hours.
+Then skip <a class="reference internal" href="#put-the-document-in-the-inventory">Put the document in the inventory</a>, keep <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">pending</span></code>, and run the
+second pass once the cluster holds the license.
+Until then the second pass fails with the hand-off.</p>
+<p>The collection never creates a license, never reads one from Nexus and never waits for one.</p>
+</section>
+<section id="put-the-document-in-the-inventory">
+<h2>Put the document in the inventory<a class="headerlink" href="#put-the-document-in-the-inventory" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Encrypt the whole JSON file as one value:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-vault<span class="w"> </span>encrypt_string<span class="w"> </span>--stdin-name<span class="w"> </span>vault_qumulo_license_document<span class="w"> </span>&lt;<span class="w"> </span>edge01-license.json
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--prompt</span></code> would read only the first line of the file.</p>
+</li>
+<li><p>Paste the output into the edge’s <code class="docutils literal notranslate"><span class="pre">host_vars/edge01.yml</span></code>.</p></li>
+<li><p>Refer to it once from the group that declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/group_vars/qumulo_edges.yml</span>
+<span class="nt">qumulo_capacity</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clamp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4TB</span>
+<span class="w">  </span><span class="nt">license_document</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_qumulo_license_document</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(none)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">license</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pending</span>
+</pre></div>
+</div>
+<p>A host’s <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code> replaces the group’s whole, so the document has a variable of its own.
+The <code class="docutils literal notranslate"><span class="pre">default(none)</span></code> lets an edge without a vaulted document pass.
+<a class="reference internal" href="../reference/variables.html#capacity"><span class="std std-ref">Inventory variables</span></a> lists every key of <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>.
+An edge that declares its own <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code> in its host_vars needs the <code class="docutils literal notranslate"><span class="pre">license_document</span></code> line in that block too.</p>
+</li>
+</ol>
+</section>
+<section id="run-the-second-pass">
+<h2>Run the second pass<a class="headerlink" href="#run-the-second-pass" title="Link to this heading"></a></h2>
+<p>On a host in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, run <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/edge_license_complete.yml"><code class="docutils literal notranslate"><span class="pre">edge_license_complete</span></code></a>.
+On any other cluster, run the baseline again, which runs the same step.
+The hand-off names the right one.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.edge_license_complete<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>For this edge, the run:</p>
+<ol class="arabic simple">
+<li><p>Applies the document with <code class="docutils literal notranslate"><span class="pre">license</span></code>, unless the cluster holds it already.
+The license is active as soon as it is applied.</p></li>
+<li><p>Checks that the license’s cap allows the clamp, when the clamp would change.
+A license too small fails here, before anything re-forms quorum.</p></li>
+<li><p>Sets the clamp with <a class="reference internal" href="../collections/qumulo/cluster/capacity_clamp_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">capacity_clamp</span></code></span></a>.
+The write re-forms quorum, which pauses the edge, and its portal on its hub, for less than 30 seconds.
+That is when the license’s cap applies (G-CLAMP-BOUNCE in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).</p></li>
+<li><p>Declares the replication relationships into the edge that other inventory hosts declare, which the capacity gate
+held back until the license and the clamp applied.</p></li>
+</ol>
+<p>Once every edge in the run has its license and clamp, a second play tagged <code class="docutils literal notranslate"><span class="pre">restore</span></code> restores each rebuilt edge’s
+relationships from their replicas
+(<a class="reference internal" href="restore-replica.html#restore-in-the-second-pass"><span class="std std-ref">Restore a rebuilt edge’s data from its replica</span></a>).</p>
+<p>The playbook runs one edge at a time.
+An edge with neither an active license nor a document for its UUID fails at once, naming its UUID.
+With several edges in the run, the playbook goes on to the next edge and fails at the end, naming each edge that
+failed.</p>
+<p>Once the cluster holds the license, the second pass needs no document.
+A run on a cluster that holds the license and whose clamp is set changes nothing.</p>
+</section>
+<section id="check-the-license">
+<h2>Check the license<a class="headerlink" href="#check-the-license" title="Link to this heading"></a></h2>
+<p>Add these two tasks under <code class="docutils literal notranslate"><span class="pre">tasks:</span></code> in <code class="docutils literal notranslate"><span class="pre">first-run.yml</span></code> from <a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Check the connection</span></a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the license for the edge's UUID</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.license</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">license_check</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the license</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">license_check.license_status</span><span class="nv"> </span><span class="s">}},</span><span class="nv"> </span><span class="s">cap</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">license_check.license.usable_capacity_cap</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('none',</span><span class="nv"> </span><span class="s">true)</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p>Run it on the edge:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>first-run.yml<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The debug task prints <code class="docutils literal notranslate"><span class="pre">active</span></code>, followed by the license’s cap in bytes.
+A baseline run on the edge then prints no hand-off, and its license step changes nothing.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="run-an-edge-without-a-license">
+<h3>Run an edge without a license<a class="headerlink" href="#run-an-edge-without-a-license" title="Link to this heading"></a></h3>
+<p>For an edge that stays unlicensed, declare <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">none</span></code> with a clamp, and no document:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_capacity</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clamp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1TB</span>
+<span class="w">  </span><span class="nt">license</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">none</span>
+</pre></div>
+</div>
+<p>The baseline hands nothing off and says <code class="docutils literal notranslate"><span class="pre">edge01:</span> <span class="pre">runs</span> <span class="pre">without</span> <span class="pre">a</span> <span class="pre">license.</span></code>
+It writes the clamp in the first pass.
+Its capacity is what formation gave it, the smaller of its platform and 1 TB (G-EDGE-FLOOR in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).
+A clamp above 1 TB is stored and provisions nothing more until a license arrives.
+A clamp more than its rounding tolerance below the file system fails as a decrease (G-CLAMP-SHRINK in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>), so declare a
+clamp at or above what formation provisioned.
+<a class="reference internal" href="../collections/qumulo/cluster/capture_info_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">capture_info</span></code></span></a> writes <code class="docutils literal notranslate"><span class="pre">none</span></code> for an unprotected edge that holds no license; set <code class="docutils literal notranslate"><span class="pre">pending</span></code> instead if a license is
+coming.</p>
+<p><code class="docutils literal notranslate"><span class="pre">none</span></code> goes with a clamp and never with a document.
+The license step refuses the two together before it applies anything: remove the document, or set
+<code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license</span></code> to <code class="docutils literal notranslate"><span class="pre">pending</span></code> or <code class="docutils literal notranslate"><span class="pre">required</span></code>.</p>
+<p>An edge that declares <code class="docutils literal notranslate"><span class="pre">none</span></code> and holds an active license after all runs as <code class="docutils literal notranslate"><span class="pre">pending</span></code> does, and warns that <code class="docutils literal notranslate"><span class="pre">none</span></code> is
+stale.
+Set <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license</span></code> to <code class="docutils literal notranslate"><span class="pre">pending</span></code> or <code class="docutils literal notranslate"><span class="pre">required</span></code>.
+<a class="reference internal" href="../reference/troubleshooting.html#the-license"><span class="std std-ref">Troubleshooting</span></a> lists the four forms of the warning.</p>
+</section>
+<section id="flag-a-missing-license">
+<h3>Flag a missing license<a class="headerlink" href="#flag-a-missing-license" title="Link to this heading"></a></h3>
+<p>Set <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license:</span> <span class="pre">required</span></code> instead of <code class="docutils literal notranslate"><span class="pre">pending</span></code>, the default.
+The first pass still succeeds, and the hand-off starts <code class="docutils literal notranslate"><span class="pre">edge01:</span> <span class="pre">qumulo_capacity.license</span> <span class="pre">is</span> <span class="pre">required,</span> <span class="pre">and</span> <span class="pre">the</span> <span class="pre">cluster</span> <span class="pre">has</span> <span class="pre">none.</span></code>
+While the cluster has no active license, the role also sets <code class="docutils literal notranslate"><span class="pre">cluster_baseline_license_missing</span></code>, which a later task of
+your play can test.</p>
+</section>
+<section id="replace-a-document-for-another-uuid">
+<h3>Replace a document for another UUID<a class="headerlink" href="#replace-a-document-for-another-uuid" title="Link to this heading"></a></h3>
+<p>After a rebuild, the document in the inventory is the old edge’s.
+The license step does not apply a document for another UUID, and its hand-off says
+<code class="docutils literal notranslate"><span class="pre">The</span> <span class="pre">license</span> <span class="pre">document</span> <span class="pre">in</span> <span class="pre">qumulo_capacity.license_document</span> <span class="pre">is</span> <span class="pre">for</span> <span class="pre">&lt;old</span> <span class="pre">UUID&gt;,</span> <span class="pre">not</span> <span class="pre">this</span> <span class="pre">cluster.</span></code></p>
+<ol class="arabic simple">
+<li><p>Get the document issued for the new UUID.</p></li>
+<li><p>Replace the encrypted value of <code class="docutils literal notranslate"><span class="pre">vault_qumulo_license_document</span></code> with it.</p></li>
+<li><p>Run the second pass.</p></li>
+</ol>
+<p><a class="reference internal" href="edge-rebuild.html#finish-the-license"><span class="std std-ref">Rebuild an unprotected edge</span></a> shows the license in a rebuild.</p>
+</section>
+<section id="skip-the-restore">
+<h3>Skip the restore<a class="headerlink" href="#skip-the-restore" title="Link to this heading"></a></h3>
+<p>The second pass restores a rebuilt edge’s held relationships after the license and the clamp apply.
+To apply the license alone, skip the tagged play:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.edge_license_complete<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass<span class="w"> </span>--skip-tags<span class="w"> </span>restore
+</pre></div>
+</div>
+</section>
+<section id="renew-a-license">
+<h3>Renew a license<a class="headerlink" href="#renew-a-license" title="Link to this heading"></a></h3>
+<p>A renewed license is a new document for the same UUID.</p>
+<ol class="arabic simple">
+<li><p>Encrypt the new document as above and replace the value of <code class="docutils literal notranslate"><span class="pre">vault_qumulo_license_document</span></code>.</p></li>
+<li><p>Run the second pass.</p></li>
+</ol>
+<p>The module applies a document the cluster does not already hold, told apart by its key, cap and expiry, and leaves
+one it holds alone.
+On a cluster that is not an edge, run the baseline instead.</p>
+<p>On an edge with <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>, or one whose declared target path holds a live record from a UUID the
+inventory does not name, the restore play can fail the run.
+<a class="reference internal" href="restore-replica.html#when-the-restore-refuses-or-stops"><span class="std std-ref">Restore a rebuilt edge’s data from its replica</span></a> lists what stops it.
+For a renewal that must not restore, skip the restore.</p>
+</section>
+<section id="grow-the-clamp-after-a-larger-cap">
+<h3>Grow the clamp after a larger cap<a class="headerlink" href="#grow-the-clamp-after-a-larger-cap" title="Link to this heading"></a></h3>
+<p>A renewed license with a larger cap lets the clamp grow.
+Raise <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code>, then follow <a class="reference internal" href="edge-sizing.html#grow-the-clamp"><span class="std std-ref">Grow the clamp</span></a>.</p>
+</section>
+<section id="license-an-edge-before-an-upgrade">
+<h3>License an edge before an upgrade<a class="headerlink" href="#license-an-edge-before-an-upgrade" title="Link to this heading"></a></h3>
+<p>Qumulo Core refuses to upgrade an edge whose license has expired, or that has none and was formed more than 30 days ago
+(G-UPGRADE-LICENSE in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).
+Get its license and run the second pass before the upgrade.
+The upgrade’s plan warns about each edge whose license reads none or expired, and goes on.
+<a class="reference internal" href="../explanation/licensing-and-capacity.html#upgrading-an-edge-without-a-license"><span class="std std-ref">Why</span></a>;
+<a class="reference internal" href="upgrade.html"><span class="std std-doc">Upgrade a fleet</span></a> describes the upgrade.</p>
+</section>
+</section>
+<section id="if-a-run-stops">
+<h2>If a run stops<a class="headerlink" href="#if-a-run-stops" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../reference/troubleshooting.html#the-license"><span class="std std-ref">Troubleshooting</span></a> quotes each message and says what to do.
+In short:</p>
+<ul class="simple">
+<li><p>The edge has neither an active license nor a document for its UUID: do
+<a class="reference internal" href="#get-the-license-document">Get the license document</a> and the steps after it.</p></li>
+<li><p>The license’s cap is below the clamp: nothing re-formed quorum.
+Get a license whose cap allows the clamp, or lower <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">declares</span> <span class="pre">qumulo_capacity.license:</span> <span class="pre">none</span> <span class="pre">and</span> <span class="pre">a</span> <span class="pre">license</span> <span class="pre">document</span></code>: see
+<a class="reference internal" href="#run-an-edge-without-a-license">Run an edge without a license</a>.</p></li>
+<li><p>The cluster refused the document: a document must be exactly the file Qumulo issued, for this cluster’s UUID.</p></li>
+<li><p>The message names <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_DEBUG</span></code>: apply the document as <code class="docutils literal notranslate"><span class="pre">admin</span></code>.</p></li>
+<li><p>A warning that the clamp is already set, so the license’s cap applies at the next quorum formation: nothing failed.
+To apply the cap now, raise <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code> and follow <a class="reference internal" href="edge-sizing.html#grow-the-clamp"><span class="std std-ref">Grow the clamp</span></a>,
+since the clamp’s write re-forms quorum.</p></li>
+<li><p>The hand-off says the document is for another UUID: see
+<a class="reference internal" href="#replace-a-document-for-another-uuid">Replace a document for another UUID</a>.</p></li>
+</ul>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a> grows the clamp within the license’s cap.</p></li>
+<li><p><a class="reference internal" href="edge-rebuild.html#finish-the-license"><span class="std std-ref">Rebuild an unprotected edge</span></a> gives the edge a new UUID, and so needs a new license.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html#capacity"><span class="std std-ref">Inventory variables</span></a> lists the keys of <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>.</p></li>
+<li><p><a class="reference internal" href="../explanation/licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> explains the two passes and the clamp.</p></li>
+<li><p><a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/playbooks/edge_license_complete.yml"><code class="docutils literal notranslate"><span class="pre">edge_license_complete</span></code></a> and the
+<a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc">cluster_baseline</span></a> role hold the license step.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="replicate-a-directory.html" class="btn btn-neutral float-left" title="Replicate a directory to another cluster" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="edge-sizing.html" class="btn btn-neutral float-right" title="Size and resize an edge’s cache" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

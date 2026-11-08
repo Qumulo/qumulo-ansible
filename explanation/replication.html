@@ -1,0 +1,765 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Replication &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How upgrades work" href="upgrades.html" />
+    <link rel="prev" title="Rebuilds" href="rebuilds.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Replication</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#two-steps-on-two-clusters">Two steps, on two clusters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-a-relationship-is-identified">How a relationship is identified</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-overwrite-table">The overwrite table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#releases">Releases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#removing-a-relationship">Removing a relationship</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#failing-over">Failing over</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-role-s-three-actions">The role’s three actions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#one-step-at-a-time-from-fresh-reads">One step at a time, from fresh reads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-a-reconnect-compares-and-why-the-consent-names-a-host">Why a reconnect compares, and why the consent names a host</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#which-record-says-where-a-relationship-is">Which record says where a relationship is</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#two-states-that-read-the-same">Two states that read the same</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-a-failover-goes-on-without-the-source">Why a failover goes on without the source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-restore-under-way">A restore under way</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#why-the-failback-waits-for-two-moves-of-the-recovery-point">Why the failback waits for two moves of the recovery point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-reverses-reset-and-what-the-role-applies-again">What the reverses reset, and what the role applies again</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#held-relationships">Held relationships</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-restore">The restore</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-x-is-kept-and-r-turned-around">Why X is kept and R turned around</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-restore-s-records-and-stamps">The restore’s records and stamps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-restore-s-lock">The restore’s lock</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#replication-across-upgrades">Replication across upgrades</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-the-collection-leaves-alone">What the collection leaves alone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-more">Learn more</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Replication</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="replication">
+<h1>Replication<a class="headerlink" href="#replication" title="Link to this heading"></a></h1>
+<p>A replication relationship copies a directory on one cluster, the source, to a directory on another, the target. The
+inventory declares it on the source host, in <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>, and <code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code> makes it at
+step 21 through the <a class="reference internal" href="../collections/qumulo/cluster/replication_pair_role.html"><span class="std std-doc">replication_pair</span></a> role. This page explains the model behind that
+role and the modules it runs: why a relationship takes two steps, what the overwrite table decides, what a release
+is, why some relationships are held, why the restore of a rebuilt edge keeps one record and turns another around, and
+how a failover, a resync and a failback move a relationship between its two clusters.</p>
+<p>To declare a relationship, see <a class="reference internal" href="../how-to/replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a>. To
+bring back a rebuilt edge’s data, see <a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>. To
+fail over to a replica and back, see <a class="reference internal" href="../how-to/fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a>.</p>
+<section id="two-steps-on-two-clusters">
+<h2>Two steps, on two clusters<a class="headerlink" href="#two-steps-on-two-clusters" title="Link to this heading"></a></h2>
+<p>A relationship has a record on each cluster, and each cluster can read only its own. The source’s create registers the
+relationship on the target in the same request, where it waits for authorization. The target then authorizes it, which
+makes the target directory read-only and lets the source’s content replace what the directory holds. That can destroy
+data, so the authorize is the step the collection guards.</p>
+<p>The collection has a module for each side, <a class="reference internal" href="../collections/qumulo/cluster/replication_relationship_module.html"><span class="std std-doc">replication_relationship</span></a>
+on the source and <a class="reference internal" href="../collections/qumulo/cluster/replication_target_module.html"><span class="std std-doc">replication_target</span></a> on the target, because each runs
+against one cluster, and neither can see the other’s records. A third module,
+<a class="reference internal" href="../collections/qumulo/cluster/replication_pair_plan_module.html"><span class="std std-doc">replication_pair_plan</span></a>, joins what the two report. It sends no request.</p>
+<p>The role runs the two modules in check mode first, with the options their real passes take, and joins the results. It
+writes nothing on either cluster until the joined decision is to go ahead. The ordering follows from the create: it
+registers the relationship on the target at once, so a refusal found after the create would leave records on both
+clusters. The target directory is held to the same rule. The role creates it, path only, after the checks pass and
+before the create. Replication sets a target directory’s attributes and what lies in it from the source, so the role
+declares nothing inside it, and a capture records only its path.</p>
+<p>When the target is an edge that declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>, one more check comes before the first write. A full sync
+must not start into an edge whose license and clamp do not apply yet, such as the 1 TB a first pass leaves. When they
+do not apply, the role defers the relationship and hands off to the edge’s second pass, which creates it once the
+license and clamp apply. An edge that declares <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">none</span></code> waits only for its clamp.
+<a class="reference internal" href="licensing-and-capacity.html"><span class="std std-doc">Licensing and capacity</span></a> explains the two passes.</p>
+<p>The role then makes the directory, creates the relationship, authorizes it, and waits until both sides read
+ESTABLISHED. The source learns of the authorize on its next poll of the target, so the wait covers both records.</p>
+<p><a class="reference internal" href="state-management.html#check-and-diff"><span class="std std-ref">State management</span></a> explains why a check run reports the same refusals as a real
+one.</p>
+</section>
+<section id="how-a-relationship-is-identified">
+<h2>How a relationship is identified<a class="headerlink" href="#how-a-relationship-is-identified" title="Link to this heading"></a></h2>
+<p>The source identifies a relationship by its source path, the target cluster’s UUID and the target path. The target
+identifies it by the source cluster’s UUID and the same two paths. Paths compare without a trailing slash and UUIDs
+without regard to case. The server’s relationship id is not part of the key: the server generates it, so the
+inventory cannot carry it. <a class="reference internal" href="state-management.html#keys-not-ids"><span class="std std-ref">State management</span></a> explains why the collection keys on
+what the inventory can state.</p>
+<p>The address and port the source reaches the target at are settings, like the blackout windows. A relationship made by
+hand at another address of the same target is adopted with one change, and a move to a floating IP is one change too.
+The collection takes an IP literal and does nothing about NAT. <a class="reference internal" href="edges-and-portals.html#which-address-to-choose"><span class="std std-ref">Which address to
+choose</span></a> is in Edges and portals.</p>
+<p>Two things follow from putting the target’s UUID in the key.</p>
+<p><strong>A rebuilt target is a different relationship.</strong> A target formed again has a new UUID. The source’s record of the old
+one stays ESTABLISHED, pinned to the old certificate, with an error from its last job, and never reaches ENDED, so
+waiting for the server to end it never finishes (G-REPL-PEER). The collection finds that record, called a changed peer,
+by the declared address and port, or by one of the target host’s <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code> at any address.
+Replacement is create-first: the module creates the new relationship, reads back which cluster the address reached, and
+only then deletes the changed peer. A replacement that fails halfway leaves the old record in place. While the role
+defers a relationship into an edge, it deletes only the changed peers from a previous UUID of the target that cannot be
+replicating to an old edge: those at the declared address, and those whose last job cannot establish a secure
+connection. Any other changed peer is left for the later create-first replacement, since it may still replicate to an
+old cluster kept beside the new one.</p>
+<p><strong>The address is checked after the create.</strong> Nothing says which cluster an address reaches until a record exists. After
+every create the source module reads the new record, and if the address reached a cluster other than the declared
+target, it deletes the record at once and fails, naming the address and the UUID it reached. A record already at the
+declared address whose UUID belongs to another inventory host is never replaced as a changed peer; the run fails, since
+the address reaches the wrong cluster.</p>
+</section>
+<section id="the-overwrite-table">
+<h2>The overwrite table<a class="headerlink" href="#the-overwrite-table" title="Link to this heading"></a></h2>
+<p>Authorizing into a directory that holds data replaces that data. The first job deletes whatever the source lacks, and a
+directory that holds only subdirectories counts as non-empty (G-REPL-OVERWRITE). The overwrite table lists each case
+the collection distinguishes and says what, if anything, lifts it. Each row has a number, and the modules name it in
+their results as <code class="docutils literal notranslate"><span class="pre">row</span></code> in <code class="docutils literal notranslate"><span class="pre">unmet</span></code>.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Row</p></th>
+<th class="head"><p>Evaluated on</p></th>
+<th class="head"><p>The case</p></th>
+<th class="head"><p>What lifts it</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>O1</p></td>
+<td><p>Target</p></td>
+<td><p>The target directory holds any entry, a subdirectory included.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">allow_non_empty_target</span></code> on the relationship’s entry.</p></td>
+</tr>
+<tr class="row-odd"><td><p>O2</p></td>
+<td><p>Target</p></td>
+<td><p>A live record of another relationship holds the target path.</p></td>
+<td><p>A release naming O2, bound to that record. The module deletes the holder; its data stays in the directory.</p></td>
+</tr>
+<tr class="row-even"><td><p>O3</p></td>
+<td><p>Source</p></td>
+<td><p>Every record of the key on the source is ENDED.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">recreate</span></code> and a release naming O3.</p></td>
+</tr>
+<tr class="row-odd"><td><p>O4</p></td>
+<td><p>Target</p></td>
+<td><p>The source holds no file, and the target directory does.</p></td>
+<td><p>A release naming O4.</p></td>
+</tr>
+<tr class="row-even"><td><p>O5</p></td>
+<td><p>Target</p></td>
+<td><p>An ENDED record lies over a target directory that holds files.</p></td>
+<td><p>A release naming O5, bound to that record.</p></td>
+</tr>
+<tr class="row-odd"><td><p>O6</p></td>
+<td><p>Target</p></td>
+<td><p>The target holds a live record of the key that the source does not.</p></td>
+<td><p>Nothing. Only <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> removes it.</p></td>
+</tr>
+<tr class="row-even"><td><p>O7</p></td>
+<td><p>Target</p></td>
+<td><p>A live relationship holds a path that contains the target path or lies inside it.</p></td>
+<td><p>Nothing. Remove that relationship first.</p></td>
+</tr>
+<tr class="row-odd"><td><p>O8</p></td>
+<td><p>Source</p></td>
+<td><p>This cluster is a target of the declared target’s relationship at a path equal to or nested with the source path.</p></td>
+<td><p>Nothing.</p></td>
+</tr>
+<tr class="row-even"><td><p>O9</p></td>
+<td><p>Target</p></td>
+<td><p>This cluster replicates to the declared source at a path equal to or nested with the target path.</p></td>
+<td><p>Nothing.</p></td>
+</tr>
+</tbody>
+</table>
+<p>O8 and O9 are reversals. A relationship that failed over has its direction turned around, and the baseline leaves it
+for the <a class="reference internal" href="../collections/qumulo/cluster/replication_failover_role.html"><span class="std std-doc">replication_failover</span></a> role’s failback to turn back. O7 is a different
+relationship over a nested path, and it has to be removed first. O6 is
+what a lost delete notification leaves (see <a class="reference internal" href="#removing-a-relationship">Removing a relationship</a>). A release can lift O2,
+O3, O4 and O5, and O3 also needs <code class="docutils literal notranslate"><span class="pre">recreate</span></code>. The entry’s consent lifts O1. The restore lifts O1 by
+<code class="docutils literal notranslate"><span class="pre">allow_directories_only</span></code> for a directory that holds only directories.</p>
+<p>Several rules in the table need a reason.</p>
+<p><strong>Emptiness comes from entries.</strong> The module decides whether a directory is empty by listing its entries, never from
+the directory’s aggregates, which trail writes and deletes and so can misstate whether a directory holds anything. The
+aggregates still supply the file counts and sizes the capacity comparison uses.</p>
+<p><strong>O1 counts differently from O4 and O5.</strong> O1 counts every entry, a subdirectory included, because the server refuses an
+authorize into a directory holding only directories unless it is sent a flag. O4 and O5 ask whether data would be lost,
+so they count only files, links and other objects at any depth. The restore of a rebuilt edge relies on the
+difference: it accepts an edge source directory that holds only directories (<code class="docutils literal notranslate"><span class="pre">allow_directories_only</span></code>), which is R’s
+target in the restore, and refuses one that holds a file.</p>
+<p><strong>One ENDED record is O3 on one side and O5 on the other.</strong> The source reports its ENDED record of the key as O3. The
+target reports its copy of the same record, which has the same id, as O5, because the target cannot see the source.
+The record is O3’s, so the plan leaves the O5 entry out, and gives the target’s pass each release that names O3 with
+O5 added. The release printed for O3 alone therefore lifts both.</p>
+<p><strong>The rows are reported in a fixed order, O8, O3, O7, O9, O2, O6, O5, O4, O1.</strong> The modules report every unmet row at
+once, not the first. The order puts a holder (O2) and an empty source over files (O4) before the plain non-empty
+directory (O1) that they explain, so that a held relationship reads as held and not as a call for
+<code class="docutils literal notranslate"><span class="pre">allow_non_empty_target</span></code>.</p>
+<p><strong>The capacity comparison warns.</strong> When the source looks larger than the space the target can reuse, the target module
+warns, and refuses only with <code class="docutils literal notranslate"><span class="pre">strict_capacity</span></code>. The comparison is approximate. Whether the free space the cluster
+reports leaves out an edge’s evictable cache is inferred, not observed.</p>
+</section>
+<section id="releases">
+<h2>Releases<a class="headerlink" href="#releases" title="Link to this heading"></a></h2>
+<p>A release lifts a refusal that has a holder behind it. It is one entry,
+<code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;&#64;&lt;record</span> <span class="pre">id&gt;:&lt;rows&gt;</span></code>, as in <code class="docutils literal notranslate"><span class="pre">dr01:/replicas/edge01-projects&#64;&lt;id&gt;:O2,O4</span></code>.</p>
+<p>It is bound to the id of the record it lifts, so a release written for one holder cannot delete a different record that
+takes its place later. It lifts only the rows it names, and only while the record with that id exists. An O4 with no
+record behind it is bound to the target directory’s file id, so a release for one directory cannot pass for another that
+takes its path. The refusal prints each release that would lift it, and the operator reads what it allows before copying
+one.</p>
+<p>A release belongs to one run, so it goes in with <code class="docutils literal notranslate"><span class="pre">-e</span></code> and not in the inventory. An entry that lifts nothing in a run
+fails the run, which keeps a release from sitting in a file until the case it was written for comes up again. An
+entry for a target host the run does not reach is left alone, so <code class="docutils literal notranslate"><span class="pre">--limit</span></code> still works. <a class="reference internal" href="refusals-and-guards.html#a-held-record"><span class="std std-ref">Refusals and
+guards</span></a> puts the release among the other kinds of refusal.</p>
+<p>The consent for O1 is a different mechanism. <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target</span></code> belongs to the relationship’s entry, it carries
+no id, and the role accepts it only for a target directory the target host declares in <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>.</p>
+</section>
+<section id="removing-a-relationship">
+<h2>Removing a relationship<a class="headerlink" href="#removing-a-relationship" title="Link to this heading"></a></h2>
+<p>The source tells the target about a delete once, from memory (G-REPL-NOTIFY). A target that is unreachable at that
+moment, or a source that is gone, leaves the target’s record live and its directory read-only. So a removal goes
+source first, then target, and each module deletes only what its own cluster holds. The target keeps the directory and
+its data, and the directory becomes writable once no record holds it.</p>
+<p>Declaring the relationship <code class="docutils literal notranslate"><span class="pre">present</span></code> again later needs <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target</span></code> again, since O1 then applies, and
+replaces that data. Two cases have a way out because one
+end is gone: <code class="docutils literal notranslate"><span class="pre">replication_target</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> on the target alone, for a source gone for good, and
+<code class="docutils literal notranslate"><span class="pre">target_gone</span></code> on the source, which deletes only there, for a target gone for good.</p>
+<p>A removal leaves snapshots. The target’s last recovery point and a make-writable’s revert snapshot lose their owner
+when the relationship goes, never expire, and can read back with an empty path (G-REPL-SNAPSHOT). The modules name
+them in their results and leave them, since each is the last consistent copy. Deleting them is the operator’s call.</p>
+</section>
+<section id="failing-over">
+<h2>Failing over<a class="headerlink" href="#failing-over" title="Link to this heading"></a></h2>
+<p>A failover, by hand, by the restore or by the <a class="reference internal" href="../collections/qumulo/cluster/replication_failover_role.html"><span class="std std-doc">replication_failover</span></a> role, uses
+the three verbs of <a class="reference internal" href="../collections/qumulo/cluster/replication_reverse_module.html"><span class="std std-doc">replication_reverse</span></a>, which the inventory does not
+declare. The restore of a rebuilt source from its replica runs the three in turn, and a reversal by hand takes the same
+three.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">make_writable</span></code>, on the target, sends the directory back to the relationship’s last recovery point and makes it
+writable. The relationship goes DISCONNECTED on both sides.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reverse</span></code>, on the current target, turns the records around: this cluster’s target record becomes a source record of
+the same id, to the current source’s address, and the current source’s record becomes a target record. This is why a
+cluster can hold either a source or a target record of one id after a reverse, and why
+<a class="reference internal" href="../collections/qumulo/cluster/replication_info_module.html"><span class="std std-doc">replication_info</span></a> takes a <code class="docutils literal notranslate"><span class="pre">side</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reconnect</span></code>, on the relationship’s target, sends the directory back to its recovery point, read-only, and goes
+RECONNECTING and then ESTABLISHED once the source reaches it.</p></li>
+</ul>
+<p>A reverse carries the id, the paths, the address and <code class="docutils literal notranslate"><span class="pre">replication_enabled</span></code>. The blackout windows and their timezone,
+<code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code> and <code class="docutils literal notranslate"><span class="pre">source_root_read_only</span></code> come back at their defaults. The current source’s directory
+keeps its read-only state. It stays read-only after the reverse while another relationship’s record holds it, until that
+record is deleted, and when <code class="docutils literal notranslate"><span class="pre">source_root_read_only</span></code> made it read-only. This is why the restore deletes X before the
+reconnect, not before the reverse.</p>
+<p><code class="docutils literal notranslate"><span class="pre">make_writable</span></code> and <code class="docutils literal notranslate"><span class="pre">reconnect</span></code> send the directory back to a recovery point, which discards whatever was written there
+after it. <code class="docutils literal notranslate"><span class="pre">make_writable</span></code> needs <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code>, and compares nothing: its target is read-only, so all it can discard
+is the partial changes of a job. <code class="docutils literal notranslate"><span class="pre">reconnect</span></code> without <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> first compares its directory with the recovery
+point and is sent only when nothing was written there since. With <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> it is sent without comparing, as the
+restore sends it. <code class="docutils literal notranslate"><span class="pre">reverse</span></code> moves records and changes no data, so it takes no consent.</p>
+<p>None of the verbs can be sent twice. The module sends each only from the state it starts from, reports a record
+already in the state the verb leaves as unchanged, and reconciles a lost answer by reading the record. When the record
+shows no sign of the verb, it fails with <code class="docutils literal notranslate"><span class="pre">maybe_applied</span></code> set and the next run reads the record and decides.
+<a class="reference internal" href="state-management.html#maybe-applied"><span class="std std-ref">State management</span></a> explains why the collection never resends a write blindly.</p>
+<p>A relationship found in a failover state is left alone by the source module: it changes none of the state, still sends
+the settings, and warns.</p>
+<section id="the-role-s-three-actions">
+<h3>The role’s three actions<a class="headerlink" href="#the-role-s-three-actions" title="Link to this heading"></a></h3>
+<p>The role splits the return trip into three actions, each a separate run, because only the operator knows when clients
+can move.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">failover</span></code> makes the target’s copy writable and sends nothing to the source, so it works with the source gone.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resync</span></code> turns the relationship around, so the target replicates the failover’s writes to the source, and reconnects
+it. Clients stay on the target meanwhile, and a resync after a long failover can take hours.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">failback</span></code> makes the source writable from a recovery point that holds what the target held, turns the relationship
+back and reconnects the target, so the source is the writable copy again. It needs the clients off the target before
+its last sync, which only the operator can arrange. A failback that finds the relationship still failed over runs the
+resync’s steps first, so one run does the whole return for an operator who has already stopped the writes.</p></li>
+</ul>
+<p>Qumulo’s own failback has two forms: copy the target’s writes back, which <code class="docutils literal notranslate"><span class="pre">resync</span></code> and <code class="docutils literal notranslate"><span class="pre">failback</span></code> do, or discard them
+and reconnect. The role leaves the second to <code class="docutils literal notranslate"><span class="pre">replication_reverse</span></code>, which does it in one task, since a role that
+discarded writes by default would make the discard the easy path.</p>
+</section>
+<section id="one-step-at-a-time-from-fresh-reads">
+<h3>One step at a time, from fresh reads<a class="headerlink" href="#one-step-at-a-time-from-fresh-reads" title="Link to this heading"></a></h3>
+<p>The role does not run a fixed list of tasks. Before each step it reads both clusters with <code class="docutils literal notranslate"><span class="pre">replication_info</span></code> and asks
+<a class="reference internal" href="../collections/qumulo/cluster/replication_failover_plan_module.html"><span class="std std-doc">replication_failover_plan</span></a> for the next step, then runs only that
+step, as the restore runs the answer of <code class="docutils literal notranslate"><span class="pre">replication_restore_step</span></code>. A run that stops anywhere, by a timeout, a lost
+connection or a killed job, therefore resumes from what the records show and not from where the last run got to. The
+plan module is its own module because the restore’s records and report claims have no counterpart in a failover.</p>
+<p>The plan’s first answer lists every step left, which is what a check run prints as the dry run. The collection’s dry
+run is check mode everywhere (<a class="reference internal" href="state-management.html#check-and-diff"><span class="std std-ref">State management</span></a>), so the role takes no <code class="docutils literal notranslate"><span class="pre">dry_run</span></code>
+variable, which would be a second owner of the same fact. The role plans every named relationship, and refuses all of
+them for the plan’s refusals, before the first write of any. A step that is a verb includes the waits that follow it, so
+that each step ends where the next starts.</p>
+<p>The role takes no lock, unlike the restore. Each verb is sent only from its state, so neither of two runs at once can
+send a verb twice. Each reconnect compares, so neither can discard writes it did not compare, except in a reconnect to a
+host that <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code> names, which does not compare.</p>
+</section>
+<section id="why-a-reconnect-compares-and-why-the-consent-names-a-host">
+<h3>Why a reconnect compares, and why the consent names a host<a class="headerlink" href="#why-a-reconnect-compares-and-why-the-consent-names-a-host" title="Link to this heading"></a></h3>
+<p>A reconnect sends its directory back to the recovery point. In a resync that directory is the source’s, which clients
+may have written after the failover. In a failback it is the target’s, which clients may have written after the last
+sync. The comparison finds both. It takes a snapshot of the directory and reads the changes since the recovery point’s
+snapshot, which lists every change, an edit in place included. The directory’s aggregates cannot stand in for it: they
+miss an edit in place and the data of a small file. A check run cannot compare, since a snapshot must be taken to
+compare, so it says that the real run does, or, for a host that <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code> names, that it
+does not compare first.</p>
+<p>The comparison has a window. It takes its snapshot a few requests before the reconnect, and a write made between the
+two is discarded without being compared. Stopping the writes on the directory first closes the window.</p>
+<p>A job in flight can leave writes for the comparison to find. After a reverse, a record names the last completed job’s
+snapshot as its recovery point, never the snapshot of a job still running. So a job that was running at the failover, or
+at the failback’s make-writable, carried writes that the recovery point lacks, and the reconnect’s comparison finds them
+on the source in a resync and on the target in a failback.</p>
+<p>The role’s consent has three parts. Two follow from the two kinds of loss.
+<code class="docutils literal notranslate"><span class="pre">replication_failover_allow_data_loss</span></code> accepts the loss every run of an action carries, which the plan lists. It
+never accepts a loss the run found.
+<code class="docutils literal notranslate"><span class="pre">replication_failover_allow_newer_writes</span></code> accepts a loss the run found and named, and it names a host, as a release
+names a record (<a class="reference internal" href="#releases">Releases</a>): the host is the one a reconnect is sent to. The two reconnects need different
+answers. The source’s writes found by a resync can be copied to the target, or discarded. The target’s writes found by
+a failback are the clients’ latest, and the way on is to run the failback again, which reads the relationship as failed
+over and resyncs them to the source first. Naming the target there would let the rerun’s own last reconnect skip its
+comparison, so the role’s message does not offer it.
+<code class="docutils literal notranslate"><span class="pre">replication_failover_allow_partial_job</span></code> is the third, for a failover only: it accepts the loss of the partial job the
+answering source is still running, which the plan would otherwise refuse
+(<a class="reference internal" href="#why-a-failover-goes-on-without-the-source">Why a failover goes on without the source</a>).</p>
+<p>The consents are run-level. The role sets all three in its own <code class="docutils literal notranslate"><span class="pre">vars/main.yml</span></code>, so a consent in <code class="docutils literal notranslate"><span class="pre">group_vars</span></code>,
+<code class="docutils literal notranslate"><span class="pre">host_vars</span></code>, a play’s <code class="docutils literal notranslate"><span class="pre">vars</span></code> or <code class="docutils literal notranslate"><span class="pre">vars_files</span></code> is ignored. Anything a playbook sets closer to the role or during the run
+lifts it: <code class="docutils literal notranslate"><span class="pre">-e</span></code>, the include’s <code class="docutils literal notranslate"><span class="pre">vars</span></code>, a block’s <code class="docutils literal notranslate"><span class="pre">vars</span></code>, role parameters, <code class="docutils literal notranslate"><span class="pre">set_fact</span></code> and <code class="docutils literal notranslate"><span class="pre">include_vars</span></code>. The next run,
+which may hold a relationship nobody looked at, has to ask again.</p>
+</section>
+<section id="which-record-says-where-a-relationship-is">
+<h3>Which record says where a relationship is<a class="headerlink" href="#which-record-says-where-a-relationship-is" title="Link to this heading"></a></h3>
+<p>A relationship has a record on each cluster, and a verb moves the record of the cluster it is sent to at once. The
+peer’s record follows within seconds, or not while the peer cannot be reached. Observed lags run up to 25 seconds.
+The role therefore reads each direction’s state from the record a verb moves first. In the declared direction, which
+is the source to the target, that is the target’s record. After a reverse, in the reversed direction, it is the
+source’s. The other record may lag, and a lag shows as a wait only where the next step needs the peer: before the
+resync’s reverse, and before the relationship counts as replicating or resynced. A failover reads the target’s record
+alone, since the source’s may lag, be ENDED or not answer.</p>
+<p>The role finds the relationship by its declared key, in either direction. In the declared direction the target holds a
+target record from the source’s UUID with the two paths. After a reverse it holds a source record of the target path to
+the source’s UUID. An ENDED record counts only when no live record of the key is left. Live records in both directions,
+or two in one, are refused, since a failover acts on one relationship. A live target record from one of the source
+host’s previous UUIDs is the replica a restore brings back, and the role refuses it and names the restore.</p>
+</section>
+<section id="two-states-that-read-the-same">
+<h3>Two states that read the same<a class="headerlink" href="#two-states-that-read-the-same" title="Link to this heading"></a></h3>
+<p>Two pairs of states read the same from the records. The plan reads each as the one whose next step loses nothing, unless
+the run’s last verb says otherwise.</p>
+<ul class="simple">
+<li><p>The source’s target record DISCONNECTED after a reverse is both the resync’s state before its reconnect and the
+failback’s state after its make-writable on the source. The plan reads it as the resync’s, a reconnect on the source.
+A reverse on the source in the first state would make the stale source the writer. A reconnect on the source in the
+second state compares the source’s directory first, and only an empty comparison lets it discard anything. A finished
+wait for the source’s record to read DISCONNECTED counts as the make-writable, since only the failback’s
+make-writable leaves that record DISCONNECTING.</p></li>
+<li><p>The target’s record DISCONNECTED in the declared direction is both failed over and the failback’s state after its
+reverse on the source. The plan reads it as failed over, which resyncs. A reconnect on the target in the first state
+would discard the failover’s writes if the comparison did not stop it. A second reverse in the second state is
+accepted and changes no data.</p></li>
+</ul>
+<p>A run that stops between those steps and runs again therefore repeats part of the resync, at the cost of a sync, and
+loses nothing.</p>
+</section>
+<section id="why-a-failover-goes-on-without-the-source">
+<h3>Why a failover goes on without the source<a class="headerlink" href="#why-a-failover-goes-on-without-the-source" title="Link to this heading"></a></h3>
+<p>A failover is the step taken because the source is gone, so it must not need the source. It reads the source with a
+short timeout, which belongs to the failover alone. In any action, a source that does not answer is not read again in
+the run, and a resync or a failback, which needs the source, then refuses every relationship at once. A read that gives
+up, or that ends in a 502, 503 or 504 after its retries, as from a gateway in front of a lost cluster or a node that is
+still starting, counts as not answering. Any other failure, such as a refused login or an identity mismatch, fails the
+run, since a cluster that answers and refuses is not a cluster that is gone.</p>
+<p>The plan refuses a failover for a job running on a source that answers, since the make-writable would discard its
+changes, and the operator can wait for it. <code class="docutils literal notranslate"><span class="pre">replication_failover_allow_partial_job</span></code> lifts the refusal by accepting the
+loss of that partial job, as for a job that makes no progress; the plan then notes the job by its start time. With the
+source gone, the target’s record keeps reading a job as running for minutes (QUIRK-125), and the server still accepts
+the make-writable and discards the partial job. A refusal then would block every failover after a source died mid-job,
+which is the case the role exists for, so the plan goes on and notes the job by its start time. A relationship whose
+first job has not finished has no recovery point, and the server refuses its make-writable, so the plan refuses it
+first.</p>
+</section>
+<section id="a-restore-under-way">
+<h3>A restore under way<a class="headerlink" href="#a-restore-under-way" title="Link to this heading"></a></h3>
+<p>A rebuilt source’s restore runs the three verbs itself, and past the delete of the old record its relationship reads
+as failed over, so a resync or a failback would turn it away from the restore. The role refuses those two while the
+restore’s record is in the artifact directory. A failover cannot turn the restore away: before the delete the old
+record refuses it, and after the reconnect the restore is done. So for a failover the role notes the record and goes on.</p>
+</section>
+<section id="why-the-failback-waits-for-two-moves-of-the-recovery-point">
+<h3>Why the failback waits for two moves of the recovery point<a class="headerlink" href="#why-the-failback-waits-for-two-moves-of-the-recovery-point" title="Link to this heading"></a></h3>
+<p>The failback makes the source writable from a recovery point, so the recovery point has to hold what the target held
+when the writes stopped. The replicating cluster’s continuous job runs about once a minute even with nothing to copy,
+and each job moves the recovery point to its own start, so the recovery point means “data as of” a time on that
+cluster’s clock. The role reads the target’s recovery point and waits until it has moved twice. The first move may come
+from a job that began before the read. The second comes from a job that began after it, and so after the writes
+stopped. That needs no clock outside the cluster. The wait has its own timeout, like the restore’s full-sync wait, and a
+job that reports an error does not end it, since the error stays set while a later attempt succeeds.</p>
+<p>A failback of several relationships brings each to its wait, then cuts each over once the waits end. The relationships
+on one target host are polled together and the target hosts one after another, within one timeout from the start of the
+waits, so the writes on a target stay stopped for one wait and not one per relationship. A write made after the wait is the
+failback’s reconnect to find.</p>
+</section>
+<section id="what-the-reverses-reset-and-what-the-role-applies-again">
+<h3>What the reverses reset, and what the role applies again<a class="headerlink" href="#what-the-reverses-reset-and-what-the-role-applies-again" title="Link to this heading"></a></h3>
+<p>The first reverse gives the target’s new source record the server’s defaults, among them no id mapping, and a copy back
+of a file owned by a local user fails without the mapping (G-REPL-IDMAP). So when the declared entry maps local ids, the
+resync turns the mapping on in that record right after its reverse. The reverse back to the source returned its own
+settings on the one release it was seen on, which the module’s documentation does not promise. So a failback that finds
+the relationship replicating, and the source’s record different from a declared setting, applies the declared settings.
+That step comes from the records, so it runs even after a run that stopped once the relationship was ESTABLISHED.</p>
+<p>Each reverse makes a cluster the target at its own replication address, which the server refuses with a connection error
+that names neither the tenant nor the switch when the tenant that serves the address has replication off. So the plan
+applies the check the baseline applies at step 21
+(<a class="reference internal" href="../reference/troubleshooting.html#the-replication-address"><span class="std std-ref">The replication address</span></a>) to each new target before the
+action’s first write.</p>
+</section>
+</section>
+<section id="held-relationships">
+<h2>Held relationships<a class="headerlink" href="#held-relationships" title="Link to this heading"></a></h2>
+<p>A rebuild destroys an edge’s data. When the edge was a replication source, the replica on its target may be the only
+copy. The target’s record of the old relationship is then the server’s own lock on that replica, and the collection
+keeps it. While a source has <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>, the plan calls a relationship held when row O2 is unmet
+and not lifted and the holder is a record from one of those UUIDs, or when row O4 is unmet and not lifted. It reports it
+as held and not refused because the replica may be the only copy of the rebuilt source’s data. The message names the
+restore when X allows it, and otherwise the copy back into the source directory and the release that lets the
+relationship go ahead. The rebuild’s replay sets <code class="docutils literal notranslate"><span class="pre">replication_pair_on_held</span></code> to <code class="docutils literal notranslate"><span class="pre">report</span></code>, so the role records a held
+relationship, writes nothing on either cluster and goes on, where a refusal would stop the run.
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code> never lifts a hold.</p>
+<p>Every later baseline run refuses a held relationship before any write, until there is a way out. There are three:</p>
+<ul class="simple">
+<li><p>Restore the data from the replica (<a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>).
+<a class="reference internal" href="#why-x-is-kept-and-r-turned-around">Why a restore keeps X and turns R around</a> explains its shape.</p></li>
+<li><p><a class="reference internal" href="../how-to/restore-replica.html#copy-the-replica-back"><span class="std std-ref">Copy the replica back</span></a> over a protocol, then run the baseline
+with the release the refusal printed and <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target</span></code> on the entry, so the source creates the relationship
+and the target authorizes it. The release and the consent lift the rows on purpose, once the data is back.</p></li>
+<li><p><a class="reference internal" href="../how-to/restore-replica.html#keep-the-replica-as-plain-data"><span class="std std-ref">Keep the replica as plain data</span></a>, with the entry set to
+<code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> and the same release. The release deletes the holder’s record and leaves the directory writable with
+its files.</p></li>
+</ul>
+<p>The same relationship seen from the other end is different. When the edge is the target and its record is
+ESTABLISHED, read-only and matched by the source’s own ESTABLISHED record, the replica is rebuilt by a full sync, so
+the rebuild does not treat the directory as local data. In any other state, after a failover by hand or with an ENDED
+or pending record, it is local data, and the rebuild refuses until <code class="docutils literal notranslate"><span class="pre">edge_rebuild_acknowledge</span></code> lists <code class="docutils literal notranslate"><span class="pre">local_data</span></code>. A
+record that names a previous UUID of the source is <code class="docutils literal notranslate"><span class="pre">only_copy</span></code>: the edge’s replica may be the only copy of data the
+source had, the edge’s record is the hold that keeps the source’s own relationship held, and rebuilding the edge
+destroys both. The rebuild then refuses until <code class="docutils literal notranslate"><span class="pre">edge_rebuild_acknowledge</span></code> lists both <code class="docutils literal notranslate"><span class="pre">local_data</span></code> and <code class="docutils literal notranslate"><span class="pre">replication</span></code>.
+<a class="reference internal" href="rebuilds.html"><span class="std std-doc">Rebuilds</span></a> covers the rest.</p>
+<p>The replay of a rebuild creates no relationship into the edge, for the reason the capacity check gives above. The
+report lists each as a hand-off of the second pass.</p>
+</section>
+<section id="the-restore">
+<h2>The restore<a class="headerlink" href="#the-restore" title="Link to this heading"></a></h2>
+<p>The restore runs nine steps across the target, the edge and the controller. <a class="reference internal" href="../reference/playbooks-and-roles.html#replication-restore"><span class="std std-ref">The restore’s records and
+steps</span></a> lists them. This section explains why it is shaped as it
+is, then what it leaves on the controller and how it locks.</p>
+<section id="why-x-is-kept-and-r-turned-around">
+<h3>Why X is kept and R turned around<a class="headerlink" href="#why-x-is-kept-and-r-turned-around" title="Link to this heading"></a></h3>
+<p>The restore’s records have names. X is the old record on the target, from a previous UUID of the edge, that holds the
+replica. R is the restore relationship, from the target’s replica directory to the edge’s declared source path.
+The reference lists both.</p>
+<p><strong>X stays until the edge has the data.</strong> The restore deletes X at step 7 and not before, after R’s full sync has
+reached the edge, the edge’s directory has been made writable, and R has been reversed. Until then X holds the replica
+in place on the target, and a run that stops at any earlier step leaves the data where it was. The reconnect that
+ends the restore comes after X’s delete, because the server refuses a reconnect while another record still holds the
+target’s directory.</p>
+<p><strong>R is turned around and not replaced.</strong> The restore does not create the declared relationship from the edge into the
+replica directory. That would be the held case above. X holds the replica directory (O2), and the edge’s empty directory
+would replace the replica’s files (O4). Lifting those rows would destroy the only copy. So the restore runs the data the
+other way first. It builds R from the target to the edge, lets the full sync carry the replica to the edge, reverses R
+so its records match the declared direction, and reconnects it. The relationship that ends up in place is R, with its id
+kept through the reverse, and the last step applies the declared settings to it. R is created with the server’s defaults
+and no blackout window, which is why the declared windows and mapping come only at the end.</p>
+<p><strong>Each step is chosen from fresh reads.</strong> The role calls
+<a class="reference internal" href="../collections/qumulo/cluster/replication_restore_step_module.html"><span class="std std-doc">replication_restore_step</span></a> before every step, with new reads of both
+clusters, and runs only the step it returns. A restore is nine steps across two clusters and a controller’s files, any
+of which can stop. Choosing from what the records show, and not from where the previous run got to, makes a rerun
+resume correctly after a timeout, a lost connection or a killed run.</p>
+<p><strong>File owners come back through ids.</strong> Replication carries a file owned by a local user or group, other than the
+built-in ones, as an NFS uid or gid. A source with <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code> off fails every job on such a file. With
+it on, every such user needs a uid and every such group a gid. The target then holds the file owned by an NFS uid, and
+the restore writes it back to the edge the same way, whatever the restore relationship’s own mapping. The built-in admin
+user and Users group come back as themselves. The edge’s baseline recreates its local users and groups with their
+declared uids and gids, so a restored file reaches its owner again (G-REPL-IDMAP). A uid set on the old edge outside the
+inventory comes back as an NFS uid no local user has.</p>
+</section>
+<section id="the-restore-s-records-and-stamps">
+<h3>The restore’s records and stamps<a class="headerlink" href="#the-restore-s-records-and-stamps" title="Link to this heading"></a></h3>
+<p>A restore leaves two files on the controller under <code class="docutils literal notranslate"><span class="pre">&lt;artifact</span> <span class="pre">dir&gt;/&lt;edge&gt;/restore/</span></code>. The restore record lets a stopped
+restore resume. The restore stamp retires the newest rebuild report’s claim on the relationship, so the report stops
+listing it as held.</p>
+<p>Both are named by the digest of the relationship’s key: the source path, the target cluster’s UUID and the target path,
+each path without a trailing slash and the UUID in lower case. A different controller finds the same files, and so does
+an inventory that adds a trailing slash to a path. The target host’s name is in the record but is not hashed, so an
+inventory that renames the target host finds them too. <a class="reference internal" href="../collections/qumulo/cluster/restore_key_hash_filter.html"><span class="std std-doc">restore_key_hash</span></a>
+defines the digest.</p>
+<p>The record is for one controller. To resume from another, move it, and delete it from the first: two controllers
+holding the same record could both act on the relationship.</p>
+</section>
+<section id="the-restore-s-lock">
+<h3>The restore’s lock<a class="headerlink" href="#the-restore-s-lock" title="Link to this heading"></a></h3>
+<p>A restore holds a lock on the edge so that a second restore cannot start on the same controller while one runs.
+<a class="reference internal" href="../collections/qumulo/cluster/replication_restore_lock_module.html"><span class="std std-doc">replication_restore_lock</span></a> takes it, and the role removes it however
+the run ends. Four cases shaped it.</p>
+<p><strong>The lock survives a crash.</strong> The module writes the lock to a temporary name, syncs it to disk and links it into place.
+A crash of the process or of the machine leaves either no lock or a whole one, never an empty or partial file. A lock
+that is empty or not JSON, which an older crash or a hand edit can leave, refuses and names the file to remove by hand
+once no run is under way.</p>
+<p><strong>Liveness is judged on the controller.</strong> A lock records the controller’s host name, boot id and PID namespace, the
+<code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process’s id and its start in clock ticks since boot. A lock from this controller, meaning the same
+host name, boot id and PID namespace, is taken over as soon as its process is gone. A lock from anywhere else, or from a
+controller without <code class="docutils literal notranslate"><span class="pre">/proc</span></code>, waits for its lease, because nothing on this machine can say whether that process is alive:
+another machine can share a host name, a lock from before a reboot has another boot id and so cannot be told from one
+taken on another machine of the same name, and another container on this machine shares its boot and can share its host
+name. The process is matched by its start ticks as well as its id, and no step of the clock moves them.</p>
+<p><strong>Two takeovers cannot both win.</strong> A takeover holds an exclusive <code class="docutils literal notranslate"><span class="pre">flock</span></code> on a guard file while it reads the lock again
+and replaces it, so of two runs only one takes it over. The kernel drops the <code class="docutils literal notranslate"><span class="pre">flock</span></code> when its process dies, so a
+crash leaves nothing to clean up. A run waits at most 60 seconds for the guard before it refuses, as when the run
+holding it was stopped. The guard file itself is kept.</p>
+<p><strong>A run that lost its lock stops.</strong> A renewal never takes a new lock. If the lock is gone, holds another token, or
+holds the run’s token but was taken by another process, the renewal refuses, and the run stops instead of going on
+without the protection it thought it had.</p>
+<p>The lease is sized from the run: for each relationship the authorize wait, the reverse and reconnect polls and 600
+seconds of reads, plus the full-sync wait once. With the default full-sync wait of 86400 seconds, the lease is over a
+day. A run killed at a pipeline job’s time limit leaves its lock, and a later job that does not share the controller,
+such as one in another container, waits out that lease. A full-sync wait that ends before the job’s limit lets the
+restore stop on its own and remove its lock. <a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its
+replica</span></a> says how to set it.</p>
+<p>The lock is the controller’s alone. Two controllers can both restore one edge, so keep to one restore per edge at a
+time across controllers.</p>
+</section>
+</section>
+<section id="replication-across-upgrades">
+<h2>Replication across upgrades<a class="headerlink" href="#replication-across-upgrades" title="Link to this heading"></a></h2>
+<p>Replication works across releases up to about eight quarters apart. The upgrade plan warns about each declared
+relationship whose ends would be further apart before the run or after any hop. A newer source can hold new kinds of
+state back from an older target until each file changes again, so the plan commits a relationship’s target before its
+source where it can. That is a preference and never a refusal. Of two clusters that replicate to each other, it keeps
+one order and drops the other with a note, and <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_after</span></code> wins over it. <a class="reference internal" href="upgrades.html"><span class="std std-doc">Upgrades</span></a> covers the
+order.</p>
+</section>
+<section id="what-the-collection-leaves-alone">
+<h2>What the collection leaves alone<a class="headerlink" href="#what-the-collection-leaves-alone" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>It does not manage object relationships, which copy between a directory and an S3 bucket on one cluster.
+<code class="docutils literal notranslate"><span class="pre">replication_info</span></code> reports them without their credentials.</p></li>
+<li><p>It never compares or sends a relationship’s <code class="docutils literal notranslate"><span class="pre">replication_mode</span></code> or <code class="docutils literal notranslate"><span class="pre">snapshot_policies</span></code>, so an adopted relationship
+keeps them.</p></li>
+<li><p>It does not delete the snapshots a removal or a failover leaves.</p></li>
+<li><p>It moves no data itself. The clusters replicate between them, and the controller only declares, authorizes and reads.</p></li>
+</ul>
+</section>
+<section id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a> declares, releases and removes a
+relationship.</p></li>
+<li><p><a class="reference internal" href="../how-to/restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a> runs the restore and fixes what stops
+it.</p></li>
+<li><p><a class="reference internal" href="../how-to/fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a> runs the failover, the resync and the
+failback.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Variables</span></a> lists the replication variables.</p></li>
+<li><p><a class="reference internal" href="../reference/playbooks-and-roles.html#replication-restore"><span class="std std-ref">The restore’s records and steps</span></a> lists X, R and the nine
+steps.</p></li>
+<li><p><a class="reference internal" href="../reference/playbooks-and-roles.html#replication-failover"><span class="std std-ref">The failover role</span></a> lists its states, steps and facts, and
+<a class="reference internal" href="../reference/troubleshooting.html#failing-over"><span class="std std-ref">Troubleshooting</span></a> its messages.</p></li>
+<li><p><a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">The gap register</span></a> holds the G-REPL entries named above.</p></li>
+<li><p><a class="reference internal" href="state-management.html"><span class="std std-doc">State management</span></a> explains check mode, keys and ids, and a write that may have been applied.</p></li>
+<li><p><a class="reference internal" href="rebuilds.html"><span class="std std-doc">Rebuilds</span></a> and <a class="reference internal" href="edges-and-portals.html"><span class="std std-doc">Edges and portals</span></a> explain the cases a relationship meets around an
+edge.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rebuilds.html" class="btn btn-neutral float-left" title="Rebuilds" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="upgrades.html" class="btn btn-neutral float-right" title="How upgrades work" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

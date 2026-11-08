@@ -1,0 +1,686 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Look up identities, DNS names and paths &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Pair an edge with its hub through a portal" href="pair-edge-with-hub.html" />
+    <link rel="prev" title="Register a cluster with Nexus" href="nexus.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Look up identities, DNS names and paths</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-trustees-before-an-acl-names-them">Check trustees before an ACL names them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find-an-active-directory-user-s-sid-nfs-uid-and-groups">Find an Active Directory user’s SID, NFS uid and groups</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#look-an-account-up-by-name-or-dn-and-name-it-as-a-trustee">Look an account up by name or DN, and name it as a trustee</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-an-ldap-user-before-a-mapping-names-her">Check an LDAP user before a mapping names her</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-a-dns-name-before-an-export-s-host-restriction-names-it">Check a DNS name before an export’s host restriction names it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#turn-a-path-into-a-file-id-and-an-id-back-into-a-path">Turn a path into a file id, and an id back into a path</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#when-it-fails">When it fails</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Look up identities, DNS names and paths</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="look-up-identities-dns-names-and-paths">
+<h1>Look up identities, DNS names and paths<a class="headerlink" href="#look-up-identities-dns-names-and-paths" title="Link to this heading"></a></h1>
+<p>This page asks a cluster questions before a change relies on the answer: whether it knows a trustee, what an Active
+Directory account is to it, whether its own resolver finds a DNS name, and which file a path or a file id names.
+Every lookup only reads.
+When you finish, a play stops before an ACL names a trustee the cluster does not know, you can read an Active Directory
+user’s SID, NFS uid and groups, and the account you looked up names itself as a trustee in the next task.
+The same play stops before an NFS export names a host the cluster cannot resolve, and turns a path into a file id and
+an id back into a path.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Have a cluster that is already formed and running, with its address, the port its REST API answers on (8000 unless you
+changed it) and the password of its <code class="docutils literal notranslate"><span class="pre">admin</span></code> user.
+A user that is not <code class="docutils literal notranslate"><span class="pre">admin</span></code> needs <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_IDENTITY_READ</span></code> for the trustee lookups, and <code class="docutils literal notranslate"><span class="pre">PRIVILEGE_AD_USE</span></code> and
+<code class="docutils literal notranslate"><span class="pre">PRIVILEGE_AD_READ</span></code> for the Active Directory object lookup.</p></li>
+<li><p>Have the controller reach the cluster over HTTPS, and the inventory give each host its connection:
+<a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+The plays below use the example inventory’s <code class="docutils literal notranslate"><span class="pre">hub01</span></code>.</p></li>
+<li><p>For the Active Directory recipes, have a cluster that has joined the domain (<a class="reference internal" href="active-directory.html"><span class="std std-doc">Join a cluster to Active Directory</span></a>).
+Outside a domain <code class="docutils literal notranslate"><span class="pre">ad:</span></code> trustees are not found, except <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, and the object lookup is
+unavailable.</p></li>
+<li><p>Use users, groups, domains, directories, SIDs, DNs and host names of your own for <code class="docutils literal notranslate"><span class="pre">svc-backup</span></code>, <code class="docutils literal notranslate"><span class="pre">CORP</span></code>, <code class="docutils literal notranslate"><span class="pre">corp.example.com</span></code>,
+<code class="docutils literal notranslate"><span class="pre">alice</span></code>, <code class="docutils literal notranslate"><span class="pre">Engineering</span></code>, <code class="docutils literal notranslate"><span class="pre">S-1-5-21-1-2-3-1104</span></code>, <code class="docutils literal notranslate"><span class="pre">S-1-5-21-1-2-3-1108</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CN=alice,CN=Users,DC=corp,DC=example,DC=com</span></code>, <code class="docutils literal notranslate"><span class="pre">/data/archive</span></code>, <code class="docutils literal notranslate"><span class="pre">/data/builds</span></code>, <code class="docutils literal notranslate"><span class="pre">/data/projects</span></code> and
+<code class="docutils literal notranslate"><span class="pre">build01.corp.example.com</span></code>.</p></li>
+</ul>
+<p>Every play on this page starts with the header that hands the inventory’s connection variables to each module:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># lookups.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Look things up before a change</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">tasks:</span> <span class="pre">[]</span></code> with the tasks of the sections below, indented under <code class="docutils literal notranslate"><span class="pre">tasks:</span></code>.</p>
+</section>
+<section id="check-trustees-before-an-acl-names-them">
+<h2>Check trustees before an ACL names them<a class="headerlink" href="#check-trustees-before-an-acl-names-them" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../collections/qumulo/cluster/identity_info_module.html"><span class="std std-doc">identity_info</span></a> takes <code class="docutils literal notranslate"><span class="pre">find_trustees</span></code>, a list of terms.
+A term is a trustee in the form every module of the collection takes, such as <code class="docutils literal notranslate"><span class="pre">local:svc-backup</span></code>, <code class="docutils literal notranslate"><span class="pre">ad:CORP\Engineering</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ldap_user:alice</span></code>, <code class="docutils literal notranslate"><span class="pre">uid:1001</span></code> or <code class="docutils literal notranslate"><span class="pre">Everyone</span></code>; a bare name is refused
+(<a class="reference internal" href="../explanation/identity.html#trustees-a-prefix-says-where-a-name-is-defined"><span class="std std-ref">why</span></a>).
+Each answer is in <code class="docutils literal notranslate"><span class="pre">identity.found_trustees</span></code>, under the term as you wrote it.</p>
+<ol class="arabic">
+<li><p>Add the lookup, the check and the ACL:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find the trustees the ACL will name</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_trustees</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'ad:CORP\Engineering'</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local:svc-backup</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trustees</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop unless the cluster knows every trustee</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trustees.identity.found_trustees | dict2items | rejectattr('value.found') | list | length == 0</span>
+<span class="w">        </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">          </span><span class="no">The cluster does not know</span>
+<span class="w">          </span><span class="no">{{ trustees.identity.found_trustees | dict2items | rejectattr('value.found') | map(attribute='key') | join(', ') }}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Make engineering and the backup account the archive's only readers</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.file_acl</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/archive</span>
+<span class="w">        </span><span class="nt">aces</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trustee</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\Engineering'</span>
+<span class="w">            </span><span class="nt">rights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">READ</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_EA</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_ATTR</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_ACL</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">EXECUTE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SYNCHRONIZE</span><span class="p p-Indicator">]</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trustee</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local:svc-backup</span>
+<span class="w">            </span><span class="nt">rights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">READ</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_EA</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_ATTR</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_ACL</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">EXECUTE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SYNCHRONIZE</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">aces</span></code> is the whole ACL of the path, so list every entry it should keep, and read the check run’s diff before the real
+run.
+<code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[]</span></code> makes the task gather nothing but the lookup.
+Without it, <code class="docutils literal notranslate"><span class="pre">identity_info</span></code> also reads every identity subset.
+Each entry has <code class="docutils literal notranslate"><span class="pre">found</span></code>, <code class="docutils literal notranslate"><span class="pre">trustee</span></code>, <code class="docutils literal notranslate"><span class="pre">domain</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">sid</span></code>, <code class="docutils literal notranslate"><span class="pre">uid</span></code> and <code class="docutils literal notranslate"><span class="pre">gid</span></code>.
+<code class="docutils literal notranslate"><span class="pre">trustee</span></code> is the canonical form, which the next task can name; it is the same identity whichever way the term wrote
+it, such as <code class="docutils literal notranslate"><span class="pre">ad:CORP\alice</span></code> or <code class="docutils literal notranslate"><span class="pre">ad:alice&#64;corp.example.com</span></code>.
+Authenticated Users is written <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, which resolves joined to a domain or not;
+<code class="docutils literal notranslate"><span class="pre">sid:S-1-5-11</span></code> is looked up by that name and finds the same identity, though the cluster’s own find of the SID is refused by a
+node that has not found a name in <code class="docutils literal notranslate"><span class="pre">S-1-5</span></code> since it started (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-100</span></a>).
+Each term is one request, sent one after another, so list the terms the task uses and no more.
+A trustee that no source holds has <code class="docutils literal notranslate"><span class="pre">found:</span> <span class="pre">false</span></code> and null in the other keys; it does not fail the task.
+That includes an <code class="docutils literal notranslate"><span class="pre">ad:</span></code> name other than <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code> on a cluster that has not joined a domain,
+and an <code class="docutils literal notranslate"><span class="pre">ldap_user:</span></code> name while LDAP is off.</p>
+</li>
+<li><p>Read <code class="docutils literal notranslate"><span class="pre">error</span></code> in an entry.
+An entry that has an <code class="docutils literal notranslate"><span class="pre">error</span></code> is <code class="docutils literal notranslate"><span class="pre">found:</span> <span class="pre">false</span></code> too, so the assert above stops on it, but its cause is not a missing
+trustee: the cluster refused the term.
+<code class="docutils literal notranslate"><span class="pre">error.class</span></code> and <code class="docutils literal notranslate"><span class="pre">error.description</span></code> are the cluster’s own.
+The task does not fail; it gives one warning that names the terms with an error, and the terms after it are still
+found.
+List them in a task between the lookup and the assert, because the assert ends the play:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the terms the cluster refused</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">item.key</span><span class="nv"> </span><span class="s">}}:</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">item.value.error.description</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">loop</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">trustees.identity.found_trustees</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">dict2items</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">selectattr('value.error',</span><span class="nv"> </span><span class="s">'defined')</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">list</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">loop_control</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">item.key</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+</li>
+<li><p>If the error class is <code class="docutils literal notranslate"><span class="pre">api_identity_unsupported_domain_error</span></code>, the term is a SID of a domain the node has not yet
+found a name in since it started (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-100</span></a>).
+That holds on a joined cluster too.
+<code class="docutils literal notranslate"><span class="pre">S-1-5-11</span></code>, the SID of Authenticated Users, is the exception, because the collection finds it by its name.
+For a domain’s own SIDs, put a name of the domain before the SID in the list, and the SID is found:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find a domain group by its SID, after a name of its domain</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_trustees</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'ad:CORP\Domain</span><span class="nv"> </span><span class="s">Users'</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sid:S-1-5-21-1-2-3-1108</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">group</span>
+</pre></div>
+</div>
+</li>
+<li><p>Preview the run, then run it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>lookups.yml<span class="w"> </span>-l<span class="w"> </span>hub01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>lookups.yml<span class="w"> </span>-l<span class="w"> </span>hub01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>Look up only trustees that exist before the play, and a local name only to check one that should exist already.
+A trustee an earlier task creates is a miss in a check run, and for a local name the cluster caches that miss for about
+a minute, so a real run started within the minute cannot resolve it, here or in the task that names it
+(<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-017</span></a>).</p>
+</li>
+</ol>
+<p>A <code class="docutils literal notranslate"><span class="pre">uid:</span></code> or a <code class="docutils literal notranslate"><span class="pre">gid:</span></code> term, and a SID of a domain the cluster knows, are always <code class="docutils literal notranslate"><span class="pre">found:</span> <span class="pre">true</span></code>, whether or not an account
+carries the number.
+The cluster makes an identity of its own from the number without asking a directory, so <code class="docutils literal notranslate"><span class="pre">found</span></code> there means that the
+cluster can name an identity by the term.
+<code class="docutils literal notranslate"><span class="pre">name</span></code> is null when nothing names it, also for the uid of a local user made with that NFS uid.
+To check that an account exists, use its name.</p>
+</section>
+<section id="find-an-active-directory-user-s-sid-nfs-uid-and-groups">
+<h2>Find an Active Directory user’s SID, NFS uid and groups<a class="headerlink" href="#find-an-active-directory-user-s-sid-nfs-uid-and-groups" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">find_trustees</span></code> gives the SID and <code class="docutils literal notranslate"><span class="pre">expand_trustees</span></code> gives the NFS uid and the groups.
+The expand shows the uid the cluster uses, which the directory’s own attribute may not be.
+The cluster has to have joined the domain.</p>
+<ol class="arabic">
+<li><p>Find and expand the user in one task:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read an Active Directory user's SID, NFS uid and groups</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_trustees</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"{{</span><span class="nv"> </span><span class="s">alice</span><span class="nv"> </span><span class="s">}}"</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">expand_trustees</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"{{</span><span class="nv"> </span><span class="s">alice</span><span class="nv"> </span><span class="s">}}"</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alice_info</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the SID, the NFS uid and the groups</span>
+<span class="w">      </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">        </span><span class="nt">found</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">alice_info.identity.found_trustees[alice]</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">expansion</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">alice_info.identity.expanded_trustees[alice]</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">          </span><span class="no">{{ found.sid }}, NFS uid {{ expansion.nfs_identity.uid | default('none') }},</span>
+<span class="w">          </span><span class="no">groups {{ expansion.groups | map(attribute='trustee') | list }}</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">expansion.found</span>
+</pre></div>
+</div>
+<p>A term with a backslash is read through a variable, since the key is the term as you wrote it.
+The SID is <code class="docutils literal notranslate"><span class="pre">found.sid</span></code>, the uid the cluster uses over NFS is <code class="docutils literal notranslate"><span class="pre">expansion.nfs_identity.uid</span></code>, and the groups are
+<code class="docutils literal notranslate"><span class="pre">expansion.groups</span></code>; <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.identity_info</span></code> describes every key.</p>
+</li>
+<li><p>If <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code> is null, the cluster has no uid for the user.
+On the Active Directory lane, a user with no RFC 2307 attributes and no mapping expanded so, as <code class="docutils literal notranslate"><span class="pre">UNKNOWN</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">Authenticated</span> <span class="pre">Users</span></code> its only group and none of its directory groups; read those with <code class="docutils literal notranslate"><span class="pre">find_ad_objects</span></code>, below.
+To give the user a uid, have the cluster read the directory’s RFC 2307 attributes with
+<code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes:</span> <span class="pre">true</span></code>, or map the user
+(<a class="reference internal" href="active-directory.html#map-active-directory-users-to-ldap-users"><span class="std std-ref">Join a cluster to Active Directory</span></a>).
+Either adds a uid to the expansion, though no lane has shown it.
+To see a change just made, run <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.auth_cache_clear</span></code> in a task before the lookup, because the cluster caches
+Active Directory and LDAP answers; in a check run the clear clears nothing, so check the change in a real run.</p></li>
+<li><p>Run the play:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>lookups.yml<span class="w"> </span>-l<span class="w"> </span>hub01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="look-an-account-up-by-name-or-dn-and-name-it-as-a-trustee">
+<h2>Look an account up by name or DN, and name it as a trustee<a class="headerlink" href="#look-an-account-up-by-name-or-dn-and-name-it-as-a-trustee" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">find_ad_objects</span></code> reads the directory’s record behind a name, a DN or a SID.
+A term is <code class="docutils literal notranslate"><span class="pre">name:&lt;sAMAccountName&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">dn:&lt;distinguished</span> <span class="pre">name&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">sid:&lt;SID&gt;</span></code>.
+A <code class="docutils literal notranslate"><span class="pre">name:</span></code> term is the bare sAMAccountName, with no <code class="docutils literal notranslate"><span class="pre">CORP\</span></code> and no <code class="docutils literal notranslate"><span class="pre">&#64;domain</span></code>, because the read searches the joined domain
+only; a term with either is refused before any request.
+Each answer is in <code class="docutils literal notranslate"><span class="pre">identity.found_ad_objects</span></code>.</p>
+<ol class="arabic">
+<li><p>Look the account up and stop unless it is the one account you mean:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Look up alice in the directory</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_ad_objects</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">name</span><span class="p p-Indicator">:</span><span class="nv">alice</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">directory</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop unless the directory has one account named alice</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"'found_ad_objects'</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">(directory.unavailable_subsets</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default({}))"</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">directory.identity.found_ad_objects['name:alice'].objects | length == 1</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">directory.identity.found_ad_objects['name:alice'].objects[0].trustee is not none</span>
+<span class="w">        </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">The directory does not have exactly one account named alice, or the cluster cannot read the directory</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Give alice her home directory</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.identity_attributes</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">trustee</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">directory.identity.found_ad_objects['name:alice'].objects[0].trustee</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">home_directory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/home/alice</span>
+</pre></div>
+</div>
+<p>Each object in <code class="docutils literal notranslate"><span class="pre">objects</span></code> has <code class="docutils literal notranslate"><span class="pre">dn</span></code>, <code class="docutils literal notranslate"><span class="pre">sid</span></code>, <code class="docutils literal notranslate"><span class="pre">uid</span></code>, <code class="docutils literal notranslate"><span class="pre">gid</span></code>, <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">groups</span></code>, <code class="docutils literal notranslate"><span class="pre">primary_group_sid</span></code>, <code class="docutils literal notranslate"><span class="pre">classes</span></code> and <code class="docutils literal notranslate"><span class="pre">trustee</span></code>.
+<code class="docutils literal notranslate"><span class="pre">trustee</span></code> is <code class="docutils literal notranslate"><span class="pre">ad:&lt;NETBIOS&gt;\&lt;name&gt;</span></code> for an account of the joined domain, such as <code class="docutils literal notranslate"><span class="pre">ad:CORP\alice</span></code>, and null for any other.
+<code class="docutils literal notranslate"><span class="pre">groups</span></code> are the DNs of the direct groups, <code class="docutils literal notranslate"><span class="pre">primary_group_sid</span></code> the SID of a user’s primary group, and <code class="docutils literal notranslate"><span class="pre">classes</span></code> the
+object classes, which tell a user from a group.
+<code class="docutils literal notranslate"><span class="pre">uid</span></code> and <code class="docutils literal notranslate"><span class="pre">gid</span></code> are the directory’s own attributes, null when it has none, and not what the cluster maps the account
+to: use <code class="docutils literal notranslate"><span class="pre">expand_trustees</span></code> for that.
+To read a change just made on the domain controller, such as a group added, run <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.auth_cache_clear</span></code> in a
+task first; the lookup is answered from a cache otherwise; in a check run the clear clears nothing, so read the change
+in a real run.</p>
+</li>
+<li><p>To look up by DN or by SID, give <code class="docutils literal notranslate"><span class="pre">dn:CN=alice,CN=Users,DC=corp,DC=example,DC=com</span></code> or <code class="docutils literal notranslate"><span class="pre">sid:S-1-5-21-1-2-3-1104</span></code>.
+Each names the same object as the name does.
+A term the directory has nothing for has <code class="docutils literal notranslate"><span class="pre">found:</span> <span class="pre">false</span></code> and an empty <code class="docutils literal notranslate"><span class="pre">objects</span></code>; it is not an error.</p></li>
+<li><p>A cluster that has not joined a domain, or has joined more than one, cannot answer.
+The task does not fail: <code class="docutils literal notranslate"><span class="pre">found_ad_objects</span></code> is then listed in <code class="docutils literal notranslate"><span class="pre">unavailable_subsets</span></code> with the cluster’s description, and
+the key is absent from <code class="docutils literal notranslate"><span class="pre">identity</span></code>.
+The first condition of the assert reads it behind that check, so a cluster outside a domain stops the play there.
+In a check run a domain that an earlier task would join is not joined yet, so the lookup is unavailable then too.</p></li>
+<li><p>Run the play:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>lookups.yml<span class="w"> </span>-l<span class="w"> </span>hub01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="check-an-ldap-user-before-a-mapping-names-her">
+<h2>Check an LDAP user before a mapping names her<a class="headerlink" href="#check-an-ldap-user-before-a-mapping-names-her" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../collections/qumulo/cluster/user_defined_mappings_module.html"><span class="std std-doc">user_defined_mappings</span></a> maps an Active Directory user to an LDAP user by
+name.
+Check both names before the mapping writes, with <code class="docutils literal notranslate"><span class="pre">find_trustees</span></code> and <code class="docutils literal notranslate"><span class="pre">ldap_user:</span></code>.
+The cluster needs an LDAP server configured, and has to have joined the domain
+(<a class="reference internal" href="active-directory.html#map-active-directory-users-to-ldap-users"><span class="std std-ref">the mapping’s conditions</span></a>).</p>
+<ol class="arabic">
+<li><p>Add the lookup, the check and the mapping:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find the Active Directory user and her LDAP user</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_trustees</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ldap_user:alice</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">names</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop unless both names exist</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">names.identity.found_trustees | dict2items | rejectattr('value.found') | list | length == 0</span>
+<span class="w">        </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">          </span><span class="no">The cluster does not know</span>
+<span class="w">          </span><span class="no">{{ names.identity.found_trustees | dict2items | rejectattr('value.found') | map(attribute='key') | join(', ') }}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Map alice to her LDAP user</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.user_defined_mappings</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mappings</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">down_level_logon_name</span><span class="p">:</span><span class="w"> </span><span class="s">'CORP\alice'</span><span class="p p-Indicator">,</span><span class="nt"> ldap_name</span><span class="p">:</span><span class="w"> </span><span class="nv">alice</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+<p>While LDAP is off, an <code class="docutils literal notranslate"><span class="pre">ldap_user:</span></code> name is not found, so the assert stops the play.
+<code class="docutils literal notranslate"><span class="pre">mappings</span></code> is the whole set, so list every mapping the cluster should keep.</p>
+</li>
+<li><p>Preview and run the play as in the first recipe.
+To check that the mapping took effect, see
+<a class="reference internal" href="active-directory.html#check-that-a-mapping-took-effect"><span class="std std-ref">Check that a mapping took effect</span></a>.</p></li>
+</ol>
+<p>No lane of this collection’s tests runs an LDAP server, so <code class="docutils literal notranslate"><span class="pre">ldap_user:</span></code> and <code class="docutils literal notranslate"><span class="pre">ldap_group:</span></code> trustees are tested in unit
+tests only (<a class="reference internal" href="../reference/tested-versions.html#what-the-lanes-cannot-test"><span class="std std-ref">What the lanes cannot test</span></a>).</p>
+</section>
+<section id="check-a-dns-name-before-an-export-s-host-restriction-names-it">
+<h2>Check a DNS name before an export’s host restriction names it<a class="headerlink" href="#check-a-dns-name-before-an-export-s-host-restriction-names-it" title="Link to this heading"></a></h2>
+<p>An export’s <code class="docutils literal notranslate"><span class="pre">host_restrictions</span></code> may name a host by its DNS name.
+<a class="reference internal" href="../collections/qumulo/cluster/network_info_module.html"><span class="std std-doc">network_info</span></a> asks the cluster’s own resolver to look the name up, so you see
+what the cluster sees, which can differ from what the controller sees.
+The play stops before <a class="reference internal" href="../collections/qumulo/cluster/nfs_export_module.html"><span class="std std-doc">nfs_export</span></a> writes if the cluster does not resolve a name.</p>
+<ol class="arabic">
+<li><p>Add the lookup, the check and the export:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Look up the build host's name with the cluster's resolver</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.network_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">resolve_names</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">build01.corp.example.com</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">name_check</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop unless the cluster resolved every name</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">name_check.network.resolved_names | rejectattr('result', 'equalto', 'OK') | list | length == 0</span>
+<span class="w">        </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">          </span><span class="no">The cluster did not resolve</span>
+<span class="w">          </span><span class="no">{{ name_check.network.resolved_names | rejectattr('result', 'equalto', 'OK') | map(attribute='hostname') | join(', ') }}</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Export the build directory to the build host</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.nfs_export</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">export_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/builds</span>
+<span class="w">        </span><span class="nt">fs_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/builds</span>
+<span class="w">        </span><span class="nt">restrictions</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">host_restrictions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">build01.corp.example.com</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[]</span></code> makes the task gather nothing but the lookup.
+Without it, <code class="docutils literal notranslate"><span class="pre">network_info</span></code> also reads every network subset.
+Each name of <code class="docutils literal notranslate"><span class="pre">resolve_names</span></code> comes back once in <code class="docutils literal notranslate"><span class="pre">network.resolved_names</span></code>, even if you give it twice, with its
+<code class="docutils literal notranslate"><span class="pre">ip_addresses</span></code> and a <code class="docutils literal notranslate"><span class="pre">result</span></code> of <code class="docutils literal notranslate"><span class="pre">OK</span></code>, <code class="docutils literal notranslate"><span class="pre">NOT_FOUND</span></code>, <code class="docutils literal notranslate"><span class="pre">TIMEOUT</span></code> or <code class="docutils literal notranslate"><span class="pre">ERROR</span></code>.
+The assert passes only when every <code class="docutils literal notranslate"><span class="pre">result</span></code> is <code class="docutils literal notranslate"><span class="pre">OK</span></code>.
+Add more names to the list; one request looks them all up.</p>
+</li>
+<li><p>Preview the run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>lookups.yml<span class="w"> </span>-l<span class="w"> </span>hub01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>Every lookup on this page runs in a check run, since it only reads, so the assert checks the name as a real run
+would.
+<code class="docutils literal notranslate"><span class="pre">nfs_export</span></code> reports the export it would make.
+<code class="docutils literal notranslate"><span class="pre">restrictions</span></code> replaces every restriction of an export, so read the preview before you run this against an export
+that clients already mount.</p>
+</li>
+<li><p>Run it without <code class="docutils literal notranslate"><span class="pre">--check</span></code>.</p></li>
+</ol>
+<p>To look an address up instead, give <code class="docutils literal notranslate"><span class="pre">resolve_addresses:</span> <span class="pre">[10.0.0.10]</span></code>.
+Each address comes back in <code class="docutils literal notranslate"><span class="pre">network.resolved_addresses</span></code> with its <code class="docutils literal notranslate"><span class="pre">hostname</span></code> and <code class="docutils literal notranslate"><span class="pre">result</span></code>.</p>
+</section>
+<section id="turn-a-path-into-a-file-id-and-an-id-back-into-a-path">
+<h2>Turn a path into a file id, and an id back into a path<a class="headerlink" href="#turn-a-path-into-a-file-id-and-an-id-back-into-a-path" title="Link to this heading"></a></h2>
+<p><a class="reference internal" href="../collections/qumulo/cluster/filesystem_info_module.html"><span class="std std-doc">filesystem_info</span></a> takes <code class="docutils literal notranslate"><span class="pre">find_files</span></code>, a list of terms.
+A term is an absolute path or a file id of decimal digits.
+Each answer is in <code class="docutils literal notranslate"><span class="pre">filesystem.found_files</span></code>, under the term as you wrote it.</p>
+<ol class="arabic">
+<li><p>Turn two paths into ids:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Turn the paths of two directories into file ids</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.filesystem_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_files</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">/data/projects</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">/data/builds</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ids</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the ids, or that a directory does not exist</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">item.key</span><span class="nv"> </span><span class="s">}}:</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">item.value.id</span><span class="nv"> </span><span class="s">if</span><span class="nv"> </span><span class="s">item.value.found</span><span class="nv"> </span><span class="s">else</span><span class="nv"> </span><span class="s">'not</span><span class="nv"> </span><span class="s">found'</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">loop</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">ids.filesystem.found_files</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">dict2items</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">loop_control</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">item.key</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<p>Each entry has <code class="docutils literal notranslate"><span class="pre">found</span></code>, <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">id</span></code> and <code class="docutils literal notranslate"><span class="pre">type</span></code>.
+<code class="docutils literal notranslate"><span class="pre">path</span></code> is the file’s canonical path without a trailing slash, except the root, <code class="docutils literal notranslate"><span class="pre">/</span></code>.
+<code class="docutils literal notranslate"><span class="pre">id</span></code> is a string of decimal digits.
+<code class="docutils literal notranslate"><span class="pre">type</span></code> is the cluster’s name for the kind of file, such as <code class="docutils literal notranslate"><span class="pre">FS_FILE_TYPE_DIRECTORY</span></code>.
+A term that names no file has <code class="docutils literal notranslate"><span class="pre">found:</span> <span class="pre">false</span></code> and null <code class="docutils literal notranslate"><span class="pre">path</span></code>, <code class="docutils literal notranslate"><span class="pre">id</span></code> and <code class="docutils literal notranslate"><span class="pre">type</span></code>; none of these fails the task: a path
+that does not exist, a path that runs through a file, a deleted or never-issued id, an id of a file system this cluster
+does not have, and an id the cluster cannot place (QUIRK-101, <a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">Quirks</span></a>).
+<code class="docutils literal notranslate"><span class="pre">find_files</span></code> sends one read per term, one after another.
+Keep <code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[]</span></code>, or the module also reads the capacity, the root directory and every quota.</p>
+</li>
+<li><p>Turn an id back into its path, in the same run that read the id:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Turn the project directory's id back into its path</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.filesystem_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_files</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"{{</span><span class="nv"> </span><span class="s">ids.filesystem.found_files['/data/projects'].id</span><span class="nv"> </span><span class="s">}}"</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">by_id</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ids.filesystem.found_files['/data/projects'].found</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the path</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">by_id.filesystem.found_files[ids.filesystem.found_files['/data/projects'].id].path</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">by_id is not skipped</span>
+</pre></div>
+</div>
+<p>The key is the id as you gave it, so a term from a variable is also the key to read the answer by.
+A file id holds only on the cluster that issued it, and only until that cluster is rebuilt.
+An id from another cluster may name nothing here, or an unrelated file.
+Use an id within the run that read it, and don’t store it in an inventory, a variable file or a report
+(<a class="reference internal" href="../explanation/state-management.html#keys-not-ids"><span class="std std-ref">why</span></a>).
+Name a file by its path anywhere that outlives the run.</p>
+</li>
+<li><p>Stop a play when a path is missing:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Look up the projects directory</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.filesystem_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">        </span><span class="nt">find_files</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">/data/projects</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">projects</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop unless the projects directory exists</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">projects.filesystem.found_files['/data/projects'].found</span>
+<span class="w">        </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/projects does not exist on this cluster</span>
+</pre></div>
+</div>
+<p>A path that does not exist is a miss, not an error, so the lookup passes and the assert stops the play.
+In a check run a directory that an earlier task of the play would create is not there yet.
+When the play makes the directory it then looks up, give the assert <code class="docutils literal notranslate"><span class="pre">when:</span> <span class="pre">not</span> <span class="pre">ansible_check_mode</span></code>.</p>
+</li>
+<li><p>Run the play:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>lookups.yml<span class="w"> </span>-l<span class="w"> </span>hub01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="when-it-fails">
+<h2>When it fails<a class="headerlink" href="#when-it-fails" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">find_trustees:</span> <span class="pre">trustee</span> <span class="pre">'alice'</span> <span class="pre">needs</span> <span class="pre">a</span> <span class="pre">prefix</span> <span class="pre">naming</span> <span class="pre">where</span> <span class="pre">it</span> <span class="pre">is</span> <span class="pre">defined;</span> <span class="pre">a</span> <span class="pre">bare</span> <span class="pre">name</span> <span class="pre">is</span> <span class="pre">ambiguous.</span></code>, and the same for
+<code class="docutils literal notranslate"><span class="pre">expand_trustees</span></code>: the term has no prefix.
+The message lists the accepted forms, and the task fails before it sends a request.
+Write <code class="docutils literal notranslate"><span class="pre">local:alice</span></code>, <code class="docutils literal notranslate"><span class="pre">ad:CORP\alice</span></code> or <code class="docutils literal notranslate"><span class="pre">ldap_user:alice</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">find_ad_objects</span> <span class="pre">term</span> <span class="pre">'...'</span> <span class="pre">needs</span> <span class="pre">one</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">prefixes</span> <span class="pre">dn:,</span> <span class="pre">sid:</span> <span class="pre">or</span> <span class="pre">name:</span></code>: the term is outside the grammar of the
+Active Directory lookup.
+A <code class="docutils literal notranslate"><span class="pre">name:</span></code> term that holds <code class="docutils literal notranslate"><span class="pre">\</span></code> or <code class="docutils literal notranslate"><span class="pre">&#64;</span></code> names a domain and is refused; give the bare sAMAccountName.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">find_trustees</span> <span class="pre">term</span> <span class="pre">'&lt;term&gt;':</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">expand_trustees</span> <span class="pre">term</span> <span class="pre">'&lt;term&gt;':</span> <span class="pre">...</span></code> or <code class="docutils literal notranslate"><span class="pre">find_ad_objects</span> <span class="pre">term</span> <span class="pre">'&lt;term&gt;':</span> <span class="pre">...</span></code>
+naming an HTTP status: the cluster answered the term’s request with an error the lookup does not take for the term’s
+own.
+A 403 names the privilege the user lacks.
+A 400 to the expand fails the task.
+The task’s <code class="docutils literal notranslate"><span class="pre">term</span></code> key holds the term.
+Any other failure of a term’s read, such as a cluster that cannot be reached, fails the task the same way.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HTTP</span> <span class="pre">404</span> <span class="pre">ad_domain_controller_not_found_error</span></code> from <code class="docutils literal notranslate"><span class="pre">find_trustees</span></code> or <code class="docutils literal notranslate"><span class="pre">expand_trustees</span></code>: the node has no domain
+controller in reach and had not found the name (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-102</span></a>).
+A domain controller out of reach is not a miss for these two lookups: the task fails.
+For a name the node had cached, the cluster answers <code class="docutils literal notranslate"><span class="pre">HTTP</span> <span class="pre">500</span> <span class="pre">network_timeout_error</span></code> after about a minute.
+If that comes within <code class="docutils literal notranslate"><span class="pre">request_timeout</span></code>, the task fails with it.
+With the default of 60 seconds it usually does not, so the client sends the find again until <code class="docutils literal notranslate"><span class="pre">retry_timeout</span></code> and the
+task fails with <code class="docutils literal notranslate"><span class="pre">&lt;address&gt;</span> <span class="pre">unreachable</span> <span class="pre">for</span> <span class="pre">300s:</span> <span class="pre">...</span></code>, the number being <code class="docutils literal notranslate"><span class="pre">retry_timeout</span></code> (300 by default) and the reason
+ending in <code class="docutils literal notranslate"><span class="pre">timed</span> <span class="pre">out</span></code>.
+Restore the route to the domain controller and run again.
+<code class="docutils literal notranslate"><span class="pre">find_ad_objects</span></code> answered an object the node had cached with the domain controller away; an object it had not cached
+was not read.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">find_files</span> <span class="pre">term</span> <span class="pre">'...'</span> <span class="pre">is</span> <span class="pre">neither</span> <span class="pre">an</span> <span class="pre">absolute</span> <span class="pre">path</span> <span class="pre">nor</span> <span class="pre">a</span> <span class="pre">file</span> <span class="pre">id</span></code>: the term is a relative path, or an id with
+something other than digits, such as a hex id.
+The task fails before it sends a request.
+Use an absolute path such as <code class="docutils literal notranslate"><span class="pre">/data/projects</span></code>, or an id such as <code class="docutils literal notranslate"><span class="pre">1003</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">find_files</span> <span class="pre">term</span> <span class="pre">'/data/../x'</span> <span class="pre">has</span> <span class="pre">an</span> <span class="pre">empty,</span> <span class="pre">'.'</span> <span class="pre">or</span> <span class="pre">'..'</span> <span class="pre">component</span></code>: the path has an empty, <code class="docutils literal notranslate"><span class="pre">.</span></code> or <code class="docutils literal notranslate"><span class="pre">..</span></code> component, as in
+<code class="docutils literal notranslate"><span class="pre">/data//x</span></code>, <code class="docutils literal notranslate"><span class="pre">/data/./x</span></code> or <code class="docutils literal notranslate"><span class="pre">/data/../x</span></code>.
+Write the path out in full, such as <code class="docutils literal notranslate"><span class="pre">/data/x</span></code>.
+A trailing slash is fine.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">find_files</span> <span class="pre">term</span> <span class="pre">'&lt;term&gt;':</span> <span class="pre">GET</span> <span class="pre">/v1/files/.../info/attributes</span> <span class="pre">failed:</span> <span class="pre">HTTP</span> <span class="pre">403</span> <span class="pre">fs_access_denied_error:</span> <span class="pre">...</span></code>, naming the
+access right denied: the API user may not read the path, or a directory above it.
+Reading a file’s attributes needs no role, but the file system’s permissions still apply.
+The message ends with the hint that the file system’s permissions deny the API user this access.
+Read the path as a user that may, or change the path’s permissions with
+<a class="reference internal" href="../collections/qumulo/cluster/directory_module.html"><span class="std std-doc">directory</span></a> or <a class="reference internal" href="../collections/qumulo/cluster/file_acl_module.html"><span class="std std-doc">file_acl</span></a>.</p></li>
+<li><p>Any other failure of a term’s read, such as a cluster that cannot be reached, starts <code class="docutils literal notranslate"><span class="pre">find_files</span> <span class="pre">term</span> <span class="pre">'&lt;term&gt;':</span></code> and
+fails the task.</p></li>
+</ul>
+<p>Every option and return value is in <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.identity_info</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.filesystem_info</span></code> and <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.network_info</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="nexus.html" class="btn btn-neutral float-left" title="Register a cluster with Nexus" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pair-edge-with-hub.html" class="btn btn-neutral float-right" title="Pair an edge with its hub through a portal" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

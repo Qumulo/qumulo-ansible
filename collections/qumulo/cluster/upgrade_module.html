@@ -1,0 +1,1090 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.upgrade module – Upgrade a Qumulo cluster by one hop, from verify to its reboots &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.upgrade_plan module – Plan a fleet’s Qumulo Core upgrade, hop by hop, before anything is sent" href="upgrade_plan_module.html" />
+    <link rel="prev" title="qumulo.cluster.unprotected_edge_create module – Form a single-node unprotected edge from an unconfigured Qumulo node" href="unprotected_edge_create_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.upgrade module – Upgrade a Qumulo cluster by one hop, from verify to its reboots</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-upgrade-module"></span><section id="qumulo-cluster-upgrade-module-upgrade-a-qumulo-cluster-by-one-hop-from-verify-to-its-reboots">
+<h1>qumulo.cluster.upgrade module – Upgrade a Qumulo cluster by one hop, from verify to its reboots<a class="headerlink" href="#qumulo-cluster-upgrade-module-upgrade-a-qumulo-cluster-by-one-hop-from-verify-to-its-reboots" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.upgrade</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#see-also" id="id5">See Also</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id6">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id7">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Upgrades one cluster to the release of one image, through Qumulo Core’s own upgrade routes. <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state</span></span></a></strong></code> sets how far the task goes, through verify, prepare, commit or the commit’s reboots. Each phase reads back before it writes, so a rerun after a failure picks up where the cluster is.</p></li>
+<li><p>An upgrade is an action, not a setting (G-ACTIONS). A cluster that already runs the target release, and the declared <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-build"><span class="std std-ref"><span class="pre">build</span></span></a></strong></code> when one is given, with no reboot under way, is left alone. A cluster PREPARED with the same image, reboot settings and waivers is not prepared again; with other settings or another image it is prepared again, which replaces the earlier prepare.</p></li>
+<li><p>Before any write the module reads the cluster’s UUID, its version, the upgrade status, the preflight, the protection status, the reboot status and the nodes. A reboot under way is waited out first, up to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot-timeout"><span class="std std-ref"><span class="pre">reboot_timeout</span></span></a></strong></code>. A reboot paused outside this run, or stopped on an error, fails at once.</p></li>
+<li><p>The commit’s outcome is decided from the running build, not from an IDLE status (G-UPGRADE-RECORD). A commit that did not finish fails at once with <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-return-unfinished-commit"><span class="std std-ref"><span class="pre">unfinished_commit</span></span></a></code>, and the module sends nothing more.</p></li>
+<li><p>With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-commit-record"><span class="std std-ref"><span class="pre">commit_record</span></span></a></strong></code>, the module writes a record on the controller just before the commit request, and decides any record it finds there before any write, as <a class="reference internal" href="upgrade_plan_module.html#ansible-collections-qumulo-cluster-upgrade-plan-module"><span class="std std-ref">qumulo.cluster.upgrade_plan</span></a> does.</p></li>
+<li><p>Check mode sends only reads, and verify when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-verify-in-check-mode"><span class="std std-ref"><span class="pre">verify_in_check_mode</span></span></a></strong></code> is set, and waits for nothing. It reports the phases the task would run and the waits it would make. In check mode <code class="docutils literal notranslate"><span class="pre">changed</span></code> is true whenever a phase would run, even a readiness check of a cluster already PREPARED, whose real run changes nothing.</p></li>
+<li><p>This module runs one hop of one cluster. The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.cluster_upgrade</span></code> role runs a fleet.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-allow_upgrade_from_limited_release"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-allow-upgrade-from-limited-release"><strong>allow_upgrade_from_limited_release</strong></p>
+<a class="ansibleOptionLink" href="#parameter-allow_upgrade_from_limited_release" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>On a cluster that runs a limited (letter) release, such as 7.10.3A, send Qumulo Core’s waiver of the rule that refuses such a source (G-UPGRADE-LETTER). From 7.11.0 that is the named rule <code class="docutils literal notranslate"><span class="pre">allow_upgrade_from_limited_release</span></code>; below 7.11.0 it is <code class="docutils literal notranslate"><span class="pre">override_compatibility_check</span></code>, which lifts every compatibility rule, so it is sent only with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-build"><span class="std std-ref"><span class="pre">build</span></span></a></strong></code> and only after a verify, sent with it, reads <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-version"><span class="std std-ref"><span class="pre">version</span></span></a></strong></code>.</p>
+<p>On a cluster that runs no letter release, nothing is sent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-build"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-build"><strong>build</strong></p>
+<a class="ansibleOptionLink" href="#parameter-build" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The build the cluster must end on, as Qumulo Care names it. Once the cluster runs a new build of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-version"><span class="std std-ref"><span class="pre">version</span></span></a></strong></code>, another build fails at once.</p>
+<p>Needed for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-allow-upgrade-from-limited-release"><span class="std std-ref"><span class="pre">allow_upgrade_from_limited_release</span></span></a></strong></code> on a source below 7.11.0.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-commit"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-commit"><strong>commit</strong></p>
+<a class="ansibleOptionLink" href="#parameter-commit" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>With <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state=rebooted</span></span></a></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> refuses a cluster that does not already run the target release, so the task only waits for the reboots and never commits.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-commit_record"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-commit-record"><strong>commit_record</strong></p>
+<a class="ansibleOptionLink" href="#parameter-commit_record" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The path, on the controller, of this cluster’s commit record. The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.cluster_upgrade</span></code> role passes <code class="docutils literal notranslate"><span class="pre">&lt;cluster_upgrade_artifact_dir&gt;/&lt;host&gt;/upgrade/commit.yml</span></code>.</p>
+<p>The module writes it as pending just before the commit request, and flushes it to disk first. It removes it once the commit is done or refused, and marks it unfinished when the commit did not finish.</p>
+<p>A record already there is decided before any write. One this cluster’s state shows done, or that belongs to another cluster, is removed, with a warning. One the cluster’s state shows was never committed is removed too. One of a commit still under way, or one that did not finish, is refused. A file that is not a commit record is refused.</p>
+<p>Unset, no record is written, and the failure messages say so.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-host_name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-host-name"><strong>host_name</strong></p>
+<a class="ansibleOptionLink" href="#parameter-host_name" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The name this module’s messages and returns give the cluster. Defaults to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.cluster_upgrade</span></code> role always sets it, to the inventory host’s name. When it is set, the refusals name the role’s and the inventory’s settings, such as <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_wait_timeout</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code>, in place of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-wait-timeout"><span class="std std-ref"><span class="pre">wait_timeout</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot-set-size"><span class="std std-ref"><span class="pre">reboot_set_size</span></span></a></strong></code>.</p>
+<p>When it is set, the module does not warn that a reboot declaration is ignored; <a class="reference internal" href="upgrade_plan_module.html#ansible-collections-qumulo-cluster-upgrade-plan-module"><span class="std std-ref">qumulo.cluster.upgrade_plan</span></a> gives that warning instead.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-image"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-image"><strong>image</strong></p>
+<a class="ansibleOptionLink" href="#parameter-image" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The image, as an <code class="docutils literal notranslate"><span class="pre">http://</span></code> or <code class="docutils literal notranslate"><span class="pre">https://</span></code> URL every node can reach without its query string and user information, or an absolute path, which each node reads from its own disk or else from the cluster’s file system.</p>
+<p>A URL that carries a query string or user information is refused before any request; pass those parts in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-image-secret"><span class="std std-ref"><span class="pre">image_secret</span></span></a></strong></code>.</p>
+<p>A plain URL or a path reads in full in the result and in every message.</p>
+<p>Required, except with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state=rebooted</span></span></a></code> and <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-commit"><span class="std std-ref"><span class="pre">commit=false</span></span></a></code>, which only waits for the reboots and needs <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-version"><span class="std std-ref"><span class="pre">version</span></span></a></strong></code> instead.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-image_secret"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-image-secret"><strong>image_secret</strong></p>
+<a class="ansibleOptionLink" href="#parameter-image_secret" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The parts of the image’s URL that are secret, joined back to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-image"><span class="std std-ref"><span class="pre">image</span></span></a></strong></code> inside the module.</p>
+<p>The filter <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.url_secret</span></code> produces it from the full URL, and <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.redact_images</span></code> produces <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-image"><span class="std std-ref"><span class="pre">image</span></span></a></strong></code> from the same URL.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-image_secret/query"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-image-secret-query"><strong>query</strong></p>
+<a class="ansibleOptionLink" href="#parameter-image_secret/query" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The URL’s query string, without its <code class="docutils literal notranslate"><span class="pre">?</span></code>, as a presigned URL’s signature.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-image_secret/userinfo"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-image-secret-userinfo"><strong>userinfo</strong></p>
+<a class="ansibleOptionLink" href="#parameter-image_secret/userinfo" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The URL’s user information, as <code class="docutils literal notranslate"><span class="pre">user:password</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-maintenance_windows"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows"><strong>maintenance_windows</strong></p>
+<a class="ansibleOptionLink" href="#parameter-maintenance_windows" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Time ranges inside which the commit may begin, in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-window-timezone"><span class="std std-ref"><span class="pre">window_timezone</span></span></a></strong></code>. Outside them the module still prepares, then refuses the commit, naming when the window next opens; the cluster stays prepared.</p>
+<p>A range whose end is at or before its start runs past midnight, and its <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows-on-days"><span class="std std-ref"><span class="pre">maintenance_windows[].on_days</span></span></a></strong></code> names the day it starts. Unset, the commit may begin at any time.</p>
+<p>A timezone that is no IANA name, an hour outside 0 to 23, a minute outside 0 to 59 or a day name outside the week is refused before any request.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.cluster_upgrade</span></code> role checks the window itself, once per hop, and never passes this option.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-maintenance_windows/end_hour"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows-end-hour"><strong>end_hour</strong></p>
+<a class="ansibleOptionLink" href="#parameter-maintenance_windows/end_hour" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The hour the range ends, 0 to 23.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-maintenance_windows/end_minute"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows-end-minute"><strong>end_minute</strong></p>
+<a class="ansibleOptionLink" href="#parameter-maintenance_windows/end_minute" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The minute the range ends, 0 to 59.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-maintenance_windows/on_days"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows-on-days"><strong>on_days</strong></p>
+<a class="ansibleOptionLink" href="#parameter-maintenance_windows/on_days" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The days the range starts on, as <code class="ansible-value docutils literal notranslate"><span class="pre">MON</span></code> to <code class="ansible-value docutils literal notranslate"><span class="pre">SUN</span></code>, or <code class="ansible-value docutils literal notranslate"><span class="pre">EVERY_DAY</span></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-maintenance_windows/start_hour"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows-start-hour"><strong>start_hour</strong></p>
+<a class="ansibleOptionLink" href="#parameter-maintenance_windows/start_hour" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The hour the range starts, 0 to 23.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-maintenance_windows/start_minute"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows-start-minute"><strong>start_minute</strong></p>
+<a class="ansibleOptionLink" href="#parameter-maintenance_windows/start_minute" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The minute the range starts, 0 to 59.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-prepare"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-prepare"><strong>prepare</strong></p>
+<a class="ansibleOptionLink" href="#parameter-prepare" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>With <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state=prepared</span></span></a></code> or <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state=committed</span></span></a></code>, prepare a cluster that is not PREPARED with the image, the reboot settings and the waivers. <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> refuses such a cluster instead, and sends only reads before the commit.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ready_to_commit"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-ready-to-commit"><strong>ready_to_commit</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ready_to_commit" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>With <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state=prepared</span></span></a></code>, also check that the cluster may commit now. The preflight must clear, and the image must hold <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-version"><span class="std std-ref"><span class="pre">version</span></span></a></strong></code>. On a platform upgrade, the current node fault tolerance must reach <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot-set-size"><span class="std std-ref"><span class="pre">reboot_set_size</span></span></a></strong></code>, and with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot"><span class="std std-ref"><span class="pre">reboot=all</span></span></a></code> it must be back at the configured tolerance. Each of those is waited for up to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-wait-timeout"><span class="std std-ref"><span class="pre">wait_timeout</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-reboot"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot"><strong>reboot</strong></p>
+<a class="ansibleOptionLink" href="#parameter-reboot" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>How a platform upgrade reboots its hosts. <code class="ansible-value docutils literal notranslate"><span class="pre">rolling</span></code> reboots them in groups, each once the cluster has reprotected; <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code> reboots every host at once.</p>
+<p>Unset, the reboots are rolling.</p>
+<p>A cluster whose configured node fault tolerance is 0 reboots every host at once whatever this says, with a warning when a declaration is ignored.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;rolling&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-reboot_set_size"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot-set-size"><strong>reboot_set_size</strong></p>
+<a class="ansibleOptionLink" href="#parameter-reboot_set_size" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>How many nodes a rolling reboot takes at once, at least 1. Unset, Qumulo Core uses its own, the current tolerance minus one, at least one (G-UPGRADE-COUNT).</p>
+<p>The prepare waits up to <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-wait-timeout"><span class="std std-ref"><span class="pre">wait_timeout</span></span></a></strong></code> for the current node fault tolerance to reach it.</p>
+<p>Ignored, with a warning, when the reboot is not rolling.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-reboot_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot-timeout"><strong>reboot_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-reboot_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds a wait for a reboot may take, before the prepare and at <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state=rebooted</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">43200</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">verified</span></code> runs verify, which every node runs on the image and which installs nothing.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">prepared</span></code> leaves the cluster PREPARED with the image, the reboot settings and the waivers. With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-ready-to-commit"><span class="std std-ref"><span class="pre">ready_to_commit</span></span></a></strong></code>, it then decides with reads and waits only whether the cluster may commit now.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">committed</span></code> prepares first when needed, then commits, and returns once the commit is done. On a rolling platform upgrade, the commit is done once the new build forms a quorum and the status reads REBOOTING; <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-state"><span class="std std-ref"><span class="pre">state=rebooted</span></span></a></code> waits for the rest.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">rebooted</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">committed</span></code>, and then waits for the platform upgrade’s reboots to finish.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;verified&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;prepared&quot;</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;committed&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;rebooted&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-verify_in_check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-verify-in-check-mode"><strong>verify_in_check_mode</strong></p>
+<a class="ansibleOptionLink" href="#parameter-verify_in_check_mode" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>In check mode, also run verify, which downloads the whole image on every node and installs nothing.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-version"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-version"><strong>version</strong></p>
+<a class="ansibleOptionLink" href="#parameter-version" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The release the image holds, such as <code class="ansible-value docutils literal notranslate"><span class="pre">7.11.0</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">7.10.0.3</span></code>, as a string.</p>
+<p>Unset, it is read from an image file named <code class="docutils literal notranslate"><span class="pre">qumulo_core_&lt;version&gt;.qimg</span></code> or <code class="docutils literal notranslate"><span class="pre">cloud_qumulo_core_&lt;version&gt;.qimg</span></code>, and otherwise learned from verify.</p>
+<p>The prepare compares it with the release Qumulo Core reads in the image, and refuses a commit when they differ (G-UPGRADE-PATH).</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-wait_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-wait-timeout"><strong>wait_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-wait_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds each phase waits, in turn, for the preflight, the tolerance, the prepare and the commit.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">3600</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-window_timezone"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-parameter-window-timezone"><strong>window_timezone</strong></p>
+<a class="ansibleOptionLink" href="#parameter-window_timezone" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The IANA timezone of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows"><span class="std std-ref"><span class="pre">maintenance_windows</span></span></a></strong></code>, such as <code class="ansible-value docutils literal notranslate"><span class="pre">America/Los_Angeles</span></code>. Required with them.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-partial">partial</strong></p>
+<p>A cluster at the target, or PREPARED with the same image and settings, is left alone. A commit is an action that cannot be undone or sent twice (G-UPGRADE-ONESHOT).</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: GET /v1/node/state and /v1/version, which need no login; GET /v3/upgrade/status, never the deprecated v2 status, /v2/upgrade/blocked, /v1/cluster/protection/status, /v1/shutdown/reboot/status and /v1/cluster/nodes/; POST /v2/upgrade/verify-image, /v2/upgrade/prepare and /v2/upgrade/commit.</p></li>
+<li><p>Verify and prepare are sent with a request timeout of their own, 2700 seconds on a source of 7.10.3 or later and 4500 below. The API host, and any load balancer or NAT gateway in front of it, must hold an idle connection that long; one closed sooner loses the answer, which the module reads back.</p></li>
+<li><p>None of verify, prepare and commit is sent again after a lost answer; the module reads back instead. The one exception is a commit found still PREPARED, with the REST API answering throughout, which is sent once more.</p></li>
+<li><p>While a reboot is under way, the preflight reads degraded for the nodes the reboot has taken, and that is waited out as the reboot (G-UPGRADE-BLOCKED). A degraded preflight outside a reboot fails at once.</p></li>
+<li><p>Qumulo Core’s own refusals, such as an unlicensed edge’s (G-UPGRADE-LICENSE), are passed on with its words, and with a line saying every node must reach a URL image when the refusal could come from an unreachable URL.</p></li>
+<li><p>Registers: G-ACTIONS, G-UPGRADE-ONESHOT, G-UPGRADE-RECORD, G-UPGRADE-LETTER, G-UPGRADE-PATH, G-UPGRADE-COUNT, G-UPGRADE-BLOCKED, G-UPGRADE-LICENSE.</p></li>
+</ul>
+</div>
+</section>
+<section id="see-also">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">See Also</a><a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="upgrade_plan_module.html#ansible-collections-qumulo-cluster-upgrade-plan-module"><span class="std std-ref">qumulo.cluster.upgrade_plan</span></a></dt><dd><p>Plan a fleet’s Qumulo Core upgrade, hop by hop, before anything is sent.</p>
+</dd>
+<dt><a class="reference internal" href="upgrade_report_module.html#ansible-collections-qumulo-cluster-upgrade-report-module"><span class="std std-ref">qumulo.cluster.upgrade_report</span></a></dt><dd><p>Turn one hop’s upgrade results into the hop’s report.</p>
+</dd>
+<dt><a class="reference internal" href="cluster_info_module.html#ansible-collections-qumulo-cluster-cluster-info-module"><span class="std std-ref">qumulo.cluster.cluster_info</span></a></dt><dd><p>Read a Qumulo cluster’s identity, version, license, capacity and product type.</p>
+</dd>
+</dl>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># edge01_connection holds the connection options, such as {api_host: edge01.example.com, api_username: admin,</span>
+<span class="c1"># api_password: "</span><span class="cp">{{</span> <span class="nv">vault_edge01_password</span> <span class="cp">}}</span><span class="c1">"}. image_url is the image's full URL, presigned query string included.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upgrade one cluster to 7.11.0 and wait for its reboots</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://images.example.com/qumulo/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rebooted</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview the upgrade without sending anything but reads</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/upgrades/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.11.0"</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">diff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">upgrade_prediction</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview the upgrade and run verify on every node</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/upgrades/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.11.0"</span>
+<span class="w">    </span><span class="nt">verify_in_check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Verify the image on every node, installing nothing</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://images.example.com/qumulo/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">verified</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Prepare from a presigned URL, and check the cluster may commit now</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="o">[</span><span class="nv">image_url</span><span class="o">]</span> <span class="o">|</span> <span class="nf">qumulo</span><span class="nv">.cluster.redact_images</span> <span class="o">|</span> <span class="nf">first</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">image_secret</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">image_url</span> <span class="o">|</span> <span class="nf">qumulo</span><span class="nv">.cluster.url_secret</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.11.0"</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prepared</span>
+<span class="w">    </span><span class="nt">ready_to_commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">commit_record</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">playbook_dir</span> <span class="cp">}}</span><span class="s">/artifacts/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/upgrade/commit.yml"</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Commit a cluster that an earlier task prepared, and refuse to prepare it again</span>
+<span class="w">  </span><span class="c1"># image, image_secret, version, commit_record, reboot, reboot_set_size and allow_upgrade_from_limited_release must be the</span>
+<span class="w">  </span><span class="c1"># ones the prepare sent, or the commit is refused. This task repeats the prepare example above.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="o">[</span><span class="nv">image_url</span><span class="o">]</span> <span class="o">|</span> <span class="nf">qumulo</span><span class="nv">.cluster.redact_images</span> <span class="o">|</span> <span class="nf">first</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">image_secret</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">image_url</span> <span class="o">|</span> <span class="nf">qumulo</span><span class="nv">.cluster.url_secret</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.11.0"</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">committed</span>
+<span class="w">    </span><span class="nt">prepare</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">commit_record</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">playbook_dir</span> <span class="cp">}}</span><span class="s">/artifacts/</span><span class="cp">{{</span> <span class="nv">inventory_hostname</span> <span class="cp">}}</span><span class="s">/upgrade/commit.yml"</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reboot every node at once, in one outage, instead of in groups</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://images.example.com/qumulo/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rebooted</span>
+<span class="w">    </span><span class="nt">reboot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reboot two nodes at a time and give the reboots a day</span>
+<span class="w">  </span><span class="c1"># Leave reboot_set_size unset to take Qumulo Core's own size, which suits most clusters.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://images.example.com/qumulo/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rebooted</span>
+<span class="w">    </span><span class="nt">reboot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rolling</span>
+<span class="w">    </span><span class="nt">reboot_set_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="nt">reboot_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">86400</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Commit only inside a weekend maintenance window</span>
+<span class="w">  </span><span class="c1"># Outside the window the task still prepares, then refuses the commit and leaves the cluster prepared.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://images.example.com/qumulo/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">maintenance_windows</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">start_hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span>
+<span class="w">        </span><span class="nt">start_minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">        </span><span class="nt">end_hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
+<span class="w">        </span><span class="nt">end_minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">        </span><span class="nt">on_days</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">SAT</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SUN</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">window_timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">America/Los_Angeles</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Wait for the reboots of an upgrade that was already committed</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.11.0"</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rebooted</span>
+<span class="w">    </span><span class="nt">commit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upgrade a cluster that runs a limited release, at the direction of Qumulo Care</span>
+<span class="w">  </span><span class="c1"># Set this only when Qumulo Care directs it. Below 7.11.0 the waiver needs the build Qumulo Care names.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://images.example.com/qumulo/qumulo_core_7.11.0.qimg</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.11.0"</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="s">"393623.1.1"</span>
+<span class="w">    </span><span class="nt">allow_upgrade_from_limited_release</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upgrade, and on a failure say whether a write may have been applied</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">edge01_connection</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">block</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Upgrade edge01 to 7.11.0</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.upgrade</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://images.example.com/qumulo/qumulo_core_7.11.0.qimg</span>
+<span class="w">  </span><span class="nt">rescue</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Fail with the module's message and whether its write may have been applied</span>
+<span class="w">      </span><span class="nt">ansible.builtin.fail</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">ansible_failed_result.msg</span> <span class="cp">}}</span><span class="nv"> </span><span class="s">Maybe</span><span class="nv"> </span><span class="s">applied:</span><span class="nv"> </span><span class="cp">{{</span> <span class="nv">ansible_failed_result.maybe_applied</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="kp">false</span><span class="o">)</span> <span class="cp">}}</span><span class="s">."</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-cluster-uuid"><strong>cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#return-cluster_uuid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The cluster’s UUID, read from GET /v1/node/state before any write. <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> on a failure before it was read.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-commit_sent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-commit-sent"><strong>commit_sent</strong></p>
+<a class="ansibleOptionLink" href="#return-commit_sent" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the commit may have been applied, after a 202 or a lost answer. An answered refusal leaves it false.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-downtime_seconds"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-downtime-seconds"><strong>downtime_seconds</strong></p>
+<a class="ansibleOptionLink" href="#return-downtime_seconds" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">float</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The seconds the REST API did not answer during the commit’s restart, until the new build first answered. <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when the task did not wait for a commit.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-error_class"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-error-class"><strong>error_class</strong></p>
+<a class="ansibleOptionLink" href="#return-error_class" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Qumulo Core’s error class, on a failure it answered with an error, or on its refusal of the image, where it may be <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on such a failure</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-final"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-final"><strong>final</strong></p>
+<a class="ansibleOptionLink" href="#return-final" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>True on a refusal that a second prepare cannot lift, on which the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.cluster_upgrade</span></code> role holds the host’s component.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on such a failure</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-from"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-from"><strong>from</strong></p>
+<a class="ansibleOptionLink" href="#return-from" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The release and build the cluster ran when the task started. <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> on a failure before the version was read.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-from/build"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-from-build"><strong>build</strong></p>
+<a class="ansibleOptionLink" href="#return-from/build" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The build_id.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-from/version"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-from-version"><strong>version</strong></p>
+<a class="ansibleOptionLink" href="#return-from/version" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The release, such as <code class="ansible-value docutils literal notranslate"><span class="pre">7.10.3</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-image_redacted"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-image-redacted"><strong>image_redacted</strong></p>
+<a class="ansibleOptionLink" href="#return-image_redacted" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The image without its URL’s query string and user information. <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when no <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-image"><span class="std std-ref"><span class="pre">image</span></span></a></strong></code> is given.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal of a missing <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-image"><span class="std std-ref"><span class="pre">image</span></span></a></strong></code>, of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows"><span class="std std-ref"><span class="pre">maintenance_windows</span></span></a></strong></code> or of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-reboot-set-size"><span class="std std-ref"><span class="pre">reboot_set_size</span></span></a></strong></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-maybe_applied"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-maybe-applied"><strong>maybe_applied</strong></p>
+<a class="ansibleOptionLink" href="#return-maybe_applied" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>True when a write was sent and the read-back did not confirm it, as a lost prepare answer, a commit whose wait ran out, or a commit that did not finish.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on such a failure</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-notes"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-notes"><strong>notes</strong></p>
+<a class="ansibleOptionLink" href="#return-notes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What the module noticed, such as the last attempt’s settings an IDLE status still shows, or the earlier image a new prepare replaced.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when there is something to note</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-phases"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-phases"><strong>phases</strong></p>
+<a class="ansibleOptionLink" href="#return-phases" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Each phase the task ran, with its start and end in UTC; the commit ends when it is done.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;prepare&quot;:</span> <span class="pre">{&quot;ended&quot;:</span> <span class="pre">&quot;2026-11-04T10:31:12+00:00&quot;,</span> <span class="pre">&quot;started&quot;:</span> <span class="pre">&quot;2026-11-04T10:00:00+00:00&quot;}}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan"><strong>plan</strong></p>
+<a class="ansibleOptionLink" href="#return-plan" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The phases the task runs, or in check mode would run, and the waits it would make.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when anything is to be done, in check mode or a real run; not on a failure</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;from&quot;:</span> <span class="pre">{&quot;build&quot;:</span> <span class="pre">&quot;385145.1.82.1.73&quot;,</span> <span class="pre">&quot;state&quot;:</span> <span class="pre">&quot;IDLE&quot;,</span> <span class="pre">&quot;version&quot;:</span> <span class="pre">&quot;7.10.3&quot;},</span> <span class="pre">&quot;image_redacted&quot;:</span> <span class="pre">&quot;https://images.example.com/qumulo/qumulo_core_7.11.0.qimg&quot;,</span> <span class="pre">&quot;phases&quot;:</span> <span class="pre">[&quot;prepare&quot;,</span> <span class="pre">&quot;commit&quot;,</span> <span class="pre">&quot;reboots&quot;],</span> <span class="pre">&quot;reboot&quot;:</span> <span class="pre">{&quot;mode&quot;:</span> <span class="pre">&quot;rolling&quot;,</span> <span class="pre">&quot;set_size&quot;:</span> <span class="pre">null},</span> <span class="pre">&quot;to&quot;:</span> <span class="pre">{&quot;build&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;version&quot;:</span> <span class="pre">&quot;7.11.0&quot;},</span> <span class="pre">&quot;waits&quot;:</span> <span class="pre">[]}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/from"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-from"><strong>from</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/from" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The running release, its build and the upgrade status’s state.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/image_redacted"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-image-redacted"><strong>image_redacted</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/image_redacted" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The image without its URL’s query string and user information.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/phases"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-phases"><strong>phases</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/phases" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The phases in order, of <code class="ansible-value docutils literal notranslate"><span class="pre">verify</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">prepare</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ready</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">commit</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">reboots</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/reboot"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-reboot"><strong>reboot</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/reboot" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The reboot mode the prepare sends, <code class="docutils literal notranslate"><span class="pre">mode</span></code>, and the set size, <code class="docutils literal notranslate"><span class="pre">set_size</span></code>, if any.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/record"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-record"><strong>record</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/record" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>A commit record the task removes, with its <code class="docutils literal notranslate"><span class="pre">action</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">retire</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">drop</span></code>, its <code class="docutils literal notranslate"><span class="pre">path</span></code> and its <code class="docutils literal notranslate"><span class="pre">line</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/to"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-to"><strong>to</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/to" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The image’s release, as declared or read, and the declared build.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/waits"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-waits"><strong>waits</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/waits" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Each wait a real run would make, which check mode predicts and does not refuse.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/waiver"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-waiver"><strong>waiver</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/waiver" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The limited-release waiver the task sends, as its <code class="docutils literal notranslate"><span class="pre">parameter</span></code>, and the rules it <code class="docutils literal notranslate"><span class="pre">lifts</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-plan/window"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-plan-window"><strong>window</strong></p>
+<a class="ansibleOptionLink" href="#return-plan/window" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Where the commit falls against <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-maintenance-windows"><span class="std std-ref"><span class="pre">maintenance_windows</span></span></a></strong></code>, as <code class="docutils literal notranslate"><span class="pre">inside</span></code>, <code class="docutils literal notranslate"><span class="pre">next_open</span></code> and <code class="docutils literal notranslate"><span class="pre">message</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-prepared"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-prepared"><strong>prepared</strong></p>
+<a class="ansibleOptionLink" href="#return-prepared" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether this task prepared the cluster.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-ready"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-ready"><strong>ready</strong></p>
+<a class="ansibleOptionLink" href="#return-ready" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code> when the readiness check found the cluster ready to commit; <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when no check ran or it did not clear.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-reboot"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-reboot"><strong>reboot</strong></p>
+<a class="ansibleOptionLink" href="#return-reboot" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The reboot this task’s settings give. <code class="docutils literal notranslate"><span class="pre">mode</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">rolling</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code>, or <code class="ansible-value docutils literal notranslate"><span class="pre">none</span></code> once the image reads software-only; <code class="docutils literal notranslate"><span class="pre">set_size</span></code> is the rolling set size sent, or <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code>; <code class="docutils literal notranslate"><span class="pre">seconds</span></code> is the seconds the task waited for the reboots, or <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when it waited for none. <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> on a failure before the version was read.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-status"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-status"><strong>status</strong></p>
+<a class="ansibleOptionLink" href="#return-status" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">any</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The last upgrade status read, with every URL in it redacted, or <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> before it was read.</p>
+<p>On a failure that Qumulo Core answered with an HTTP error, the HTTP status code instead.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-to"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-to"><strong>to</strong></p>
+<a class="ansibleOptionLink" href="#return-to" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The release and build the cluster ends on, once the commit is done; before, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-version"><span class="std std-ref"><span class="pre">version</span></span></a></strong></code>, or the release the image’s file name or verify gives, and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-upgrade-module-parameter-build"><span class="std std-ref"><span class="pre">build</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-to/build"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-to-build"><strong>build</strong></p>
+<a class="ansibleOptionLink" href="#return-to/build" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The build_id, or the declared build.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-to/version"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-to-version"><strong>version</strong></p>
+<a class="ansibleOptionLink" href="#return-to/version" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The release.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unfinished_commit"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-unfinished-commit"><strong>unfinished_commit</strong></p>
+<a class="ansibleOptionLink" href="#return-unfinished_commit" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>True when the commit did not finish and the cluster is back on its old build, IDLE.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on that failure</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-upgrade_type"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-upgrade-type"><strong>upgrade_type</strong></p>
+<a class="ansibleOptionLink" href="#return-upgrade_type" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">SOFTWARE_ONLY</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">SOFTWARE_AND_PLATFORM</span></code>, as Qumulo Core reads the image, once verify, the prepare or the upgrade status has read it. <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> before then.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-waiver"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-upgrade-module-return-waiver"><strong>waiver</strong></p>
+<a class="ansibleOptionLink" href="#return-waiver" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The limited-release waiver sent, as its <code class="docutils literal notranslate"><span class="pre">parameter</span></code>, and the rules it <code class="docutils literal notranslate"><span class="pre">lifts</span></code>. <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when none was sent.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, except on a refusal before the first request</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="unprotected_edge_create_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.unprotected_edge_create module – Form a single-node unprotected edge from an unconfigured Qumulo node" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="upgrade_plan_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.upgrade_plan module – Plan a fleet’s Qumulo Core upgrade, hop by hop, before anything is sent" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

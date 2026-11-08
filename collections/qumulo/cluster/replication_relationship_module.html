@@ -1,0 +1,1223 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.replication_relationship module – Declare a replication relationship on its source cluster, or delete the source’s records of it &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.replication_restore_info module – List the restore records and restore locks left on the controller, with their age" href="replication_restore_info_module.html" />
+    <link rel="prev" title="qumulo.cluster.replication_pair_plan module – Join the source’s and the target’s check passes of a replication relationship into one decision" href="replication_pair_plan_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.replication_relationship module – Declare a replication relationship on its source cluster, or delete the source’s records of it</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-replication-relationship-module"></span><section id="qumulo-cluster-replication-relationship-module-declare-a-replication-relationship-on-its-source-cluster-or-delete-the-source-s-records-of-it">
+<h1>qumulo.cluster.replication_relationship module – Declare a replication relationship on its source cluster, or delete the source’s records of it<a class="headerlink" href="#qumulo-cluster-replication-relationship-module-declare-a-replication-relationship-on-its-source-cluster-or-delete-the-source-s-records-of-it" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.replication_relationship</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Runs on the source cluster. A create registers the relationship on the target too, awaiting authorization there, which <a class="reference internal" href="replication_target_module.html#ansible-collections-qumulo-cluster-replication-target-module"><span class="std std-ref">qumulo.cluster.replication_target</span></a> gives. The replication roles pair both sides.</p></li>
+<li><p>The relationship is identified by <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-source-path"><span class="std std-ref"><span class="pre">source_path</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-cluster-uuid"><span class="std std-ref"><span class="pre">target_cluster_uuid</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-path"><span class="std std-ref"><span class="pre">target_path</span></span></a></strong></code>, never by a server id or by the address. Paths compare without a trailing slash, and UUIDs without regard to case.</p></li>
+<li><p><code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-address"><span class="std std-ref"><span class="pre">target_address</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-port"><span class="std std-ref"><span class="pre">target_port</span></span></a></strong></code> are settings, like <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-replication-enabled"><span class="std std-ref"><span class="pre">replication_enabled</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-map-local-ids-to-nfs-ids"><span class="std std-ref"><span class="pre">map_local_ids_to_nfs_ids</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-source-root-read-only"><span class="std std-ref"><span class="pre">source_root_read_only</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows"><span class="std std-ref"><span class="pre">blackout_windows</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-window-timezone"><span class="std std-ref"><span class="pre">blackout_window_timezone</span></span></a></strong></code>. One PATCH, with If-Match from the relationship’s configuration, sends only those that differ. The server refuses an address that reaches another cluster.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">replication_mode</span></code> and <code class="docutils literal notranslate"><span class="pre">snapshot_policies</span></code> are never compared or sent, so an adopted relationship keeps them.</p></li>
+<li><p>A create is never sent twice. A create whose answer is lost is reconciled by listing, and two records of the key fail, naming both ids.</p></li>
+<li><p>After a create, the module reads the new record. When the address reached a cluster other than <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-cluster-uuid"><span class="std std-ref"><span class="pre">target_cluster_uuid</span></span></a></strong></code>, it deletes the record at once and fails, naming the address and the UUID it reached.</p></li>
+<li><p>A record with the same paths and another target UUID is a changed peer when it is at the declared address and port, or when its UUID is in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-previous-target-cluster-uuids"><span class="std std-ref"><span class="pre">previous_target_cluster_uuids</span></span></a></strong></code>, at any address. With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-recreate-changed-peer"><span class="std std-ref"><span class="pre">recreate_changed_peer</span></span></a></strong></code>, the module creates the new relationship first, checks the UUID it reaches, and only then deletes the changed peer; without it, it fails. A changed peer beside a record of the key is deleted with no create. A record at the declared address whose UUID is in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-inventory-cluster-uuids"><span class="std std-ref"><span class="pre">inventory_cluster_uuids</span></span></a></strong></code> is never a changed peer; it fails, since the address reaches the wrong cluster.</p></li>
+<li><p>Before any write the module evaluates the rows of the overwrite table that fall to the source, and refuses while any of them is unmet and not lifted, reporting every unmet one in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet"><span class="std std-ref"><span class="pre">unmet</span></span></a></code>. O3, an ENDED record of the key with no live one, needs <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-recreate"><span class="std std-ref"><span class="pre">recreate</span></span></a></strong></code> and a release bound to that record; the real run then creates, reads the target UUID back, and deletes the ENDED record. O8, this cluster holding a target record from the declared target at a path equal to or nested with the source path, is a reversal, a failover state that nothing here lifts.</p></li>
+<li><p>An ENDED record of the key beside a live one, as a prune on the target leaves after a repeated create, holds nothing; the real run deletes it.</p></li>
+<li><p>A missing source directory is unmet, and in check mode pending with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-source-path-pending"><span class="std std-ref"><span class="pre">source_path_pending</span></span></a></strong></code>.</p></li>
+<li><p>In a failover state (<code class="docutils literal notranslate"><span class="pre">DISCONNECTING</span></code>, <code class="docutils literal notranslate"><span class="pre">DISCONNECTED</span></code>, <code class="docutils literal notranslate"><span class="pre">RECONNECTING</span></code>, <code class="docutils literal notranslate"><span class="pre">REESTABLISHING</span></code>) the module changes nothing in the relationship’s state, still PATCHes its settings, and warns.</p></li>
+<li><p>With <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code>, deletes on this cluster the record of the key, in any state, and every record with the same paths whose target UUID is in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-previous-target-cluster-uuids"><span class="std std-ref"><span class="pre">previous_target_cluster_uuids</span></span></a></strong></code>. The target keeps its record, and its directory its data, until <a class="reference internal" href="replication_target_module.html#ansible-collections-qumulo-cluster-replication-target-module"><span class="std std-ref">qumulo.cluster.replication_target</span></a> with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code> runs there.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-blackout_window_timezone"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-window-timezone"><strong>blackout_window_timezone</strong></p>
+<a class="ansibleOptionLink" href="#parameter-blackout_window_timezone" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The timezone of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows"><span class="std std-ref"><span class="pre">blackout_windows</span></span></a></strong></code>, such as <code class="ansible-value docutils literal notranslate"><span class="pre">America/Los_Angeles</span></code>. Unset keeps the current timezone.</p>
+<p>A timezone cannot be cleared once set (QUIRK-019), so an empty value fails while one is set.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-blackout_windows"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows"><strong>blackout_windows</strong></p>
+<a class="ansibleOptionLink" href="#parameter-blackout_windows" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When replication pauses, in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-window-timezone"><span class="std std-ref"><span class="pre">blackout_window_timezone</span></span></a></strong></code>, which they need. Unset keeps the current windows, and an empty list removes them all.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-blackout_windows/end_hour"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows-end-hour"><strong>end_hour</strong></p>
+<a class="ansibleOptionLink" href="#parameter-blackout_windows/end_hour" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The hour the window ends, 0 to 23.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-blackout_windows/end_minute"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows-end-minute"><strong>end_minute</strong></p>
+<a class="ansibleOptionLink" href="#parameter-blackout_windows/end_minute" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The minute the window ends, 0 to 59.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-blackout_windows/on_days"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows-on-days"><strong>on_days</strong></p>
+<a class="ansibleOptionLink" href="#parameter-blackout_windows/on_days" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The days the window applies on. <code class="ansible-value docutils literal notranslate"><span class="pre">EVERY_DAY</span></code> reads back as all seven.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;EVERY_DAY&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;SUN&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;MON&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;TUE&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;WED&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;THU&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;FRI&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;SAT&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-blackout_windows/start_hour"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows-start-hour"><strong>start_hour</strong></p>
+<a class="ansibleOptionLink" href="#parameter-blackout_windows/start_hour" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The hour the window starts, 0 to 23.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-blackout_windows/start_minute"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-blackout-windows-start-minute"><strong>start_minute</strong></p>
+<a class="ansibleOptionLink" href="#parameter-blackout_windows/start_minute" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The minute the window starts, 0 to 59.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-create"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-create"><strong>create</strong></p>
+<a class="ansibleOptionLink" href="#parameter-create" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>With <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code>, the module only deletes, and creates and PATCHes nothing. It deletes the changed peers whose UUID is in <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-previous-target-cluster-uuids"><span class="std std-ref"><span class="pre">previous_target_cluster_uuids</span></span></a></strong></code> and that are at the declared address, or whose last job reports that it cannot establish a secure connection. Any other changed peer is left for a later create-first replacement.</p>
+<p>The replication roles pass <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> while they defer a relationship.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-inventory_cluster_uuids"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-inventory-cluster-uuids"><strong>inventory_cluster_uuids</strong></p>
+<a class="ansibleOptionLink" href="#parameter-inventory_cluster_uuids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUIDs of the other clusters in the inventory. A record whose target UUID is one of them is never a changed peer, and at the declared address it fails, since the address reaches another inventory cluster.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-map_local_ids_to_nfs_ids"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-map-local-ids-to-nfs-ids"><strong>map_local_ids_to_nfs_ids</strong></p>
+<a class="ansibleOptionLink" href="#parameter-map_local_ids_to_nfs_ids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether local user and group ids are mapped to NFS ids on the target. Unset keeps the current value.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-previous_target_cluster_uuids"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-previous-target-cluster-uuids"><strong>previous_target_cluster_uuids</strong></p>
+<a class="ansibleOptionLink" href="#parameter-previous_target_cluster_uuids" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>UUIDs the target cluster had before a rebuild. Records with the same paths and one of these UUIDs are changed peers at any address, and <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code> deletes them too.</p>
+<p>It must not hold <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-cluster-uuid"><span class="std std-ref"><span class="pre">target_cluster_uuid</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-recreate"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-recreate"><strong>recreate</strong></p>
+<a class="ansibleOptionLink" href="#parameter-recreate" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>With a release bound to it, lets the module replace an ENDED record of the key, the only one, with a new relationship (row O3). The ENDED record is deleted once the new one is shown to reach <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-cluster-uuid"><span class="std std-ref"><span class="pre">target_cluster_uuid</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-recreate_changed_peer"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-recreate-changed-peer"><strong>recreate_changed_peer</strong></p>
+<a class="ansibleOptionLink" href="#parameter-recreate_changed_peer" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Replace a changed peer, create first. The replication roles pass it; without it, a changed peer fails.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-relationship_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-relationship-id"><strong>relationship_id</strong></p>
+<a class="ansibleOptionLink" href="#parameter-relationship_id" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The id a check run of this module returned as <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-read-by-id"><span class="std std-ref"><span class="pre">read_by_id</span></span></a></code>. The module then reads only that record, instead of listing this cluster’s relationships, and fails when it is gone or ENDED; it never falls back to a create.</p>
+<p>Only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code>.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-release"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-release"><strong>release</strong></p>
+<a class="ansibleOptionLink" href="#parameter-release" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Release entries for this relationship, each <code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;&#64;&lt;record</span> <span class="pre">id&gt;:&lt;rows&gt;</span></code>. An entry naming O3 and bound to an ENDED record of the key lifts O3 for that record, with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-recreate"><span class="std std-ref"><span class="pre">recreate</span></span></a></strong></code>.</p>
+<p>An entry for another target path fails.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-replication_enabled"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-replication-enabled"><strong>replication_enabled</strong></p>
+<a class="ansibleOptionLink" href="#parameter-replication_enabled" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the relationship replicates. Unset keeps the current value, and a create leaves the server’s default, true.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-source-path"><strong>source_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source directory on this cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_path_pending"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-source-path-pending"><strong>source_path_pending</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_path_pending" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>In check mode, a missing source directory is pending, since an earlier step of the run creates it, and counts as empty. Outside check mode a missing source directory always fails.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">false</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-source_root_read_only"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-source-root-read-only"><strong>source_root_read_only</strong></p>
+<a class="ansibleOptionLink" href="#parameter-source_root_read_only" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the source directory is read-only while the relationship exists. Unset keeps the current value.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">true</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-state"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#parameter-state" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the relationship exists on this cluster.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;present&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;absent&quot;</span></code></p></li>
+</ul>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_address"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-address"><strong>target_address</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_address" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The IP address at which this cluster reaches the target’s replication port, such as a floating IP of the target, or behind NAT the NAT’s outside address. The server takes an IP literal only.</p>
+<p>Required with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><span class="std std-ref"><span class="pre">state=present</span></span></a></code>.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-cluster-uuid"><strong>target_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>UUID of the target cluster. It is part of the key, so a target rebuilt with a new UUID makes a new relationship, and the old record is a changed peer.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-path"><strong>target_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target directory on the target cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-target_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-target-port"><strong>target_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-target_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The target’s replication port as this cluster reaches it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">3712</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>Evaluates the source’s rows of the overwrite table as the real run does, and fails on the same unmet rows. It predicts a create with a null id and <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-creates"><span class="std std-ref"><span class="pre">creates</span></span></a></code>.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>The diff’s before and after each hold <code class="docutils literal notranslate"><span class="pre">relationship</span></code>, in the shape of <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship"><span class="std std-ref"><span class="pre">relationship</span></span></a></code>, and <code class="docutils literal notranslate"><span class="pre">records</span></code>, the records the task deletes, or in check mode would delete. After’s <code class="docutils literal notranslate"><span class="pre">records</span></code> is always empty.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-partial">partial</strong></p>
+<p>A create cannot be sent again; the module matches by key first and reconciles a lost create by listing (G-REPL-ONESHOT).</p>
+<p>A target rebuilt with a new UUID leaves the old record pinned to its certificate, never ENDED (G-REPL-PEER).</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: GET /v2/replication/source-relationships/status/, GET and PATCH and DELETE /v2/replication/source-relationships/{id}, GET /v2/replication/source-relationships/{id}/status, POST /v2/replication/source-relationships/, GET /v2/replication/target-relationships/status/ for row O8, GET /v1/files/{ref}/info/attributes, GET /v1/files/{ref}/entries/, GET /v1/files/{ref}/aggregates/, GET /v4/snapshots/status/.</p></li>
+<li><p>Idempotency gaps G-REPL-ONESHOT and G-REPL-PEER apply. A create to an address that reaches another cluster leaves an ENDED record there, which this module cannot reach (G-REPL-ONESHOT).</p></li>
+<li><p>The source tells the target of a delete only once, so a removal deletes here and then on the target (G-REPL-NOTIFY). The target’s last recovery-point snapshot outlives the removal, owned by nothing (G-REPL-SNAPSHOT); <a class="reference internal" href="replication_target_module.html#ansible-collections-qumulo-cluster-replication-target-module"><span class="std std-ref">qumulo.cluster.replication_target</span></a> names it.</p></li>
+<li><p>A blackout timezone cannot be cleared (G-REPL-TZ, QUIRK-019), so blackout windows without a timezone, and an empty timezone where one is set, fail before any write.</p></li>
+<li><p>The source reports the target path as it was sent until it first polls the target, and then with a trailing slash (QUIRK-020); the module compares and reports paths without it.</p></li>
+<li><p>Files owned by local users and groups other than the built-in ones replicate as NFS ids, so they need <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-map-local-ids-to-nfs-ids"><span class="std std-ref"><span class="pre">map_local_ids_to_nfs_ids</span></span></a></strong></code> and an NFS uid or gid on each, and come back from a replica owned by those ids, which reach the same user or group only through a matching uid or gid (G-REPL-IDMAP).</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># These tasks carry no connection options. Set them once for the play with module_defaults for</span>
+<span class="c1"># group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview the relationship to dr01 without writing, with the refusals it would meet</span>
+<span class="w">  </span><span class="c1"># A refusal still returns unmet, so the preview does not fail the play.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">replication_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">blackout_windows</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">start_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">8</span><span class="p p-Indicator">,</span><span class="nt"> start_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> end_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">18</span><span class="p p-Indicator">,</span><span class="nt"> end_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> on_days</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">MON</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">TUE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">WED</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">THU</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">FRI</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="nt">blackout_window_timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">America/Los_Angeles</span>
+<span class="w">    </span><span class="nt">previous_target_cluster_uuids</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_previous_cluster_uuids</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">inventory_cluster_uuids</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">groups</span><span class="o">[</span><span class="s1">'qumulo_clusters'</span><span class="o">]</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="s1">'extract'</span><span class="o">,</span> <span class="nv">hostvars</span><span class="o">,</span> <span class="s1">'qumulo_cluster_uuid'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">recreate_changed_peer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">diff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">preview</span>
+<span class="w">  </span><span class="nt">failed_when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show what would keep the relationship from being created</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">preview.unmet</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'message'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop when the preview refused the relationship</span>
+<span class="w">  </span><span class="nt">ansible.builtin.fail</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">preview.msg</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">preview.msg is defined</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create the relationship to dr01, or adopt one made by hand at another address of dr01 with one PATCH</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">replication_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">blackout_windows</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">start_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">8</span><span class="p p-Indicator">,</span><span class="nt"> start_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> end_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">18</span><span class="p p-Indicator">,</span><span class="nt"> end_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> on_days</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">MON</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">TUE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">WED</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">THU</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">FRI</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="nt">blackout_window_timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">America/Los_Angeles</span>
+<span class="w">    </span><span class="nt">previous_target_cluster_uuids</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_previous_cluster_uuids</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">inventory_cluster_uuids</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">groups</span><span class="o">[</span><span class="s1">'qumulo_clusters'</span><span class="o">]</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="s1">'extract'</span><span class="o">,</span> <span class="nv">hostvars</span><span class="o">,</span> <span class="s1">'qumulo_cluster_uuid'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">recreate_changed_peer</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show what the target's authorize needs from the source</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">      </span><span class="no">id </span><span class="cp">{{</span> <span class="nv">created.relationship.id</span> <span class="cp">}}</span><span class="no">, source_empty </span><span class="cp">{{</span> <span class="nv">created.source_empty</span> <span class="cp">}}</span><span class="no">, source_files </span><span class="cp">{{</span> <span class="nv">created.source_files</span> <span class="cp">}}</span><span class="no">,</span>
+<span class="w">      </span><span class="no">source_bytes </span><span class="cp">{{</span> <span class="nv">created.source_bytes</span> <span class="cp">}}</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Apply the relationship, reading only the record the preview returned</span>
+<span class="w">  </span><span class="c1"># read_by_id is null when the preview predicted a create or a delete, and the module then lists as usual.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">relationship_id</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">preview.read_by_id</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview a change of the blackout windows</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">blackout_windows</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">start_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">22</span><span class="p p-Indicator">,</span><span class="nt"> start_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> end_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">23</span><span class="p p-Indicator">,</span><span class="nt"> end_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">59</span><span class="p p-Indicator">,</span><span class="nt"> on_days</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">EVERY_DAY</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="nt">blackout_window_timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">America/Los_Angeles</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">diff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove all blackout windows of the relationship</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">blackout_windows</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pause replication without deleting the relationship</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">replication_enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Replicate files owned by local users as NFS ids</span>
+<span class="w">  </span><span class="c1"># Each such local user and group needs an NFS uid or gid (G-REPL-IDMAP).</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">map_local_ids_to_nfs_ids</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Keep the source directory read-only while the relationship exists</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">source_root_read_only</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Move the relationship to a floating IP of the same target, one PATCH</span>
+<span class="w">  </span><span class="c1"># Prefer a floating IP of the target: it stays reachable when a node of the target goes down.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">203.0.113.41</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Replace a relationship the operator ended, with the release its refusal printed</span>
+<span class="w">  </span><span class="c1"># Pass the release with -e for this run only, never in the inventory.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">recreate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">release</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">      </span><span class="cp">{{</span> <span class="nv">qumulo_replication_release</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span>
+         <span class="o">|</span> <span class="nf">select</span><span class="o">(</span><span class="s1">'match'</span><span class="o">,</span> <span class="s1">'dr01:/replicas/edge01-projects/?@'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Delete the records of dr01's previous UUIDs that can no longer replicate, and create nothing</span>
+<span class="w">  </span><span class="c1"># Only those at the declared address, or whose last job cannot establish a secure connection; the rest are left for a</span>
+<span class="w">  </span><span class="c1"># create-first replacement.</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">previous_target_cluster_uuids</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_previous_cluster_uuids</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">create</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Preview the relationship before the play creates the source directory</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects/new</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects-new</span>
+<span class="w">    </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_replication_address</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">source_path_pending</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">diff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove the relationship on the source, and the records of the target's previous UUIDs</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_cluster_uuid</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">previous_target_cluster_uuids</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">hostvars</span><span class="o">[</span><span class="s1">'dr01'</span><span class="o">]</span><span class="nv">.qumulo_previous_cluster_uuids</span> <span class="o">|</span> <span class="nf">default</span><span class="o">([])</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-creates"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-creates"><strong>creates</strong></p>
+<a class="ansibleOptionLink" href="#return-creates" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the task creates a relationship, or in check mode would, a replacement of a changed peer or of an ENDED record included. The replication roles then run the target’s check with <code class="docutils literal notranslate"><span class="pre">source_creates</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-deleted"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-deleted"><strong>deleted</strong></p>
+<a class="ansibleOptionLink" href="#return-deleted" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The records the task deleted, or in check mode would delete, in the shape of <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship"><span class="std std-ref"><span class="pre">relationship</span></span></a></code>, in the order it deletes them. A replacement deletes the old record only after its create.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-expected"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-expected"><strong>expected</strong></p>
+<a class="ansibleOptionLink" href="#return-expected" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The settings the task wrote, for those that did not read back as written.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on a failure when the read-back after a create or a PATCH differs from what was written</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;blackout_window_timezone&quot;:</span> <span class="pre">&quot;America/Los_Angeles&quot;}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-maybe_applied"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-maybe-applied"><strong>maybe_applied</strong></p>
+<a class="ansibleOptionLink" href="#return-maybe_applied" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>True when a create, a PATCH of the settings or a delete was sent and the module could not confirm it, so the next run reads the cluster and decides. The module never resends it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on a failure after a lost answer</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-notes"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-notes"><strong>notes</strong></p>
+<a class="ansibleOptionLink" href="#return-notes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What the module noticed, such as a record deleted as a leftover, or a delete already done.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when there is something to note</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-observed"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-observed"><strong>observed</strong></p>
+<a class="ansibleOptionLink" href="#return-observed" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>What the source record read back for the keys of <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-expected"><span class="std std-ref"><span class="pre">expected</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> on a failure when the read-back after a create or a PATCH differs from what was written</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;blackout_window_timezone&quot;:</span> <span class="pre">&quot;UTC&quot;}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-read_by_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-read-by-id"><strong>read_by_id</strong></p>
+<a class="ansibleOptionLink" href="#return-read_by_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>This module’s own hand-off from a check run to the real run that follows it, given back as <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-relationship-id"><span class="std std-ref"><span class="pre">relationship_id</span></span></a></strong></code>, so that run reads that record alone. Null after a create, or when a delete is due, since that run must then list this cluster’s relationships again.</p>
+<p>It is not the id for <a class="reference internal" href="replication_target_module.html#ansible-collections-qumulo-cluster-replication-target-module"><span class="std std-ref">qumulo.cluster.replication_target</span></a>; pass that module’s <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="replication_target_module.html#ansible-collections-qumulo-cluster-replication-target-module-parameter-relationship-id"><span class="std std-ref"><span class="pre">relationship_id</span></span></a></strong></code> the <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-id"><span class="std std-ref"><span class="pre">relationship.id</span></span></a></code> a run of this module returns.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship"><strong>relationship</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source’s record of the key after the task, in the shape <a class="reference internal" href="replication_info_module.html#ansible-collections-qumulo-cluster-replication-info-module"><span class="std std-ref">qumulo.cluster.replication_info</span></a> reports both sides in; empty after <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code>, and with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-create"><span class="std std-ref"><span class="pre">create=false</span></span></a></code> when there is none.</p>
+<p>In check mode, the predicted record; for a create, its id is null and its state <code class="docutils literal notranslate"><span class="pre">AWAITING_AUTHORIZATION</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;blackout_window_timezone&quot;:</span> <span class="pre">&quot;America/Los_Angeles&quot;,</span> <span class="pre">&quot;blackout_windows&quot;:</span> <span class="pre">[{&quot;end_hour&quot;:</span> <span class="pre">18,</span> <span class="pre">&quot;end_minute&quot;:</span> <span class="pre">0,</span> <span class="pre">&quot;on_days&quot;:</span> <span class="pre">[&quot;MON&quot;,</span> <span class="pre">&quot;TUE&quot;,</span> <span class="pre">&quot;WED&quot;,</span> <span class="pre">&quot;THU&quot;,</span> <span class="pre">&quot;FRI&quot;],</span> <span class="pre">&quot;start_hour&quot;:</span> <span class="pre">8,</span> <span class="pre">&quot;start_minute&quot;:</span> <span class="pre">0}],</span> <span class="pre">&quot;end_reason&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;error_from_last_job&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;id&quot;:</span> <span class="pre">&quot;9465828e-7dcf-466e-a550-78ed0bd6b79b&quot;,</span> <span class="pre">&quot;job_start_time&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;job_state&quot;:</span> <span class="pre">&quot;REPLICATION_NOT_RUNNING&quot;,</span> <span class="pre">&quot;map_local_ids_to_nfs_ids&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;recovery_point&quot;:</span> <span class="pre">&quot;2026-11-01T08:21:54.728656093Z&quot;,</span> <span class="pre">&quot;recovery_point_snapshot_id&quot;:</span> <span class="pre">117,</span> <span class="pre">&quot;replication_enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;source_cluster_uuid&quot;:</span> <span class="pre">&quot;9533a9e2-e57a-454f-8aa0-9c77b706b7bd&quot;,</span> <span class="pre">&quot;source_path&quot;:</span> <span class="pre">&quot;/projects&quot;,</span> <span class="pre">&quot;source_root_read_only&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;state&quot;:</span> <span class="pre">&quot;ESTABLISHED&quot;,</span> <span class="pre">&quot;target_address&quot;:</span> <span class="pre">&quot;203.0.113.40&quot;,</span> <span class="pre">&quot;target_cluster_uuid&quot;:</span> <span class="pre">&quot;59052546-452f-483e-a800-0a925d3fa1bd&quot;,</span> <span class="pre">&quot;target_path&quot;:</span> <span class="pre">&quot;/replicas/edge01-projects&quot;,</span> <span class="pre">&quot;target_port&quot;:</span> <span class="pre">3712,</span> <span class="pre">&quot;target_root_read_only&quot;:</span> <span class="pre">true}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/blackout_window_timezone"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-blackout-window-timezone"><strong>blackout_window_timezone</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/blackout_window_timezone" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The timezone of the blackout windows; empty when none was ever set.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/blackout_windows"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-blackout-windows"><strong>blackout_windows</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/blackout_windows" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The blackout windows, with their days in the server’s order, Sunday first.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/end_reason"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-end-reason"><strong>end_reason</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/end_reason" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Why an ENDED relationship ended.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/error_from_last_job"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-error-from-last-job"><strong>error_from_last_job</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/error_from_last_job" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The last job’s error, or null.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-id"><strong>id</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The relationship’s id, which both sides share.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/job_start_time"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-job-start-time"><strong>job_start_time</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/job_start_time" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When the running job started; null when no job runs.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/job_state"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-job-state"><strong>job_state</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/job_state" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">REPLICATION_RUNNING</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">REPLICATION_NOT_RUNNING</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/map_local_ids_to_nfs_ids"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-map-local-ids-to-nfs-ids"><strong>map_local_ids_to_nfs_ids</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/map_local_ids_to_nfs_ids" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether local ids are mapped to NFS ids.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/recovery_point"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-recovery-point"><strong>recovery_point</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/recovery_point" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>When the last job that completed started; null before the first.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/recovery_point_snapshot_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-recovery-point-snapshot-id"><strong>recovery_point_snapshot_id</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/recovery_point_snapshot_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The id of the snapshot that holds the recovery point on this cluster; null when the record names none.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/replication_enabled"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-replication-enabled"><strong>replication_enabled</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/replication_enabled" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the relationship replicates.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/source_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-source-cluster-uuid"><strong>source_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/source_cluster_uuid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>UUID of this cluster.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/source_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-source-path"><strong>source_path</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/source_path" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The source directory, without a trailing slash.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/source_root_read_only"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-source-root-read-only"><strong>source_root_read_only</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/source_root_read_only" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the source directory is read-only.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/state"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-state"><strong>state</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/state" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">AWAITING_AUTHORIZATION</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ESTABLISHED</span></code>, a failover state, or <code class="ansible-value docutils literal notranslate"><span class="pre">ENDED</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/target_address"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-target-address"><strong>target_address</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/target_address" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The address this cluster reaches the target at.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/target_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-target-cluster-uuid"><strong>target_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/target_cluster_uuid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>UUID of the cluster the address reaches.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/target_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-target-path"><strong>target_path</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/target_path" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The target directory, without a trailing slash.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/target_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-target-port"><strong>target_port</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/target_port" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The port this cluster reaches the target at.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-relationship/target_root_read_only"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship-target-root-read-only"><strong>target_root_read_only</strong></p>
+<a class="ansibleOptionLink" href="#return-relationship/target_root_read_only" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the target directory is read-only.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-releases"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-releases"><strong>releases</strong></p>
+<a class="ansibleOptionLink" href="#return-releases" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The release entries to pass, one per ENDED record whose O3 no release lifts, each with <code class="docutils literal notranslate"><span class="pre">target_path</span></code>, <code class="docutils literal notranslate"><span class="pre">record_id</span></code> and <code class="docutils literal notranslate"><span class="pre">rows</span></code>. Prefix the target host’s inventory name to pass one.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, and on a refusal before any write</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;record_id&quot;:</span> <span class="pre">&quot;9465828e-7dcf-466e-a550-78ed0bd6b79b&quot;,</span> <span class="pre">&quot;rows&quot;:</span> <span class="pre">[&quot;O3&quot;],</span> <span class="pre">&quot;target_path&quot;:</span> <span class="pre">&quot;/replicas/edge01-projects&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-releases/record_id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-releases-record-id"><strong>record_id</strong></p>
+<a class="ansibleOptionLink" href="#return-releases/record_id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The id of the ENDED record, which the release entry binds to.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-releases/rows"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-releases-rows"><strong>rows</strong></p>
+<a class="ansibleOptionLink" href="#return-releases/rows" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every row reported on that record.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-releases/target_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-releases-target-path"><strong>target_path</strong></p>
+<a class="ansibleOptionLink" href="#return-releases/target_path" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The target path of the ENDED record’s relationship.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-snapshots"><strong>snapshots</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The snapshots the deleted records owned that are still there after their delete, each with <code class="docutils literal notranslate"><span class="pre">id</span></code> and <code class="docutils literal notranslate"><span class="pre">name</span></code>. The source’s delete normally removes its replication snapshot, so this is normally empty. Empty in check mode.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/id"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-snapshots-id"><strong>id</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/id" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshot’s id.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-snapshots/name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-snapshots-name"><strong>name</strong></p>
+<a class="ansibleOptionLink" href="#return-snapshots/name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The snapshot’s name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-source_bytes"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-source-bytes"><strong>source_bytes</strong></p>
+<a class="ansibleOptionLink" href="#return-source_bytes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source directory’s <code class="docutils literal notranslate"><span class="pre">total_capacity</span></code> in bytes, from its aggregates; null as for <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-source-empty"><span class="std std-ref"><span class="pre">source_empty</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, and on a refusal before any write</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-source_empty"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-source-empty"><strong>source_empty</strong></p>
+<a class="ansibleOptionLink" href="#return-source_empty" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Whether the source directory is missing or holds no file, link or other object at any depth, decided from its entries; a directory holding only directories is empty. Null when the relationship is live, since the target then needs no authorize.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, and on a refusal before any write</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-source_files"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-source-files"><strong>source_files</strong></p>
+<a class="ansibleOptionLink" href="#return-source_files" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The source directory’s count of files, links and other objects, from its aggregates; null as for <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-source-empty"><span class="std std-ref"><span class="pre">source_empty</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always, and on a refusal before any write</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet"><strong>unmet</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Every condition that keeps the task from writing, lifted or not, other conditions first and then the overwrite table’s rows. Empty with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-state"><span class="std std-ref"><span class="pre">state=absent</span></span></a></code>; with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-parameter-create"><span class="std std-ref"><span class="pre">create=false</span></span></a></code>, only misdirected records. A run that fails on one still returns the list.</p>
+<p>Such a refusal, before any write, returns <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet"><span class="std std-ref"><span class="pre">unmet</span></span></a></code>, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-releases"><span class="std std-ref"><span class="pre">releases</span></span></a></code>, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-source-empty"><span class="std std-ref"><span class="pre">source_empty</span></span></a></code>, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-source-files"><span class="std std-ref"><span class="pre">source_files</span></span></a></code> and <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-source-bytes"><span class="std std-ref"><span class="pre">source_bytes</span></span></a></code>, and none of <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-relationship"><span class="std std-ref"><span class="pre">relationship</span></span></a></code>, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-creates"><span class="std std-ref"><span class="pre">creates</span></span></a></code>, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-read-by-id"><span class="std std-ref"><span class="pre">read_by_id</span></span></a></code>, <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-deleted"><span class="std std-ref"><span class="pre">deleted</span></span></a></code> and <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-replication-relationship-module-return-snapshots"><span class="std std-ref"><span class="pre">snapshots</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet/binds_to"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet-binds-to"><strong>binds_to</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet/binds_to" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>For O3, the id of the ENDED record a release entry must carry; null otherwise.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet/facts"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet-facts"><strong>facts</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet/facts" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The facts behind it, such as the record’s id, target UUID, address and state.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet/lifted"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet-lifted"><strong>lifted</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet/lifted" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether this run’s options or release lift it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet/lifted_by"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet-lifted-by"><strong>lifted_by</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet/lifted_by" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>What can lift it, such as <code class="ansible-value docutils literal notranslate"><span class="pre">recreate</span> <span class="pre">and</span> <span class="pre">release</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">recreate_changed_peer</span></code>; null when nothing can.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet/message"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet-message"><strong>message</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet/message" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>What is wrong, and what would lift it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet/pending"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet-pending"><strong>pending</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet/pending" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether it is a check-mode prediction that an earlier step of the run meets.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unmet/row"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-replication-relationship-module-return-unmet-row"><strong>row</strong></p>
+<a class="ansibleOptionLink" href="#return-unmet/row" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The overwrite table’s row, <code class="ansible-value docutils literal notranslate"><span class="pre">O3</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">O8</span></code>, or another condition: <code class="ansible-value docutils literal notranslate"><span class="pre">source_missing</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">changed_peer</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">misdirected</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="replication_pair_plan_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.replication_pair_plan module – Join the source’s and the target’s check passes of a replication relationship into one decision" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="replication_restore_info_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.replication_restore_info module – List the restore records and restore locks left on the controller, with their age" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

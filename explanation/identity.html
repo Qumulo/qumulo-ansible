@@ -1,0 +1,578 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Identity and Active Directory &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Collection Index" href="../collections/index.html" />
+    <link rel="prev" title="Tenants and the continuity rule" href="multitenancy.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Identity and Active Directory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#where-an-identity-comes-from">Where an identity comes from</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trustees-a-prefix-says-where-a-name-is-defined">Trustees: a prefix says where a name is defined</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#groups-then-users-then-members">Groups, then users, then members</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#roles-and-why-members-go-before-a-delete">Roles, and why members go before a delete</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-name-is-the-computer-account">The name is the computer account</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-the-name-is-set-before-the-join">Why the name is set before the join</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#settings-only-a-join-can-set">Settings only a join can set</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-collection-can-and-cannot-see">What the collection can and cannot see</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-clone-and-a-rebuilt-edge">A clone and a rebuilt edge</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mappings-home-directories-and-the-identity-cache">Mappings, home directories and the identity cache</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mappings">Mappings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#home-directories">Home directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-identity-cache">The identity cache</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#where-kerberos-for-nfs-gets-its-keys">Where Kerberos for NFS gets its keys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#saml-sign-in">SAML sign-in</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-the-cluster-stores-and-what-it-checks">What the cluster stores and what it checks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-certificate-cannot-be-removed">The certificate cannot be removed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#require-sso"><code class="docutils literal notranslate"><span class="pre">require_sso</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-more">Learn more</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Identity and Active Directory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="identity-and-active-directory">
+<h1>Identity and Active Directory<a class="headerlink" href="#identity-and-active-directory" title="Link to this heading"></a></h1>
+<p>This page explains the model behind the collection’s identity areas: how it names a user or a group, why a cluster’s name
+is also its Active Directory computer account, why mappings, home directories and SAML follow the join, and what the
+collection cannot see of a domain.
+The steps are in the pages under Learn more, and the options are in <a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Inventory variables</span></a> and
+in each module’s <code class="docutils literal notranslate"><span class="pre">ansible-doc</span></code> page.</p>
+<p>Three ideas run through it.
+A name is resolved against an identity source the inventory has to name, so a name never stands alone.
+Some identity state lives outside the cluster, in the domain or in the identity provider, and the collection reports
+what it can verify and says where it stops.
+And the areas depend on each other in a fixed order, which the sections below give one reason at a time.
+<a class="reference internal" href="architecture.html#the-order-of-areas"><span class="std std-ref">The order of areas</span></a> gives the whole order.</p>
+<section id="where-an-identity-comes-from">
+<h2>Where an identity comes from<a class="headerlink" href="#where-an-identity-comes-from" title="Link to this heading"></a></h2>
+<p>A cluster looks a name up in several places: the users and groups it keeps itself (local), the Active Directory domain it
+has joined, and LDAP.
+A uid, gid or SID names an identity directly, whatever its source.
+The collection manages the local users and groups and the domain membership through their own modules; it configures no
+LDAP server. <a class="reference internal" href="../collections/qumulo/cluster/local_user_module.html"><span class="std std-doc">local_user</span></a> and
+<a class="reference internal" href="../collections/qumulo/cluster/local_group_module.html"><span class="std std-doc">local_group</span></a> manage what the cluster keeps,
+<a class="reference internal" href="../collections/qumulo/cluster/ad_domain_module.html"><span class="std std-doc">ad_domain</span></a> manages the membership of a domain, and
+<a class="reference internal" href="../collections/qumulo/cluster/user_defined_mappings_module.html"><span class="std std-doc">user_defined_mappings</span></a> and
+<a class="reference internal" href="../collections/qumulo/cluster/identity_attributes_module.html"><span class="std std-doc">identity_attributes</span></a> manage what links an identity from one place to
+another.
+<a class="reference internal" href="../collections/qumulo/cluster/role_module.html"><span class="std std-doc">role</span></a> and <a class="reference internal" href="../collections/qumulo/cluster/role_member_module.html"><span class="std std-doc">role_member</span></a> manage what an identity may
+do on the cluster.</p>
+</section>
+<section id="trustees-a-prefix-says-where-a-name-is-defined">
+<h2>Trustees: a prefix says where a name is defined<a class="headerlink" href="#trustees-a-prefix-says-where-a-name-is-defined" title="Link to this heading"></a></h2>
+<p>Wherever a module takes an identity from any source, such as the members of a role, the owner of a directory, an entry of
+an ACL or of a share’s permissions, or a principal of a bucket policy, it takes a trustee.
+The modules that manage local users and groups name them by their plain local names.
+A trustee is a string whose prefix names the place the name is defined: <code class="docutils literal notranslate"><span class="pre">local:svc-backup</span></code>, <code class="docutils literal notranslate"><span class="pre">ad:CORP\alice</span></code> or
+<code class="docutils literal notranslate"><span class="pre">ad:alice&#64;corp.example.com</span></code>, <code class="docutils literal notranslate"><span class="pre">ldap_user:alice</span></code>, <code class="docutils literal notranslate"><span class="pre">ldap_group:admins</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_support:&lt;name&gt;</span></code>, <code class="docutils literal notranslate"><span class="pre">internal:File</span> <span class="pre">Owner</span></code>,
+<code class="docutils literal notranslate"><span class="pre">internal:File</span> <span class="pre">Group</span> <span class="pre">Owner</span></code>, <code class="docutils literal notranslate"><span class="pre">uid:1000</span></code>, <code class="docutils literal notranslate"><span class="pre">gid:1000</span></code> and <code class="docutils literal notranslate"><span class="pre">sid:S-1-5-21-...</span></code>.
+<code class="docutils literal notranslate"><span class="pre">Everyone</span></code> and a bare SID need no prefix, since each names exactly one identity.
+<code class="docutils literal notranslate"><span class="pre">internal:File</span> <span class="pre">Owner</span></code> and <code class="docutils literal notranslate"><span class="pre">internal:File</span> <span class="pre">Group</span> <span class="pre">Owner</span></code>, in any letter case, are the owner and the group of whichever file
+the entry is on.
+They have a name and no SID, uid or gid, so only their name can write them; the cluster holds no other name in that
+domain, and any other <code class="docutils literal notranslate"><span class="pre">internal:</span></code> name is refused.
+They belong in ACL entries and bucket policy principals.
+The grammar accepts them wherever a trustee goes, but the cluster refuses them as a directory’s owner or group, and
+accepts File Owner as a role member, where it means nothing.</p>
+<p>A bare name is refused, because it is ambiguous once Active Directory or LDAP is configured.
+<code class="docutils literal notranslate"><span class="pre">alice</span></code> can be a local user, a domain user and an LDAP user.
+The cluster looks a bare name up in every identity source, and once Active Directory or LDAP is configured, it fails a
+name found in more than one.
+A bare name that resolves on a cluster with only local users would start failing the day a domain is joined, with no
+change to the inventory.
+This is the same choice <a class="reference internal" href="refusals-and-guards.html#refuse-don-t-guess"><span class="std std-ref">Refusals and guards</span></a> describes: when the collection
+cannot be sure what a line means, it fails instead of choosing.</p>
+<p>Authenticated Users, the group of every identity that has signed in, is written <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>.
+An <code class="docutils literal notranslate"><span class="pre">ad:</span></code> trustee needs a domain, and the cluster names the group in the Active Directory domain with none, so the trustee
+carries <code class="docutils literal notranslate"><span class="pre">NT</span> <span class="pre">AUTHORITY</span></code>, the domain Windows gives the group; the cluster finds the name with it in front, whether or not
+the cluster has joined a domain.
+A node that has not found a name in <code class="docutils literal notranslate"><span class="pre">S-1-5</span></code> since it started refuses the group’s SID, <code class="docutils literal notranslate"><span class="pre">S-1-5-11</span></code>, with
+<code class="docutils literal notranslate"><span class="pre">api_identity_unsupported_domain_error</span></code> (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-100</span></a>), a freshly started node included, so the
+collection looks <code class="docutils literal notranslate"><span class="pre">S-1-5-11</span></code> up by that name.
+Every module that reads a trustee back from the cluster writes the group this way, so a captured inventory resolves again
+and compares unchanged, and any letter case of the name declares the same entry.
+The exception is the policy documents <code class="docutils literal notranslate"><span class="pre">s3_info</span></code> and <code class="docutils literal notranslate"><span class="pre">s3_bucket_policy</span></code> return, which are as the cluster reads them, such
+as <code class="docutils literal notranslate"><span class="pre">ad:Authenticated</span> <span class="pre">Users</span></code>; a capture still writes the group’s principal as <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>.
+<code class="docutils literal notranslate"><span class="pre">sid:S-1-5-11</span></code> is accepted too, but <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code> is the form the collection writes.</p>
+<p>The collection resolves a trustee on every run and never stores the identity’s id.
+Two spellings of one domain user, <code class="docutils literal notranslate"><span class="pre">ad:CORP\alice</span></code> and <code class="docutils literal notranslate"><span class="pre">ad:alice&#64;corp.example.com</span></code>, are one member of a role, because both
+resolve to the same identity.
+<a class="reference internal" href="state-management.html#keys-not-ids"><span class="std std-ref">State management</span></a> explains why a name, not an id, is the key.
+<code class="docutils literal notranslate"><span class="pre">file_acl</span></code>, <code class="docutils literal notranslate"><span class="pre">smb_share</span></code> and <code class="docutils literal notranslate"><span class="pre">directory</span></code> compare what the cluster reads back by the identity the cluster gives with each
+entry, so they look up only the trustees they are given; a declared SID matches such an entry in any spelling the
+grammar takes.
+An entry whose SID the node refuses to look up (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-100</span></a>), or which no trustee form names,
+does not stop them from comparing or replacing it.
+An entry no form names cannot be declared, so a <code class="docutils literal notranslate"><span class="pre">file_acl</span></code> or <code class="docutils literal notranslate"><span class="pre">smb_share</span></code> task that declares that ACL or those permissions
+always replaces it.
+<code class="docutils literal notranslate"><span class="pre">s3_bucket_policy</span></code> still looks up each principal it reads back, since a policy carries no such identity, so a principal
+whose SID the node refuses still fails it.
+<code class="docutils literal notranslate"><span class="pre">capture_info</span></code>, <code class="docutils literal notranslate"><span class="pre">filesystem_info</span></code> and <code class="docutils literal notranslate"><span class="pre">s3_info</span></code> still fail on an entry no trustee form names, and <code class="docutils literal notranslate"><span class="pre">identity_info</span></code> returns
+its trustee as null.
+Resolution has three consequences for the order of a run.</p>
+<ul class="simple">
+<li><p>An <code class="docutils literal notranslate"><span class="pre">ad:</span></code> trustee resolves only once the cluster has joined the domain, so every area that takes one comes after the join.
+An exception is <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, which resolves joined or not.</p></li>
+<li><p>In check mode an earlier task may create the user or join the domain that a later task names.
+A trustee that does not exist yet is reported as a change with a note, not as a failure.</p></li>
+<li><p>The cluster caches a failed lookup for about a minute (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-017</span></a>), so a run that creates a
+local user and assigns it a role within about a minute of a check run that looked the user up can fail to resolve it.</p></li>
+</ul>
+<p>To check that the cluster resolves a trustee, and what it is to the cluster, before a task names it, see
+<a class="reference internal" href="../how-to/look-up-identities-and-paths.html"><span class="std std-doc">Look up identities, DNS names and paths</span></a>.</p>
+</section>
+<section id="groups-then-users-then-members">
+<h2>Groups, then users, then members<a class="headerlink" href="#groups-then-users-then-members" title="Link to this heading"></a></h2>
+<p>The baseline creates the local groups without members, then the users, then sets the groups’ members.
+A user’s primary group must exist before the user, which puts groups first.
+A member must exist before it can be added to a group, which puts the membership last, once the users are in place.
+Creating a group with its members in one step would fail for any member that is itself new.</p>
+<p>Every user whose primary group is a group counts as a member of it, and the server keeps that membership itself.
+<code class="docutils literal notranslate"><span class="pre">local_group</span></code> never adds or removes it, and it never counts as an extra member when a task lists the membership with
+<code class="docutils literal notranslate"><span class="pre">purge</span></code>.
+Users and groups share one set of names on a cluster, so a user and a group cannot have the same name.</p>
+</section>
+<section id="roles-and-why-members-go-before-a-delete">
+<h2>Roles, and why members go before a delete<a class="headerlink" href="#roles-and-why-members-go-before-a-delete" title="Link to this heading"></a></h2>
+<p>A role says what its holders may do. <code class="docutils literal notranslate"><span class="pre">role</span></code> owns the role and its privileges, and <code class="docutils literal notranslate"><span class="pre">role_member</span></code> owns who holds it.
+The four built-in roles, <code class="docutils literal notranslate"><span class="pre">Administrators</span></code>, <code class="docutils literal notranslate"><span class="pre">Observers</span></code>, <code class="docutils literal notranslate"><span class="pre">Data-Administrators</span></code> and <code class="docutils literal notranslate"><span class="pre">Qumulo-Support</span></code>, cannot be changed or
+deleted, so they appear in <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code> only.
+A custom role’s <code class="docutils literal notranslate"><span class="pre">privileges</span></code> list is its whole set. The privileges differ between Qumulo Core versions, so a name the
+cluster does not know fails before anything is written, instead of being dropped.</p>
+<p>In the role area the baseline creates and changes the custom roles first, since a role must exist before its members, then
+assigns the members, and deletes the roles declared <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> last.</p>
+<p>The cluster deletes a role only when the role has no members.
+The delete comes last for that reason, and the inventory, not the collection, removes the members first: an entry of
+<code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code> with <code class="docutils literal notranslate"><span class="pre">purge:</span> <span class="pre">true</span></code> and no members does it.
+<code class="docutils literal notranslate"><span class="pre">role</span></code> refuses a delete while the role still has members, names <code class="docutils literal notranslate"><span class="pre">role_member</span></code> in the message, and does so before any write.
+In check mode it reports the delete with a note instead, since an earlier task in the same play may remove the members and
+a check run does not run that task’s write.
+Neither <code class="docutils literal notranslate"><span class="pre">role</span></code> nor the baseline removes a member as a side effect of a delete.</p>
+<p>The join comes first because an <code class="docutils literal notranslate"><span class="pre">ad:</span></code> trustee resolves only once the cluster has joined the domain, bar
+<code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>.
+The users come first because a <code class="docutils literal notranslate"><span class="pre">local:</span></code> member resolves only once the user exists, and because deleting a user drops its
+role assignments, so the users have to be settled before membership is applied to them.</p>
+<p>Two members stay whatever the inventory says. The local <code class="docutils literal notranslate"><span class="pre">admin</span></code> and <code class="docutils literal notranslate"><span class="pre">system</span></code> users always remain in <code class="docutils literal notranslate"><span class="pre">Administrators</span></code>, as
+the server requires, and <code class="docutils literal notranslate"><span class="pre">purge</span></code> is refused for <code class="docutils literal notranslate"><span class="pre">Qumulo-Support</span></code>, which holds the assignment that Qumulo’s support access
+relies on.</p>
+</section>
+<section id="the-name-is-the-computer-account">
+<h2>The name is the computer account<a class="headerlink" href="#the-name-is-the-computer-account" title="Link to this heading"></a></h2>
+<p>A cluster joined to a domain has a computer account in it, and the account’s name is the cluster’s name, written in upper
+case with a <code class="docutils literal notranslate"><span class="pre">$</span></code> after it: <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_name:</span> <span class="pre">edge01</span></code> is the account <code class="docutils literal notranslate"><span class="pre">EDGE01$</span></code>.
+The server refuses a rename while the cluster is joined, so the name and the account cannot drift apart.</p>
+<section id="why-the-name-is-set-before-the-join">
+<h3>Why the name is set before the join<a class="headerlink" href="#why-the-name-is-set-before-the-join" title="Link to this heading"></a></h3>
+<p>The account is created under the name the cluster has at the moment it joins.
+The baseline therefore sets the name with <a class="reference internal" href="../collections/qumulo/cluster/cluster_settings_module.html"><span class="std std-doc">cluster_settings</span></a> before
+<a class="reference internal" href="../collections/qumulo/cluster/ad_domain_module.html"><span class="std std-doc">ad_domain</span></a>, because a name set after the join would be refused.
+<code class="docutils literal notranslate"><span class="pre">cluster_settings</span></code> reads the domain state before a rename and fails while the cluster is joined, in check mode too, with a
+message that says to leave the domain, rename, and join again.
+It fails there, before any write, so that the message can name the way out: leave, rename, join again.</p>
+<p>The join needs two more facts about the cluster, and the baseline sets both earlier in the same run.
+The cluster has to resolve the domain’s names, which is <a class="reference internal" href="../collections/qumulo/cluster/dns_settings_module.html"><span class="std std-doc">dns_settings</span></a>, and its
+clock has to be within Kerberos’s tolerance of the domain’s, which is
+<a class="reference internal" href="../collections/qumulo/cluster/time_settings_module.html"><span class="std std-doc">time_settings</span></a>.
+The baseline applies both before the join, so the join finds them already in place.</p>
+</section>
+<section id="settings-only-a-join-can-set">
+<h3>Settings only a join can set<a class="headerlink" href="#settings-only-a-join-can-set" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">domain_netbios</span></code> and <code class="docutils literal notranslate"><span class="pre">ou</span></code> are set when the account is created and cannot be changed in place.
+A different value for either on a joined cluster fails the task, and so does a different domain.
+<code class="docutils literal notranslate"><span class="pre">search_trusted_domains</span></code>, <code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes</span></code>, <code class="docutils literal notranslate"><span class="pre">base_dn</span></code> and <code class="docutils literal notranslate"><span class="pre">domain_controllers</span></code> change in place, and <code class="docutils literal notranslate"><span class="pre">ad_domain</span></code>
+changes them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ad_domain</span></code> never leaves a domain to join another, or to change what only a join sets.
+It fails and names the step to run.
+The reason is what a leave does. A leave with <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code> deletes the computer account together with
+its group memberships and delegations in the domain, and a leave without them leaves the account in Active Directory and
+warns.
+A baseline run that did either as a side effect of a changed <code class="docutils literal notranslate"><span class="pre">ou</span></code> would remove access in the domain that nothing in the
+inventory describes.</p>
+</section>
+<section id="what-the-collection-can-and-cannot-see">
+<h3>What the collection can and cannot see<a class="headerlink" href="#what-the-collection-can-and-cannot-see" title="Link to this heading"></a></h3>
+<p>The module can verify that the cluster is joined to the domain under its own name.
+It cannot verify the rest, and each limit is a registered gap, so a clean run says less about the domain than about the
+cluster.</p>
+<ul class="simple">
+<li><p><strong>The credentials.</strong> The cluster keeps neither the join user nor its password and returns neither, so no run can
+compare them. The module sends them only to join or leave, and capture marks both as values you supply
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-AD-JOIN</span></a>).</p></li>
+<li><p><strong>The account.</strong> The computer account lives in Active Directory, where the module cannot see it. Whether an existing
+account of the same name can be reused depends on the domain’s policy (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-AD-JOIN</span></a>).
+A join under a name whose computer account already exists, by a user who is allowed to reuse it, takes the account over
+and resets its password, which breaks any other cluster still using it. When the user is not allowed to, the join fails
+and the message says an account of that name exists.</p></li>
+<li><p><strong>The domain controllers.</strong> The cluster reports the configured domain controllers only in the record of its last
+Active Directory operation, which a later operation replaces. When that record is for another domain,
+<code class="docutils literal notranslate"><span class="pre">domain_controllers</span></code> cannot be compared, so it is sent only with a join, and on a joined cluster the result carries a
+note (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-AD-DCS</span></a>).</p></li>
+</ul>
+</section>
+<section id="a-clone-and-a-rebuilt-edge">
+<h3>A clone and a rebuilt edge<a class="headerlink" href="#a-clone-and-a-rebuilt-edge" title="Link to this heading"></a></h3>
+<p>The account is why a clone is refused the source’s name.
+A clone joins the domain under its own name as a new account, and a name that matches the source’s, or another inventory
+cluster’s, would take that cluster’s account over and reset its password.
+<a class="reference internal" href="../how-to/clone-edge.html"><span class="std std-doc">Clone an edge’s configuration onto a new edge</span></a> gives the clone its own name, and
+<a class="reference internal" href="../collections/qumulo/cluster/clone_host_vars_module.html"><span class="std std-doc">clone_host_vars</span></a> asks for <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code>, since the clone
+joins as a new account and the cluster keeps neither.</p>
+<p>A rebuilt edge has the same problem from the other side.
+Formation gives the edge a new UUID, so the new edge is a different cluster that carries the old edge’s name.
+It joins under that name, and a join under the old name resets the password of an account that a live old edge may still
+use.
+The <a class="reference internal" href="../collections/qumulo/cluster/edge_rebuild_role.html"><span class="std std-doc">edge_rebuild</span></a> role therefore leaves the domain in its predestroy phase, which deletes the
+account only when <code class="docutils literal notranslate"><span class="pre">join_user</span></code> and <code class="docutils literal notranslate"><span class="pre">join_password</span></code> are in the inventory, and records that it did.
+The replay refuses to join under the old name unless that record shows the leave, or <code class="docutils literal notranslate"><span class="pre">edge_rebuild_old_edge_destroyed</span></code>
+says the old edge is gone.
+<a class="reference internal" href="rebuilds.html#a-computer-account-that-outlives-the-edge"><span class="std std-ref">Rebuilds</span></a> explains what a leave with and without credentials
+leaves behind, and <a class="reference internal" href="../how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a> has the steps.</p>
+</section>
+</section>
+<section id="mappings-home-directories-and-the-identity-cache">
+<h2>Mappings, home directories and the identity cache<a class="headerlink" href="#mappings-home-directories-and-the-identity-cache" title="Link to this heading"></a></h2>
+<p>Two areas describe how an identity from one source relates to another.
+<code class="docutils literal notranslate"><span class="pre">qumulo_user_defined_mappings</span></code> says which Active Directory user is the same person as which LDAP user, and the cluster
+then treats the two as one identity.
+<code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code> gives an Active Directory, LDAP or POSIX identity a home directory.
+Both follow the join in the baseline: the cluster takes mappings only while it is joined, and an <code class="docutils literal notranslate"><span class="pre">ad:</span></code> identity resolves
+only then.</p>
+<section id="mappings">
+<h3>Mappings<a class="headerlink" href="#mappings" title="Link to this heading"></a></h3>
+<p>The cluster accepts a mapping only while Active Directory is joined and POSIX attributes from AD are off.
+Outside a domain it answers the write with a server error, not a client error
+(<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-031</span></a>), which gives no hint that the join is missing.
+<code class="docutils literal notranslate"><span class="pre">user_defined_mappings</span></code> therefore reads the domain state before it writes a list that is not empty and refuses, naming
+<code class="docutils literal notranslate"><span class="pre">ad_domain</span></code>.
+In check mode it notes that an earlier task is expected to join the domain instead of refusing.
+While the cluster reads POSIX ids from Active Directory, it refuses the list in check mode too, since no earlier task in
+the baseline turns that off.
+The list is the whole set, so a mapping the cluster has and the list leaves out is removed, and an empty list removes them
+all.
+A mapping names the AD user with the domain’s NetBIOS name, as <code class="docutils literal notranslate"><span class="pre">CORP\alice</span></code>, and the cluster checks that each such NetBIOS
+name resolves through the joined domain.</p>
+</section>
+<section id="home-directories">
+<h3>Home directories<a class="headerlink" href="#home-directories" title="Link to this heading"></a></h3>
+<p>A local user’s home directory is an attribute of the user, set with <code class="docutils literal notranslate"><span class="pre">local_user</span></code>.
+The cluster keeps a local identity’s home directory and the attributes of other identities in one place, so
+<code class="docutils literal notranslate"><span class="pre">identity_attributes</span></code> refuses a trustee that resolves to a local identity and points to <code class="docutils literal notranslate"><span class="pre">local_user</span></code>.</p>
+<p>The cluster reads and writes the attributes of one identity at a time, by id, and lists no identity that has any
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ID-ATTRIBUTES</span></a>).
+Capture therefore cannot read <code class="docutils literal notranslate"><span class="pre">qumulo_identity_attributes</span></code> back, and no adoption writes it.
+The inventory names each identity, and the module manages those and no others.
+An identity absent from the inventory keeps whatever home directory the cluster holds for it.</p>
+</section>
+<section id="the-identity-cache">
+<h3>The identity cache<a class="headerlink" href="#the-identity-cache" title="Link to this heading"></a></h3>
+<p>The cluster caches the identities it has looked up and their group memberships, from Active Directory, LDAP and its own
+configuration.
+A changed mapping or home directory reaches a user the cluster has already cached only once the cache is cleared or
+expires.
+<a class="reference internal" href="../collections/qumulo/cluster/auth_cache_clear_module.html"><span class="std std-doc">auth_cache_clear</span></a> clears it.</p>
+<p>The baseline clears the cache only when a mapping or a home directory changed.
+Clearing is an action, not a setting, so the module reports a change on every run
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ACTIONS</span></a>; <a class="reference internal" href="state-management.html#actions-are-not-settings"><span class="std std-ref">State management</span></a> explains the
+difference), and lookups are slower until the cache fills again.
+The clear sits in an <code class="docutils literal notranslate"><span class="pre">always</span></code> section of the role, so the cache is still cleared after a mapping change when the
+identity-attributes step that follows it fails.
+A run whose clear itself failed leaves the cache as it was, and the next run, finding nothing to change, skips it, so
+that case is the one that needs the module run by hand.</p>
+</section>
+</section>
+<section id="where-kerberos-for-nfs-gets-its-keys">
+<h2>Where Kerberos for NFS gets its keys<a class="headerlink" href="#where-kerberos-for-nfs-gets-its-keys" title="Link to this heading"></a></h2>
+<p>NFS with <code class="docutils literal notranslate"><span class="pre">krb5</span></code>, <code class="docutils literal notranslate"><span class="pre">krb5i</span></code> or <code class="docutils literal notranslate"><span class="pre">krb5p</span></code> needs the cluster to hold keys for its NFS service principal, and a cluster has them
+from one of two places.
+A cluster joined to Active Directory has them through its computer account, so the join is all it needs.
+A cluster outside Active Directory, whose clients get tickets from a standalone KDC (MIT Kerberos, FreeIPA, or a domain
+controller used only as a KDC), holds the keytab that KDC exported, which
+<a class="reference internal" href="../collections/qumulo/cluster/kerberos_keytab_module.html"><span class="std std-doc">kerberos_keytab</span></a> installs.</p>
+<p>The two exclude each other.
+A joined cluster refuses a keytab, and a cluster that holds one refuses a join (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-KRB-AD</span></a>).
+The module therefore fails before any keytab write on a joined cluster, in check mode too, and the baseline installs the
+keytab before the join, so that a keytab declared absent is deleted first.
+The cluster stores a well-formed keytab without asking the KDC whether its principals or keys are right
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-KRB-KEYTAB</span></a>), so the module reports what it holds, as principal, key version and encryption
+type, and cannot report whether a client can sign in with it.
+The keys are a secret that the cluster returns, so the module compares them through a digest and shows none
+(<a class="reference internal" href="authentication.html#where-secrets-live"><span class="std std-ref">why</span></a>).
+<a class="reference internal" href="../collections/qumulo/cluster/kerberos_settings_module.html"><span class="std std-doc">kerberos_settings</span></a> sets the one Kerberos setting, which maps a principal to
+an Active Directory user through the user’s <code class="docutils literal notranslate"><span class="pre">altSecurityIdentities</span></code> attribute.
+The keytab route needs four work-arounds. Its ETag is the same for any keytab, so the module sends no <code class="docutils literal notranslate"><span class="pre">If-Match</span></code>
+(QUIRK-160). A PUT keeps only the low 8 bits of a key version, so the module compares versions by them and warns about
+one above 255 (QUIRK-162). A PUT in the JSON form that GET returns, when the server cannot decode an entry, is refused
+with a message that quotes the entries, keys included, so the module sends the keytab file instead and reports a
+failure by its status and error class only (QUIRK-163). A DELETE also turns the setting above off, so the module turns
+it back on afterwards when it was on (QUIRK-161).</p>
+</section>
+<section id="saml-sign-in">
+<h2>SAML sign-in<a class="headerlink" href="#saml-sign-in" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_saml</span></code> lets the users of the joined domain sign in to the Web UI through an identity provider.
+It follows the join because sign-in works only for those users: before the join, the settings would describe a sign-in
+that no one can use.
+Turning sign-in on warns when the cluster is not joined, and in check mode notes it instead, since an earlier task may
+join the domain.</p>
+<section id="what-the-cluster-stores-and-what-it-checks">
+<h3>What the cluster stores and what it checks<a class="headerlink" href="#what-the-cluster-stores-and-what-it-checks" title="Link to this heading"></a></h3>
+<p>The cluster stores the settings without reaching the identity provider, and signing in is an interactive browser flow, so
+no call shows that the settings work (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ID-SAML</span></a>).
+A successful run shows that the cluster holds the values the inventory gave, and not that a user can sign in.
+That is why the first run is followed by one sign-in by hand
+(<a class="reference internal" href="../how-to/active-directory.html#sign-in-through-an-identity-provider"><span class="std std-ref">Sign in through an identity provider</span></a>).</p>
+<p>The identity provider’s certificate is public, so unlike a password the module reads it back and compares it.
+The cluster stores the certificate re-encoded and without any text around it, so <code class="docutils literal notranslate"><span class="pre">saml_settings</span></code> compares the
+certificates themselves and not the text.
+It uses PATCH only and never PUT, since PUT validates the certificate even when none is given.</p>
+</section>
+<section id="the-certificate-cannot-be-removed">
+<h3>The certificate cannot be removed<a class="headerlink" href="#the-certificate-cannot-be-removed" title="Link to this heading"></a></h3>
+<p>Once a certificate is set, the cluster keeps it and refuses an empty one as an invalid certificate (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-ID-SAML-CERT</span></a>).
+<code class="docutils literal notranslate"><span class="pre">saml_settings</span></code> therefore refuses <code class="docutils literal notranslate"><span class="pre">idp_certificate:</span> <span class="pre">&quot;&quot;</span></code> before any write when one is set, and sign-in is turned off with
+<code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code>, which leaves the certificate in place and unused.</p>
+<p>This is why the module wants the certificate declared.
+Left out, the certificate the cluster holds is kept, and that one may have been set by anyone.
+Turning sign-in on without declaring one warns, and giving the certificate lets the module check it.
+Turning sign-in on with no certificate anywhere, neither in the task nor on the cluster, is refused, although the cluster
+itself would accept it and then have nothing to check an identity provider’s response against (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-032</span></a>).</p>
+</section>
+<section id="require-sso">
+<h3><code class="docutils literal notranslate"><span class="pre">require_sso</span></code><a class="headerlink" href="#require-sso" title="Link to this heading"></a></h3>
+<p>While <code class="docutils literal notranslate"><span class="pre">require_sso</span></code> and <code class="docutils literal notranslate"><span class="pre">enabled</span></code> are both true, Active Directory users can no longer sign in to the Web UI, <code class="docutils literal notranslate"><span class="pre">qq</span></code> or the
+REST API with a password; only the identity provider admits them.
+Local users, such as <code class="docutils literal notranslate"><span class="pre">admin</span></code>, still can.
+A task that makes both true warns.
+The warning names a local user that signs in with a password because, with <code class="docutils literal notranslate"><span class="pre">require_sso</span></code> on, that user is the way in that
+does not depend on the identity provider.</p>
+</section>
+</section>
+<section id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/active-directory.html"><span class="std std-doc">Join a cluster to Active Directory</span></a> joins, changes the join in place, leaves and joins
+again, adds mappings, home directories and SAML, and prepares an edge for a rebuild.</p></li>
+<li><p><a class="reference internal" href="../how-to/inventory-recipes.html#declare-custom-roles-and-give-them-to-trustees"><span class="std std-ref">Declare common settings in the inventory</span></a>
+declares custom roles and their members, and
+<a class="reference internal" href="../how-to/inventory-recipes.html#choose-when-a-local-user-s-password-is-sent"><span class="std std-ref">the same page</span></a> says when a local user’s
+password is sent.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html#active-directory"><span class="std std-ref">Inventory variables</span></a> lists <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code>,
+<code class="docutils literal notranslate"><span class="pre">qumulo_roles</span></code> and the other variables of these areas.</p></li>
+<li><p><a class="reference internal" href="../how-to/store-secrets.html#encrypt-a-binary-secret-such-as-a-keytab"><span class="std std-ref">Encrypt a binary secret such as a keytab</span></a>
+keeps the keytab of a standalone KDC encrypted.</p></li>
+<li><p><a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">The gap register</span></a> holds G-AD-JOIN, G-AD-DCS, G-ACTIONS, G-ID-ATTRIBUTES, G-ID-SAML,
+G-ID-SAML-CERT, G-KRB-AD and G-KRB-KEYTAB, and <a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">the quirk register</span></a> holds QUIRK-017,
+QUIRK-031, QUIRK-032, QUIRK-100 and QUIRK-160 to QUIRK-163.</p></li>
+<li><p><a class="reference internal" href="architecture.html#the-order-of-areas"><span class="std std-ref">Architecture</span></a> gives the order of all the areas, <a class="reference internal" href="rebuilds.html"><span class="std std-doc">Rebuilds</span></a> covers the
+computer account across a rebuild, and <a class="reference internal" href="refusals-and-guards.html"><span class="std std-doc">Refusals and guards</span></a> covers why a module refuses.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc">cluster_baseline</span></a> is the role that applies these areas.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="multitenancy.html" class="btn btn-neutral float-left" title="Tenants and the continuity rule" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../collections/index.html" class="btn btn-neutral float-right" title="Collection Index" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

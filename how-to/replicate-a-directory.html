@@ -1,0 +1,652 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Replicate a directory to another cluster &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="License an edge" href="licensing.html" />
+    <link rel="prev" title="Pair an edge with its hub through a portal" href="pair-edge-with-hub.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Replicate a directory to another cluster</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#declare-the-relationship">Declare the relationship</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preview-the-relationship">Preview the relationship</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apply-it">Apply it</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#if-the-preview-refuses">If the preview refuses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#replace-the-content-of-a-target-directory">Replace the content of a target directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pause-replication-on-a-schedule">Pause replication on a schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#move-the-target-to-another-address">Move the target to another address</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lift-a-refusal-with-a-release">Lift a refusal with a release</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#replicate-into-an-edge-that-has-no-license-yet">Replicate into an edge that has no license yet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drive-the-two-modules-yourself">Drive the two modules yourself</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#remove-a-relationship">Remove a relationship</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Replicate a directory to another cluster</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="replicate-a-directory-to-another-cluster">
+<h1>Replicate a directory to another cluster<a class="headerlink" href="#replicate-a-directory-to-another-cluster" title="Link to this heading"></a></h1>
+<p>This page declares a replication relationship in the inventory, from a directory on one cluster to a directory on
+another, and has the baseline create and authorize it.
+When you finish, the target directory holds a read-only copy of the source directory, and both clusters report the
+relationship <code class="docutils literal notranslate"><span class="pre">ESTABLISHED</span></code>.
+Variants cover a target that already holds data, schedules and other settings, a new address, a release, an edge
+without a license yet, and driving the two modules yourself; the last section removes a relationship.
+For why creating and authorizing are two steps, and what authorizing overwrites, see
+<a class="reference internal" href="../explanation/replication.html"><span class="std std-doc">Replication</span></a>.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up the inventory with both clusters as hosts, as <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>
+shows.
+Both hosts need <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.
+The examples replicate from <code class="docutils literal notranslate"><span class="pre">edge01</span></code>, the source, to <code class="docutils literal notranslate"><span class="pre">dr01</span></code>, the target.
+If you copied the example inventory, its <code class="docutils literal notranslate"><span class="pre">edge01</span></code> already declares a relationship to <code class="docutils literal notranslate"><span class="pre">hub01</span></code>, with <code class="docutils literal notranslate"><span class="pre">hub01</span></code>’s address
+and path-only directory: adapt that entry, and read this page’s <code class="docutils literal notranslate"><span class="pre">dr01</span></code> names as <code class="docutils literal notranslate"><span class="pre">hub01</span></code>’s.
+If the inventory holds vault values, add <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> or <code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> to every <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code>
+command below (<a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>).</p></li>
+<li><p>Have the source directory.
+Declare it in the source host’s <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>, or create it first.
+A source directory that does not exist stops the run.</p></li>
+<li><p>Pick the address the source reaches the target’s replication service at.
+It is an IP address, never a host name, and it is yours to make reachable, behind NAT included.
+The port is 3712 unless the target serves another.
+Choose it as you choose a portal’s address (<a class="reference internal" href="pair-edge-with-hub.html#choose-the-addresses"><span class="std std-ref">Choose the addresses</span></a>).
+The collection never derives it from <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> or from the cluster’s network status.
+For a target that Terraform formed, the inventory plugin sets it from the output’s <code class="docutils literal notranslate"><span class="pre">replication_address</span></code>
+(<a class="reference internal" href="terraform.html#publish-the-output"><span class="std std-ref">Publish the output</span></a>).</p></li>
+<li><p>Know that authorizing makes the target directory read-only and lets the source’s content replace the directory’s.
+A target directory that is empty, or created by this run, loses nothing.</p></li>
+</ul>
+</section>
+<section id="declare-the-relationship">
+<h2>Declare the relationship<a class="headerlink" href="#declare-the-relationship" title="Link to this heading"></a></h2>
+<p>The relationship is declared on the source host, and the target host declares the other half.</p>
+<ol class="arabic">
+<li><p>On the source host, list the relationship:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_directories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="nt">qumulo_replication_relationships</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span><span class="w">                         </span><span class="c1"># an inventory host</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+</pre></div>
+</div>
+</li>
+<li><p>On the target host, declare the target directory by its path alone, and give the address the source reaches it at:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/dr01.yml</span>
+<span class="nt">qumulo_replication_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">203.0.113.40</span>
+<span class="nt">qumulo_directories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span><span class="w">      </span><span class="c1"># path only; replication sets its attributes from the source</span>
+</pre></div>
+</div>
+<p>Declare nothing inside the target directory.
+Give the entry only <code class="docutils literal notranslate"><span class="pre">path</span></code>: a <code class="docutils literal notranslate"><span class="pre">mode</span></code>, <code class="docutils literal notranslate"><span class="pre">owner</span></code>, <code class="docutils literal notranslate"><span class="pre">group</span></code> or <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> on it stops the run.
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code> defaults to 3712. Set it on the target host only if the target’s replication service
+listens on another port.
+Each target directory serves one relationship, and no two hosts declare one address and port.
+The rules are in <a class="reference internal" href="../reference/variables.html#replication"><span class="std std-ref">Inventory variables</span></a>.</p>
+</li>
+</ol>
+<p>At step 21, before it touches any relationship, the baseline checks these declarations and fails naming each one that is
+wrong.</p>
+</section>
+<section id="preview-the-relationship">
+<h2>Preview the relationship<a class="headerlink" href="#preview-the-relationship" title="Link to this heading"></a></h2>
+<p>Run the baseline on the source host with <code class="docutils literal notranslate"><span class="pre">--check</span> <span class="pre">--diff</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">edge01</span></code> is enough: the run reaches <code class="docutils literal notranslate"><span class="pre">dr01</span></code> with the connection variables in its <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> and <code class="docutils literal notranslate"><span class="pre">group_vars</span></code>.
+A check run writes nothing on either cluster.
+It runs both sides’ checks, so a refusal appears now, with every unmet condition of the two clusters reported at once
+and what would lift each.
+<a class="reference internal" href="#if-the-preview-refuses">If the preview refuses</a> says what to do about each, and
+<a class="reference internal" href="respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a> covers the general case.</p>
+</section>
+<section id="apply-it">
+<h2>Apply it<a class="headerlink" href="#apply-it" title="Link to this heading"></a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+<p>Step 21 of the <a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></span></a> role runs the <a class="reference internal" href="../collections/qumulo/cluster/replication_pair_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_pair</span></code></span></a> role for the
+relationship, in this order:</p>
+<ol class="arabic simple">
+<li><p>It checks both sides and stops before any write if a condition is unmet and nothing lifts it.</p></li>
+<li><p>It creates the target directory, path only, after any ancestor that <code class="docutils literal notranslate"><span class="pre">dr01</span></code> declares.
+The run creates it if <code class="docutils literal notranslate"><span class="pre">dr01</span></code> has not run yet, so the source and the target may run in either order.</p></li>
+<li><p>It creates the relationship on <code class="docutils literal notranslate"><span class="pre">edge01</span></code>.
+The create registers it on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> too, awaiting authorization.</p></li>
+<li><p>It authorizes the relationship on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> and waits until <code class="docutils literal notranslate"><span class="pre">dr01</span></code> reports it <code class="docutils literal notranslate"><span class="pre">ESTABLISHED</span></code>.</p></li>
+<li><p>It waits until <code class="docutils literal notranslate"><span class="pre">edge01</span></code>’s record leaves <code class="docutils literal notranslate"><span class="pre">AWAITING_AUTHORIZATION</span></code>, since the source learns of the authorize on its next
+poll, and fails if the record ENDED instead.</p></li>
+</ol>
+<p>A second run changes nothing.</p>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<p>Read the relationship from both ends with <a class="reference internal" href="../collections/qumulo/cluster/replication_info_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_info</span></code></span></a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># read-replication.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the relationship from both ends</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01,dr01</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the relationships this cluster is the source or the target of</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.replication_info</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">source</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">target</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relationships</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show them</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">var</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relationships.replication</span>
+</pre></div>
+</div>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>read-replication.yml<span class="w"> </span>-i<span class="w"> </span>inventory
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">edge01</span></code> has an entry with <code class="docutils literal notranslate"><span class="pre">source_path:</span> <span class="pre">/projects</span></code> in <code class="docutils literal notranslate"><span class="pre">replication.source_relationships</span></code>, and <code class="docutils literal notranslate"><span class="pre">dr01</span></code> has one with
+<code class="docutils literal notranslate"><span class="pre">target_path:</span> <span class="pre">/replicas/edge01-projects</span></code> in <code class="docutils literal notranslate"><span class="pre">replication.target_relationships</span></code>, both with the same <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p></li>
+<li><p>Both have <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">ESTABLISHED</span></code> and <code class="docutils literal notranslate"><span class="pre">error_from_last_job:</span> <span class="pre">null</span></code>.</p></li>
+<li><p>Both report <code class="docutils literal notranslate"><span class="pre">target_root_read_only:</span> <span class="pre">true</span></code>, the sign that the authorize made the target directory read-only.</p></li>
+<li><p>The source’s entry has <code class="docutils literal notranslate"><span class="pre">source_path:</span> <span class="pre">/projects</span></code>, <code class="docutils literal notranslate"><span class="pre">target_path:</span> <span class="pre">/replicas/edge01-projects</span></code> and
+<code class="docutils literal notranslate"><span class="pre">target_address:</span> <span class="pre">203.0.113.40</span></code>.
+The target records neither the address nor the settings, so its entry holds null there.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">recovery_point</span></code> is null until the first job completes.
+A set <code class="docutils literal notranslate"><span class="pre">recovery_point</span></code> means the target holds a copy.</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">replication_info</span></code> with <code class="docutils literal notranslate"><span class="pre">relationship_id</span></code> and <code class="docutils literal notranslate"><span class="pre">side</span></code> reads one relationship’s record on a cluster.
+Run it on both clusters to compare the two entries key by key.</p>
+</section>
+<section id="if-the-preview-refuses">
+<h2>If the preview refuses<a class="headerlink" href="#if-the-preview-refuses" title="Link to this heading"></a></h2>
+<p>Before it authorizes, the target checks the directory it will replace and refuses before any write while a check is
+unmet.
+Each refusal names its row of the overwrite table, such as <code class="docutils literal notranslate"><span class="pre">O1</span></code>, and what lifts it.
+What each row means is in <a class="reference internal" href="../explanation/replication.html#the-overwrite-table"><span class="std std-ref">The overwrite table</span></a>.
+Do this for the row the refusal names:</p>
+<ul class="simple">
+<li><p><strong>The target directory must exist.</strong>
+The baseline creates it from the target host’s <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>.
+A hand-run authorize fails until the directory exists, because the module never creates it.</p></li>
+<li><p><strong>O1</strong>, the target directory holds an entry, a subdirectory included: set <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target:</span> <span class="pre">true</span></code> on the
+relationship’s entry, after you have read what the directory holds
+(<a class="reference internal" href="#replace-the-content-of-a-target-directory">Replace the content of a target directory</a>).</p></li>
+<li><p><strong>O2</strong>, another relationship’s live record holds the target path: pass the release the refusal prints, which names O2
+and the holder’s id (<a class="reference internal" href="#lift-a-refusal-with-a-release">Lift a refusal with a release</a>).</p></li>
+<li><p><strong>O3</strong>, the source’s only record of the relationship is ENDED: set <code class="docutils literal notranslate"><span class="pre">recreate:</span> <span class="pre">true</span></code> on the entry, and pass the release
+the refusal prints, which names O3.</p></li>
+<li><p><strong>O4</strong>, an empty source over a target directory that holds files: pass the release that names O4.</p></li>
+<li><p><strong>O5</strong>, an ENDED record at the target path over a directory that holds files: pass the release that names O5.
+It needs no <code class="docutils literal notranslate"><span class="pre">recreate</span></code>.</p></li>
+<li><p><strong>O6</strong>, the target holds a live record of the relationship that the source does not: remove the relationship with
+<code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, then declare it again (<a class="reference internal" href="#remove-a-relationship">Remove a relationship</a>).</p></li>
+<li><p><strong>O7</strong>, a live relationship holds a path that contains the target path or lies inside it: remove that relationship,
+not this one’s paths.</p></li>
+<li><p><strong>O8 and O9</strong>, a relationship that replicates the other way over these paths: nothing lifts them, since a failover
+has turned the relationship around. Run the failback of
+<a class="reference internal" href="fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a> to turn it back.</p></li>
+</ul>
+<p>Every unmet row is reported at once, in the module’s <code class="docutils literal notranslate"><span class="pre">unmet</span></code> result, with the facts behind it.
+The target also warns when the source looks larger than the space it can reuse.
+<code class="docutils literal notranslate"><span class="pre">strict_capacity:</span> <span class="pre">true</span></code> on the entry refuses instead of warning.</p>
+<p>A relationship from a source that was formed again is held, not refused, because its replica may be the only copy of the
+source’s data.
+<a class="reference internal" href="restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a> has that case.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="replace-the-content-of-a-target-directory">
+<h3>Replace the content of a target directory<a class="headerlink" href="#replace-the-content-of-a-target-directory" title="Link to this heading"></a></h3>
+<p>Use this for a target directory that already holds entries, such as a copy kept by hand:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_replication_relationships</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">allow_non_empty_target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Read what the target directory holds, and keep what you need.
+The first job deletes whatever the source lacks.</p></li>
+<li><p>Run the preview from <a class="reference internal" href="#preview-the-relationship">Preview the relationship</a> and read the diff.</p></li>
+<li><p>Apply.</p></li>
+</ol>
+<p>Removing the relationship later does not restore the data it replaced.</p>
+</section>
+<section id="pause-replication-on-a-schedule">
+<h3>Pause replication on a schedule<a class="headerlink" href="#pause-replication-on-a-schedule" title="Link to this heading"></a></h3>
+<p>Blackout windows and the other settings sit on the same entry:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_replication_relationships</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">blackout_windows</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">start_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">8</span><span class="p p-Indicator">,</span><span class="nt"> start_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> end_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">18</span><span class="p p-Indicator">,</span><span class="nt"> end_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> on_days</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">MON</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">TUE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">WED</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">THU</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">FRI</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="nt">blackout_window_timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">America/Los_Angeles</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">blackout_windows</span></code> need <code class="docutils literal notranslate"><span class="pre">blackout_window_timezone</span></code>.
+A timezone cannot be cleared once it is set (G-REPL-TZ, <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>; QUIRK-019,
+<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">Quirks</span></a>), so an empty timezone where one is set, and windows without a timezone, fail before
+any write.
+<code class="docutils literal notranslate"><span class="pre">replication_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids</span></code> and <code class="docutils literal notranslate"><span class="pre">source_root_read_only</span></code> are settings of the entry too.
+An unset setting keeps the cluster’s value.
+Changing one is a PATCH of the existing relationship.</p>
+</section>
+<section id="move-the-target-to-another-address">
+<h3>Move the target to another address<a class="headerlink" href="#move-the-target-to-another-address" title="Link to this heading"></a></h3>
+<p>To reach the target at another address, such as a floating IP, change <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> on the target host
+and run the baseline on the source host.
+The relationship is changed in place, with one PATCH, and so is one made by hand at another address of the same target
+(the address is a setting, not part of the key: <a class="reference internal" href="../explanation/state-management.html#keys-not-ids"><span class="std std-ref">Keys, not ids</span></a>).</p>
+</section>
+<section id="lift-a-refusal-with-a-release">
+<h3>Lift a refusal with a release<a class="headerlink" href="#lift-a-refusal-with-a-release" title="Link to this heading"></a></h3>
+<p>A release lifts the rows it names, for one record and one run.
+The refusal prints each release that would lift it, as <code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;&#64;&lt;record</span> <span class="pre">id&gt;:&lt;rows&gt;</span></code>.
+Read the holder and the rows first, then pass the entry with <code class="docutils literal notranslate"><span class="pre">-e</span></code>, never in the inventory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"qumulo_replication_release": ["dr01:/replicas/edge01-projects@&lt;record id&gt;:O2,O4"]}'</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Run it on the source host, as above.
+An entry for a target host that the run reaches must name one of the run’s relationships, or it fails the run.</p></li>
+<li><p>An entry that is malformed, or lifts nothing in the run, fails the run.
+An entry for a host that the run does not reach is left alone, so <code class="docutils literal notranslate"><span class="pre">--limit</span></code> still works.</p></li>
+</ul>
+<p><a class="reference internal" href="respond-to-a-refusal.html#a-held-record"><span class="std std-ref">Respond to a refusal</span></a> has the steps.</p>
+</section>
+<section id="replicate-into-an-edge-that-has-no-license-yet">
+<h3>Replicate into an edge that has no license yet<a class="headerlink" href="#replicate-into-an-edge-that-has-no-license-yet" title="Link to this heading"></a></h3>
+<p>The baseline neither creates nor authorizes a relationship into an edge until that edge’s license and clamp apply.
+This holds for a target in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code> that declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>.
+The run does not fail: it prints a hand-off that names <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">qumulo.cluster.edge_license_complete</span></code>.
+Put the license where <a class="reference internal" href="licensing.html"><span class="std std-doc">License an edge</span></a> says, then run the edge’s second pass:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.edge_license_complete<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>&lt;target<span class="w"> </span>edge&gt;
+</pre></div>
+</div>
+<p>The second pass applies the license and the clamp, then creates and authorizes the relationships that name the edge.
+An edge that declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license:</span> <span class="pre">none</span></code> passes the license check without one.
+The clamp check applies to every edge.</p>
+</section>
+<section id="drive-the-two-modules-yourself">
+<h3>Drive the two modules yourself<a class="headerlink" href="#drive-the-two-modules-yourself" title="Link to this heading"></a></h3>
+<p>Use this to replicate from a play of your own.
+The relationship is two modules, one on each cluster:
+<a class="reference internal" href="../collections/qumulo/cluster/replication_relationship_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_relationship</span></code></span></a> creates it on the source, and
+<a class="reference internal" href="../collections/qumulo/cluster/replication_target_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">replication_target</span></code></span></a> authorizes it on the target.
+The file has three plays.
+Each runs on one cluster’s host, which gives the modules that cluster’s connection through <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code>, as in
+<a class="reference internal" href="#verify">Verify</a>, so a host with a token or without a CA file works as it does in the baseline:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># replicate-projects.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check the target, then make its directory</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;connection</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop here if the target would refuse the authorize</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.replication_target</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">source_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">        </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">        </span><span class="nt">source_creates</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">directory_pending</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">diff</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Make the target directory, path only</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.directory</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create the relationship on the source</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span><span class="w"> </span><span class="nv">*connection</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Create the relationship</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.replication_relationship</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">        </span><span class="nt">target_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['dr01'].qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">        </span><span class="nt">target_address</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['dr01'].qumulo_replication_address</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">created</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Authorize it on the target, and wait until it is ESTABLISHED</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span><span class="w"> </span><span class="nv">*connection</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Authorize the relationship</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.replication_target</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">source_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">        </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">        </span><span class="nt">relationship_id</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].created.relationship.id</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">source_empty</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].created.source_empty</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">source_files</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].created.source_files</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">        </span><span class="nt">source_bytes</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">hostvars['edge01'].created.source_bytes</span><span class="nv"> </span><span class="s">}}"</span>
+</pre></div>
+</div>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>replicate-projects.yml<span class="w"> </span>-i<span class="w"> </span>inventory
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>The first task is a preview of the authorize before the source has created the relationship: <code class="docutils literal notranslate"><span class="pre">source_creates:</span> <span class="pre">true</span></code>
+stands in for <code class="docutils literal notranslate"><span class="pre">relationship_id</span></code>, and <code class="docutils literal notranslate"><span class="pre">directory_pending:</span> <span class="pre">true</span></code> counts the target directory that the next task, a
+<a class="reference internal" href="../collections/qumulo/cluster/directory_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">directory</span></code></span></a> task, makes.
+In check mode the module fails on the same unmet rows as the real run, so the play stops before any write.
+Add <code class="docutils literal notranslate"><span class="pre">check_mode:</span> <span class="pre">true</span></code> and <code class="docutils literal notranslate"><span class="pre">diff:</span> <span class="pre">true</span></code> to any other task to preview it.</p></li>
+<li><p>Pass <code class="docutils literal notranslate"><span class="pre">relationship.id</span></code> and the three <code class="docutils literal notranslate"><span class="pre">source_*</span></code> values from the create to the authorize.
+The target uses them for its checks.</p></li>
+<li><p>The preview covers the target’s rows only.
+The source’s own rows (O3 and O8) are checked when the create runs, after the target directory exists.
+The role checks both sides before it writes either, which two modules in sequence do not.
+Prefer the baseline unless you need the modules apart.</p></li>
+<li><p>The source learns of the authorize on its next poll.
+Poll <code class="docutils literal notranslate"><span class="pre">replication_info</span></code> with <code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[source]</span></code> on <code class="docutils literal notranslate"><span class="pre">edge01</span></code> until its record leaves <code class="docutils literal notranslate"><span class="pre">AWAITING_AUTHORIZATION</span></code>.</p></li>
+<li><p>A create and an authorize are one-shot on the cluster: a repeated create makes a second relationship, and a repeated
+authorize fails (G-REPL-ONESHOT).
+The modules match by key before a create, and reconcile a lost answer by listing, never by sending again.
+A result with <code class="docutils literal notranslate"><span class="pre">maybe_applied:</span> <span class="pre">true</span></code> means a write was sent and not confirmed; the next run reads the cluster and
+decides (<a class="reference internal" href="../explanation/state-management.html#maybe-applied"><span class="std std-ref">why</span></a>).</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">replication_relationship</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_target</span></code> document every option and result.</p>
+</section>
+</section>
+<section id="remove-a-relationship">
+<h2>Remove a relationship<a class="headerlink" href="#remove-a-relationship" title="Link to this heading"></a></h2>
+<p>Remove it on the source first, then on the target.
+The source tells the target of a delete only once, so the order matters (G-REPL-NOTIFY, see
+<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).
+The baseline does both in that order.</p>
+<ol class="arabic">
+<li><p>Set the entry’s <code class="docutils literal notranslate"><span class="pre">state</span></code> to <code class="docutils literal notranslate"><span class="pre">absent</span></code>, and leave the entry in place:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_replication_relationships</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+</pre></div>
+</div>
+</li>
+<li><p>Preview and apply as above:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+</li>
+<li><p>Read both clusters with the play from <a class="reference internal" href="#verify">Verify</a>.
+Neither lists the relationship.</p></li>
+</ol>
+<ul>
+<li><p>Deleting the entry from the inventory removes nothing: the baseline acts only on the entries it finds.</p></li>
+<li><p>The target directory keeps its data.
+It becomes writable once no record holds it.</p></li>
+<li><p>The removal leaves the target’s last recovery-point snapshot.
+Nothing owns it and nothing expires it, so delete it yourself when you no longer want the copy
+(G-REPL-SNAPSHOT).
+The modules name the snapshots in their <code class="docutils literal notranslate"><span class="pre">snapshots</span></code> result, and
+<a class="reference internal" href="../collections/qumulo/cluster/snapshot_info_module.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">snapshot_info</span></code></span></a> lists them.</p></li>
+<li><p>Setting the entry back to <code class="docutils literal notranslate"><span class="pre">present</span></code> later, with <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target:</span> <span class="pre">true</span></code>, replaces the data the target kept.</p></li>
+<li><p>For a target gone for good, add <code class="docutils literal notranslate"><span class="pre">target_gone:</span> <span class="pre">true</span></code>.
+Only the source’s records are deleted, and no connection to the target is made.
+Once the target host has left the inventory, add <code class="docutils literal notranslate"><span class="pre">target_cluster_uuid</span></code> with its UUID, or
+<code class="docutils literal notranslate"><span class="pre">previous_target_cluster_uuids</span></code>, a list of its earlier UUIDs.</p></li>
+<li><p>For a source gone for good, run <code class="docutils literal notranslate"><span class="pre">replication_target</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> against the target cluster.
+Add this task to a play on <code class="docutils literal notranslate"><span class="pre">dr01</span></code> with the <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> header from <a class="reference internal" href="#verify">Verify</a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Remove a relationship whose source cluster is gone for good</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.replication_target</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">source_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4b3c802f-8201-42b7-bb41-28f562cd8dfd</span>
+<span class="w">    </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/old-edge-projects</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="restore-replica.html"><span class="std std-doc">Restore a rebuilt edge’s data from its replica</span></a>: bring a replica back into a source edge that
+was formed again.</p></li>
+<li><p><a class="reference internal" href="fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a>: make the target writable when the source is lost,
+and return to the source.</p></li>
+<li><p><a class="reference internal" href="respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a>: the release and consent flags in full.</p></li>
+<li><p><a class="reference internal" href="pair-edge-with-hub.html"><span class="std std-doc">Pair an edge with its hub through a portal</span></a>: a target path never lies inside a portal root on
+the target.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html#replication"><span class="std std-ref">Inventory variables</span></a>: every <code class="docutils literal notranslate"><span class="pre">qumulo_replication_*</span></code> variable.</p></li>
+<li><p><a class="reference internal" href="../explanation/replication.html"><span class="std std-doc">Replication</span></a>: the overwrite table, releases and why authorizing needs consent.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pair-edge-with-hub.html" class="btn btn-neutral float-left" title="Pair an edge with its hub through a portal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="licensing.html" class="btn btn-neutral float-right" title="License an edge" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

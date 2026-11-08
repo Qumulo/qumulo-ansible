@@ -1,0 +1,734 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restore a rebuilt edge’s data from its replica &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fail over to a replica, and fail back" href="fail-over-replication.html" />
+    <link rel="prev" title="Rebuild an unprotected edge" href="edge-rebuild.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Restore a rebuilt edge’s data from its replica</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#restore-in-the-second-pass">Restore in the second pass</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#restore-with-the-restore-playbook">Restore with the restore playbook</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#restore-some-relationships">Restore some relationships</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restore-relationships-whose-source-paths-nest">Restore relationships whose source paths nest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#restore-several-edges">Restore several edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#skip-the-restore-in-a-second-pass">Skip the restore in a second pass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-the-restore-from-a-pipeline">Run the restore from a pipeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tune-the-other-waits">Tune the other waits</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#resume-a-restore-that-stopped">Resume a restore that stopped</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-lock-another-run-holds">A lock another run holds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resume-from-another-controller">Resume from another controller</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#find-and-clear-restore-records-and-locks">Find and clear restore records and locks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify">Verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#when-the-restore-refuses-or-stops">When the restore refuses or stops</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#a-refusal-before-the-first-step">A refusal before the first step</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#a-stop-or-a-failure">A stop or a failure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-s-authorize-fails-on-an-edge-without-a-license">Step 3’s authorize fails on an edge without a license</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#when-the-restore-cannot-run">When the restore cannot run</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#copy-the-replica-back">Copy the replica back</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keep-the-replica-as-plain-data">Keep the replica as plain data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#delete-a-relationship">Delete a relationship</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Restore a rebuilt edge’s data from its replica</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="restore-a-rebuilt-edge-s-data-from-its-replica">
+<h1>Restore a rebuilt edge’s data from its replica<a class="headerlink" href="#restore-a-rebuilt-edge-s-data-from-its-replica" title="Link to this heading"></a></h1>
+<p>This page brings an edge’s data back after the edge was formed again, from the replica that its old UUID left on a
+target cluster.
+When you finish, the edge’s source directory holds the replica’s content, the relationship runs from the edge’s new UUID
+to the same target with its declared settings, and the old record on the target is gone.
+The variants restore only some relationships, resume a restore that stopped, and cover the cases where the restore
+cannot run: copying the replica back by hand, and keeping it as plain data.
+For why the collection holds such a relationship instead of creating it again, see
+<a class="reference internal" href="../explanation/replication.html"><span class="std std-doc">Replication</span></a> and <a class="reference internal" href="../explanation/rebuilds.html"><span class="std std-doc">Rebuilds</span></a>.</p>
+<p>Two names appear in the run’s messages.
+X is the old record on the target that holds the replica, and R is the restore relationship, from the target’s replica
+directory to the edge’s source path.
+<a class="reference internal" href="../reference/playbooks-and-roles.html#replication-restore"><span class="std std-ref">The restore’s records and steps</span></a> lists both and the nine steps
+that the messages number.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Rebuild the edge (<a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>) and apply the <code class="docutils literal notranslate"><span class="pre">host_vars_patch</span></code> from its report to
+<code class="docutils literal notranslate"><span class="pre">host_vars/edge01.yml</span></code>.
+The restore finds the replica through <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>, which the patch sets next to the new
+<code class="docutils literal notranslate"><span class="pre">qumulo_cluster_uuid</span></code>.
+An edge formed again some other way needs its old UUID added to that list by hand.</p></li>
+<li><p>Declare the relationship in the edge’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code> with its <code class="docutils literal notranslate"><span class="pre">target</span></code> host and <code class="docutils literal notranslate"><span class="pre">target_path</span></code>, as
+<a class="reference internal" href="replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a> shows.
+The restore takes every relationship out of the edge whose <code class="docutils literal notranslate"><span class="pre">state</span></code> is not <code class="docutils literal notranslate"><span class="pre">absent</span></code>.</p></li>
+<li><p>Give the edge and the target a <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> that is an IP address, not a name.
+The target reaches the edge at its address for the restore, and the reverse sends the edge the target’s.</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">map_local_ids_to_nfs_ids:</span> <span class="pre">true</span></code> on the declared relationship, and give each local user and group that owns files,
+other than admin and Users, a <code class="docutils literal notranslate"><span class="pre">uid</span></code> or <code class="docutils literal notranslate"><span class="pre">gid</span></code> in the inventory.
+Otherwise every job on such a file fails, or the file comes back owned by an NFS id that no local user has
+(G-REPL-IDMAP in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).</p></li>
+<li><p>Have the edge’s license and clamp applied, or <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license:</span> <span class="pre">none</span></code> declared.
+The second pass applies them before it restores; <a class="reference internal" href="licensing.html"><span class="std std-doc">License an edge</span></a> describes it.</p></li>
+<li><p>Run from the controller that holds the rebuild’s records.
+They are under <code class="docutils literal notranslate"><span class="pre">artifacts/edge01/</span></code> beside the inventory source, or under <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>, and the
+restore writes its own files into <code class="docutils literal notranslate"><span class="pre">artifacts/edge01/restore/</span></code>.
+Keep that directory between runs.</p></li>
+<li><p>Leave no file in the edge’s source directory.
+Subdirectories are fine.
+The restore fills the directory and will not replace files.</p></li>
+</ul>
+</section>
+<section id="restore-in-the-second-pass">
+<h2>Restore in the second pass<a class="headerlink" href="#restore-in-the-second-pass" title="Link to this heading"></a></h2>
+<p>The second pass, <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.edge_license_complete</span></code>, applies the license and the clamp, creates the relationships
+into the edge, and then restores the edge’s relationships in a second play tagged <code class="docutils literal notranslate"><span class="pre">restore</span></code>.
+It runs one edge at a time.
+The license document is vault-encrypted, so the commands below ask for the vault password.
+Drop <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> when the inventory holds no encrypted values.</p>
+<ol class="arabic">
+<li><p>Preview the run:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.edge_license_complete<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass<span class="w"> </span>--check
+</pre></div>
+</div>
+<p>A check run takes no lock and changes nothing.
+It reports the steps each relationship would run.
+A refusal appears now, and <a class="reference internal" href="#when-the-restore-refuses-or-stops">When the restore refuses or stops</a> lists the causes.</p>
+</li>
+<li><p>Run it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.edge_license_complete<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>For each relationship whose target still holds the replica under its old record, the restore syncs the replica
+back into the edge’s source directory, turns the relationship around, deletes the old record and reconnects.
+The full sync of a large replica takes hours, and the run waits for it.
+R has no blackout window until the restore’s last step applies the declared settings, so the full sync runs through
+any declared window.
+If the license has not applied yet, the run fails for that edge with the license hand-off and no restore.
+Nothing is lost meanwhile, since the target keeps the replica.
+Run it again once the license applies.</p>
+</li>
+<li><p>Read the report at the end of the run.
+Each restored relationship prints a line such as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>edge01:/projects to dr01:/replicas/edge01-projects: restored from dr01, and the relationship runs from &lt;the edge's UUID&gt;.
+</pre></div>
+</div>
+<p>The summary may add a command: run <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">qumulo.cluster.baseline</span> <span class="pre">-i</span> <span class="pre">inventory</span> <span class="pre">-l</span> <span class="pre">edge01</span></code>.
+The first full sync replaces the declared subdirectories of the source path with the replica’s content, or deletes
+them where the replica lacks them, and the baseline puts back what the inventory declares.
+The report also names any replication snapshots that the restore left on the target.
+They belong to no one and never expire, so delete them once you no longer want the copy
+(G-REPL-SNAPSHOT in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).</p>
+</li>
+</ol>
+</section>
+<section id="restore-with-the-restore-playbook">
+<h2>Restore with the restore playbook<a class="headerlink" href="#restore-with-the-restore-playbook" title="Link to this heading"></a></h2>
+<p>Use <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.replication_restore</span></code> for an edge that is not in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code>, to finish a restore the second pass
+stopped, or to restore one edge without running the license play again.
+It runs on one host: name it with <code class="docutils literal notranslate"><span class="pre">-l</span></code>, or the run stops before it sends anything.
+Its hosts are <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>, or the group that <code class="docutils literal notranslate"><span class="pre">replication_restore_hosts</span></code> names.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_restore<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check
+ansible-playbook<span class="w"> </span>qumulo.cluster.replication_restore<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+<p>The playbook refuses the whole run before any relationship when the edge has no <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>, when
+the run carries <code class="docutils literal notranslate"><span class="pre">qumulo_replication_release</span></code>, or when <code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code> names a relationship the edge does not
+declare.
+It applies no license and no clamp.
+When an edge in <code class="docutils literal notranslate"><span class="pre">qumulo_edges</span></code> expects a license that has not applied, or its clamp differs from the declared one, the
+restore refuses and names the second pass.</p>
+<p><code class="docutils literal notranslate"><span class="pre">--tags</span> <span class="pre">restore</span></code> on the second pass is not a way to restore alone.
+It skips the license play, and the run fails with “no restore” for each rebuilt edge.
+Use this playbook for that.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="restore-some-relationships">
+<h3>Restore some relationships<a class="headerlink" href="#restore-some-relationships" title="Link to this heading"></a></h3>
+<p>Pass <code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code> with <code class="docutils literal notranslate"><span class="pre">-e</span></code> for one run.
+Each entry is <code class="docutils literal notranslate"><span class="pre">&lt;target</span> <span class="pre">host&gt;:&lt;target</span> <span class="pre">path&gt;</span></code> of a relationship the edge declares, compared without a trailing slash:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_restore<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"qumulo_replication_restore": ["dr01:/replicas/edge01-projects"]}'</span>
+</pre></div>
+</div>
+<p>Without it the run picks every relationship it can.
+The second pass takes the same variable.
+A named relationship that has nothing to restore is refused.
+Don’t pass this variable to the rebuild’s replay.
+The replay refuses <code class="docutils literal notranslate"><span class="pre">qumulo_replication_restore</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_release</span></code> at its first step, since both belong
+to later runs.</p>
+</section>
+<section id="restore-relationships-whose-source-paths-nest">
+<h3>Restore relationships whose source paths nest<a class="headerlink" href="#restore-relationships-whose-source-paths-nest" title="Link to this heading"></a></h3>
+<p>Only one replica can fill a directory.
+When the replicas of two relationships exist and one source path holds the other, the restore playbook refuses the run
+and names the outer relationship.
+Restore the outer one first by naming it, as above.
+The inner relationship then takes the copy-back route with a release, which replaces its replica from the restored
+directory (<a class="reference internal" href="#copy-the-replica-back">Copy the replica back</a>).
+The second pass restores neither: it refuses both and prints the restore playbook command that names the outer one.</p>
+<p>Two replicas of one source path, on two targets or at two target paths, are a variant of this.
+The restore takes the one with the newer recovery point, and the older one is not restored.
+Release the older one the same way.</p>
+</section>
+<section id="restore-several-edges">
+<h3>Restore several edges<a class="headerlink" href="#restore-several-edges" title="Link to this heading"></a></h3>
+<p>After every edge’s license play, the second pass restores one edge at a time and waits for each edge’s full syncs before
+the next, so that the target, usually the same for every edge, carries one edge’s syncs at a time.
+A run over many rebuilt edges takes as long as all their restores in sequence.
+To restore edges in parallel, run one second pass per edge with <code class="docutils literal notranslate"><span class="pre">-l</span></code>.
+<a class="reference internal" href="pipeline.html#run-many-edges"><span class="std std-ref">Run many edges</span></a> says what a failure does to the other edges.</p>
+</section>
+<section id="skip-the-restore-in-a-second-pass">
+<h3>Skip the restore in a second pass<a class="headerlink" href="#skip-the-restore-in-a-second-pass" title="Link to this heading"></a></h3>
+<p>A run that must not restore, such as a license renewal, adds <code class="docutils literal notranslate"><span class="pre">--skip-tags</span> <span class="pre">restore</span></code>
+(<a class="reference internal" href="licensing.html#skip-the-restore"><span class="std std-ref">Skip the restore</span></a>).</p>
+</section>
+<section id="run-the-restore-from-a-pipeline">
+<h3>Run the restore from a pipeline<a class="headerlink" href="#run-the-restore-from-a-pipeline" title="Link to this heading"></a></h3>
+<p>A restore outlasts most job limits, so plan it as a run that stops and resumes.</p>
+<ul class="simple">
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code> below the job’s time limit.
+The wait, 86400 seconds by default, covers the full syncs of all the picked relationships together.
+Leave room after it for each relationship’s steps 3, 5 and 8: by default up to 600, 300 and 1800 seconds.
+A restore that reaches its timeout stops, and the next run resumes it.
+A job killed at its limit leaves the lock instead.</p></li>
+<li><p>Keep <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> across every job that runs the replay, the baseline or the second pass.
+It holds the rebuild report, the restore record, the restore stamps and the lock.
+<a class="reference internal" href="pipeline.html#keep-the-records-between-jobs"><span class="std std-ref">Keep the records between jobs</span></a> says what goes wrong without the directory.</p></li>
+<li><p>Run the restore again in the next job, with the same command.</p></li>
+</ul>
+<p><a class="reference internal" href="pipeline.html#keep-the-records-between-jobs"><span class="std std-ref">Run the playbooks from a pipeline</span></a> covers the rest of the pipeline.</p>
+</section>
+<section id="tune-the-other-waits">
+<h3>Tune the other waits<a class="headerlink" href="#tune-the-other-waits" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">replication_pair_wait_timeout</span></code> (step 3’s authorize), <code class="docutils literal notranslate"><span class="pre">replication_restore_poll_delay</span></code>,
+<code class="docutils literal notranslate"><span class="pre">replication_restore_reverse_timeout</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_restore_reconnect_timeout</span></code> bound the restore’s other waits, and <code class="docutils literal notranslate"><span class="pre">replication_restore_resume_window</span></code> how long a restore stopped before its
+reconnect may still resume from its record.
+Pass them with <code class="docutils literal notranslate"><span class="pre">-e</span></code> or set them in the inventory.
+The <code class="docutils literal notranslate"><span class="pre">replication_pair</span></code> role’s <code class="docutils literal notranslate"><span class="pre">restore</span></code> entry point documents each:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-doc<span class="w"> </span>-t<span class="w"> </span>role<span class="w"> </span>qumulo.cluster.replication_pair<span class="w"> </span>-e<span class="w"> </span>restore
+</pre></div>
+</div>
+</section>
+</section>
+<section id="resume-a-restore-that-stopped">
+<h2>Resume a restore that stopped<a class="headerlink" href="#resume-a-restore-that-stopped" title="Link to this heading"></a></h2>
+<p>Run the same command again.
+Before each step the restore reads both clusters afresh and runs only the step the records show is next, so a rerun
+continues where the restore stopped.
+A full sync that did not land within <code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code> resumes at the wait.
+A reconnect that did not read ESTABLISHED on both clusters within <code class="docutils literal notranslate"><span class="pre">replication_restore_reconnect_timeout</span></code> leaves the
+restore record marked, and the next run only polls.
+The message names the likeliest cause: the edge cannot reach the target at the address and port that R’s source record
+on the edge uses.
+Fix that path first.</p>
+<section id="a-lock-another-run-holds">
+<h3>A lock another run holds<a class="headerlink" href="#a-lock-another-run-holds" title="Link to this heading"></a></h3>
+<p>A restore holds a lock in <code class="docutils literal notranslate"><span class="pre">artifacts/edge01/restore/lock</span></code> while it runs.
+A run killed in the middle leaves it.</p>
+<ul class="simple">
+<li><p>On the same controller, the next run takes the lock over once the killed run’s process is gone, and warns.</p></li>
+<li><p>On another controller, a run takes it over only after its lease ends.
+The lease covers the restore’s waits, <code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code> among them.</p></li>
+<li><p>A lock whose process is still alive on its own controller is never taken over, whatever its lease says.</p></li>
+</ul>
+<p>The lock belongs to one controller.
+Two controllers can both restore the same edge, so keep to one restore per edge at a time.
+Remove a lock file by hand only after the run that took it is gone.
+<a class="reference internal" href="#find-and-clear-restore-records-and-locks">Find and clear restore records and locks</a> shows how to list the locks and
+tell which ones are left.</p>
+</section>
+<section id="resume-from-another-controller">
+<h3>Resume from another controller<a class="headerlink" href="#resume-from-another-controller" title="Link to this heading"></a></h3>
+<p>The restore record, <code class="docutils literal notranslate"><span class="pre">artifacts/edge01/restore/&lt;digest&gt;.yml</span></code>, is how a stopped restore resumes.
+Move it into <code class="docutils literal notranslate"><span class="pre">artifacts/edge01/restore/</span></code> (or <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>) on the other controller, keeping mode 0600,
+and delete it on the first.
+Never copy it: two controllers holding it could both act on the relationship.
+Its name doesn’t depend on the target’s inventory host name, so the record still matches after the target host is
+renamed.</p>
+</section>
+</section>
+<section id="find-and-clear-restore-records-and-locks">
+<h2>Find and clear restore records and locks<a class="headerlink" href="#find-and-clear-restore-records-and-locks" title="Link to this heading"></a></h2>
+<p>An upgrade warns of a restore record or a live lock that names a host it moves (W1), and a restore stops on a file it
+cannot read.
+To see every restore record, lock and unreadable file on the controller before either, list them with
+<a class="reference internal" href="../collections/qumulo/cluster/replication_restore_info_module.html"><span class="std std-doc">replication_restore_info</span></a>.
+It reads the files and nothing else: it sends no request to a cluster and changes nothing.</p>
+<ol class="arabic">
+<li><p>List the files under the artifact directory, <code class="docutils literal notranslate"><span class="pre">artifacts</span></code> beside the inventory by default or your
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible<span class="w"> </span>localhost<span class="w"> </span>-m<span class="w"> </span>qumulo.cluster.replication_restore_info<span class="w"> </span>-a<span class="w"> </span><span class="nv">path</span><span class="o">=</span>artifacts
+</pre></div>
+</div>
+<p>Run it from the inventory’s directory, or give the full path.</p>
+<p>The result has three lists, <code class="docutils literal notranslate"><span class="pre">records</span></code>, <code class="docutils literal notranslate"><span class="pre">locks</span></code> and <code class="docutils literal notranslate"><span class="pre">unreadable</span></code>, each by host.
+A directory that does not exist holds nothing, so all three are empty.
+The module’s examples show the same call in a play, with a task that prints each record’s age.</p>
+</li>
+<li><p>Read each record.
+<code class="docutils literal notranslate"><span class="pre">host</span></code> is the edge being restored, and <code class="docutils literal notranslate"><span class="pre">key</span></code> is the relationship: its <code class="docutils literal notranslate"><span class="pre">source_path</span></code> on the edge, and the
+<code class="docutils literal notranslate"><span class="pre">target_host</span></code>, <code class="docutils literal notranslate"><span class="pre">target_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">target_path</span></code> of the replica.
+<code class="docutils literal notranslate"><span class="pre">age_seconds</span></code> runs from the time the restore wrote the record, or from the file’s last change when it did not say.
+<code class="docutils literal notranslate"><span class="pre">hosts</span></code> lists the hosts a restore of the record acts on, the edge and the key’s <code class="docutils literal notranslate"><span class="pre">target_host</span></code>.
+<code class="docutils literal notranslate"><span class="pre">reconnected:</span> <span class="pre">true</span></code> means the restore had reached its last step, the reconnect.
+Finish the restore with the restore playbook, which removes the record once the relationship reads ESTABLISHED:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.replication_restore<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+<p>The playbook reads both clusters, and either continues from the step the record shows or says why it cannot.
+Remove a record by hand only once you have reconnected the relationship by hand, as
+<a class="reference internal" href="#a-stop-or-a-failure">A stop or a failure</a> describes.</p>
+</li>
+<li><p>Read each lock.
+<code class="docutils literal notranslate"><span class="pre">holder</span></code> is <code class="docutils literal notranslate"><span class="pre">restore</span></code> for a restore and <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> for an upgrade run, and <code class="docutils literal notranslate"><span class="pre">controller</span></code> and <code class="docutils literal notranslate"><span class="pre">pid</span></code> name the
+<code class="docutils literal notranslate"><span class="pre">ansible-playbook</span></code> process that took it.
+<code class="docutils literal notranslate"><span class="pre">liveness</span></code> is <code class="docutils literal notranslate"><span class="pre">live</span></code>, <code class="docutils literal notranslate"><span class="pre">gone</span></code> or <code class="docutils literal notranslate"><span class="pre">expired</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">live</span></code>: for a lock taken on this controller, its process is alive, so a run holds the edge now, as
+<a class="reference internal" href="#a-lock-another-run-holds">A lock another run holds</a> describes; leave it alone, and let that run end.
+For a lock taken on another controller, in another container, or before this controller’s last boot, <code class="docutils literal notranslate"><span class="pre">live</span></code>
+means only that its lease has not run out, so check whether that run is still going.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">gone</span></code>: the run was on this controller and its process is no longer there.
+The next restore or upgrade of the host takes the lock over and warns.
+Removing it by hand is safe, since <code class="docutils literal notranslate"><span class="pre">gone</span></code> says its run has ended, but the next run does it for you.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">expired</span></code>: the lock was taken on another controller, in another container or before this controller’s last
+boot, and its lease has run out.
+The next restore or upgrade of the host takes it over the same way.
+Check that the run on that controller has ended before you remove the file by hand.</p></li>
+</ul>
+</li>
+<li><p>Read each unreadable file.
+<code class="docutils literal notranslate"><span class="pre">unreadable</span></code> lists a file named like a record that is not a restore record this collection reads, and a <code class="docutils literal notranslate"><span class="pre">lock</span></code> that
+is not a lock of format 1, with the reason.
+A restore stops on the file when it reads it, naming it: a <code class="docutils literal notranslate"><span class="pre">lock</span></code> always, and a record when its name is that of a
+relationship the restore handles. An upgrade that locks the host also stops on the <code class="docutils literal notranslate"><span class="pre">lock</span></code>.
+Move such a file out of the <code class="docutils literal notranslate"><span class="pre">restore/</span></code> directory only once no restore or upgrade of the host is under way on any
+controller.
+A record moved aside cannot resume its restore’s reconnect, so reconnect that relationship by hand, as
+<a class="reference internal" href="#a-stop-or-a-failure">A stop or a failure</a> describes.</p></li>
+<li><p>Check where each file is.
+The restore reads only its host’s own <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code>, <code class="docutils literal notranslate"><span class="pre">artifacts/edge01/restore/</span></code> by default, so it
+does not find a record under another directory.
+That happens with two inventory sources, which give two artifact directories, or after a host is renamed.
+Move the record into the host’s own <code class="docutils literal notranslate"><span class="pre">restore/</span></code> directory, keeping mode 0600, and delete it from the old place, or
+remove it if you reconnected the relationship by hand.
+<a class="reference internal" href="#resume-from-another-controller">Resume from another controller</a> gives the same move.
+Never copy it.</p></li>
+</ol>
+</section>
+<section id="verify">
+<h2>Verify<a class="headerlink" href="#verify" title="Link to this heading"></a></h2>
+<p>Read the relationship from both clusters with <a class="reference internal" href="../collections/qumulo/cluster/replication_info_module.html"><span class="std std-doc">replication_info</span></a>, using the
+play in <a class="reference internal" href="replicate-a-directory.html#verify"><span class="std std-ref">Replicate a directory to another cluster</span></a> against <code class="docutils literal notranslate"><span class="pre">edge01</span></code> and <code class="docutils literal notranslate"><span class="pre">dr01</span></code>.
+Then check:</p>
+<ul class="simple">
+<li><p>the edge’s <code class="docutils literal notranslate"><span class="pre">source_relationships</span></code> list the relationship for <code class="docutils literal notranslate"><span class="pre">/projects</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">ESTABLISHED</span></code>,
+<code class="docutils literal notranslate"><span class="pre">target_path:</span> <span class="pre">/replicas/edge01-projects</span></code>, the target’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> as <code class="docutils literal notranslate"><span class="pre">target_address</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">error_from_last_job:</span> <span class="pre">null</span></code>;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s <code class="docutils literal notranslate"><span class="pre">target_relationships</span></code> list a relationship with the same <code class="docutils literal notranslate"><span class="pre">id</span></code> and <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">ESTABLISHED</span></code>, whose
+<code class="docutils literal notranslate"><span class="pre">source_cluster_uuid</span></code> is the edge’s new UUID;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dr01</span></code>’s <code class="docutils literal notranslate"><span class="pre">target_relationships</span></code> list no relationship at that target path from a previous UUID of the edge;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">artifacts/edge01/restore/</span></code> holds no <code class="docutils literal notranslate"><span class="pre">&lt;digest&gt;.yml</span></code> record and no <code class="docutils literal notranslate"><span class="pre">lock</span></code>, and holds the restore stamp,
+<code class="docutils literal notranslate"><span class="pre">done-&lt;digest&gt;.yml</span></code>.</p></li>
+</ul>
+<p>Then run <code class="docutils literal notranslate"><span class="pre">ansible-playbook</span> <span class="pre">qumulo.cluster.baseline</span> <span class="pre">-i</span> <span class="pre">inventory</span> <span class="pre">-l</span> <span class="pre">edge01</span> <span class="pre">--check</span> <span class="pre">--diff</span></code>.
+It reports no change when the inventory and both clusters agree.</p>
+</section>
+<section id="when-the-restore-refuses-or-stops">
+<h2>When the restore refuses or stops<a class="headerlink" href="#when-the-restore-refuses-or-stops" title="Link to this heading"></a></h2>
+<p>Each message names its way on.
+<a class="reference internal" href="../reference/troubleshooting.html#rebuilds"><span class="std std-ref">Troubleshooting</span></a> quotes the messages.</p>
+<section id="a-refusal-before-the-first-step">
+<h3>A refusal before the first step<a class="headerlink" href="#a-refusal-before-the-first-step" title="Link to this heading"></a></h3>
+<p>A refusal comes before any write.
+Where the way on is to copy the replica back, <a class="reference internal" href="#copy-the-replica-back">Copy the replica back</a> shows how.
+Otherwise fix the cause and run again.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Cause</p></th>
+<th class="head"><p>What to do</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>The old record X is not ESTABLISHED, or its directory is not read-only, as after a failover by hand.</p></td>
+<td><p>Copy the replica back. The reconnect reverts the directory to R’s last recovery point, so writes made there since would be lost.</p></td>
+</tr>
+<tr class="row-odd"><td><p>An ENDED record from another source lies beside X on the target.</p></td>
+<td><p>Copy the replica back. The directory may hold writes made since that record was released.</p></td>
+</tr>
+<tr class="row-even"><td><p>X has no recovery point.</p></td>
+<td><p>Copy the replica back. The replica is incomplete.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The target’s replica directory lies inside or holds a portal spoke root on the target.</p></td>
+<td><p>Copy the replica back. The spoke root holds cached hub data, which the restore cannot copy as the replica.</p></td>
+</tr>
+<tr class="row-even"><td><p>The edge’s source path lies inside or holds a portal spoke root on the edge.</p></td>
+<td><p>Move the relationship’s source path off the portal in the inventory, or copy the replica back around the portal’s root.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The edge’s source directory holds a file.</p></td>
+<td><p>Move the files out and run again, then move them back once the relationship runs from the edge. Or copy the replica in around them and release.</p></td>
+</tr>
+<tr class="row-even"><td><p>The edge or the target has no <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, or it is a name.</p></td>
+<td><p>Set it to an IP address.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> is empty, or its directory cannot be written.</p></td>
+<td><p>Set it to a directory on the controller, and make it writable.</p></td>
+</tr>
+<tr class="row-even"><td><p>The edge expects a license and holds none.</p></td>
+<td><p>Apply the license through the second pass. An edge that runs without one declares <code class="docutils literal notranslate"><span class="pre">license:</span> <span class="pre">none</span></code> in <code class="docutils literal notranslate"><span class="pre">qumulo_capacity</span></code>, keeping its other keys.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The edge’s clamp differs from <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.clamp</span></code>.</p></td>
+<td><p>Run the second pass, which sets the clamp and then restores.</p></td>
+</tr>
+<tr class="row-even"><td><p>The clamp plan fails.</p></td>
+<td><p>Fix the cause the message gives, and run again.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Another relationship out of the edge has the same source path or a nested one.</p></td>
+<td><p>If the replay created it from the empty directory, delete it on both clusters, run the restore again, and the next baseline creates it again from the restored data. Otherwise copy the replica back.</p></td>
+</tr>
+<tr class="row-even"><td><p>A relationship into the edge replicates into the source path.</p></td>
+<td><p>Move one of the two paths in the inventory, or copy the replica back.</p></td>
+</tr>
+<tr class="row-odd"><td><p>The check of R’s create on the target, or of its authorize on the edge, refuses.</p></td>
+<td><p>The message quotes the check’s reasons. Fix them and run again.</p></td>
+</tr>
+<tr class="row-even"><td><p>R’s records from an earlier try lie at the restore’s paths.</p></td>
+<td><p>Delete them, on the target first and then on the edge, and run again.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="a-stop-or-a-failure">
+<h3>A stop or a failure<a class="headerlink" href="#a-stop-or-a-failure" title="Link to this heading"></a></h3>
+<p>The second pass can fail on an edge with <code class="docutils literal notranslate"><span class="pre">qumulo_previous_cluster_uuids</span></code>.
+It can also fail on an edge that has a <code class="docutils literal notranslate"><span class="pre">present</span></code> relationship whose target path holds a live record from a UUID the
+inventory doesn’t name:</p>
+<ul class="simple">
+<li><p>For a relationship with a restore to do, it fails on:</p>
+<ul>
+<li><p>the refusals above;</p></li>
+<li><p>a stop at a later step, such as a full sync that did not land within <code class="docutils literal notranslate"><span class="pre">replication_restore_wait_timeout</span></code>, which a later
+run resumes;</p></li>
+<li><p>a target that does not answer;</p></li>
+<li><p>a pair left DISCONNECTED on both sides with no restore record;</p></li>
+<li><p>a run that carries <code class="docutils literal notranslate"><span class="pre">qumulo_replication_release</span></code>, which restores nothing.</p></li>
+</ul>
+</li>
+<li><p>For any relationship, with or without a restore to do, it fails as the baseline does on a held relationship with no
+replica left to restore from, and on a foreign record at a declared target path.
+On an edge with no previous UUIDs, the foreign record only warns.</p></li>
+<li><p>For the edge, it fails when another run holds its restore lock, or when <code class="docutils literal notranslate"><span class="pre">edge_rebuild_artifact_dir</span></code> is empty.</p></li>
+</ul>
+<p>An edge whose relationships an earlier run restored or released passes, in a release run too.
+It only warns on a target that doesn’t answer or on a failover by hand.</p>
+<p>A pair left DISCONNECTED on both sides with no restore record reads as a failover by hand.
+It is also what a crash between the old record’s delete and the record’s write leaves, what a resume from a
+controller without the record leaves, and what a delete of the old record by hand after the reverse leaves.
+The message names three ways on.
+The first is to move the record here from the controller that wrote it, deleting it there, and run again.
+The second, once you have checked that nobody has written to the target directory (the reconnect reverts it), is to
+reconnect R by id with <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.replication_reverse</span></code> and <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code>.
+Then remove any restore record of it on the controller that wrote it, or run the restore there once while R is
+ESTABLISHED, which removes it.
+The third, when the old record was deleted by hand before step 7, is to delete R on both clusters.</p>
+</section>
+<section id="step-3-s-authorize-fails-on-an-edge-without-a-license">
+<h3>Step 3’s authorize fails on an edge without a license<a class="headerlink" href="#step-3-s-authorize-fails-on-an-edge-without-a-license" title="Link to this heading"></a></h3>
+<p>On an edge that declares <code class="docutils literal notranslate"><span class="pre">qumulo_capacity.license:</span> <span class="pre">none</span></code>, a restore is not yet verified on a real cluster.
+If the edge refuses the full sync, step 3’s authorize fails and the relationship’s outcome is failed, with the
+authorize’s error.
+R then waits, pending on the edge.
+That is not a refusal.
+Once the cause is fixed, run the second pass again, and it resumes at the authorize.</p>
+</section>
+</section>
+<section id="when-the-restore-cannot-run">
+<h2>When the restore cannot run<a class="headerlink" href="#when-the-restore-cannot-run" title="Link to this heading"></a></h2>
+<p>When the restore refuses a replica it cannot trust, or you do not want it, two routes remain.
+Each uses the release that the baseline’s held refusal prints, so run the baseline on the edge with <code class="docutils literal notranslate"><span class="pre">--check</span></code> first and
+read it.
+A release lifts only the rows it names, so a check run with a release that names O2 alone still refuses an empty source
+over a full target (O4; see <a class="reference internal" href="../explanation/replication.html#the-overwrite-table"><span class="std std-ref">The overwrite table</span></a>).
+<a class="reference internal" href="respond-to-a-refusal.html#a-held-record"><span class="std std-ref">Respond to a refusal</span></a> shows how to read and give one.</p>
+<section id="copy-the-replica-back">
+<h3>Copy the replica back<a class="headerlink" href="#copy-the-replica-back" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>Copy the target directory’s content into the edge’s source directory over NFS or SMB.</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">allow_non_empty_target:</span> <span class="pre">true</span></code> to the relationship’s entry in the edge’s host vars, since the target directory
+holds the replica:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># inventory/host_vars/edge01.yml</span>
+<span class="nt">qumulo_replication_relationships</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">allow_non_empty_target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</pre></div>
+</div>
+</li>
+<li><p>Run the baseline on the edge once, with the release that the held refusal prints:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"qumulo_replication_release": ["dr01:/replicas/edge01-projects@&lt;record id&gt;:O2,O4"]}'</span>
+</pre></div>
+</div>
+<p>Use the rows the refusal names where the command shows <code class="docutils literal notranslate"><span class="pre">O2,O4</span></code>.
+The target deletes the holder’s record, the source creates the relationship from the directory as it is, and the
+target authorizes it.</p>
+</li>
+</ol>
+</section>
+<section id="keep-the-replica-as-plain-data">
+<h3>Keep the replica as plain data<a class="headerlink" href="#keep-the-replica-as-plain-data" title="Link to this heading"></a></h3>
+<p>Set the entry to <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> and run the baseline with the same release:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_replication_relationships</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">source_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/projects</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dr01</span>
+<span class="w">    </span><span class="nt">target_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/replicas/edge01-projects</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+</pre></div>
+</div>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="s1">'{"qumulo_replication_release": ["dr01:/replicas/edge01-projects@&lt;record id&gt;:O2,O4"]}'</span>
+</pre></div>
+</div>
+<p>The release deletes the holder’s record on the target.
+The directory keeps its files and becomes writable.</p>
+</section>
+<section id="delete-a-relationship">
+<h3>Delete a relationship<a class="headerlink" href="#delete-a-relationship" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>A relationship that nothing holds is deleted on both sides by <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, and the target directory keeps its data.</p></li>
+<li><p>When the target is gone for good, set <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> and <code class="docutils literal notranslate"><span class="pre">target_gone:</span> <span class="pre">true</span></code>, and add <code class="docutils literal notranslate"><span class="pre">target_cluster_uuid</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">previous_target_cluster_uuids</span></code> if the target was formed again, once the target host has left the inventory.
+It deletes only the source’s records and makes no connection to the target.</p></li>
+</ul>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>: the rebuild that leaves the relationship held.</p></li>
+<li><p><a class="reference internal" href="licensing.html"><span class="std std-doc">License an edge</span></a>: the second pass, its license play and its clamp.</p></li>
+<li><p><a class="reference internal" href="replicate-a-directory.html"><span class="std std-doc">Replicate a directory to another cluster</span></a>: the relationship the restore turns around.</p></li>
+<li><p><a class="reference internal" href="fail-over-replication.html"><span class="std std-doc">Fail over to a replica, and fail back</span></a>: the failover of a source that is lost and
+expected back, which the restore does not do.</p></li>
+<li><p><a class="reference internal" href="pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a>: keeping the artifact directory between jobs.</p></li>
+<li><p><a class="reference internal" href="../reference/playbooks-and-roles.html#replication-restore"><span class="std std-ref">The restore’s records and steps</span></a>: X, R and steps 1 to 9.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html#rebuilds"><span class="std std-ref">Troubleshooting</span></a>: the messages of a rebuild.</p></li>
+<li><p><a class="reference internal" href="../explanation/replication.html#why-x-is-kept-and-r-turned-around"><span class="std std-ref">Replication</span></a>: why a restore keeps X and turns
+R around.</p></li>
+<li><p><a class="reference internal" href="../explanation/rebuilds.html#what-a-rebuild-does-to-replication"><span class="std std-ref">Rebuilds</span></a>: what a rebuild does to replication.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="edge-rebuild.html" class="btn btn-neutral float-left" title="Rebuild an unprotected edge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="fail-over-replication.html" class="btn btn-neutral float-right" title="Fail over to a replica, and fail back" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

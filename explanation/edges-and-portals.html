@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edges, hubs and portals &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Licensing and capacity" href="licensing-and-capacity.html" />
+    <link rel="prev" title="Refusals and guards" href="refusals-and-guards.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Edges, hubs and portals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-model-a-hub-its-spokes-and-the-roots-between-them">The model: a hub, its spokes and the roots between them</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spoke-roots-hold-the-hub-s-data">Spoke roots hold the hub’s data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#why-a-root-has-to-be-absent-and-its-parent-present">Why a root has to be absent, and its parent present</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-edge-s-cache-and-its-size">The edge’s cache and its size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#addresses-are-declared-never-derived">Addresses are declared, never derived</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#which-address-to-choose">Which address to choose</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#where-the-values-come-from">Where the values come from</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#addresses-behind-a-load-balancer">Addresses behind a load balancer</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#why-the-hub-goes-first">Why the hub goes first</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#one-release-one-writer-at-a-time-on-the-hub">One release, one writer at a time on the hub</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#removing-a-portal-drain-then-delete">Removing a portal: drain, then delete</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-the-collection-leaves-alone">What the collection leaves alone</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#learn-more">Learn more</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Edges, hubs and portals</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="edges-hubs-and-portals">
+<h1>Edges, hubs and portals<a class="headerlink" href="#edges-hubs-and-portals" title="Link to this heading"></a></h1>
+<p>An edge holds a cache of data that lives on a hub, and a portal is what connects the two. This page explains the model
+the collection implements: what a portal carries, why some paths on an edge are not the edge’s to manage, how the cache
+is sized, why the inventory declares every address by hand, and why a portal is drained before it is deleted.</p>
+<p>To pair an edge with its hub, see <a class="reference internal" href="../how-to/pair-edge-with-hub.html"><span class="std std-doc">Pair an edge with its hub through a portal</span></a>. To
+bring a hub and an edge you already run under one inventory first, see <a class="reference internal" href="../tutorials/first-fleet.html"><span class="std std-doc">Your first fleet</span></a>.</p>
+<section id="the-model-a-hub-its-spokes-and-the-roots-between-them">
+<h2>The model: a hub, its spokes and the roots between them<a class="headerlink" href="#the-model-a-hub-its-spokes-and-the-roots-between-them" title="Link to this heading"></a></h2>
+<p>A hub is a cluster that holds data. A spoke is a cluster that reaches some of that data through a portal and caches
+what it reads. An unprotected edge is a single-node cluster that is usually a spoke. The collection calls a spoke an edge. The portal
+modules use the cluster’s own terms, spoke and hub.</p>
+<p>A portal links directories, not clusters as a whole. Each link is a root pair: a spoke root on the spoke and a hub root
+on the hub. Under the spoke root the spoke shows the hub root’s tree. Whether the spoke may write through the portal is
+the portal’s type: <code class="docutils literal notranslate"><span class="pre">read_write</span></code>, or <code class="docutils literal notranslate"><span class="pre">read_only</span></code>. The hub decides the type of an accepted portal, so changing it is a
+hub-side change (<a class="reference internal" href="../collections/qumulo/cluster/portal_hub_module.html"><span class="std std-doc">portal_hub</span></a>), not a spoke-side one
+(<a class="reference internal" href="../collections/qumulo/cluster/portal_spoke_module.html"><span class="std std-doc">portal_spoke</span></a>).</p>
+<p>Both clusters keep a record of the portal. The spoke’s record holds the hub’s addresses and the hub’s record holds the
+spoke’s, and neither holds its own (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-PORTAL-HOSTS</span></a>). The collection identifies a portal by the pair of
+cluster UUIDs, one portal per pair, and each root by its path on its side, never by a server id. <a class="reference internal" href="state-management.html#keys-not-ids"><span class="std std-ref">State management</span></a>
+explains why identity is built from keys the inventory can state.</p>
+<p>The inventory mirrors this. The edge declares the pairing in <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code>: its hub, an inventory host, and the root
+pairs. The hub declares only its own addresses. The edge declares the pairing because the baseline run on the edge is
+the run that pairs: it gives the <a class="reference internal" href="../collections/qumulo/cluster/portal_pair_role.html"><span class="std std-doc">portal_pair</span></a> role a connection to both clusters, so the role reaches the hub from the
+edge’s play.</p>
+<p>Which hosts are hubs is a fact about your fleet, not about a cluster, so <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code> is a group you fill. The
+Terraform inventory plugin groups a host by its kind and by who formed it, and never puts a host in <code class="docutils literal notranslate"><span class="pre">qumulo_hubs</span></code>.
+The edge rebuild requires the hub to be in that group and finds each portal’s hub there by UUID. The baseline’s portal
+step and the upgrade plan read <code class="docutils literal notranslate"><span class="pre">qumulo_portal.hub</span></code> from the host entries, whatever group the hub is in. A hub may itself
+be another hub’s spoke. The upgrade plan treats a hub and every cluster that reaches it through <code class="docutils literal notranslate"><span class="pre">qumulo_portal.hub</span></code>, its
+spokes and theirs, as one portal component.</p>
+</section>
+<section id="spoke-roots-hold-the-hub-s-data">
+<h2>Spoke roots hold the hub’s data<a class="headerlink" href="#spoke-roots-hold-the-hub-s-data" title="Link to this heading"></a></h2>
+<p>A path inside a spoke root looks like a path on the edge, but the data in it belongs to the hub. The spoke serves it
+from its cache and passes writes to the hub.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>On an edge, for a path inside a spoke root</p></th>
+<th class="head"><p>What the collection does</p></th>
+<th class="head"><p>Why</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>An ACL change</p></td>
+<td><p>Refuses unless the entry sets <code class="docutils literal notranslate"><span class="pre">allow_data_loss:</span> <span class="pre">true</span></code>, in check mode too</p></td>
+<td><p>The spoke passes the write to the hub, so it replaces the hub’s ACL whole. The hub’s own inventory may declare another one.</p></td>
+</tr>
+<tr class="row-odd"><td><p>A quota or a snapshot policy</p></td>
+<td><p>The baseline fails before it writes anything</p></td>
+<td><p>The cluster refuses both (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-SPOKE-PATHS</span></a>). Without the preflight the refusal would come at step 20, after the portal and every earlier step had applied.</p></td>
+</tr>
+<tr class="row-even"><td><p>A snapshot</p></td>
+<td><p>The snapshot module refuses</p></td>
+<td><p>The cluster takes no snapshot on or under a spoke root (G-SPOKE-PATHS).</p></td>
+</tr>
+<tr class="row-odd"><td><p>An S3 bucket</p></td>
+<td><p>Refused by the baseline’s preflight and by the bucket module</p></td>
+<td><p>A bucket there would serve the hub’s data from the spoke’s cache.</p></td>
+</tr>
+<tr class="row-even"><td><p>Capture and clone</p></td>
+<td><p>Capture notes the path as the hub’s, which the hub’s capture declares; a clone leaves it out and leaves out <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code></p></td>
+<td><p>The clone has no portal of its own yet, and the data is not the source’s. The hub’s record of the portal is keyed on the source’s UUID, so the clone declares a portal of its own.</p></td>
+</tr>
+<tr class="row-odd"><td><p>An edge rebuild</p></td>
+<td><p>The drain moves exactly this data to the hub; nothing else survives</p></td>
+<td><p>Everything outside the roots exists only on the edge.</p></td>
+</tr>
+<tr class="row-even"><td><p>A replication target</p></td>
+<td><p>The replication step’s preflight refuses a target path inside a portal root, on the spoke that owns the root and on the hub that a spoke’s root links. It checks once, before any relationship, so every refusal comes before any write on either cluster.</p></td>
+<td><p>Authorizing a relationship makes the target read-only and replaces its content with the source’s. Inside a spoke root that content is the hub’s; inside a hub root it is what the spokes read and write through the portal.</p></td>
+</tr>
+</tbody>
+</table>
+<p>The refusals leave the declaration to a place where it works. Declare ACLs, quotas, snapshot policies and buckets on the
+hub, whose paths they are, or on a directory of the edge outside every spoke root. A hub’s own roots may carry quotas
+and snapshot policies.</p>
+<p>The same boundary is why a rebuild says “local data”. A directory outside the spoke roots, and its snapshots, exist
+only on the edge. The portal can’t carry them to the hub, so the rebuild stops until you list <code class="docutils literal notranslate"><span class="pre">local_data</span></code> in
+<code class="docutils literal notranslate"><span class="pre">edge_rebuild_acknowledge</span></code> and accept losing them. See <a class="reference internal" href="rebuilds.html"><span class="std std-doc">Rebuilds</span></a>.</p>
+<section id="why-a-root-has-to-be-absent-and-its-parent-present">
+<h3>Why a root has to be absent, and its parent present<a class="headerlink" href="#why-a-root-has-to-be-absent-and-its-parent-present" title="Link to this heading"></a></h3>
+<p>The server creates a spoke root when the spoke proposes it, so the path must not exist beforehand and its parent must.
+<code class="docutils literal notranslate"><span class="pre">portal_spoke</span></code> checks both on the spoke before it proposes. The hub root must be an existing directory on the hub,
+which the spoke-side module can’t see, so the order of runs has to guarantee it (<a class="reference internal" href="#why-the-hub-goes-first">below</a>).
+Creating a spoke portal and proposing a root fail when repeated, and a failed proposal leaves an orphaned root on the hub
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-PORTAL-ONESHOT</span></a>). The modules therefore read and match first, and check the paths before sending, so that a retry
+finds nothing to repeat.</p>
+</section>
+</section>
+<section id="the-edge-s-cache-and-its-size">
+<h2>The edge’s cache and its size<a class="headerlink" href="#the-edge-s-cache-and-its-size" title="Link to this heading"></a></h2>
+<p>On a spoke the file system is the cache for the hub’s data. Three things set how much of the hub’s data an edge holds: the
+capacity clamp, the eviction threshold and the disk the edge was formed on. The clamp and the disk are capacity
+questions, and <a class="reference internal" href="licensing-and-capacity.html#the-clamp"><span class="std std-ref">Licensing and capacity</span></a> explains them: writing the clamp re-forms
+quorum, provisioning never shrinks, and a larger disk is a rebuild. The eviction threshold,
+<code class="docutils literal notranslate"><span class="pre">qumulo_capacity.free_threshold</span></code>, is the portal’s own lever, and the one that needs neither a clamp change nor a
+rebuild. It is the fraction of capacity the cluster keeps free by evicting data it caches for its spoke portals.</p>
+<p>The eviction setting is one value per cluster (<a class="reference internal" href="../collections/qumulo/cluster/portal_eviction_settings_module.html"><span class="std std-doc">portal_eviction_settings</span></a>).
+Every cluster has it and it takes effect on one that hosts spoke portals. A newly formed cluster stores 0.05 (<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">QUIRK-009</span></a>).
+The baseline applies it at step 11, after the license and the clamp. The cache the cluster uses for spoke data is
+readable through <code class="docutils literal notranslate"><span class="pre">portal_info</span></code>’s <code class="docutils literal notranslate"><span class="pre">cache</span></code> subset, which reports it in bytes.</p>
+<p>Eviction is also how a cache smaller than the formation floor is kept. A new edge provisions the smaller of its
+platform’s limit and 1 TB at formation, before any clamp can be written
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-EDGE-FLOOR</span></a>), so a cache below that is kept by telling the cluster to evict until the rest is
+free. <a class="reference internal" href="licensing-and-capacity.html#the-1-tb-floor"><span class="std std-ref">The 1 TB floor</span></a> explains the floor. To act on any of this, see
+<a class="reference internal" href="../how-to/edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a>.</p>
+</section>
+<section id="addresses-are-declared-never-derived">
+<h2>Addresses are declared, never derived<a class="headerlink" href="#addresses-are-declared-never-derived" title="Link to this heading"></a></h2>
+<p>Each side of a portal reaches the other at IP addresses, and the inventory declares them. A hub gives <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>
+as the addresses its spokes reach it at, and an edge gives its own as the addresses its hub reaches it at. Each is a
+list of items with an <code class="docutils literal notranslate"><span class="pre">address</span></code> and an optional port, 3713 by default. A replication target adds
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, one address, and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_port</span></code>, 3712 by default. None of them is
+<code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>, which may be a name and is the address your controller uses, and none is an FQDN: the portal modules
+and a relationship’s target address take IP addresses only.</p>
+<p>The collection reads none of them from the cluster’s network status, and does not translate or second-guess what you
+declare. There are two reasons:</p>
+<ul class="simple">
+<li><p>No cluster reports the address it is reached at. A portal record holds the peer’s addresses only (G-PORTAL-HOSTS), so
+there is nothing on either cluster to read them back from.</p></li>
+<li><p>The right address depends on the path between the two clusters, which neither can see. A cluster’s network status
+lists its own addresses, not the ones a peer reaches it at through NAT or a load balancer, and the address your
+controller uses is not the one the peer uses.</p></li>
+</ul>
+<p>Making the addresses reachable is yours to do. Behind NAT, declare the addresses that reach the cluster from the other
+side. The collection does nothing about NAT.</p>
+<p>A hub host holds one address list for all its spokes. Spokes that reach the hub at different addresses can’t each have
+their own, so declare the one that all of them reach.</p>
+<section id="which-address-to-choose">
+<h3>Which address to choose<a class="headerlink" href="#which-address-to-choose" title="Link to this heading"></a></h3>
+<p>Floating IPs are the recommended addresses. A floating IP moves to another node when its node goes down, so the other
+side keeps reaching the cluster. A node’s own IP goes with the node. A bare-metal cluster or an edge without floating
+IPs gives its node IPs, which is the best it has. A multi-AZ cluster in AWS has no floating IPs, and its targets are
+the IPs of its network load balancer, covered <a class="reference internal" href="#addresses-behind-a-load-balancer">below</a>.</p>
+<p>Floating addresses are also what the cluster’s own DNS name answers with. With authoritative DNS on, each answer gives
+one node’s floating address, which spreads clients across the nodes. A record TTL of 0, the cluster’s default, makes a
+resolver ask again each time so that it never hands one cached address to many clients. That spreading is for clients.
+A portal peer is given the fixed list above, not a name. To turn the DNS server on, see
+<a class="reference internal" href="../how-to/inventory-recipes.html#answer-dns-queries-for-the-cluster-s-own-name"><span class="std std-ref">Declare common settings in the inventory</span></a>.</p>
+</section>
+<section id="where-the-values-come-from">
+<h3>Where the values come from<a class="headerlink" href="#where-the-values-come-from" title="Link to this heading"></a></h3>
+<p>You can write them in <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>, or let the Terraform inventory plugin (<a class="reference internal" href="../collections/qumulo/cluster/terraform_inventory.html"><span class="std std-doc">terraform</span></a>)
+set them from the output’s <code class="docutils literal notranslate"><span class="pre">portal_hosts</span></code> and <code class="docutils literal notranslate"><span class="pre">replication_address</span></code>. A value in <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> outranks the plugin’s. The
+plugin publishes what the output gives, or what a <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code> resolves to, and derives nothing from the
+cluster. It sets <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> from the list and <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code> from a single address.</p>
+</section>
+<section id="addresses-behind-a-load-balancer">
+<h3>Addresses behind a load balancer<a class="headerlink" href="#addresses-behind-a-load-balancer" title="Link to this heading"></a></h3>
+<p>A multi-AZ cluster in AWS has no floating IPs. Its node IPs don’t move when a node goes down, so publishing them gives
+the other side an address that dies with its node. Its targets are the network load balancer’s IPs. The provider forms
+no load balancer, and a root’s <code class="docutils literal notranslate"><span class="pre">aws_lb</span></code> exports a DNS name and no IP address. The portal modules and a relationship
+take IP addresses only, so a name has to become addresses before the collection sees it (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-TF-NLB-ADDRESS</span></a>).</p>
+<p>There are two ways to do that, and they differ in what the addresses mean:</p>
+<ul class="simple">
+<li><p>The root reads the load balancer’s network interfaces, one in each of its subnets, and publishes their IPs. They are
+every zone’s IP, whatever the health of its targets when the inventory is read, and each stays the same for the load
+balancer’s life. This is a fixed, complete list.</p></li>
+<li><p>The root publishes the name as <code class="docutils literal notranslate"><span class="pre">load_balancer_name</span></code>, and the plugin resolves it on the controller each time it reads
+the output, a cached read included. This is a snapshot of what the name answers at that moment.</p></li>
+</ul>
+<p>The snapshot can be shorter than the fixed list. AWS documents that, with cross-zone load balancing off, a load
+balancer’s name stops answering with a zone’s IP while that zone has no healthy target. With cross-zone load balancing
+on, AWS keeps every zone’s IP in the name while any target is healthy. A run during an outage would publish fewer
+addresses. The portal modules would then take the missing zone out of the portal’s host list until a
+later run put it back, and <code class="docutils literal notranslate"><span class="pre">replication_address</span></code> could move to another zone and back.</p>
+<p>The plugin guards against this where it can. With the inventory cache on, it fails the source when a name resolves to
+fewer addresses than the cache recorded, and it names the missing ones. Publishing the interfaces’ IPs avoids the
+snapshot altogether, and the portal’s host list holds every zone through an outage, so Ansible leaves it alone.</p>
+<p>Neither way is failover for a connection. The portal’s host list and a relationship’s target address are stored as IP
+literals, and the collection never resolves a name per connection, so what matters is that the stored list is complete
+and stable. A relationship takes one address, so it reaches one zone’s node either way. An outage of that zone stalls
+replication until the zone recovers or you change <code class="docutils literal notranslate"><span class="pre">replication_address</span></code>.</p>
+<p>A load balancer formed again comes back with other IPs. The next run publishes them, the portal modules change their
+hosts in place, and the baseline’s replication step changes the relationship’s address in place.</p>
+<p>To publish the addresses in either form, or to clear a failed source, see
+<a class="reference internal" href="../how-to/terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a>.</p>
+</section>
+</section>
+<section id="why-the-hub-goes-first">
+<h2>Why the hub goes first<a class="headerlink" href="#why-the-hub-goes-first" title="Link to this heading"></a></h2>
+<p>A pairing is two records made by two calls: the spoke proposes the portal and its roots, and the hub accepts them and
+authorizes the roots. Accepting is one-shot, so the hub-side module accepts only a PENDING portal. The <code class="docutils literal notranslate"><span class="pre">portal_pair</span></code>
+role also asserts that both clusters run the same Qumulo Core version before it proposes
+(<a class="reference internal" href="#one-release-one-writer-at-a-time-on-the-hub">below</a>). Accepting a portal, or changing its type, makes both clusters unavailable briefly. The modules
+wait through that, reading until the portal is ACCEPTED and ACTIVE.</p>
+<p>Each hub root must exist when the edge proposes. Directories come after the portal in the baseline’s order of areas, so
+that a directory may lie under the roots the portal authorized (<a class="reference internal" href="architecture.html#the-order-of-areas"><span class="std std-ref">the order of
+areas</span></a>). With Ansible’s linear strategy, the default, every host finishes the
+portal step (step 16) before any host starts the directories (step 17). A <code class="docutils literal notranslate"><span class="pre">hub_root</span></code> that the same run declares would
+therefore not exist yet when its edge pairs. So bring the hub to its baseline first, and then its edges.</p>
+<p>Under <code class="docutils literal notranslate"><span class="pre">--check</span></code> the role predicts each side’s change and waits for nothing, and the hub-side module predicts the accept
+of a proposal that an earlier task in check mode would have made, with a note. <a class="reference internal" href="state-management.html#check-and-diff"><span class="std std-ref">State
+management</span></a> says what a check run can and can’t tell you.</p>
+</section>
+<section id="one-release-one-writer-at-a-time-on-the-hub">
+<h2>One release, one writer at a time on the hub<a class="headerlink" href="#one-release-one-writer-at-a-time-on-the-hub" title="Link to this heading"></a></h2>
+<p>A portal connects only clusters on one release, which is why the <code class="docutils literal notranslate"><span class="pre">portal_pair</span></code> role asserts, before it proposes, that
+both clusters run the same Qumulo Core version.</p>
+<p>Only the hub-side calls take turns. Hub portal writes carry no ETag (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-PORTAL-ETAG</span></a>), so two edges
+pairing with the same hub at once could overwrite each other without either noticing. The role sends the hub-side calls
+one host at a time, and that protects only within a single play.</p>
+<p>The same-release rule reaches into upgrades. A portal is down from its component’s first commit to its last, and a
+spoke serves nothing from its portal roots meanwhile. The upgrade plan therefore commits a component in waves, with
+every spoke before its hub, and refuses a hop that would leave members that began on one release on two.
+<a class="reference internal" href="upgrades.html"><span class="std std-doc">Upgrades</span></a> covers the ordering.</p>
+</section>
+<section id="removing-a-portal-drain-then-delete">
+<h2>Removing a portal: drain, then delete<a class="headerlink" href="#removing-a-portal-drain-then-delete" title="Link to this heading"></a></h2>
+<p>A read-write portal can hold writes that the spoke has accepted and the hub has not. Deleting the portal then would
+strand them. The collection drains the portal before it deletes it.</p>
+<p>The drain is a type change on the hub. Setting the portal to <code class="docutils literal notranslate"><span class="pre">read_only</span></code> stops the spoke’s clients writing through it,
+and the portal reports QUIESCING until the writes already accepted reach the hub. The hub-side module waits for that by
+default, and so does the <code class="docutils literal notranslate"><span class="pre">portal_pair</span></code> role, which also waits until the spoke shows the portal read-only. Only then
+does the role delete the spoke portal, and after that it waits until the hub’s record is gone too. A record that stays
+on the hub keeps occupying one of the hub’s portal slots.</p>
+<p>A portal needs no drain in three cases:</p>
+<ul class="simple">
+<li><p><strong>PENDING.</strong> The hub has not accepted the portal, so it holds no spoke writes.</p></li>
+<li><p><strong>DELETING.</strong> The spoke portal is already deleted by an earlier run, and the hub refuses a type change on it. The role
+skips the drain and waits for the record to go.</p></li>
+<li><p><strong>DISCONNECTED.</strong> The hub can’t reach the spoke, so nothing can be drained. Deleting the portal loses whatever the
+spoke accepted that the hub did not receive.</p></li>
+</ul>
+<p>A DISCONNECTED portal is the one the collection refuses to guess about. The spoke refuses its own delete only when it
+sees itself disconnected, so a hub that sees the spoke DISCONNECTED while the spoke sees itself ACTIVE would let a
+read-write spoke go without a drain. The role checks the hub’s view first and fails before any change, unless
+<code class="docutils literal notranslate"><span class="pre">portal_pair_allow_data_loss</span></code> consents to the loss. The status can be brief, or the hub’s address for the spoke can be
+wrong, so the failure advises running the role again later before consenting. See <a class="reference internal" href="refusals-and-guards.html"><span class="std std-doc">Refusals and
+guards</span></a> for why a loss waits for consent.</p>
+<p>A rebuilt edge leaves a hub record that no drain can reach. A rebuild gives the edge a new UUID, and the hub’s record is
+keyed on the old one. The hub has no marker for a record whose spoke is gone, and a delete without force never finishes
+(<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-PORTAL-STALE</span></a>). Removing it takes <code class="docutils literal notranslate"><span class="pre">allow_data_loss</span></code> on the hub-side module, which forces the
+delete. The rebuild deletes the stale record before the edge forms. It forces it without asking only when the record
+holds no writes: a PENDING record, or a DELETING one whose predestroy record shows the portal was drained. A
+DISCONNECTED record, left by an edge that was lost without a drain, needs <code class="docutils literal notranslate"><span class="pre">edge_rebuild_allow_data_loss</span></code>, and the writes
+the hub had not received are lost. A hub that still reaches the old edge means the old edge is up, and the replay stops.
+<a class="reference internal" href="rebuilds.html"><span class="std std-doc">Rebuilds</span></a> has the whole sequence.</p>
+</section>
+<section id="what-the-collection-leaves-alone">
+<h2>What the collection leaves alone<a class="headerlink" href="#what-the-collection-leaves-alone" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>It does not derive, translate or second-guess an address, and it does not manage NAT.</p></li>
+<li><p>It does not change a root in place. A spoke root that already maps to another hub root fails, since the server can’t
+change it.</p></li>
+<li><p>It does not let a spoke change an accepted portal’s type. <code class="docutils literal notranslate"><span class="pre">portal_spoke</span></code> applies its <code class="docutils literal notranslate"><span class="pre">type</span></code> only when it creates the
+portal, and a different value later adds a note and changes nothing. The hub decides.</p></li>
+<li><p>It does not touch roots that the spoke proposed outside <code class="docutils literal notranslate"><span class="pre">qumulo_portal.roots</span></code> (the
+<code class="docutils literal notranslate"><span class="pre">portal_pair</span></code> role’s <code class="docutils literal notranslate"><span class="pre">portal_pair_roots</span></code>), or wait for them.</p></li>
+</ul>
+</section>
+<section id="learn-more">
+<h2>Learn more<a class="headerlink" href="#learn-more" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../how-to/pair-edge-with-hub.html"><span class="std std-doc">Pair an edge with its hub through a portal</span></a> declares, applies, checks and removes a
+portal.</p></li>
+<li><p><a class="reference internal" href="../how-to/edge-sizing.html"><span class="std std-doc">Size and resize an edge’s cache</span></a> and <a class="reference internal" href="../how-to/edge-rebuild.html"><span class="std std-doc">Rebuild an unprotected edge</span></a>
+act on the cache and the drain described here.</p></li>
+<li><p><a class="reference internal" href="../how-to/terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> publishes the addresses, and <a class="reference internal" href="../reference/terraform-inventory.html"><span class="std std-doc">The Terraform
+inventory plugin</span></a> lists the output fields and the expression for each resource.</p></li>
+<li><p><a class="reference internal" href="replication.html"><span class="std std-doc">Replication</span></a> covers the relationship that shares the addresses above, and <a class="reference internal" href="upgrades.html"><span class="std std-doc">Upgrades</span></a> the
+order in which a hub and its spokes commit.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Variables</span></a> lists <code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code>, <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> and
+<code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, and the <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">gap register</span></a> holds the G- entries and the
+<a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">quirk register</span></a> QUIRK-009.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">portal_pair</span></code> is the role that pairs and decommissions, and
+<a class="reference internal" href="../collections/qumulo/cluster/portal_info_module.html"><span class="std std-doc">portal_info</span></a> reads each side’s record.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="refusals-and-guards.html" class="btn btn-neutral float-left" title="Refusals and guards" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="licensing-and-capacity.html" class="btn btn-neutral float-right" title="Licensing and capacity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

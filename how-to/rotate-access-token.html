@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rotate the access token a host connects with &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Rotate the encryption key" href="rotate-encryption-key.html" />
+    <link rel="prev" title="Rotate the admin password" href="rotate-admin-password.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rotate the access token a host connects with</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rotate-the-token">Rotate the token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#if-it-fails">If it fails</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Rotate the access token a host connects with</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="rotate-the-access-token-a-host-connects-with">
+<h1>Rotate the access token a host connects with<a class="headerlink" href="#rotate-the-access-token-a-host-connects-with" title="Link to this heading"></a></h1>
+<p>Replace the access token a host’s <code class="docutils literal notranslate"><span class="pre">qumulo_api_token</span></code> holds, keep the play connected, and put the new bearer in the vault.
+When you finish, the cluster accepts the new token, the vault holds its bearer in place of the old one, and no plain-text
+copy of it is left on the controller.</p>
+<p>The collection makes the new token before it deletes the old one, and deletes the old one at the end of the task.
+Anything else that connects with that user’s token loses access then, until it holds the new bearer.
+<a class="reference internal" href="../explanation/authentication.html#access-tokens-the-collection-makes"><span class="std std-ref">Authentication</span></a> explains why.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Have a host that connects with <code class="docutils literal notranslate"><span class="pre">qumulo_api_token</span></code>, encrypted as <code class="docutils literal notranslate"><span class="pre">vault_qumulo_api_token</span></code> the way
+<a class="reference internal" href="set-up-inventory.html#use-an-access-token"><span class="std std-ref">Set up an inventory</span></a> shows.</p></li>
+<li><p>Use a user for that token that no other consumer shares.
+This page calls it <code class="docutils literal notranslate"><span class="pre">local:svc-ansible</span></code>.
+A user holds at most two tokens, and the rotation is refused before any write when the user holds two.</p></li>
+<li><p>Choose a directory for the new bearer’s file, outside version control.
+The play below uses <code class="docutils literal notranslate"><span class="pre">artifacts/&lt;host&gt;/secrets</span></code> beside the inventory.</p></li>
+<li><p>A token of a user in Administrators is a full administrator’s credential.
+Treat its file as you treat the admin password.</p></li>
+</ul>
+</section>
+<section id="rotate-the-token">
+<h2>Rotate the token<a class="headerlink" href="#rotate-the-token" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Save this as <code class="docutils literal notranslate"><span class="pre">rotate-token.yml</span></code> in the project directory.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rotate the access token each cluster is reached with</span>
+<span class="w">  </span><span class="nt">hosts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_clusters</span>
+<span class="w">  </span><span class="nt">gather_facts</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">module_defaults</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">group/qumulo.cluster.qumulo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">api_host</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_host</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_port</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_port</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(8000)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_username</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_username</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('admin')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_password</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_api_token</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">validate_certs</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_validate_certs</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(true)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">ca_path</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_ca_path</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default(omit)</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">expected_cluster_uuid</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">qumulo_cluster_uuid</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default('')</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">  </span><span class="nt">tasks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Rotate the token this play connects with</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.access_token</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local:svc-ansible</span>
+<span class="w">        </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rotated</span>
+<span class="w">        </span><span class="nt">allow_management_disruption</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">secret_destination</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_dir</span><span class="nv"> </span><span class="s">}}/../artifacts/{{</span><span class="nv"> </span><span class="s">inventory_hostname</span><span class="nv"> </span><span class="s">}}/secrets"</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo_api_token | default('') | length &gt; 0</span>
+<span class="w">      </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">own_token</span>
+<span class="w">      </span><span class="nt">no_log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Check that this host connects with a token of that user</span>
+<span class="w">      </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">own_token.bearer_token is not defined or own_token.connection_token_changed | default(false)</span>
+<span class="w">        </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">          </span><span class="no">{{ inventory_hostname }}: this host does not connect with a token of local:svc-ansible; a token was made,</span>
+<span class="w">          </span><span class="no">and its bearer is in {{ own_token.secret_file | default('') }}; the rotation deleted any old token</span>
+<span class="w">          </span><span class="no">of local:svc-ansible; see If it fails</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Connect with the new token from here on</span>
+<span class="w">      </span><span class="nt">ansible.builtin.set_fact</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">qumulo_api_token</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">own_token.bearer_token</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">own_token.connection_token_changed | default(false)</span>
+<span class="w">      </span><span class="nt">no_log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Say where the new bearer is</span>
+<span class="w">      </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">inventory_hostname</span><span class="nv"> </span><span class="s">}}:</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">new</span><span class="nv"> </span><span class="s">bearer</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">{{</span><span class="nv"> </span><span class="s">own_token.secret_file</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">own_token.secret_file is defined</span>
+
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the cluster with the new token</span>
+<span class="w">      </span><span class="nt">qumulo.cluster.cluster_info</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">own_token.connection_token_changed | default(false)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">no_log</span></code> is required on the rotation, and <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code> too: the module refuses to make a token without
+either.
+<code class="docutils literal notranslate"><span class="pre">allow_management_disruption</span></code> lets the task delete the token the play connects with.
+It deletes that token last, so the play is still connected until the task ends.
+The <code class="docutils literal notranslate"><span class="pre">when</span></code> skips a host that connects with a password, so the rotation leaves it alone, and the <code class="docutils literal notranslate"><span class="pre">assert</span></code> passes for
+it because a skipped rotation makes no bearer.
+The <code class="docutils literal notranslate"><span class="pre">assert</span></code> stops the play when the rotation made a token for a host that does not connect with one of that user’s
+tokens, such as a host that uses another user’s token.
+By then the rotation has deleted the user’s old tokens; the message says so and names the file that holds the new
+bearer, and the “If it fails” list below says what to do.
+The <code class="docutils literal notranslate"><span class="pre">set_fact</span></code> makes every later task of the play connect with the new bearer.
+A check run reports the rotation as changed and makes no token, so the <code class="docutils literal notranslate"><span class="pre">assert</span></code> passes and the <code class="docutils literal notranslate"><span class="pre">set_fact</span></code>, the
+message and the read are skipped; <code class="docutils literal notranslate"><span class="pre">no_log</span></code> hides the rotation’s diff.</p>
+</li>
+<li><p>Preview the run on one host, then run it.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>rotate-token.yml<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--ask-vault-pass
+ansible-playbook<span class="w"> </span>rotate-token.yml<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--ask-vault-pass
+</pre></div>
+</div>
+<p>The preview shows only that the rotation changes something, because <code class="docutils literal notranslate"><span class="pre">no_log</span></code> hides its diff.
+The real run ends with the path of the file that holds the new bearer, and the last task reads the cluster with it.
+Use <code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> in place of <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> if you keep the vault password in a file.</p>
+</li>
+<li><p>Put the new bearer in the vault.
+Until you do, every other playbook still connects with the old token, which the cluster has deleted.
+Open the file the run named, which holds <code class="docutils literal notranslate"><span class="pre">user</span></code>, <code class="docutils literal notranslate"><span class="pre">access_token_id</span></code> and <code class="docutils literal notranslate"><span class="pre">bearer_token</span></code>, and copy the bearer.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-vault<span class="w"> </span>encrypt_string<span class="w"> </span>--prompt
+</pre></div>
+</div>
+<p>Give the vault password the inventory’s other values use, <code class="docutils literal notranslate"><span class="pre">vault_qumulo_api_token</span></code> as the name, and paste the bearer
+as the secret.
+Replace the <code class="docutils literal notranslate"><span class="pre">vault_qumulo_api_token</span></code> block in the host’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code> file with the output.</p>
+</li>
+<li><p>Check that the vault’s bearer logs in.
+Run the read-only play from <a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Check the connection</span></a> with the vault option,
+and <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">edge01</span></code> as in step 2.
+The host reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>, which shows that the vault holds a bearer the cluster accepts.
+If the host fails with <code class="docutils literal notranslate"><span class="pre">api_token</span> <span class="pre">was</span> <span class="pre">rejected</span></code>, the copy in the vault is wrong: copy the bearer from the file again,
+which still exists, put it in the vault as in step 3, and check again.</p></li>
+<li><p>Remove the plain-text copies, once step 4 reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>.
+The module leaves each bearer’s file in <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code>, so the new bearer’s file and the files of earlier,
+deleted tokens stay there.
+Delete the new file; the others hold bearers that no longer work.</p></li>
+</ol>
+</section>
+<section id="if-it-fails">
+<h2>If it fails<a class="headerlink" href="#if-it-fails" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>A refusal’s message is printed in the <code class="docutils literal notranslate"><span class="pre">[ERROR]</span></code> line even with <code class="docutils literal notranslate"><span class="pre">no_log</span></code>.
+The module’s messages never hold a bearer.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">holds</span> <span class="pre">...</span> <span class="pre">the</span> <span class="pre">most</span> <span class="pre">access</span> <span class="pre">tokens</span> <span class="pre">a</span> <span class="pre">user</span> <span class="pre">can</span> <span class="pre">hold</span></code> means the user already holds two tokens.
+The message names each token and marks the one in use and any that expired.
+To keep the token marked in use, whose bearer the vault holds, delete the other by its id, outside the collection:
+<code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">auth_delete_access_token</span> <span class="pre">&lt;id&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/v1/auth/access-tokens/&lt;id&gt;</span></code>, then run the rotation again.
+<code class="docutils literal notranslate"><span class="pre">qq</span></code> needs a login of its own; it cannot read the module’s file.
+For the REST call, use a bearer of that user that logs in: the vault’s, or, after a failed rotation, the new one once
+step 4 reports <code class="docutils literal notranslate"><span class="pre">ok</span></code>.
+Put the line <code class="docutils literal notranslate"><span class="pre">Authorization:</span> <span class="pre">Bearer</span> <span class="pre">&lt;bearer&gt;</span></code> in a file in the <code class="docutils literal notranslate"><span class="pre">secret_destination</span></code> directory, which the module made
+readable only by its owner; that keeps the file, and any editor swap file, private whatever the umask.
+Then run <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-X</span> <span class="pre">DELETE</span> <span class="pre">-H</span> <span class="pre">&#64;&lt;file&gt;</span> <span class="pre">https://&lt;host&gt;:8000/v1/auth/access-tokens/&lt;id&gt;</span></code>, adding <code class="docutils literal notranslate"><span class="pre">--cacert</span> <span class="pre">&lt;file&gt;</span></code> when the
+cluster’s certificate is not in the system’s store.
+The bearer stays out of the shell history and the process list.
+Delete the header file after the call.
+To replace both, run <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, then <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">present</span></code>, in a play that connects with a password, and put the new
+bearer in the vault as in steps 3 to 5.</p></li>
+<li><p>A failure that says <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">token</span> <span class="pre">whose</span> <span class="pre">bearer</span> <span class="pre">is</span> <span class="pre">lost</span> <span class="pre">may</span> <span class="pre">be</span> <span class="pre">left</span></code> means the answer to the create was lost and the tokens
+could not be listed after it.
+The message gives <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>, then <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">present</span></code>, which needs a play that connects with a password, and
+putting the new bearer in the vault as in step 3.
+The cheaper path is to run the rotation again.
+If the user still holds only the old token, it succeeds.
+If it is refused at two tokens, delete the token not marked in use, the newer one, by its id outside the collection as
+in the first bullet, then run it again.</p></li>
+<li><p>A failure that says <code class="docutils literal notranslate"><span class="pre">made</span> <span class="pre">access</span> <span class="pre">token</span> <span class="pre">...</span> <span class="pre">whose</span> <span class="pre">bearer</span> <span class="pre">is</span> <span class="pre">in</span> <span class="pre">...</span></code> means the new token exists and its bearer is in the
+file the message names, but a later step failed.
+The user may hold two tokens, and no option deletes only the old one (<a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">G-TOKEN</span></a>).
+Unless the message says the old token may have been deleted, both tokens log in until one is removed, so the host
+keeps connecting.
+Put the new bearer from the file in the vault and check that it logs in (steps 3 and 4).
+If the message says instead that the old token may have been deleted, it names the check and the command: list the
+user’s tokens, with the <code class="docutils literal notranslate"><span class="pre">access_tokens</span></code> subset of <code class="docutils literal notranslate"><span class="pre">identity_info</span></code>, first, and delete the old one only if it is still
+listed.
+Delete only the old token, by the id the message names, outside the collection:
+<code class="docutils literal notranslate"><span class="pre">qq</span> <span class="pre">auth_delete_access_token</span> <span class="pre">&lt;id&gt;</span></code> or <code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/v1/auth/access-tokens/&lt;id&gt;</span></code>, as in the first bullet.
+The new token stays. Remove its file as in step 5.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">does</span> <span class="pre">not</span> <span class="pre">connect</span> <span class="pre">with</span> <span class="pre">a</span> <span class="pre">token</span> <span class="pre">of</span> <span class="pre">local:svc-ansible</span></code> means the host connects with another user’s token, which still
+works.
+The rotation made a new token for <code class="docutils literal notranslate"><span class="pre">svc-ansible</span></code> and deleted any old one.
+If something else used <code class="docutils literal notranslate"><span class="pre">svc-ansible</span></code>’s token, give it the bearer from the file the message names.
+Otherwise remove the new token with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> for <code class="docutils literal notranslate"><span class="pre">svc-ansible</span></code>; the play’s own token is another user’s, so
+continuity does not block it.
+Delete the file once that consumer’s copy logs in, or at once if you removed the token.
+Then change <code class="docutils literal notranslate"><span class="pre">user:</span></code> to the user whose token the host holds.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">rotation</span> <span class="pre">with</span> <span class="pre">enabled:</span> <span class="pre">false</span> <span class="pre">would</span> <span class="pre">replace</span> <span class="pre">it</span></code> means the task connects with the token it would rotate and sets
+<code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code>, which would leave the play no token to connect with.
+Rotate without <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code>.</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a> encrypts the token and the other secrets an inventory holds.</p></li>
+<li><p><a class="reference internal" href="set-up-inventory.html#use-an-access-token"><span class="std std-ref">Set up an inventory for your clusters</span></a> connects a host with a token.</p></li>
+<li><p><a class="reference internal" href="../explanation/authentication.html#access-tokens-the-collection-makes"><span class="std std-ref">Authentication, trust and secrets</span></a> explains
+where the bearer appears and why a rotation makes the new token first.</p></li>
+<li><p><a class="reference internal" href="../collections/qumulo/cluster/access_token_module.html"><span class="std std-doc">access_token</span></a> has every option, and <code class="docutils literal notranslate"><span class="pre">ansible-doc</span> <span class="pre">qumulo.cluster.access_token</span></code>
+shows them.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rotate-admin-password.html" class="btn btn-neutral float-left" title="Rotate the admin password" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rotate-encryption-key.html" class="btn btn-neutral float-right" title="Rotate the encryption key" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

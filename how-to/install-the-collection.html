@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Install and pin the collection &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Set up an inventory for your clusters" href="set-up-inventory.html" />
+    <link rel="prev" title="Your first fleet" href="../tutorials/first-fleet.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Install and pin the collection</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-the-newest-release">Install the newest release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pin-a-version-in-a-project">Pin a version in a project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-into-the-project">Install into the project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-without-internet-access">Install without internet access</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#install-in-a-pipeline">Install in a pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verify-the-install">Verify the install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#next">Next</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Install and pin the collection</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="install-and-pin-the-collection">
+<h1>Install and pin the collection<a class="headerlink" href="#install-and-pin-the-collection" title="Link to this heading"></a></h1>
+<p>This page installs the <code class="docutils literal notranslate"><span class="pre">qumulo.cluster</span></code> collection on a controller, pins it to a version you choose, and checks that
+Ansible finds it.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<p>You need:</p>
+<ul class="simple">
+<li><p>a controller with ansible-core 2.20 or later;</p></li>
+<li><p>Qumulo Core 7.10.3 or later on the clusters you will manage;
+<a class="reference internal" href="../reference/tested-versions.html"><span class="std std-doc">Tested Qumulo Core versions</span></a> lists the builds the collection has passed against;</p></li>
+<li><p>HTTPS access from the controller to each cluster’s REST API, on port 8000 unless <code class="docutils literal notranslate"><span class="pre">qumulo_api_port</span></code> says otherwise;</p></li>
+<li><p>HTTPS access from the controller to Ansible Galaxy, <code class="docutils literal notranslate"><span class="pre">galaxy.ansible.com</span></code>, and to the Amazon S3 storage it redirects
+downloads to, to install the collection.</p></li>
+</ul>
+<p>The modules need only the Python standard library and what ansible-core installs with it, so no <code class="docutils literal notranslate"><span class="pre">pip</span></code> package is
+needed. They run on the controller under ansible-core’s own Python, which <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">the inventory</span></a> sets
+with <code class="docutils literal notranslate"><span class="pre">ansible_python_interpreter</span></code>.
+The <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.terraform</span></code> inventory plugin can also run the <code class="docutils literal notranslate"><span class="pre">terraform</span></code> executable. You need it only when a
+<code class="docutils literal notranslate"><span class="pre">qumulo_terraform.yml</span></code> source sets <code class="docutils literal notranslate"><span class="pre">project_path</span></code>, so that the plugin runs <code class="docutils literal notranslate"><span class="pre">terraform</span> <span class="pre">output</span></code> itself. A source that
+sets <code class="docutils literal notranslate"><span class="pre">output_file</span></code> does not run it (<a class="reference internal" href="terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a>).</p>
+<p>Later steps also need the password of the user the modules log in as (<code class="docutils literal notranslate"><span class="pre">admin</span></code> unless <code class="docutils literal notranslate"><span class="pre">qumulo_api_username</span></code> says
+otherwise), or an access token (<a class="reference internal" href="../explanation/authentication.html"><span class="std std-doc">Authentication</span></a>), and, unless a cluster still
+serves its factory certificate, the certificate of the CA that signed its TLS certificate.
+A factory certificate has no CA that can verify it; see
+<a class="reference internal" href="manage-certificates.html#replace-the-factory-certificate"><span class="std std-ref">Replace the factory certificate</span></a>.
+Neither is needed to install.</p>
+</section>
+<section id="install-the-newest-release">
+<h2>Install the newest release<a class="headerlink" href="#install-the-newest-release" title="Link to this heading"></a></h2>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>qumulo.cluster
+</pre></div>
+</div>
+<p>Without a version, the install takes the newest release on Ansible Galaxy.
+It installs the collection under the first collections path Ansible uses, which is <code class="docutils literal notranslate"><span class="pre">~/.ansible/collections</span></code> unless you
+have changed <code class="docutils literal notranslate"><span class="pre">collections_path</span></code>.
+Once any version is installed, running the same command again changes nothing; add <code class="docutils literal notranslate"><span class="pre">--upgrade</span></code> to move to the newest
+release.</p>
+</section>
+<section id="pin-a-version-in-a-project">
+<h2>Pin a version in a project<a class="headerlink" href="#pin-a-version-in-a-project" title="Link to this heading"></a></h2>
+<p>Pin the collection in <code class="docutils literal notranslate"><span class="pre">requirements.yml</span></code> so that every run, and every machine, uses the same release.
+The collection is pre-release, and its interfaces may change from one release to the next before 1.0.0, so pin the
+version you tested.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># requirements.yml</span>
+<span class="nt">collections</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qumulo.cluster</span>
+<span class="w">    </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1.0</span>
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code> with the version you tested.
+Install it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.yml
+</pre></div>
+</div>
+<p>To pin on the command line, add a version spec after the name and a colon:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span><span class="s1">'qumulo.cluster:==0.1.0'</span>
+</pre></div>
+</div>
+<p>To change the pin, edit <code class="docutils literal notranslate"><span class="pre">version</span></code> and run the install again. An installed version that does not match the pin is
+replaced; one that matches is left alone.</p>
+</section>
+<section id="install-into-the-project">
+<h2>Install into the project<a class="headerlink" href="#install-into-the-project" title="Link to this heading"></a></h2>
+<p>By default the collection goes to your user account’s collections directory, and every project on the controller
+shares it. To keep it with one project, tell Ansible to look in a directory of the project:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="c1"># ansible.cfg, next to your playbooks</span>
+<span class="k">[defaults]</span>
+<span class="na">collections_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">./collections</span>
+</pre></div>
+</div>
+<p>Then install from the project directory:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.yml<span class="w"> </span>-p<span class="w"> </span>collections
+</pre></div>
+</div>
+<p>The install goes to the first <code class="docutils literal notranslate"><span class="pre">collections_path</span></code> entry, so <code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">collections</span></code> is optional once <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code> is in
+place. Either way it creates <code class="docutils literal notranslate"><span class="pre">collections/ansible_collections/qumulo/cluster</span></code>. The <code class="docutils literal notranslate"><span class="pre">collections_path</span></code> setting names
+the directory that holds <code class="docutils literal notranslate"><span class="pre">ansible_collections</span></code>, not the collection itself.</p>
+</section>
+<section id="install-without-internet-access">
+<h2>Install without internet access<a class="headerlink" href="#install-without-internet-access" title="Link to this heading"></a></h2>
+<p>On a machine that reaches Galaxy, download the version your <code class="docutils literal notranslate"><span class="pre">requirements.yml</span></code> pins:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>download<span class="w"> </span>-r<span class="w"> </span>requirements.yml<span class="w"> </span>-p<span class="w"> </span>qumulo-download
+</pre></div>
+</div>
+<p>The directory holds the collection’s tarball and a <code class="docutils literal notranslate"><span class="pre">requirements.yml</span></code> that names it. Copy the directory to the
+controller, and install from inside it:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>qumulo-download
+ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.yml
+</pre></div>
+</div>
+<p>Add <code class="docutils literal notranslate"><span class="pre">-p</span></code> with the project’s collections directory to install there, as
+<a class="reference internal" href="#install-into-the-project">Install into the project</a> says.</p>
+</section>
+<section id="install-in-a-pipeline">
+<h2>Install in a pipeline<a class="headerlink" href="#install-in-a-pipeline" title="Link to this heading"></a></h2>
+<p>Run the install in the pipeline’s image or in the first step of the job, from the same <code class="docutils literal notranslate"><span class="pre">requirements.yml</span></code> you use on
+a workstation, so that a pipeline run and a local run use the same code.
+<a class="reference internal" href="pipeline.html"><span class="std std-doc">Run the playbooks from a pipeline</span></a> covers the rest of a pipeline: secrets, the inventory and the
+check-then-apply split.</p>
+</section>
+<section id="verify-the-install">
+<h2>Verify the install<a class="headerlink" href="#verify-the-install" title="Link to this heading"></a></h2>
+<p>Check that Ansible finds the collection:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-galaxy<span class="w"> </span>collection<span class="w"> </span>list<span class="w"> </span>qumulo.cluster
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># /home/you/.ansible/collections/ansible_collections
+Collection     Version
+-------------- -------
+qumulo.cluster 0.1.0
+</pre></div>
+</div>
+<p>The version is the release you installed. <a class="reference external" href="https://github.com/Qumulo/qumulo-ansible/blob/main/CHANGELOG.md">CHANGELOG.md</a> lists what each release changed.</p>
+<p>Check that it lists the modules:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-doc<span class="w"> </span>-l<span class="w"> </span>qumulo.cluster
+</pre></div>
+</div>
+<p>The output has one line for each module, starting with <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.access_token</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code> prints nothing, or <code class="docutils literal notranslate"><span class="pre">ansible-doc</span></code> says <code class="docutils literal notranslate"><span class="pre">unable</span> <span class="pre">to</span> <span class="pre">locate</span> <span class="pre">collection</span> <span class="pre">qumulo.cluster</span></code>, Ansible is not searching the directory you installed into.
+Run <code class="docutils literal notranslate"><span class="pre">ansible-config</span> <span class="pre">dump</span> <span class="pre">|</span> <span class="pre">grep</span> <span class="pre">COLLECTIONS_PATHS</span></code> to see where it looks, and match <code class="docutils literal notranslate"><span class="pre">-p</span></code> to one of
+those directories.</p>
+</section>
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a> points the collection at your clusters.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../tutorials/first-fleet.html" class="btn btn-neutral float-left" title="Your first fleet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="set-up-inventory.html" class="btn btn-neutral float-right" title="Set up an inventory for your clusters" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

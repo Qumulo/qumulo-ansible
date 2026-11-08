@@ -1,0 +1,510 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upgrade a fleet &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Recover an upgrade that stopped" href="resume-an-upgrade.html" />
+    <link rel="prev" title="Fail over to a replica, and fail back" href="fail-over-replication.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Upgrade a fleet</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upgrade-across-several-quarters">Upgrade across several quarters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#try-a-canary-first">Try a canary first</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#keep-commits-inside-a-maintenance-window">Keep commits inside a maintenance window</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-how-a-platform-upgrade-reboots">Choose how a platform upgrade reboots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-where-an-image-lives">Choose where an image lives</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upgrade-a-cluster-behind-a-load-balancer-or-a-nat-gateway">Upgrade a cluster behind a load balancer or a NAT gateway</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#commit-one-cluster-after-another">Commit one cluster after another</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-forks-for-the-number-of-clusters">Set forks for the number of clusters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#raise-a-timeout">Raise a timeout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#upgrade-from-a-limited-release">Upgrade from a limited release</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Upgrade a fleet</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="upgrade-a-fleet">
+<h1>Upgrade a fleet<a class="headerlink" href="#upgrade-a-fleet" title="Link to this heading"></a></h1>
+<p>Bring every cluster that declares <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_target</span></code> to that release with the upgrade playbook, one quarterly
+release at a time.
+The playbook plans the whole fleet before it sends anything but reads, then runs each hop on every cluster before the
+next hop starts, and writes a report after each hop.
+When you finish, each cluster runs its target, and a second check run finds nothing left to move.
+How the plan chooses hops and orders portals and replication is in <a class="reference internal" href="../explanation/upgrades.html"><span class="std std-doc">How upgrades work</span></a>.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Set up the inventory, with every cluster as a host in <code class="docutils literal notranslate"><span class="pre">qumulo_clusters</span></code>:
+<a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.
+The playbook connects to each cluster with the connection variables the inventory already holds.</p></li>
+<li><p>Declare every portal (<code class="docutils literal notranslate"><span class="pre">qumulo_portal</span></code>) and replication relationship (<code class="docutils literal notranslate"><span class="pre">qumulo_replication_relationships</span></code>) the fleet
+already has, on every host, so the plan can order the commits.
+A live portal the inventory does not declare is warned about, and its spoke is not ordered before its hub.
+<a class="reference internal" href="pair-edge-with-hub.html"><span class="std std-doc">Pair an edge with its hub through a portal</span></a> shows the declaration.</p></li>
+<li><p>Contact Qumulo Care before an upgrade across several releases.</p></li>
+<li><p>License any edge that runs without a license first, because Qumulo Core refuses to upgrade an edge whose license has
+expired, or that has none and was formed more than 30 days ago:
+<a class="reference internal" href="licensing.html#license-an-edge-before-an-upgrade"><span class="std std-ref">License an edge before an upgrade</span></a>.</p></li>
+<li><p>Take a snapshot of the data that matters most before the first run:
+<a class="reference internal" href="snapshot-before-a-change.html"><span class="std std-doc">Snapshot before a change</span></a>.
+The collection never downgrades a cluster.</p></li>
+</ul>
+</section>
+<section id="upgrade-across-several-quarters">
+<h2>Upgrade across several quarters<a class="headerlink" href="#upgrade-across-several-quarters" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Get each hop’s images from Qumulo Care.
+For every quarter between the fleet’s oldest release and the target, you need that quarter’s quarterly upgrade
+build, such as 7.9.0.5 or 7.10.0.3, and the target’s own image.
+Stage each image where every node can reach it, at a URL that stays the same between runs, or in each cluster’s
+file system (<a class="reference internal" href="#choose-where-an-image-lives">choose where an image lives</a>).</p></li>
+<li><p>Declare the target and the images in <code class="docutils literal notranslate"><span class="pre">group_vars/qumulo_clusters.yml</span></code>.
+Quote every version, because YAML reads <code class="docutils literal notranslate"><span class="pre">7.10</span></code> as a number, and list the images oldest first:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_upgrade_target</span><span class="p">:</span><span class="w"> </span><span class="s">"7.10.3"</span>
+<span class="nt">qumulo_upgrade_images</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://mirror.example.com/qumulo/qumulo_core_7.9.0.5.qimg</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://mirror.example.com/qumulo/qumulo_core_7.10.0.3.qimg</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://mirror.example.com/qumulo/qumulo_core_7.10.3.qimg</span>
+</pre></div>
+</div>
+<p>Add each release’s cloud image (<code class="docutils literal notranslate"><span class="pre">cloud_qumulo_core_&lt;version&gt;.qimg</span></code>) beside its on-premises one when the fleet
+holds Cloud Native Qumulo clusters.
+One list holds both kinds, and the plan gives each host the images of its kind.
+The entry forms, for an image under another name, are in <a class="reference internal" href="../reference/upgrade.html#the-images-list"><span class="std std-ref">The images list</span></a>.</p>
+<p>To change a setting for one cluster, set it in that host’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>.
+A <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_*</span></code> variable is one setting, so a host’s file changes it without dropping the group’s others.
+A host that declares its own <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_images</span></code> replaces the group’s list whole.</p>
+</li>
+<li><p>Look for an unfinished restore before the run.
+Open <code class="docutils literal notranslate"><span class="pre">&lt;edge_rebuild_artifact_dir&gt;/&lt;host&gt;/restore/</span></code> for each host the run moves and for each source that replicates
+to one.
+By default that is <code class="docutils literal notranslate"><span class="pre">artifacts/&lt;host&gt;/restore/</span></code> beside the inventory.
+A file named by 64 hexadecimal digits and <code class="docutils literal notranslate"><span class="pre">.yml</span></code> is a restore that has not finished.
+Finish that restore before the run, or remove the file if you reconnected the relationship by hand.
+<a class="reference internal" href="restore-replica.html#find-and-clear-restore-records-and-locks"><span class="std std-ref">Find and clear restore records and locks</span></a> lists them
+all at once.
+The plan, the check run of the next step included, warns of each open record that names a host it moves or
+reboots (W1), and goes on.</p></li>
+<li><p>Check:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--check
+</pre></div>
+</div>
+<p>A check run sends only reads and changes nothing.
+It plans the whole run and prints every refusal and warning.
+Fix every refusal, and read each warning before you go on.
+<a class="reference internal" href="../reference/troubleshooting.html#upgrades"><span class="std std-ref">Troubleshooting</span></a> quotes each one with what lifts it.
+The plan is in the report, <code class="docutils literal notranslate"><span class="pre">artifacts/upgrade-&lt;UTC&gt;.yml</span></code> beside the inventory.
+It holds each hop’s release, the clusters it moves, and each cluster’s round, wave and step.
+A cluster already part of the way joins at the hop it needs.
+A list that leaves a quarter out is refused before anything is sent (F4), with the quarter and the clusters it strands.</p>
+<p>A check run does not verify the images, since verify downloads the whole image on every node.
+Add <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_upgrade_verify_in_check_mode=true</span></code> to run verify too, which installs nothing.</p>
+</li>
+<li><p>Upgrade:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory
+</pre></div>
+</div>
+<p>Each hop finishes on every cluster, its reboots and the preflight after them included, before the next hop
+starts.
+A platform upgrade’s reboots, and the background work after them, can take hours on a large file system, and the
+slowest cluster sets each hop’s pace.</p>
+</li>
+<li><p>Verify.
+Run the check again:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--check
+</pre></div>
+</div>
+<p>When every cluster runs its target, the run plans no hop.
+The new report holds the plan alone, and its <code class="docutils literal notranslate"><span class="pre">skipped</span></code> list names each cluster as at its target.</p>
+</li>
+</ol>
+<p>When a hop stops, the run ends before the next one and exits non-zero, naming the hop and the reason.
+<a class="reference internal" href="resume-an-upgrade.html"><span class="std std-doc">Recover an upgrade that stopped</span></a> walks through the rerun.
+To upgrade the rest of the fleet while one cluster waits, see
+<a class="reference internal" href="resume-an-upgrade.html#go-on-with-the-rest-of-the-fleet"><span class="std std-ref">Go on with the rest of the fleet</span></a>.</p>
+</section>
+<section id="variants">
+<h2>Variants<a class="headerlink" href="#variants" title="Link to this heading"></a></h2>
+<section id="try-a-canary-first">
+<h3>Try a canary first<a class="headerlink" href="#try-a-canary-first" title="Link to this heading"></a></h3>
+<p>The collection has no canary mechanism of its own.
+Run the check and the upgrade on one cluster, then on the fleet:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>dr01<span class="w"> </span>--check
+ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>dr01
+ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>--check
+ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory
+</pre></div>
+</div>
+<p>Pick a canary that belongs to no portal component and replicates to no other cluster.
+A <code class="docutils literal notranslate"><span class="pre">--limit</span></code> that leaves out part of a portal component is refused (F13), and a source upgraded ahead of its replication
+target holds new state back from it, which the run warns about (W12).
+The fleet run skips the canary as at its target.</p>
+</section>
+<section id="keep-commits-inside-a-maintenance-window">
+<h3>Keep commits inside a maintenance window<a class="headerlink" href="#keep-commits-inside-a-maintenance-window" title="Link to this heading"></a></h3>
+<p>Declare the windows and their timezone in the group’s variables:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_upgrade_maintenance_windows</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">start_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">22</span><span class="p p-Indicator">,</span><span class="nt"> start_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> end_hour</span><span class="p">:</span><span class="w"> </span><span class="nv">4</span><span class="p p-Indicator">,</span><span class="nt"> end_minute</span><span class="p">:</span><span class="w"> </span><span class="nv">0</span><span class="p p-Indicator">,</span><span class="nt"> on_days</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">SAT</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SUN</span><span class="p p-Indicator">]}</span>
+<span class="nt">qumulo_upgrade_window_timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">America/Los_Angeles</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">on_days</span></code> takes <code class="docutils literal notranslate"><span class="pre">MON</span></code> to <code class="docutils literal notranslate"><span class="pre">SUN</span></code> or <code class="docutils literal notranslate"><span class="pre">EVERY_DAY</span></code>.
+A range whose end is at or before its start runs past midnight, and <code class="docutils literal notranslate"><span class="pre">on_days</span></code> names the day it starts.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_window_timezone</span></code> is required with the windows, as an IANA name (F34).</p></li>
+<li><p>A host that declares no window may commit at any time.</p></li>
+</ul>
+<p>The window is checked once per hop, before its first commit.
+Inside it, the hop commits all its rounds, and a long hop goes on past the window’s end.
+To keep a fleet’s restarts inside its window, upgrade it in smaller runs with <code class="docutils literal notranslate"><span class="pre">-l</span></code>, each portal component whole and
+replication targets before their sources.</p>
+<p>Outside the window nothing is committed (F9), the clusters stay prepared, and the run ends after the hop with a
+non-zero exit.
+Start the run again inside the window.
+The prepares run whenever the playbook runs, so a run started before the window downloads the images and may have to
+prepare again inside it (<a class="reference internal" href="../explanation/upgrades.html#maintenance-windows"><span class="std std-ref">Maintenance windows</span></a>).
+Use a stable URL or a path for such a run, as in <a class="reference internal" href="#choose-where-an-image-lives">Choose where an image lives</a>.</p>
+</section>
+<section id="choose-how-a-platform-upgrade-reboots">
+<h3>Choose how a platform upgrade reboots<a class="headerlink" href="#choose-how-a-platform-upgrade-reboots" title="Link to this heading"></a></h3>
+<p>Verify reads whether a hop is a software-only upgrade or a platform upgrade, which also reboots every host.
+Only a platform upgrade reboots, so these settings change only a platform upgrade.
+The plan still checks them on every hop, and refuses the values below on any upgrade.</p>
+<ul class="simple">
+<li><p>Leave <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot</span></code> unset or <code class="docutils literal notranslate"><span class="pre">rolling</span></code> to reboot the hosts in groups.
+Leave <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot_set_size</span></code> unset: Qumulo Core then sizes each group itself.
+A declared size above the configured node fault tolerance is refused before anything is sent (F20).
+A declared size above the current tolerance is waited for.
+With any declared size, a drop in the tolerance after the last check can leave every node armed and nothing restarted
+(G-UPGRADE-COUNT, in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>), so leave it unset.</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot:</span> <span class="pre">all</span></code> to reboot every host together, which is one longer outage.
+On a platform upgrade, the run first waits for the cluster to reprotect fully, up to <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_wait_timeout</span></code>.</p></li>
+<li><p>Do not set <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_reboot:</span> <span class="pre">aggressive</span></code> or pass <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_upgrade_aggressive=true</span></code>.
+Both are refused (F11).</p></li>
+</ul>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/cluster01.yml</span>
+<span class="nt">qumulo_upgrade_reboot</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">all</span>
+</pre></div>
+</div>
+<p>A cluster whose configured node fault tolerance is 0, such as an unprotected edge, reboots every host at once whatever
+you declare, and the plan warns where it ignores a declaration.
+Why a set size is checked late, and what rolling costs, is in
+<a class="reference internal" href="../explanation/upgrades.html#rolling-reboots-and-all-at-once"><span class="std std-ref">Rolling reboots, and all at once</span></a>.</p>
+</section>
+<section id="choose-where-an-image-lives">
+<h3>Choose where an image lives<a class="headerlink" href="#choose-where-an-image-lives" title="Link to this heading"></a></h3>
+<p>An image is an <code class="docutils literal notranslate"><span class="pre">http://</span></code> or <code class="docutils literal notranslate"><span class="pre">https://</span></code> URL, or an absolute path that each node reads from its own disk or else from
+the cluster’s file system.</p>
+<ul>
+<li><p><strong>A URL</strong> needs no copy into the cluster, but every node downloads the whole image twice per hop, and three times on a
+source below 7.10.3.
+A four-node cluster moves about 30 GB per hop.
+Check that every node reaches the URL from its own network.
+The image server serves up to <code class="docutils literal notranslate"><span class="pre">forks</span></code> clusters’ nodes at once, and <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_prepare_throttle</span></code> bounds how many
+clusters prepare at a time:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">cluster_upgrade_prepare_throttle</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+</pre></div>
+</div>
+<p>Prepares then run in batches of that size, which lengthens the hop, and the run warns about it (W6).</p>
+</li>
+<li><p><strong>A path in the cluster’s file system</strong> is how Qumulo’s own procedure stages an image.
+Copy the image into the cluster over NFS or SMB, and give its absolute path.</p></li>
+</ul>
+<p>A URL’s query string and user information, such as a presigned URL’s signature, are never printed.
+A presigned URL changes on every run, so a cluster an earlier run left prepared no longer matches it and prepares
+again, with its downloads.
+Use a stable URL or a path when an upgrade spans several runs.</p>
+</section>
+<section id="upgrade-a-cluster-behind-a-load-balancer-or-a-nat-gateway">
+<h3>Upgrade a cluster behind a load balancer or a NAT gateway<a class="headerlink" href="#upgrade-a-cluster-behind-a-load-balancer-or-a-nat-gateway" title="Link to this heading"></a></h3>
+<p>Verify and the prepare answer only after every node has downloaded and checked the image, so the playbook holds one
+request open for up to 45 minutes on a source of 7.10.3 or later, and up to 75 minutes below.
+An address that closes an idle connection sooner cuts the run.
+A multi-AZ Cloud Native Qumulo cluster’s <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> is an AWS network load balancer, which closes a connection
+idle for 350 seconds by default.
+Give such a host a node’s address for this playbook alone:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/cluster01.yml</span>
+<span class="nt">qumulo_upgrade_api_host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0.1.21</span>
+</pre></div>
+</div>
+<p>The playbook connects to <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_api_host</span></code> in place of <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code>.
+A NAT gateway or a firewall between the controller and the cluster can close an idle connection the same way.</p>
+<p>A Cloud Native Qumulo cluster otherwise upgrades like any other, with the cloud image.
+The Terraform provider’s <code class="docutils literal notranslate"><span class="pre">cluster_version</span></code> is the version it deployed, and an upgrade does not change it.</p>
+</section>
+<section id="commit-one-cluster-after-another">
+<h3>Commit one cluster after another<a class="headerlink" href="#commit-one-cluster-after-another" title="Link to this heading"></a></h3>
+<p>Name the clusters a host’s commit follows in that host’s <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/dr01.yml</span>
+<span class="nt">qumulo_upgrade_after</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">hub01</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>It may not put a hub before one of its spokes, order two members of one portal component, close a cycle, or name a host
+outside the inventory (F18).
+Why the plan orders commits as it does is in <a class="reference internal" href="../explanation/upgrades.html#ordering-by-hand"><span class="std std-ref">Ordering by hand</span></a>.</p>
+</section>
+<section id="set-forks-for-the-number-of-clusters">
+<h3>Set forks for the number of clusters<a class="headerlink" href="#set-forks-for-the-number-of-clusters" title="Link to this heading"></a></h3>
+<p>Each prepare holds one of Ansible’s forks while it waits.
+A hop of more clusters than <code class="docutils literal notranslate"><span class="pre">forks</span></code> prepares in batches, and a commit step of more hosts than <code class="docutils literal notranslate"><span class="pre">forks</span></code> commits in
+batches, which lengthens the hop.
+Set <code class="docutils literal notranslate"><span class="pre">forks</span></code> to at least the number of clusters in the run, with <code class="docutils literal notranslate"><span class="pre">-f</span></code> on the command line or in <code class="docutils literal notranslate"><span class="pre">ansible.cfg</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.upgrade<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-f<span class="w"> </span><span class="m">12</span>
+</pre></div>
+</div>
+<p>The run warns when <code class="docutils literal notranslate"><span class="pre">forks</span></code> is lower (W6).</p>
+</section>
+<section id="raise-a-timeout">
+<h3>Raise a timeout<a class="headerlink" href="#raise-a-timeout" title="Link to this heading"></a></h3>
+<p>The role’s waits are variables you set in the inventory or with <code class="docutils literal notranslate"><span class="pre">-e</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">cluster_upgrade_unblock_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">28800</span>
+</pre></div>
+</div>
+<p>After a platform upgrade’s reboots, background work can keep the next hop’s preflight blocked for longer than the
+default four hours on a large file system, and the hop stops (F5).
+Raise <code class="docutils literal notranslate"><span class="pre">cluster_upgrade_unblock_timeout</span></code>, or run the upgrade again, which picks up where it stopped.
+<a class="reference internal" href="../reference/upgrade.html#role-variables"><span class="std std-ref">Role variables</span></a> lists each timeout, its default and what it bounds.</p>
+</section>
+<section id="upgrade-from-a-limited-release">
+<h3>Upgrade from a limited release<a class="headerlink" href="#upgrade-from-a-limited-release" title="Link to this heading"></a></h3>
+<p>A letter release, such as 7.10.3A, is a limited build that Qumulo Care gives a few customers.
+Qumulo Core refuses it as an upgrade source unless the rule is waived.
+Set <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_allow_limited_release:</span> <span class="pre">true</span></code> only when Qumulo Care directs it, and only for that host.</p>
+<p>Below 7.11.0 the collection sends the waiver only when the host’s first hop declares the exact build Qumulo Care names
+(F16).
+There the waiver lifts every compatibility rule Qumulo Core checks, not only this one, so the declared build is what
+keeps the hop to the release Qumulo Care named.
+Declare it in a mapping entry of a <code class="docutils literal notranslate"><span class="pre">qumulo_upgrade_images</span></code> list in that host’s own <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>, and do not put the build
+in the group’s list:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_upgrade_allow_limited_release</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">qumulo_upgrade_images</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">"7.10.0.3"</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on-prem</span>
+<span class="w">    </span><span class="nt">build</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;the</span><span class="nv"> </span><span class="s">build</span><span class="nv"> </span><span class="s">Qumulo</span><span class="nv"> </span><span class="s">Care</span><span class="nv"> </span><span class="s">names&gt;"</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://mirror.example.com/qumulo/qumulo_core_7.10.0.3.qimg</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://mirror.example.com/qumulo/qumulo_core_7.10.3.qimg</span>
+</pre></div>
+</div>
+<p>A letter release is never an intermediate hop, and may be a host’s final target.
+What the waiver lifts at each source version is in <a class="reference internal" href="../reference/upgrade.html#a-limited-release"><span class="std std-ref">A limited release</span></a>.</p>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="resume-an-upgrade.html"><span class="std std-doc">Recover an upgrade that stopped</span></a>: read the report, rerun, and handle a commit that did not
+finish or a paused reboot.</p></li>
+<li><p><a class="reference internal" href="../reference/upgrade.html"><span class="std std-doc">The upgrade: variables, steps and files</span></a>: every variable, the nine steps of a hop, the
+report and the files the run writes.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html#upgrades"><span class="std std-ref">Troubleshooting</span></a>: each refusal and warning, with what lifts it.</p></li>
+<li><p><a class="reference internal" href="../explanation/upgrades.html"><span class="std std-doc">How upgrades work</span></a>: hop rules, lock-step, ordering and why the cluster records no
+commit.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="fail-over-replication.html" class="btn btn-neutral float-left" title="Fail over to a replica, and fail back" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="resume-an-upgrade.html" class="btn btn-neutral float-right" title="Recover an upgrade that stopped" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

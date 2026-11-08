@@ -1,0 +1,784 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quirk register &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Architecture of the collection" href="../explanation/architecture.html" />
+    <link rel="prev" title="Gap register" href="gaps.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gaps.html">Gap register</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Quirk register</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="quirk-register">
+<h1>Quirk register<a class="headerlink" href="#quirk-register" title="Link to this heading"></a></h1>
+<p>Generated from <code class="docutils literal notranslate"><span class="pre">docs/reference/quirks.yml</span></code> by <code class="docutils literal notranslate"><span class="pre">tools/render_registers.py</span></code>. Edit the YAML file and run the tool again.</p>
+<p>Server behaviours the collection works around. Each quirk names the code that owns the workaround, and the unit test and integration target that pin the behaviour, so that a quirk that stops reproducing is noticed and its workaround reviewed. A <code class="docutils literal notranslate"><span class="pre">planned</span></code> workaround belongs to a module that does not exist yet. Fixed in names the first release without the quirk; its workaround stays while the collection supports an earlier one.</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Id</p></th>
+<th class="head"><p>Server behaviour</p></th>
+<th class="head"><p>Workaround</p></th>
+<th class="head"><p>Owner</p></th>
+<th class="head"><p>Status</p></th>
+<th class="head"><p>Unit pin</p></th>
+<th class="head"><p>Integration pin</p></th>
+<th class="head"><p>First seen</p></th>
+<th class="head"><p>Fixed in</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>QUIRK-001</p></td>
+<td><p>When <code class="docutils literal notranslate"><span class="pre">hide_shares_from_unauthorized_users</span></code> and <code class="docutils literal notranslate"><span class="pre">hide_shares_from_unauthorized_hosts</span></code> differ, the ETag from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/smb/settings</span></code> never matches what PATCH checks, so a PATCH with that If-Match returns 412.</p></td>
+<td><p>The SMB settings route never sends If-Match (<code class="docutils literal notranslate"><span class="pre">etag=omit</span></code>); last writer wins</p></td>
+<td><p>smb_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_smb_settings.py::test_smb_settings_never_sends_if_match</p></td>
+<td><p>quirk_smb_settings_etag</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-002</p></td>
+<td><p>An identical <code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/v3/network</span></code> re-runs static and floating IP allocation.</p></td>
+<td><p>No PUT without a difference</p></td>
+<td><p>network_config</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_network_config.py::test_identical_network_sends_no_put</p></td>
+<td><p>network_config</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-003</p></td>
+<td><p>PUT and PATCH of <code class="docutils literal notranslate"><span class="pre">/v1/support/settings</span></code> return <code class="docutils literal notranslate"><span class="pre">monitor_uri</span></code> <code class="docutils literal notranslate"><span class="pre">/v1/support/status</span></code>, but the route is <code class="docutils literal notranslate"><span class="pre">/v1/support/status/</span></code>.</p></td>
+<td><p>Polls the known route instead of the returned URI</p></td>
+<td><p>monitoring_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_monitoring_settings.py::test_polls_the_support_status_route_not_the_monitor_uri</p></td>
+<td><p>quirk_support_monitor_uri</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-004</p></td>
+<td><p>Quota lists end with <code class="docutils literal notranslate"><span class="pre">paging.next</span> <span class="pre">==</span> <span class="pre">&quot;&quot;</span></code>, possibly after an empty page.</p></td>
+<td><p>Pagination stops on a falsy <code class="docutils literal notranslate"><span class="pre">next</span></code>, an empty page or a repeated URI</p></td>
+<td><p>client.QumuloClient.iterate</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_client.py::test_paginate_stops_on_empty_string_next_and_empty_page</p></td>
+<td><p>quirk_quota_pagination</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-005</p></td>
+<td><p>A same-value portal PATCH bumps the revision and re-checks connectivity. A same-value PATCH returns a new revision ETag; an empty PATCH does not.</p></td>
+<td><p>Diff before any PATCH</p></td>
+<td><p>portal_hub, portal_spoke</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_portal.py::test_same_type_sends_no_patch</p></td>
+<td><p>quirk_portal_same_value_patch</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-006</p></td>
+<td><p>Sending <code class="docutils literal notranslate"><span class="pre">creation_schedule</span></code> resets the schedule anchor.</p></td>
+<td><p>Sends <code class="docutils literal notranslate"><span class="pre">creation_schedule</span></code> only when it differs</p></td>
+<td><p>snapshot_policy</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_snapshot_policy.py::test_unchanged_schedule_not_sent</p></td>
+<td><p>none: the schedule anchor a creation_schedule resets is not readable through the API</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-007</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">allow_fs_path_create</span></code> is stored on the share and reapplied on a later <code class="docutils literal notranslate"><span class="pre">fs_path</span></code> PATCH.</p></td>
+<td><p>Always sends <code class="docutils literal notranslate"><span class="pre">create_fs_path</span></code></p></td>
+<td><p>smb_share</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_smb_share.py::test_fs_path_change_always_sends_create_fs_path</p></td>
+<td><p>quirk_smb_fs_path_create</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-008</p></td>
+<td><p>Snapshot and snapshot policy DELETE advertise If-Match but ignore it.</p></td>
+<td><p>The snapshot policy route declares <code class="docutils literal notranslate"><span class="pre">etag=omit</span></code>; the snapshot module takes snapshots and deletes none, so no snapshot DELETE is sent</p></td>
+<td><p>snapshot_policy</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_snapshot_policy.py::test_policy_delete_never_sends_if_match</p></td>
+<td><p>quirk_snapshot_delete_etag</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-009</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">free_threshold</span></code> is 0.05 on a new cluster, but the API documentation says 0.15.</p></td>
+<td><p>Documents 0.05; the module requires <code class="docutils literal notranslate"><span class="pre">free_threshold</span></code>, so it never applies the documented default</p></td>
+<td><p>portal_eviction_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>n/a: documentation only</p></td>
+<td><p>portal_eviction_settings</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-010</p></td>
+<td><p>PUT <code class="docutils literal notranslate"><span class="pre">/v1/support/settings</span></code> with a null <code class="docutils literal notranslate"><span class="pre">nexus_registration_key</span></code> clears a pending join key, and the PUT bypasses the rule that <code class="docutils literal notranslate"><span class="pre">enabled=false</span></code> forces <code class="docutils literal notranslate"><span class="pre">nexus_enabled=false</span></code>.</p></td>
+<td><p>Never PUTs the support settings</p></td>
+<td><p>monitoring_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_monitoring_settings.py::test_monitoring_settings_never_puts</p></td>
+<td><p>none: the PUT that shows it would clear a pending join key</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-011</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/nexus/registration</span></code> never returns ERROR_REGISTERING.</p></td>
+<td><p>Registration POSTs rotate, which gives a synchronous result</p></td>
+<td><p>nexus_registration</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nexus_registration.py::test_registration_posts_rotate_for_a_synchronous_result</p></td>
+<td><p>none: no Nexus in tier 1</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-012</p></td>
+<td><p>The clamp rounds up to whole provisioning units, while the API documentation says “without exceeding it”.</p></td>
+<td><p>A stored clamp from the request D up to D + <code class="docutils literal notranslate"><span class="pre">rounding_tolerance</span></code> (default the larger of 1% of D and 8 GiB, the unit seen on a 7.10.3A docker edge, where 53.33 GiB was stored as 56 GiB) is unchanged; a larger one is a decrease, which needs <code class="docutils literal notranslate"><span class="pre">allow_decrease</span></code></p></td>
+<td><p>capacity_clamp</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_capacity_clamp.py::test_stored_at_or_above_request_is_unchanged</p></td>
+<td><p>quirk_clamp_rounding</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-013</p></td>
+<td><p>An <code class="docutils literal notranslate"><span class="pre">NFS_UID</span></code> or <code class="docutils literal notranslate"><span class="pre">NFS_GID</span></code> id_value with a leading zero is read as octal, so <code class="docutils literal notranslate"><span class="pre">0065</span></code> is stored as 53.</p></td>
+<td><p>nfs_export writes uids and gids as decimal integers</p></td>
+<td><p>nfs_export</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nfs_export.py::test_uid_and_gid_with_leading_zeros_are_written_in_decimal</p></td>
+<td><p>quirk_nfs_uid_octal</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-014</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/v1/dns/configs/system</span></code> stores server addresses verbatim, so <code class="docutils literal notranslate"><span class="pre">2001:DB8::0001</span></code> reads back as sent, and its ETag changes on every PATCH, even one that changes nothing.</p></td>
+<td><p>Compares stored addresses in canonical form, sends canonical text, and sends no PATCH without a difference</p></td>
+<td><p>dns_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_dns_settings.py::test_server_text_the_cluster_kept_verbatim_matches_its_canonical_form</p></td>
+<td><p>none: the target sends canonical form</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-015</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PATCH</span> <span class="pre">/v1/nexus/connection</span></code> accepts <code class="docutils literal notranslate"><span class="pre">nexus_enabled=true</span></code> while cloud monitoring is off, although <code class="docutils literal notranslate"><span class="pre">PATCH</span> <span class="pre">/v1/support/settings</span></code> refuses the same change.</p></td>
+<td><p>Refuses to turn the connection on while cloud monitoring is off, before any write</p></td>
+<td><p>nexus_connection</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nexus_connection.py::test_enabling_while_monitoring_is_off_fails_before_any_write</p></td>
+<td><p>none: the nexus_connection target shows the refusal, not the server accepting the PATCH</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-016</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/v1/nexus/registration</span></code> clears only the secret. A stored join key keeps the status <code class="docutils literal notranslate"><span class="pre">PENDING_REGISTRATION</span></code>; only a PATCH of <code class="docutils literal notranslate"><span class="pre">/v1/support/settings</span></code> with <code class="docutils literal notranslate"><span class="pre">nexus_registration_key</span></code> set to <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> clears it.</p></td>
+<td><p>Removing a pending registration PATCHes the stored key empty instead of sending DELETE</p></td>
+<td><p>nexus_registration</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nexus_registration.py::test_absent_on_a_pending_cluster_clears_the_stored_key_with_patch</p></td>
+<td><p>nexus_registration</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-017</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/identity/find</span></code> caches a 404 for about 60 seconds, so a name created after a check-mode lookup stays unresolvable for a while.</p></td>
+<td><p>On a LOCAL 404, list <code class="docutils literal notranslate"><span class="pre">/v1/users/</span></code> and <code class="docutils literal notranslate"><span class="pre">/v1/groups/</span></code> and find the identity by its SID</p></td>
+<td><p>identity.IdentityResolver.find_listed_local</p></td>
+<td><p>planned</p></td>
+<td><p>tests/unit/plugins/module_utils/test_identity.py::test_local_name_a_cached_404_hides_resolves_by_listing</p></td>
+<td><p>quirk_identity_find_cached_404</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-018</p></td>
+<td><p>A cluster that stores a join key while its Nexus connection is on registers with it by itself within about two seconds, and <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/nexus/registration/rotate</span></code> sent in that window answers 412 <code class="docutils literal notranslate"><span class="pre">db_revision_mismatch_error</span></code> without doing anything. A UUID retired in Nexus registers again this way, and Nexus keeps it <code class="docutils literal notranslate"><span class="pre">DECOMMISSIONED</span></code>.</p></td>
+<td><p>After a 412 from rotate, reads the registration status: <code class="docutils literal notranslate"><span class="pre">REGISTERED</span></code> is success, and while it is <code class="docutils literal notranslate"><span class="pre">PENDING_REGISTRATION</span></code> rotate is sent again, up to three times, two seconds apart</p></td>
+<td><p>nexus_registration</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nexus_registration.py::test_a_rotate_that_races_the_clusters_own_registration_reads_the_status</p></td>
+<td><p>none: the race depends on timing; the Nexus part of nexus_registration usually meets it</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-019</p></td>
+<td><p>A PATCH of <code class="docutils literal notranslate"><span class="pre">/v2/replication/source-relationships/{id}</span></code> with <code class="docutils literal notranslate"><span class="pre">blackout_window_timezone</span></code> set to <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> answers 200 and leaves the stored timezone in place, so a timezone cannot be cleared once set.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_relationship</span></code> refuses an empty timezone where one is set, and blackout windows without a timezone, before any write (G-REPL-TZ)</p></td>
+<td><p>replication_source.ReplicationRelationship</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_replication_relationship.py::test_an_empty_timezone_where_one_is_set_fails_before_any_write</p></td>
+<td><p>quirk_replication_timezone</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-020</p></td>
+<td><p>The source reports <code class="docutils literal notranslate"><span class="pre">target_root_path</span></code> as it was sent until it first polls the target, and then resolved, with a trailing slash; <code class="docutils literal notranslate"><span class="pre">source_root_path</span></code> always ends with one.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">describe_source</span></code> and <code class="docutils literal notranslate"><span class="pre">describe_target</span></code> report both paths without the trailing slash, so a relationship’s key and the modules’ comparisons hold whichever form the server sent</p></td>
+<td><p>replication.describe_source, replication.describe_target</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_replication.py::test_a_target_path_with_or_without_its_slash_is_one_key</p></td>
+<td><p>replication_info</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-021</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v2/replication/target-relationships/{id}/authorize</span></code> into a directory that holds data and that another live relationship holds at the same path answers 400 <code class="docutils literal notranslate"><span class="pre">relationship_manager_target_path_not_empty_error</span></code> without <code class="docutils literal notranslate"><span class="pre">allow-non-empty-directory</span></code>, and 409 <code class="docutils literal notranslate"><span class="pre">relationship_manager_target_contains_another_relationship_error</span></code> only with it, so the first answer names the directory’s content and not the holder.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_target</span></code> lists this cluster’s records and reports a holder (row O2) before the directory’s entries (row O1), and sends no authorize while either is unmet</p></td>
+<td><p>replication_target.ReplicationTarget</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_replication_target.py::test_a_holder_is_reported_before_the_directory_s_entries</p></td>
+<td><p>replication_target</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-022</p></td>
+<td><p>When the gateway in front of Nexus fails the cluster’s registration call with an HTML error page, such as 502 Bad Gateway, <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/nexus/registration/rotate</span></code> answers 400 <code class="docutils literal notranslate"><span class="pre">decode_error</span></code>, quoting the page after <code class="docutils literal notranslate"><span class="pre">body</span> <span class="pre">was:</span></code>.</p></td>
+<td><p>An HTML page whose title is a 5xx status is transient: rotate reads the registration status, succeeds on <code class="docutils literal notranslate"><span class="pre">REGISTERED</span></code>, and while it is <code class="docutils literal notranslate"><span class="pre">PENDING_REGISTRATION</span></code> is sent again, backing off from two seconds to fifteen, until <code class="docutils literal notranslate"><span class="pre">retry_timeout</span></code> runs out</p></td>
+<td><p>nexus_registration</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nexus_registration.py::test_a_rotate_answered_with_a_nexus_gateway_page_is_sent_again_while_pending</p></td>
+<td><p>none: it takes a failing gateway in front of Nexus</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-023</p></td>
+<td><p>The API documentation types <code class="docutils literal notranslate"><span class="pre">host_restrictions</span></code> of <code class="docutils literal notranslate"><span class="pre">/v1/authoritative-dns/settings</span></code> as a string, but the cluster refuses a string with <code class="docutils literal notranslate"><span class="pre">decode_error</span></code> and takes and returns a list of address ranges, which it merges, sorts and rewrites: <code class="docutils literal notranslate"><span class="pre">10.0.0.0/30</span></code> and <code class="docutils literal notranslate"><span class="pre">10.0.0.5</span></code> come back as <code class="docutils literal notranslate"><span class="pre">10.0.0.0-3</span></code> and <code class="docutils literal notranslate"><span class="pre">10.0.0.5</span></code>, and <code class="docutils literal notranslate"><span class="pre">::ffff:192.0.2.7</span></code> as <code class="docutils literal notranslate"><span class="pre">192.0.2.7</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">authoritative_dns</span></code> sends a list and compares the ranges as sets of addresses</p></td>
+<td><p>authoritative_dns</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_authoritative_dns.py::test_host_restrictions_are_sent_as_a_list</p></td>
+<td><p>authoritative_dns</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-024</p></td>
+<td><p>Once the authoritative DNS settings were written, the ETag from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/authoritative-dns/settings</span></code> never matches what <code class="docutils literal notranslate"><span class="pre">PATCH</span></code> checks, so a PATCH that sends it is refused with 412 <code class="docutils literal notranslate"><span class="pre">db_revision_mismatch_error</span></code> although nothing changed in between. On a cluster whose settings were never written, the first such PATCH passes.</p></td>
+<td><p>The authoritative DNS route never sends If-Match (<code class="docutils literal notranslate"><span class="pre">etag=omit</span></code>); last writer wins</p></td>
+<td><p>authoritative_dns</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_authoritative_dns.py::test_authoritative_dns_never_sends_if_match</p></td>
+<td><p>quirk_authoritative_dns_etag</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-030</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/auth/roles/{name}</span></code> and <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/auth/roles/{name}/members</span></code> for a role that does not exist answer 404 <code class="docutils literal notranslate"><span class="pre">http_not_found_error</span></code>, the error class of a route that does not exist.</p></td>
+<td><p>role finds a role in <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/auth/roles/</span></code>, by its name in any case, and never reads one by name first; role_member reads that list when the members route answers 404, and says the role does not exist</p></td>
+<td><p>auth.find_role</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_role.py::test_a_role_is_found_in_the_list_never_by_its_own_get</p></td>
+<td><p>role</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-031</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/v1/auth/user-defined-mappings/</span></code> with any mapping, on a cluster not joined to Active Directory, answers 500 <code class="docutils literal notranslate"><span class="pre">ldap_dc_not_found_error</span></code> rather than a client error.</p></td>
+<td><p>user_defined_mappings reads the AD status before it writes a list that is not empty, and outside a domain refuses it, naming ad_domain, or in check mode notes the join it expects</p></td>
+<td><p>user_defined_mappings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_user_defined_mappings.py::test_outside_a_domain_a_list_is_refused_before_the_put</p></td>
+<td><p>user_defined_mappings</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-032</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PATCH</span> <span class="pre">/v1/saml/settings</span></code> with <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">true</span></code> turns SAML sign-in on while the cluster holds no IdP certificate, so no IdP response can be checked.</p></td>
+<td><p>saml_settings refuses to turn sign-in on, before any write, when neither the task nor the cluster has a certificate</p></td>
+<td><p>saml_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_saml_settings.py::test_turning_sign_in_on_without_any_certificate_fails_before_any_write</p></td>
+<td><p>none: the lane’s edge keeps a certificate once any run sets one, so no target can count on an edge without one</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-050</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">/v1/s3/settings</span></code> reads <code class="docutils literal notranslate"><span class="pre">multipart_upload_expiry_interval</span></code> back in the largest unit it fits, rounding down, and a month is four weeks: <code class="docutils literal notranslate"><span class="pre">14days</span></code> reads back as <code class="docutils literal notranslate"><span class="pre">2weeks</span></code>, <code class="docutils literal notranslate"><span class="pre">30days</span></code> as <code class="docutils literal notranslate"><span class="pre">1months</span></code> and <code class="docutils literal notranslate"><span class="pre">36hours</span></code> as <code class="docutils literal notranslate"><span class="pre">1days</span></code>.</p></td>
+<td><p>Compares the interval in the form the cluster reads it back, and refuses before any request a value that would read back as a shorter interval</p></td>
+<td><p>s3_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_s3_settings.py::test_interval_compares_in_the_form_the_cluster_reads_back</p></td>
+<td><p>s3_settings</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-051</p></td>
+<td><p>The S3 routes answer a missing directory, bucket or access key with HTTP 404 and error class <code class="docutils literal notranslate"><span class="pre">http_not_found_error</span></code>, the class the API gives a route the release lacks.</p></td>
+<td><p>Checks that a directory the S3 modules name exists, and finds buckets and keys by listing them, before any request that names one, so that a 404 on a read or a create means a missing route; a DELETE’s 404 right after a listing is taken as another client’s delete</p></td>
+<td><p>s3_access_key, s3_bucket, s3_bucket_policy, s3_settings</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_s3_settings.py::test_missing_base_path_fails_before_the_patch</p></td>
+<td><p>s3_settings</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-052</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PATCH</span> <span class="pre">/v1/s3/buckets/{name}</span></code> replaces <code class="docutils literal notranslate"><span class="pre">lock_config</span></code> whole: a lock sent without <code class="docutils literal notranslate"><span class="pre">default_retention</span></code> clears the bucket’s default retention.</p></td>
+<td><p>Every write of the lock sends the whole lock, its default retention included</p></td>
+<td><p>s3_bucket</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_s3_bucket.py::test_lock_config_is_always_sent_whole</p></td>
+<td><p>s3_bucket</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-053</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/s3/access-keys/</span></code> with <code class="docutils literal notranslate"><span class="pre">user</span></code> refuses a page size: with <code class="docutils literal notranslate"><span class="pre">limit</span></code> it answers 400 “Pagination is not allowed with the user parameter.”</p></td>
+<td><p>Reads one user’s keys in a single request without a page size</p></td>
+<td><p>s3_access_key</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_s3_access_key.py::test_the_user_s_keys_are_read_without_a_limit</p></td>
+<td><p>s3_access_key</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-060</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/v2/cluster/settings/ssl/ciphers</span></code> adds <code class="docutils literal notranslate"><span class="pre">ECDHE-RSA-AES128-SHA256</span></code> to the end of a <code class="docutils literal notranslate"><span class="pre">tls_1_2</span></code> list and <code class="docutils literal notranslate"><span class="pre">TLS_AES_128_GCM_SHA256</span></code> to the end of a <code class="docutils literal notranslate"><span class="pre">tls_1_3</span></code> list that leaves it out, so the stored lists differ from the ones sent.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ssl_ciphers</span></code> adds the same suite to the end of a list that leaves it out before it compares</p></td>
+<td><p>ssl_ciphers</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_ssl_ciphers.py::test_a_list_without_the_required_suite_compares_with_it_added_at_the_end</p></td>
+<td><p>ssl_ciphers</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-061</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/v2/cluster/settings/ssl/ciphers</span></code> stores an empty list as the one suite it adds (QUIRK-060), and a <code class="docutils literal notranslate"><span class="pre">tls_1_2</span></code> name that names no suite as written; it refuses only unknown <code class="docutils literal notranslate"><span class="pre">tls_1_3</span></code> names and <code class="docutils literal notranslate"><span class="pre">tls_1_2</span></code> names that let in RC4 or anonymous suites.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ssl_ciphers</span></code> refuses an empty list before any request; it cannot tell an unknown TLS 1.2 name, and its documentation says so</p></td>
+<td><p>ssl_ciphers</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_ssl_ciphers.py::test_an_empty_list_fails_before_any_request</p></td>
+<td><p>ssl_ciphers</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-062</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PATCH</span> <span class="pre">/v2/audit/destinations/{id}</span></code> answers 200 to a body with fields other than <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, such as <code class="docutils literal notranslate"><span class="pre">server_port</span></code>, and changes only <code class="docutils literal notranslate"><span class="pre">enabled</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">audit_destination</span></code> never PATCHes: every change PUTs the destination’s whole configuration with If-Match</p></td>
+<td><p>audit_destination</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_audit_destination.py::test_a_change_puts_the_whole_configuration_with_if_match_never_a_patch</p></td>
+<td><p>audit_destination</p></td>
+<td><p>7.10.3A</p></td>
+<td><p>7.11.0</p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-090</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v2/upgrade/status</span></code> reports REBOOTING as IDLE, and answers IDLE without a full quorum.</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module reads the state only from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v3/upgrade/status</span></code></p></td>
+<td><p>upgrade.Upgrade._wait_reboot</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_upgrade.py::test_the_state_is_read_from_v3_status_never_v2</p></td>
+<td><p>none: the container never reboots for an upgrade, so its v2 status cannot read REBOOTING</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-091</p></td>
+<td><p>After a quorum change during prepare or commit, <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v3/upgrade/status</span></code> reads IDLE with <code class="docutils literal notranslate"><span class="pre">settings:</span> <span class="pre">null</span></code> and no error, as after success.</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module decides a commit’s outcome from the running build, never from IDLE</p></td>
+<td><p>upgrade.Upgrade._await_commit</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_upgrade.py::test_an_idle_status_after_the_restart_is_decided_by_the_build</p></td>
+<td><p>none: the container cannot prepare or commit; tier 3 pins it once the lab probe records it</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-092</p></td>
+<td><p>On the docker container, verify and prepare answer 500 <code class="docutils literal notranslate"><span class="pre">os_error_ENOENT</span></code> naming the installer’s verify script, whatever the image path, since the image carries no installer.</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module refuses the cluster as one that cannot upgrade in band (F8)</p></td>
+<td><p>upgrade.Upgrade._server_refusal</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_upgrade.py::test_the_containers_missing_installer_is_f8</p></td>
+<td><p>quirk_upgrade_container</p></td>
+<td><p>7.10.3A</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-093</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v2/upgrade/prepare</span></code> answers only after every node’s verify has downloaded and checked the image, and the status reads IDLE meanwhile.</p></td>
+<td><p>Verify and prepare are sent with a request timeout of their own, and a lost prepare answer is read back from the status until that timeout, never sent again</p></td>
+<td><p>upgrade.Upgrade._request_timeout, upgrade.Upgrade._await_prepared</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_upgrade.py::test_a_lost_prepare_answer_is_read_back_and_never_sent_again</p></td>
+<td><p>none: the container has no installer, so its prepare downloads nothing; tier 3 pins it</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-094</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v2/upgrade/verify-image</span></code> answers 200 with <code class="docutils literal notranslate"><span class="pre">error</span></code> set for a refused image, while <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v2/upgrade/prepare</span></code> answers 400 <code class="docutils literal notranslate"><span class="pre">upgrade_verify_error</span></code> “The provided upgrade is invalid: …” for the same image.</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module reads both as the same refusal and passes the server’s words on</p></td>
+<td><p>upgrade.Upgrade._image_refused</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_upgrade.py::test_verify_200_with_an_error_and_prepare_400_are_one_refusal</p></td>
+<td><p>none: the container has no installer to refuse an image; tier 3 pins it</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-095</p></td>
+<td><p>A URL a node cannot reach fails verify as “Malformed qimg”, a download timeout or a generic error, never naming the URL’s reach.</p></td>
+<td><p>The <code class="docutils literal notranslate"><span class="pre">upgrade</span></code> module adds a line saying every node must reach the URL from its own network</p></td>
+<td><p>upgrade.Upgrade._reach</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_upgrade.py::test_the_reach_line_is_added_to_a_malformed_qimg</p></td>
+<td><p>none: the container has no installer to download an image; tier 3 pins it</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-100</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/identity/find</span></code> answers the SID of a domain the node has not found a name in since it started with 400 <code class="docutils literal notranslate"><span class="pre">api_identity_unsupported_domain_error</span></code>, “Unknown SID domain”, on a fresh join and for well-known SIDs such as <code class="docutils literal notranslate"><span class="pre">S-1-5-11</span></code> (Authenticated Users) alike; a find of any name in that domain lifts it.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">identity_info</span></code>’s <code class="docutils literal notranslate"><span class="pre">find_trustees</span></code> and <code class="docutils literal notranslate"><span class="pre">expand_trustees</span></code> report that 400 as the term’s error and go on with the other terms, and the docs say to find a name in the domain first; <code class="docutils literal notranslate"><span class="pre">identity.render</span></code> writes Authenticated Users by its name, <code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, and <code class="docutils literal notranslate"><span class="pre">parse_trustee</span></code> sends the find of <code class="docutils literal notranslate"><span class="pre">S-1-5-11</span></code> as the find of that name, which the node answers joined to a domain or not, so <code class="docutils literal notranslate"><span class="pre">sid:S-1-5-11</span></code> resolves too and no trustee the collection writes is <code class="docutils literal notranslate"><span class="pre">sid:S-1-5-11</span></code>; <code class="docutils literal notranslate"><span class="pre">file_acl</span></code>, <code class="docutils literal notranslate"><span class="pre">smb_share</span></code> and <code class="docutils literal notranslate"><span class="pre">directory</span></code> compare the entries they read back by the <code class="docutils literal notranslate"><span class="pre">auth_id</span></code> the cluster gives with each, so a SID the node refuses in an entry it reads back does not fail them; resolving any other SID again after such a find, for every module, waits on a ruling</p></td>
+<td><p>identity.FIND_TERM_CLASSES, identity._sid_query, identity.IdentityResolver.known</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_identity.py::test_authenticated_users_resolves_by_name_on_a_node_that_refuses_its_sid</p></td>
+<td><p>identity_info</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-101</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/files/{ref}/info/attributes</span></code> answers an id it cannot place, such as <code class="docutils literal notranslate"><span class="pre">0</span></code>, a decimal id of 2^128 or more, or one whose file system bits name no file system, with 404 <code class="docutils literal notranslate"><span class="pre">http_not_found_error</span></code>, the answer of a route that does not exist.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">filesystem_info</span></code>’s <code class="docutils literal notranslate"><span class="pre">find_files</span></code> takes that 404 as a miss for an id term, since the route is in every release the collection supports; a path term still fails on it</p></td>
+<td><p>files.ID_MISSES</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_files.py::test_an_id_answered_with_the_missing_routes_404_is_a_miss</p></td>
+<td><p>filesystem_info</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-102</p></td>
+<td><p>With no Active Directory domain controller in reach, <code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/identity/find</span></code> answers a name the node has not cached with 404 <code class="docutils literal notranslate"><span class="pre">ad_domain_controller_not_found_error</span></code>, “No DCs found”, whose class ends <code class="docutils literal notranslate"><span class="pre">_not_found_error</span></code> like that of a name no source holds.</p></td>
+<td><p>The miss rule takes only <code class="docutils literal notranslate"><span class="pre">api_identity_name_not_found_error</span></code> for a missing trustee, so with no domain controller in reach <code class="docutils literal notranslate"><span class="pre">role_member</span></code> and <code class="docutils literal notranslate"><span class="pre">identity_attributes</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> fail rather than report the trustee gone and leave it in place, a check run fails rather than report it pending, and a lookup fails rather than report a miss</p></td>
+<td><p>identity.MISS_CLASSES</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_identity.py::test_resolve_existing_fails_when_no_domain_controller_is_in_reach</p></td>
+<td><p>none: taking the lane’s domain controller away needs the host’s container runtime, which a target does not have</p></td>
+<td><p>7.11.0</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-110</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/multitenancy/tenants/</span></code> without <code class="docutils literal notranslate"><span class="pre">identity_config_id</span></code> answers 400 <code class="docutils literal notranslate"><span class="pre">decode_error</span></code>, “field ‘identity_config_id’ not found”: the server has no default, although the SDK’s client sends 1 for a caller that leaves it out.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tenant</span></code> sends the identity configuration of tenant 1, or once tenant 1 is gone the one every tenant shares, and fails when the tenants differ</p></td>
+<td><p>tenancy.create_identity_config</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_tenant.py::test_create_sends_every_switch_no_network_and_tenant_1s_identity_configuration</p></td>
+<td><p>tenant</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-111</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/multitenancy/tenants/</span></code> answers every tenant in one unpaged list with no ETag, and no route looks a tenant up by name; <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/multitenancy/tenants/{id}</span></code> has an ETag.</p></td>
+<td><p>Read the list and scan it by name. <code class="docutils literal notranslate"><span class="pre">tenant</span></code> reads the list on each fetch and <code class="docutils literal notranslate"><span class="pre">tenant_info</span></code> on each run; <code class="docutils literal notranslate"><span class="pre">tenancy.tenant_ids</span></code> reads it once per module run, until a write that changes it, for a module that looks a tenant up by name. A change or a delete takes its If-Match from the item GET</p></td>
+<td><p>tenancy.tenant_ids</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_tenancy.py::test_tenant_ids_maps_names_to_ids_and_back_from_one_read</p></td>
+<td><p>tenant_info</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-112</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/multitenancy/smb/settings/{tenant_id}</span></code> answers a tenant without an SMB override with 404 <code class="docutils literal notranslate"><span class="pre">api_smb_tenant_settings_do_not_exist_error</span></code>, and <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/multitenancy/nfs/settings/{tenant_id}</span></code> with 404 <code class="docutils literal notranslate"><span class="pre">api_nfs_tenant_settings_do_not_exist_error</span></code>; a tenant that does not exist answers the same 404 with <code class="docutils literal notranslate"><span class="pre">tenant_does_not_exist_error</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> with <code class="docutils literal notranslate"><span class="pre">tenant</span></code> read only the “does not exist” class as no override, which <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">inherit</span></code> already satisfies; any other error fails the module</p></td>
+<td><p>overrides.TenantOverride.fetch</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_smb_settings.py::test_only_the_missing_override_class_reads_as_no_override</p></td>
+<td><p>smb_settings</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-113</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/v1/multitenancy/smb/settings/{tenant_id}</span></code> with an If-Match header, for a tenant without an override, answers 404 <code class="docutils literal notranslate"><span class="pre">api_smb_tenant_settings_do_not_exist_error</span></code>; the same PUT without If-Match creates the override, as the module’s create in the smb_settings target shows. The PUT needs every field, and answers 400 <code class="docutils literal notranslate"><span class="pre">decode_error</span></code> for a body that leaves one out.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> with <code class="docutils literal notranslate"><span class="pre">tenant</span></code> create an override by a PUT of every field without If-Match, seeded from the global settings; a change is a PATCH with If-Match</p></td>
+<td><p>overrides.TenantOverride.create</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_smb_settings.py::test_present_creates_the_override_by_put_without_if_match_from_the_global_settings</p></td>
+<td><p>smb_settings</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-114</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/v1/multitenancy/nfs/settings/{tenant_id}</span></code> runs no NFSv4.1 nesting check: with NFSv4.1 on in the global settings, it removes an override that keeps NFSv4.1 off from a tenant one of whose exports is inside another, so the tenant serves NFSv4.1 over the nested exports. A PUT or PATCH of the override that turns NFSv4.1 on answers 409 <code class="docutils literal notranslate"><span class="pre">nfs_export_tree_name_is_prefix_error</span></code> for the same exports.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> with <code class="docutils literal notranslate"><span class="pre">tenant</span></code> and <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">inherit</span></code> refuses, in check mode too, while the global settings have NFSv4.1 on, the override has it off, and an export of the tenant is inside another, naming the pair</p></td>
+<td><p>overrides.NfsOverride.check_inherit</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nfs_settings.py::test_inherit_checks_the_tenants_exports_when_the_global_settings_turn_v4_on</p></td>
+<td><p>nfs_settings</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-115</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PUT</span> <span class="pre">/v1/multitenancy/nfs/settings/{tenant_id}</span></code> needs only <code class="docutils literal notranslate"><span class="pre">v4_enabled</span></code>, and gives each field it leaves out its factory default, not the global setting: with <code class="docutils literal notranslate"><span class="pre">krb5_enabled:</span> <span class="pre">false</span></code> and an <code class="docutils literal notranslate"><span class="pre">idmap_domain</span></code> in the global settings, a PUT of <code class="docutils literal notranslate"><span class="pre">v4_enabled</span></code> alone makes an override with <code class="docutils literal notranslate"><span class="pre">krb5_enabled:</span> <span class="pre">true</span></code> and a null <code class="docutils literal notranslate"><span class="pre">idmap_domain</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">nfs_settings</span></code> with <code class="docutils literal notranslate"><span class="pre">tenant</span></code> creates an override by a PUT of every field, seeded from the global settings with the task’s settings over them, as <code class="docutils literal notranslate"><span class="pre">smb_settings</span></code> must, whose PUT needs every field (QUIRK-113)</p></td>
+<td><p>overrides.TenantOverride.seed</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_nfs_settings.py::test_present_creates_the_override_by_put_of_every_field_from_the_global_settings</p></td>
+<td><p>nfs_settings</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-120</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">POST</span> <span class="pre">/v1/file-system/security/keys/</span></code> takes and stores a key with an empty <code class="docutils literal notranslate"><span class="pre">name</span></code>, which no <code class="docutils literal notranslate"><span class="pre">key_ref</span></code> names afterwards: the key is read and deleted only by its id. A name of digits only is refused, with 400 <code class="docutils literal notranslate"><span class="pre">fs_api_key_store_decode_error</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">security_key</span></code> refuses an empty name, and a name of digits only, before any request; <code class="docutils literal notranslate"><span class="pre">snapshot_info</span></code> reads each key’s usages by its id, never its name; <code class="docutils literal notranslate"><span class="pre">snapshot_policy</span></code>, <code class="docutils literal notranslate"><span class="pre">snapshot_info</span></code> and capture name such a key by its id, so that a policy holding it never reads as holding no key</p></td>
+<td><p>security_keys.SecurityKey, security_keys.usages, snapshots.key_label</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_security_key.py::test_an_empty_name_is_refused_before_any_request</p></td>
+<td><p>security_key</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-125</p></td>
+<td><p>While a replication relationship’s source does not answer, the target’s status record of a job the source was running keeps <code class="docutils literal notranslate"><span class="pre">job_state:</span> <span class="pre">REPLICATION_RUNNING</span></code>, its <code class="docutils literal notranslate"><span class="pre">job_start_time</span></code> and no <code class="docutils literal notranslate"><span class="pre">error_from_last_job</span></code>, for as long as it was watched (six minutes). <code class="docutils literal notranslate"><span class="pre">make-writable</span></code> is still accepted and discards the job’s partial changes.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">replication_failover_plan</span></code> refuses a failover for a running job only when the source answers and its own record shows the job; with the source not answering it goes on and notes the job it discards</p></td>
+<td><p>replication_failover._refuse_failover</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/module_utils/test_replication_failover.py::test_the_target_s_running_job_with_the_source_gone_is_noted_and_the_failover_goes_on</p></td>
+<td><p>none: it needs a job long enough to pause its source during, which on the lane took a 1.5 GB file through the REST API, and no tier 1 target holds that in its time</p></td>
+<td><p>7.11.0</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-160</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/auth/kerberos-keytab</span></code> answers the same ETag, <code class="docutils literal notranslate"><span class="pre">&quot;AAAAAA&quot;</span></code>, whatever keytab the cluster holds, and a PUT or DELETE of the keytab that sends it as If-Match answers 412 <code class="docutils literal notranslate"><span class="pre">db_revision_mismatch_error</span></code> once a keytab is held.</p></td>
+<td><p>The keytab route sends no If-Match (<code class="docutils literal notranslate"><span class="pre">etag=omit</span></code>); last writer wins. The settings route’s ETag covers the keytab too, but sending it on a keytab write would cost a read of the settings for no protection the module needs</p></td>
+<td><p>kerberos.KEYTAB</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_kerberos_keytab.py::test_install_puts_the_file_without_if_match_and_returns_entries_without_keys</p></td>
+<td><p>kerberos_keytab</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-161</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DELETE</span> <span class="pre">/v1/auth/kerberos-keytab</span></code> also turns <code class="docutils literal notranslate"><span class="pre">use_alt_security_identities_mapping</span></code> off in <code class="docutils literal notranslate"><span class="pre">/v1/auth/kerberos-settings</span></code>, whether or not a keytab was held. A PUT of a keytab leaves the setting alone.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code> reads the setting before the DELETE and, when it was on and is off after, PUTs it back on, also after a DELETE whose connection was lost</p></td>
+<td><p>kerberos.KerberosKeytab.settle_absent</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_kerberos_keytab.py::test_absent_deletes_and_turns_the_mapping_back_on</p></td>
+<td><p>kerberos_keytab</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>QUIRK-162</p></td>
+<td><p>The keytab PUT keeps the 8-bit key version of each entry and ignores the 32-bit version a keytab file holds after the key: an entry of version 300 reads back as version 44.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> compares each entry by the low 8 bits of its version, and warns about an entry whose version is above 255</p></td>
+<td><p>kerberos.read_keytab</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_kerberos_keytab.py::test_a_version_above_255_warns_and_compares_by_its_low_8_bits</p></td>
+<td><p>kerberos_keytab</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>QUIRK-163</p></td>
+<td><p>A PUT of <code class="docutils literal notranslate"><span class="pre">/v1/auth/kerberos-keytab</span></code> in the JSON form GET returns, with an entry the server cannot decode, answers 400 <code class="docutils literal notranslate"><span class="pre">decode_error</span></code> with a description that quotes the entries sent, keys included.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">kerberos_keytab</span></code> sends the keytab file as <code class="docutils literal notranslate"><span class="pre">application/octet-stream</span></code>, never the JSON form, and reports a failed PUT by its status and error class only, without the description</p></td>
+<td><p>kerberos.KerberosKeytab</p></td>
+<td><p>implemented</p></td>
+<td><p>tests/unit/plugins/modules/test_kerberos_keytab.py::test_a_refused_put_reports_status_and_class_without_the_description</p></td>
+<td><p>kerberos_keytab</p></td>
+<td><p>7.10.3</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gaps.html" class="btn btn-neutral float-left" title="Gap register" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../explanation/architecture.html" class="btn btn-neutral float-right" title="Architecture of the collection" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

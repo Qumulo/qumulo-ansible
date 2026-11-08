@@ -1,0 +1,745 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Declare common settings in the inventory &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Manage tenants" href="tenants.html" />
+    <link rel="prev" title="Respond to a refusal" href="respond-to-a-refusal.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Declare common settings in the inventory</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#before-you-start">Before you start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#network-and-dns">Network and DNS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#answer-dns-queries-for-the-cluster-s-own-name">Answer DNS queries for the cluster’s own name</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#change-the-network-without-cutting-the-play-off">Change the network without cutting the play off</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#identity-and-access">Identity and access</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#declare-custom-roles-and-give-them-to-trustees">Declare custom roles and give them to trustees</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#choose-when-a-local-user-s-password-is-sent">Choose when a local user’s password is sent</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#files-shares-and-policies">Files, shares and policies</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#set-a-directory-s-owner-and-its-acl">Set a directory’s owner and its ACL</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#set-the-filesystem-permissions-mode">Set the filesystem permissions mode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remove-the-factory-share-and-export">Remove the factory share and export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#put-quotas-and-snapshot-policies-on-the-right-directories">Put quotas and snapshot policies on the right directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#serve-ftp-over-tls-with-an-anonymous-user">Serve FTP over TLS with an anonymous user</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#cluster-settings-and-logs">Cluster settings and logs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#set-a-login-banner-and-an-inactivity-timeout">Set a login banner and an inactivity timeout</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#send-the-audit-log-to-syslog">Send the audit log to syslog</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index.html">Collection Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../collections/environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Declare common settings in the inventory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <!--
+Copyright (c) 2026 Qumulo, Inc.
+SPDX-License-Identifier: MIT
+-->
+<section id="declare-common-settings-in-the-inventory">
+<h1>Declare common settings in the inventory<a class="headerlink" href="#declare-common-settings-in-the-inventory" title="Link to this heading"></a></h1>
+<p>This page has short recipes for the areas of a cluster that take a few lines of inventory each: DNS, the network, roles and users, directories and ACLs, the factory share and export, quotas, snapshot policies, FTP, the Web UI and the audit log.
+Each recipe says which file the lines go in, what to run, and what the run shows when it worked.
+The <a class="reference internal" href="../collections/qumulo/cluster/cluster_baseline_role.html"><span class="std std-doc"><code class="docutils literal notranslate"><span class="pre">cluster_baseline</span></code></span></a> role applies every variable here, and an area whose variable is unset is left alone.</p>
+<section id="before-you-start">
+<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Have an inventory that reaches your clusters: <a class="reference internal" href="set-up-inventory.html"><span class="std std-doc">Set up an inventory for your clusters</span></a>.</p></li>
+<li><p>Every recipe puts its lines in <code class="docutils literal notranslate"><span class="pre">host_vars/&lt;host&gt;.yml</span></code> or <code class="docutils literal notranslate"><span class="pre">group_vars/&lt;group&gt;.yml</span></code>.
+A variable in a host’s file replaces the same variable in its group’s file whole, so a setting that every cluster shares goes in the group’s file and one that differs per cluster goes in the host’s.</p></li>
+<li><p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Inventory variables</span></a> lists every variable the baseline reads, with its step and module.
+The notes in each recipe cover only the facts that decide whether the recipe works.</p></li>
+<li><p>When the file already declares the variable, add the recipe’s entries to its list or keys.
+A second copy of the variable in one file replaces the first.</p></li>
+<li><p>A list in the inventory adds to what the cluster has, except where a recipe says the list is the whole set.
+<a class="reference internal" href="../explanation/state-management.html#lists-add-dictionaries-set-the-keys-they-give"><span class="std std-ref">State management</span></a> explains the rule.</p></li>
+</ul>
+</section>
+<section id="preview-apply-and-verify">
+<h2>Preview, apply and verify<a class="headerlink" href="#preview-apply-and-verify" title="Link to this heading"></a></h2>
+<p>Every recipe ends in the same three runs.
+Replace <code class="docutils literal notranslate"><span class="pre">edge01</span></code> with the host you changed.
+For a change in a group’s file, run the three steps on one host of the group first, then with <code class="docutils literal notranslate"><span class="pre">-l</span></code> and the group’s name, such as <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">qumulo_clusters</span></code>.</p>
+<ol class="arabic">
+<li><p>Preview the change.
+On a cluster that already matches the rest of the inventory, only the steps for the area you edited show <code class="docutils literal notranslate"><span class="pre">changed</span></code>, each with a diff of what it would write.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff
+</pre></div>
+</div>
+</li>
+<li><p>Apply it.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01
+</pre></div>
+</div>
+</li>
+<li><p>Run the same command again.
+The recap shows <code class="docutils literal notranslate"><span class="pre">changed=0</span></code>.
+The one exception is a local user declared with <code class="docutils literal notranslate"><span class="pre">update_password:</span> <span class="pre">always</span></code>, which is sent and reported as a change on every run.</p></li>
+</ol>
+<p>If a run stops with a refusal, <a class="reference internal" href="respond-to-a-refusal.html"><span class="std std-doc">Respond to a refusal</span></a> says what each kind needs.
+<a class="reference internal" href="../explanation/state-management.html#check-and-diff"><span class="std std-ref">Check and diff</span></a> says what a preview does and does not prove.</p>
+<p>Add <code class="docutils literal notranslate"><span class="pre">--ask-vault-pass</span></code> or <code class="docutils literal notranslate"><span class="pre">--vault-password-file</span></code> to all three when the inventory holds vault values.</p>
+</section>
+<section id="network-and-dns">
+<h2>Network and DNS<a class="headerlink" href="#network-and-dns" title="Link to this heading"></a></h2>
+<section id="answer-dns-queries-for-the-cluster-s-own-name">
+<h3>Answer DNS queries for the cluster’s own name<a class="headerlink" href="#answer-dns-queries-for-the-cluster-s-own-name" title="Link to this heading"></a></h3>
+<p>The cluster can answer DNS queries for its own name with its floating addresses, one node’s address in each answer.</p>
+<ol class="arabic">
+<li><p>Declare the name in the host’s file.
+Each cluster has its own name, so this belongs in <code class="docutils literal notranslate"><span class="pre">host_vars</span></code>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_authoritative_dns</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">fqdn</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge01.corp.example.com</span>
+<span class="w">  </span><span class="nt">host_restrictions</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">10.0.0.0/8</span><span class="p p-Indicator">]</span><span class="w">   </span><span class="c1"># the clients that may ask; [] lets any client ask</span>
+<span class="w">  </span><span class="nt">record_ttl_seconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w">             </span><span class="c1"># seconds a resolver may keep an answer, 0 to 3600</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.</p></li>
+<li><p>Delegate the name to the cluster’s floating addresses at your site’s DNS.
+The collection does not do this, and clients do not reach the cluster’s answers until it is done.</p></li>
+</ol>
+<p>To verify the setting itself, read it back with <a class="reference internal" href="../collections/qumulo/cluster/network_info_module.html"><span class="std std-doc">network_info</span></a>, in a play that starts with the <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> header from <a class="reference internal" href="set-up-inventory.html#check-the-connection"><span class="std std-ref">Set up an inventory for your clusters</span></a>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the authoritative DNS settings</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.network_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">authoritative_dns</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dns_read</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">dns_read.network.authoritative_dns</span></code> holds <code class="docutils literal notranslate"><span class="pre">enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">fqdn</span></code>, <code class="docutils literal notranslate"><span class="pre">host_restrictions</span></code> and <code class="docutils literal notranslate"><span class="pre">record_ttl_seconds</span></code>.
+The cluster stores the name with a final dot, so <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> reads back as <code class="docutils literal notranslate"><span class="pre">edge01.corp.example.com.</span></code>.</p>
+<p>Variants:</p>
+<ul>
+<li><p><strong>Stop answering.</strong>
+Set <code class="docutils literal notranslate"><span class="pre">enabled:</span> <span class="pre">false</span></code>.
+Once a name is set the cluster cannot clear it, so leave <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> as it is or leave it out (G-DNS-FQDN-CLEAR in <a class="reference internal" href="../reference/gaps.html"><span class="std std-doc">Gaps</span></a>).</p></li>
+<li><p><strong>A cluster has no floating addresses.</strong>
+It has no address to answer with, so declare its floating ranges first, as in the floating-addresses variant of <a class="reference internal" href="#change-the-network-without-cutting-the-play-off">Change the network without cutting the play off</a>.</p></li>
+<li><p><strong>The Terraform provider sets the name.</strong>
+A cluster the provider formed with <code class="docutils literal notranslate"><span class="pre">cluster_fqdn</span></code> gets its <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> from the provider on every run.
+List <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> as Terraform’s and leave <code class="docutils literal notranslate"><span class="pre">enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">fqdn</span></code> out of <code class="docutils literal notranslate"><span class="pre">qumulo_authoritative_dns</span></code>; <code class="docutils literal notranslate"><span class="pre">host_restrictions</span></code> and <code class="docutils literal notranslate"><span class="pre">record_ttl_seconds</span></code> stay yours.
+A list replaces the default <code class="docutils literal notranslate"><span class="pre">[network.floating_ips]</span></code> of a provider-formed cluster of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or unset, so keep that entry there:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_terraform_owned_areas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">network.floating_ips</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">dns.fqdn</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="terraform.html"><span class="std std-doc">Use a Terraform root’s output as the inventory</span></a> has the setup, and <a class="reference internal" href="../explanation/terraform-ownership.html#parts-of-an-area-dns-fqdn-and-audit-cloudwatch"><span class="std std-ref">Terraform ownership</span></a> explains why the areas are split.</p>
+</li>
+</ul>
+</section>
+<section id="change-the-network-without-cutting-the-play-off">
+<h3>Change the network without cutting the play off<a class="headerlink" href="#change-the-network-without-cutting-the-play-off" title="Link to this heading"></a></h3>
+<p>A change that drops <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> from the cluster’s addresses would cut the play off from the cluster, so the baseline refuses it until you accept the move and name the address to use afterwards.</p>
+<ol class="arabic">
+<li><p>Declare the new network in the host’s file.
+The list of networks is the whole set: a network the cluster has and the list leaves out is removed.
+An option you leave out of an entry keeps that network’s current value.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml   (edge01's qumulo_api_host is 10.20.0.5)</span>
+<span class="nt">qumulo_network</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">frontend_networks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Default</span>
+<span class="w">      </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STATIC</span>
+<span class="w">      </span><span class="nt">netmask</span><span class="p">:</span><span class="w"> </span><span class="s">'24'</span>
+<span class="w">      </span><span class="nt">default_gateway</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.20.0.1</span>
+<span class="w">      </span><span class="nt">ip_ranges</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">10.20.0.6-10.20.0.9</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</li>
+<li><p>If the host’s <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code>, or another host’s <code class="docutils literal notranslate"><span class="pre">qumulo_replication_address</span></code>, names the address you are dropping, change it in the same edit.
+<a class="reference internal" href="pair-edge-with-hub.html#choose-the-addresses"><span class="std std-ref">Pair an edge with its hub through a portal</span></a> says which address to give.
+The portal step runs after the network step, so the same run sends the host’s new <code class="docutils literal notranslate"><span class="pre">qumulo_portal_hosts</span></code> to its hub.
+When the changed host is a hub, its spokes learn the new addresses on their own next runs, so run each of them (<code class="docutils literal notranslate"><span class="pre">-l</span></code> with the spoke’s name) afterwards.
+A host that declares a replication relationship to the changed host needs its own run too.</p></li>
+<li><p>Preview with the two consent variables on the command line.
+A preview refuses the move without them, too.
+Pass them to the one run that needs them and keep them out of the inventory, where they would apply to every later run.
+Keep <code class="docutils literal notranslate"><span class="pre">-l</span></code> to the one host: a variable given with <code class="docutils literal notranslate"><span class="pre">-e</span></code> applies to every host the run reaches, and <code class="docutils literal notranslate"><span class="pre">qumulo_api_host_after</span></code> moves the connection of any host whose network document changes.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ansible-playbook<span class="w"> </span>qumulo.cluster.baseline<span class="w"> </span>-i<span class="w"> </span>inventory<span class="w"> </span>-l<span class="w"> </span>edge01<span class="w"> </span>--check<span class="w"> </span>--diff<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-e<span class="w"> </span><span class="nv">qumulo_allow_management_disruption</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">qumulo_api_host_after</span><span class="o">=</span><span class="m">10</span>.20.0.6
+</pre></div>
+</div>
+</li>
+<li><p>Apply it with the same two variables and the same <code class="docutils literal notranslate"><span class="pre">-l</span> <span class="pre">edge01</span></code>.
+The role connects to <code class="docutils literal notranslate"><span class="pre">qumulo_api_host_after</span></code> for every step after the network step.</p></li>
+<li><p>Change <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> for <code class="docutils literal notranslate"><span class="pre">edge01</span></code> in <code class="docutils literal notranslate"><span class="pre">hosts.yml</span></code> to the new address, so that the next run connects there.</p></li>
+</ol>
+<p>Verify with a run that carries neither variable: it connects at the new address and shows <code class="docutils literal notranslate"><span class="pre">changed=0</span></code>.</p>
+<p>Variants:</p>
+<ul class="simple">
+<li><p><strong>Add floating addresses.</strong>
+Add one key to the network’s entry: <code class="docutils literal notranslate"><span class="pre">floating_ip_ranges:</span> <span class="pre">[10.20.0.20-10.20.0.23]</span></code>, the addresses that clients and the DNS answers use.
+A cluster the Terraform provider formed, of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or with <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> unset, with no <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code>, or any cluster whose list names <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, needs the take-over flag below.</p></li>
+</ul>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>The check compares <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> with the address ranges, so it can only check a host given as an IP address.
+When <code class="docutils literal notranslate"><span class="pre">qumulo_api_host</span></code> is a name, make sure it resolves to the cluster after the change.</p></li>
+<li><p>On a cluster whose network the host manages, such as a container or a host-managed cloud cluster, every network has type <code class="docutils literal notranslate"><span class="pre">HOST</span></code>, and only its name, tenant, netmask and floating ranges can change.</p></li>
+<li><p>On a cluster the Terraform provider formed, of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or with <code class="docutils literal notranslate"><span class="pre">qumulo_cluster_kind</span></code> unset, with no <code class="docutils literal notranslate"><span class="pre">qumulo_terraform_owned_areas</span></code>, or on one whose list names <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, the floating ranges are Terraform’s: an entry that gives <code class="docutils literal notranslate"><span class="pre">floating_ip_ranges</span></code> fails before anything is written.
+Set <code class="docutils literal notranslate"><span class="pre">qumulo_take_over_from_terraform:</span> <span class="pre">true</span></code> to manage them here.
+The same flag also hands <code class="docutils literal notranslate"><span class="pre">dns.fqdn</span></code> and the audit destinations back to the role.</p></li>
+<li><p><a class="reference internal" href="../reference/troubleshooting.html#refusals-that-wait-for-consent"><span class="std std-ref">Troubleshooting</span></a> quotes the refusal.</p></li>
+</ul>
+</section>
+</section>
+<section id="identity-and-access">
+<h2>Identity and access<a class="headerlink" href="#identity-and-access" title="Link to this heading"></a></h2>
+<section id="declare-custom-roles-and-give-them-to-trustees">
+<h3>Declare custom roles and give them to trustees<a class="headerlink" href="#declare-custom-roles-and-give-them-to-trustees" title="Link to this heading"></a></h3>
+<p>A custom role is a name with a set of privileges.
+<code class="docutils literal notranslate"><span class="pre">qumulo_roles</span></code> declares the roles and <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code> gives them to trustees.
+The role creates the roles first, then applies the members, then deletes the roles declared <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>.</p>
+<ol class="arabic">
+<li><p>Declare the role and its members in the group’s file or the host’s.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_roles</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Backup-Operators</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Reads snapshots and quotas for the backup service</span>
+<span class="w">    </span><span class="nt">privileges</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">PRIVILEGE_SNAPSHOT_READ</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">PRIVILEGE_QUOTA_READ</span><span class="p p-Indicator">]</span>
+<span class="nt">qumulo_role_members</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="nv">Backup-Operators</span><span class="p p-Indicator">,</span><span class="nt"> members</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">'ad:CORP\Backup-Service'</span><span class="p p-Indicator">]}</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.</p></li>
+</ol>
+<p>To read the result back, use <a class="reference internal" href="../collections/qumulo/cluster/identity_info_module.html"><span class="std std-doc">identity_info</span></a> with <code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[roles,</span> <span class="pre">role_members]</span></code>.</p>
+<p>Rules for the entries:</p>
+<ul class="simple">
+<li><p>Write each member as a trustee in the collection’s grammar: <code class="docutils literal notranslate"><span class="pre">local:svc-backup</span></code>, <code class="docutils literal notranslate"><span class="pre">ad:CORP\Qumulo-Admins</span></code>, <code class="docutils literal notranslate"><span class="pre">ldap_group:admins</span></code>, <code class="docutils literal notranslate"><span class="pre">uid:1000</span></code>, <code class="docutils literal notranslate"><span class="pre">sid:S-1-5-21-...</span></code> or <code class="docutils literal notranslate"><span class="pre">Everyone</span></code>.
+A bare name is refused.
+<a class="reference internal" href="../explanation/identity.html#trustees-a-prefix-says-where-a-name-is-defined"><span class="std std-ref">Identity</span></a> explains the prefixes.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">local:</span></code> member that this run creates, such as a user from <code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code>, can fail to resolve for about a minute after a preview looked it up (QUIRK-017 in <a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">Quirks</span></a>).
+Wait a minute between the preview and the apply, or run the apply again.</p></li>
+<li><p>An <code class="docutils literal notranslate"><span class="pre">ad:</span></code> trustee resolves only after the cluster has joined the domain, which the role does earlier in the same run.
+<code class="docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code> resolves joined or not.
+<a class="reference internal" href="active-directory.html"><span class="std std-doc">Join a cluster to Active Directory</span></a> covers the join.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">privileges</span></code> is the role’s whole set.
+The privilege names differ between Qumulo Core versions, and a name the cluster does not know fails before anything is written.</p></li>
+<li><p>The built-in roles <code class="docutils literal notranslate"><span class="pre">Administrators</span></code>, <code class="docutils literal notranslate"><span class="pre">Observers</span></code>, <code class="docutils literal notranslate"><span class="pre">Data-Administrators</span></code> and <code class="docutils literal notranslate"><span class="pre">Qumulo-Support</span></code> cannot be changed.
+Name them only in <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code>.</p></li>
+</ul>
+<p>Variants:</p>
+<ul>
+<li><p><strong>Remove a role.</strong>
+The cluster refuses to delete a role that still has members, so empty it in <code class="docutils literal notranslate"><span class="pre">qumulo_role_members</span></code> with <code class="docutils literal notranslate"><span class="pre">purge:</span> <span class="pre">true</span></code> in the same declaration, then mark the role absent (<a class="reference internal" href="../explanation/identity.html#roles-and-why-members-go-before-a-delete"><span class="std std-ref">why members go first</span></a>):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_roles</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">Old-Operators</span><span class="p p-Indicator">,</span><span class="nt"> state</span><span class="p">:</span><span class="w"> </span><span class="nv">absent</span><span class="p p-Indicator">}</span>
+<span class="nt">qumulo_role_members</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="nv">Old-Operators</span><span class="p p-Indicator">,</span><span class="nt"> members</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[],</span><span class="nt"> purge</span><span class="p">:</span><span class="w"> </span><span class="nv">true</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Make a list the whole membership.</strong>
+<code class="docutils literal notranslate"><span class="pre">purge:</span> <span class="pre">true</span></code> on an entry makes its <code class="docutils literal notranslate"><span class="pre">members</span></code> the whole set for that role.
+The local <code class="docutils literal notranslate"><span class="pre">admin</span></code> and <code class="docutils literal notranslate"><span class="pre">system</span></code> users always stay in <code class="docutils literal notranslate"><span class="pre">Administrators</span></code>, and <code class="docutils literal notranslate"><span class="pre">purge</span></code> is refused for <code class="docutils literal notranslate"><span class="pre">Qumulo-Support</span></code>.</p></li>
+</ul>
+</section>
+<section id="choose-when-a-local-user-s-password-is-sent">
+<h3>Choose when a local user’s password is sent<a class="headerlink" href="#choose-when-a-local-user-s-password-is-sent" title="Link to this heading"></a></h3>
+<p>A local password cannot be read back from the cluster (G-PASSWORD), so the collection cannot tell whether the stored one matches.
+<code class="docutils literal notranslate"><span class="pre">update_password</span></code> decides when the declared password is sent.</p>
+<ol class="arabic">
+<li><p>Declare the user in the host’s file.
+Take the password from a vault value or a lookup: <a class="reference internal" href="store-secrets.html"><span class="std std-doc">Keep secrets out of the inventory</span></a>.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_local_users</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">svc-backup</span>
+<span class="w">    </span><span class="nt">primary_group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Users</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_svc_backup_password</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="w">    </span><span class="nt">update_password</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on_create</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.
+The first apply creates the user.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">on_create</span></code>, the default, the password is sent only when the user is created, and later runs report no change for it.
+Changing the password of an existing user then takes <code class="docutils literal notranslate"><span class="pre">update_password:</span> <span class="pre">always</span></code> for one run.</p>
+</li>
+</ol>
+<p>Variants:</p>
+<ul>
+<li><p><strong>Send the password on every run.</strong>
+Set <code class="docutils literal notranslate"><span class="pre">update_password:</span> <span class="pre">always</span></code>.
+The module cannot compare the password, so it reports a change for that user on every run, the verification run included.
+Use it for the run that changes the password, then set it back.</p></li>
+<li><p><strong>Change the password of <code class="docutils literal notranslate"><span class="pre">admin</span></code>.</strong>
+The server applies the new password to every node’s console and SSH password too (G-ADMIN-OS), and the play connects as <code class="docutils literal notranslate"><span class="pre">admin</span></code>, so the baseline needs both <code class="docutils literal notranslate"><span class="pre">allow_admin_password_change:</span> <span class="pre">true</span></code> on the item and <code class="docutils literal notranslate"><span class="pre">-e</span> <span class="pre">qumulo_allow_management_disruption=true</span></code>.
+<a class="reference internal" href="rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a> has the playbook that sets both and keeps the play connected. Use it instead.</p></li>
+<li><p><strong>Add a group.</strong>
+Declare it in <code class="docutils literal notranslate"><span class="pre">qumulo_local_groups</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_local_groups</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">edge-admins</span>
+<span class="w">    </span><span class="nt">members</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">svc-backup</span><span class="p p-Indicator">]</span><span class="w">   </span><span class="c1"># purge: true makes this the whole membership</span>
+</pre></div>
+</div>
+<p>The role creates the group before the users, since a user’s primary group must exist, and sets its members after them (<a class="reference internal" href="../explanation/identity.html#groups-then-users-then-members"><span class="std std-ref">why</span></a>).</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="files-shares-and-policies">
+<h2>Files, shares and policies<a class="headerlink" href="#files-shares-and-policies" title="Link to this heading"></a></h2>
+<section id="set-a-directory-s-owner-and-its-acl">
+<h3>Set a directory’s owner and its ACL<a class="headerlink" href="#set-a-directory-s-owner-and-its-acl" title="Link to this heading"></a></h3>
+<p>Declare a directory’s owner and group in <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>.
+Declare an ACL in <code class="docutils literal notranslate"><span class="pre">qumulo_file_acls</span></code>, which is the whole ACL of a path, entries in order.
+A mode and an ACL are one fact: setting a mode rewrites the ACL, so give a path one or the other.
+The baseline refuses a path that has both before it writes anything (G-FS-ACL-MODE).</p>
+<p>Use a mode where it says all you need.
+Use an ACL for deny entries, inheritance, or anything beyond owner, group and everyone.</p>
+<ol class="arabic">
+<li><p>Declare the directory and its ACL in the host’s file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_directories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">/data/projects</span><span class="p p-Indicator">,</span><span class="nt"> owner</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\svc-projects'</span><span class="p p-Indicator">,</span><span class="nt"> group</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\Engineering'</span><span class="p p-Indicator">}</span>
+<span class="nt">qumulo_file_acls</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/projects</span>
+<span class="w">    </span><span class="nt">aces</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="nv">DENIED</span><span class="p p-Indicator">,</span><span class="nt"> trustee</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\Contractors'</span><span class="p p-Indicator">,</span><span class="nt"> rights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">DELETE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">DELETE_CHILD</span><span class="p p-Indicator">]}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">trustee</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\Engineering'</span><span class="p p-Indicator">,</span><span class="nt"> rights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ALL</span><span class="p p-Indicator">],</span><span class="nt"> flags</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">OBJECT_INHERIT</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">CONTAINER_INHERIT</span><span class="p p-Indicator">]}</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">trustee</span><span class="p">:</span><span class="w"> </span><span class="nv">Everyone</span><span class="p p-Indicator">,</span><span class="nt"> rights</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">READ</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_EA</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_ATTR</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">READ_ACL</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">EXECUTE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">SYNCHRONIZE</span><span class="p p-Indicator">]}</span>
+</pre></div>
+</div>
+<p>The first entry that grants or denies a right decides it, so the order matters.
+An entry’s <code class="docutils literal notranslate"><span class="pre">type</span></code> is <code class="docutils literal notranslate"><span class="pre">ALLOWED</span></code> unless it says otherwise.
+An owner or trustee written as <code class="docutils literal notranslate"><span class="pre">local:</span></code> that this run creates can fail to resolve for about a minute after a preview looked it up (QUIRK-017 in <a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">Quirks</span></a>).
+Wait a minute between the preview and the apply, or run the apply again.</p>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.
+Once the ACL is in place, a preview with <code class="docutils literal notranslate"><span class="pre">--diff</span></code> shows any drift from it, with the entries the cluster holds (<a class="reference internal" href="../explanation/state-management.html#check-and-diff"><span class="std std-ref">Check and diff</span></a>).</p></li>
+</ol>
+<p>Variants:</p>
+<ul>
+<li><p><strong>A mode instead of an ACL.</strong>
+Quote the mode: YAML reads an unquoted <code class="docutils literal notranslate"><span class="pre">0775</span></code> as a decimal number, and the collection refuses it.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">qumulo_directories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">/data/scratch</span><span class="p p-Indicator">,</span><span class="nt"> mode</span><span class="p">:</span><span class="w"> </span><span class="s">'0775'</span><span class="p p-Indicator">,</span><span class="nt"> owner</span><span class="p">:</span><span class="w"> </span><span class="s">'local:svc-backup'</span><span class="p p-Indicator">,</span><span class="nt"> group</span><span class="p">:</span><span class="w"> </span><span class="s">'local:Users'</span><span class="p p-Indicator">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Inheritance.</strong>
+The cluster applies a new ACL to the path alone.
+Entries with inheritance flags reach what is created beneath the path afterwards, not what is already there.</p></li>
+<li><p><strong>A path inside a spoke root.</strong>
+On an edge, a path inside a portal’s spoke root is the hub’s data, so writing its ACL replaces the hub’s ACL.
+The baseline refuses it unless the entry sets <code class="docutils literal notranslate"><span class="pre">allow_data_loss:</span> <span class="pre">true</span></code>.
+Declare the ACL on the hub instead where you can: <a class="reference internal" href="../explanation/edges-and-portals.html#spoke-roots-hold-the-hub-s-data"><span class="std std-ref">Spoke roots hold the hub’s data</span></a>.</p></li>
+</ul>
+</section>
+<section id="set-the-filesystem-permissions-mode">
+<h3>Set the filesystem permissions mode<a class="headerlink" href="#set-the-filesystem-permissions-mode" title="Link to this heading"></a></h3>
+<p>The permissions mode is a cluster-wide setting of how the cluster reconciles a POSIX mode change from NFS with the ACL a file carries for SMB, and the reverse.
+Choose it before you declare directories and ACLs: a new mode applies to later changes only, and the cluster rewrites no ACL it already holds.
+The baseline applies it at step 5 and the directories at step 17.</p>
+<ol class="arabic">
+<li><p>Declare the mode in the group’s file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_filesystem_settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">permissions_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CROSS_PROTOCOL</span><span class="w">   </span><span class="c1"># NATIVE, CROSS_PROTOCOL or CROSS_PROTOCOL_POSIX_PRIORITY</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.</p></li>
+</ol>
+<p><code class="docutils literal notranslate"><span class="pre">qumulo_filesystem_settings</span></code> also takes <code class="docutils literal notranslate"><span class="pre">atime_enabled</span></code>, <code class="docutils literal notranslate"><span class="pre">atime_granularity</span></code> and <code class="docutils literal notranslate"><span class="pre">notify_recursive_mode</span></code>.
+A setting you leave out keeps the cluster’s value.</p>
+</section>
+<section id="remove-the-factory-share-and-export">
+<h3>Remove the factory share and export<a class="headerlink" href="#remove-the-factory-share-and-export" title="Link to this heading"></a></h3>
+<p>Every formation creates the SMB share <code class="docutils literal notranslate"><span class="pre">Files</span></code> and the NFS export <code class="docutils literal notranslate"><span class="pre">/</span></code> (G-FACTORY).
+<code class="docutils literal notranslate"><span class="pre">qumulo_factory_defaults</span></code> says what becomes of each: <code class="docutils literal notranslate"><span class="pre">absent</span></code> removes it, <code class="docutils literal notranslate"><span class="pre">present</span></code> leaves it.</p>
+<ol class="arabic">
+<li><p>Declare both keys.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_edges.yml</span>
+<span class="nt">qumulo_factory_defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">smb_files_share</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+<span class="w">  </span><span class="nt">nfs_root_export</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">absent</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.</p></li>
+</ol>
+<p>To confirm, read <code class="docutils literal notranslate"><span class="pre">smb.shares</span></code> with <a class="reference internal" href="../collections/qumulo/cluster/smb_info_module.html"><span class="std std-doc">smb_info</span></a> (<code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[shares]</span></code>) and <code class="docutils literal notranslate"><span class="pre">nfs.exports</span></code> with <a class="reference internal" href="../collections/qumulo/cluster/nfs_info_module.html"><span class="std std-doc">nfs_info</span></a> (<code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[exports]</span></code>).
+Neither lists <code class="docutils literal notranslate"><span class="pre">Files</span></code> or <code class="docutils literal notranslate"><span class="pre">/</span></code>.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>Declare both keys, even when one of them is <code class="docutils literal notranslate"><span class="pre">present</span></code>: an edge rebuild refuses to start without both, because a new formation creates both again.</p></li>
+<li><p>The cluster refuses to turn on NFSv4.1 (<code class="docutils literal notranslate"><span class="pre">v4_enabled</span></code> in <code class="docutils literal notranslate"><span class="pre">qumulo_nfs_settings</span></code>) while the export at <code class="docutils literal notranslate"><span class="pre">/</span></code> exists, because every other export’s path is inside it.
+Remove the export first; the role removes it before it applies the NFS settings.</p></li>
+</ul>
+</section>
+<section id="put-quotas-and-snapshot-policies-on-the-right-directories">
+<h3>Put quotas and snapshot policies on the right directories<a class="headerlink" href="#put-quotas-and-snapshot-policies-on-the-right-directories" title="Link to this heading"></a></h3>
+<p>A quota and a snapshot policy each belong to a directory.
+Declare the directory in <code class="docutils literal notranslate"><span class="pre">qumulo_directories</span></code>, then the quota and the policy for its path.
+The role creates the directories first.</p>
+<ol class="arabic">
+<li><p>Declare them in the host’s file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_directories</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">/data/projects</span><span class="p p-Indicator">}</span>
+<span class="nt">qumulo_quotas</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="nv">/data/projects</span><span class="p p-Indicator">,</span><span class="nt"> limit</span><span class="p">:</span><span class="w"> </span><span class="nv">2TiB</span><span class="p p-Indicator">}</span>
+<span class="nt">qumulo_snapshot_policies</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">policy_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">projects-daily</span>
+<span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/projects</span>
+<span class="w">    </span><span class="nt">expiration_time_to_live</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30days</span>
+<span class="w">    </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">frequency</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SCHEDULE_DAILY_OR_WEEKLY</span>
+<span class="w">      </span><span class="nt">hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">      </span><span class="nt">minute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">      </span><span class="nt">on_days</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">MON</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">TUE</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">WED</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">THU</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">FRI</span><span class="p p-Indicator">]</span>
+<span class="w">      </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">America/Los_Angeles</span>
+</pre></div>
+</div>
+<p>To lock each snapshot a policy takes, add <code class="docutils literal notranslate"><span class="pre">lock_key</span></code>, the name of a key in the cluster’s file system key store, to
+its entry, as <code class="docutils literal notranslate"><span class="pre">lock_key:</span> <span class="pre">legal-hold</span></code>.
+Register the key first (<a class="reference internal" href="manage-lock-keys.html"><span class="std std-doc">Manage the keys that lock snapshots</span></a>): a key the store does not hold
+makes the baseline refuse at step 2, before it writes anything
+(<a class="reference internal" href="manage-lock-keys.html#a-rebuilt-or-cloned-cluster"><span class="std std-ref">A rebuilt or cloned cluster</span></a> has the two ways on).</p>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.</p></li>
+</ol>
+<p>To read them back, use <a class="reference internal" href="../collections/qumulo/cluster/filesystem_info_module.html"><span class="std std-doc">filesystem_info</span></a> for <code class="docutils literal notranslate"><span class="pre">filesystem.quotas</span></code> and <a class="reference internal" href="../collections/qumulo/cluster/snapshot_info_module.html"><span class="std std-doc">snapshot_info</span></a> for <code class="docutils literal notranslate"><span class="pre">snapshots.policies</span></code>.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>The cluster refuses a quota or a snapshot policy under a portal’s spoke root (G-SPOKE-PATHS).
+The baseline checks this before it writes anything and names the path and the root.
+Declare them on a local directory outside every spoke root, or on the hub, on the hub root that the spoke root shows (<a class="reference internal" href="../explanation/edges-and-portals.html#spoke-roots-hold-the-hub-s-data"><span class="std std-ref">why</span></a>).</p></li>
+<li><p>A policy cannot move to another directory.
+A different <code class="docutils literal notranslate"><span class="pre">path</span></code> needs <code class="docutils literal notranslate"><span class="pre">recreate:</span> <span class="pre">true</span></code> on the entry, which deletes and recreates the policy and keeps the snapshots it took.
+The new policy keeps the lock key of the old one, unless the entry’s <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> names another.</p></li>
+<li><p>A policy entry without <code class="docutils literal notranslate"><span class="pre">lock_key</span></code> keeps the key the policy has, and <code class="docutils literal notranslate"><span class="pre">lock_key:</span> <span class="pre">&quot;&quot;</span></code> takes it off.</p></li>
+<li><p>A change to <code class="docutils literal notranslate"><span class="pre">expiration_time_to_live</span></code> applies only to snapshots taken after it (G-SNAP-TTL).</p></li>
+<li><p>Remove a quota or a policy by declaring it with <code class="docutils literal notranslate"><span class="pre">state:</span> <span class="pre">absent</span></code>; a list that leaves it out does not remove it.</p></li>
+</ul>
+</section>
+<section id="serve-ftp-over-tls-with-an-anonymous-user">
+<h3>Serve FTP over TLS with an anonymous user<a class="headerlink" href="#serve-ftp-over-tls-with-an-anonymous-user" title="Link to this heading"></a></h3>
+<p>The cluster has one FTP server, which answers on every network.
+Anonymous logins act as a local user, so the user is declared with the other local users and the FTP settings name it.</p>
+<ol class="arabic">
+<li><p>Declare the user and the settings.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_local_users</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ftp-guest</span>
+<span class="w">    </span><span class="nt">primary_group</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Users</span>
+<span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">vault_ftp_guest_password</span><span class="nv"> </span><span class="s">}}"</span>
+<span class="nt">qumulo_ftp_settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">allow_unencrypted_connections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">chroot_users</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">anonymous_user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local:ftp-guest</span>
+<span class="w">  </span><span class="nt">greeting</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">Authorized use only.</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.
+One run does it in order: the baseline creates the user at step 13 and applies the FTP settings at step 19.</p></li>
+</ol>
+<p>To check that the server runs, read the status with <a class="reference internal" href="../collections/qumulo/cluster/ftp_info_module.html"><span class="std std-doc">ftp_info</span></a> (<code class="docutils literal notranslate"><span class="pre">gather_subset:</span> <span class="pre">[status]</span></code>).
+Each node’s <code class="docutils literal notranslate"><span class="pre">status</span></code> is <code class="docutils literal notranslate"><span class="pre">running</span></code> once the server is on.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li><p>The anonymous user must be a local user, written <code class="docutils literal notranslate"><span class="pre">local:&lt;name&gt;</span></code>.
+Any other form fails before any request.
+The cluster refuses a local group’s name, and a user it does not hold: when neither the cluster nor <code class="docutils literal notranslate"><span class="pre">qumulo_local_users</span></code> has the user, the apply fails at step 19 naming <code class="docutils literal notranslate"><span class="pre">qumulo.cluster.local_user</span></code>.
+The preview sends no write, so it does not fail.
+In the preview of a first run, when the cluster does not hold the user yet, step 19 reports the change with a note that an earlier task must create it.
+A name in another case is the same user, and the run shows the name as the cluster holds it.</p></li>
+<li><p>Declare <code class="docutils literal notranslate"><span class="pre">anonymous_user:</span> <span class="pre">&quot;&quot;</span></code> to turn anonymous logins off.
+When the local user is deleted while the setting names it, the cluster keeps the setting with an empty name, which <code class="docutils literal notranslate"><span class="pre">ftp_settings</span></code> and <code class="docutils literal notranslate"><span class="pre">ftp_info</span></code> read as <code class="docutils literal notranslate"><span class="pre">local:</span></code>; declaring <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code> clears it, and declaring the user again, once step 13 has made it, sets it back.</p></li>
+<li><p>The greeting is 1 to 1024 bytes of UTF-8 and is compared exactly, trailing newline included.
+The block scalar above ends with a newline, so declaring the same text without it is a change.</p></li>
+<li><p>The cluster cannot set the factory greeting back once the greeting is changed (G-FTP-GREETING).
+To keep a way back, <a class="reference internal" href="adopt-a-cluster.html#capture-and-adopt"><span class="std std-ref">capture the cluster</span></a> before you change the greeting: <code class="docutils literal notranslate"><span class="pre">qumulo_ftp_settings.greeting</span></code> in the captured file holds the greeting as the cluster has it.
+Declare that text as <code class="docutils literal notranslate"><span class="pre">greeting</span></code> to put it back.</p></li>
+</ul>
+</section>
+</section>
+<section id="cluster-settings-and-logs">
+<h2>Cluster settings and logs<a class="headerlink" href="#cluster-settings-and-logs" title="Link to this heading"></a></h2>
+<section id="set-a-login-banner-and-an-inactivity-timeout">
+<h3>Set a login banner and an inactivity timeout<a class="headerlink" href="#set-a-login-banner-and-an-inactivity-timeout" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p>Declare both in the group’s file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_web_ui_settings</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">login_banner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Authorized use only. Activity is logged.</span>
+<span class="w">  </span><span class="nt">inactivity_timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30</span><span class="w">   </span><span class="c1"># minutes, 2 to 600; 0 turns the timeout off</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.</p></li>
+</ol>
+<p>Notes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">login_banner</span></code> is the text the Web UI shows before login, at most 32 KiB.
+An empty string removes the banner.</p></li>
+<li><p>A setting you leave out keeps the cluster’s value.</p></li>
+</ul>
+</section>
+<section id="send-the-audit-log-to-syslog">
+<h3>Send the audit log to syslog<a class="headerlink" href="#send-the-audit-log-to-syslog" title="Link to this heading"></a></h3>
+<p>The cluster can send its audit log to a syslog server, to a CloudWatch log group in AWS, or to its own local log.
+Each destination has a name; the names <code class="docutils literal notranslate"><span class="pre">syslog</span></code>, <code class="docutils literal notranslate"><span class="pre">cloudwatch</span></code> and <code class="docutils literal notranslate"><span class="pre">local</span></code> are reserved for a destination of that type, and a <code class="docutils literal notranslate"><span class="pre">LOCAL</span></code> destination must be named <code class="docutils literal notranslate"><span class="pre">local</span></code>.</p>
+<ol class="arabic">
+<li><p>Declare the destination in the group’s file.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># group_vars/qumulo_clusters.yml</span>
+<span class="nt">qumulo_audit_destinations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">siem</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SYSLOG</span>
+<span class="w">    </span><span class="nt">server_address</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">siem.example.com</span>
+<span class="w">    </span><span class="nt">server_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">514</span>
+<span class="w">    </span><span class="nt">log_format</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">json</span><span class="w">   </span><span class="c1"># csv or json</span>
+</pre></div>
+</div>
+</li>
+<li><p><a class="reference internal" href="#preview-apply-and-verify">Preview, apply and verify</a>.
+The role does not wait for the destination to connect, so also confirm on the syslog server that records arrive.</p></li>
+</ol>
+<p>Variants:</p>
+<ul>
+<li><p><strong>Remove a destination.</strong>
+A destination the list leaves out is left alone.
+Declare <code class="docutils literal notranslate"><span class="pre">{name:</span> <span class="pre">siem,</span> <span class="pre">state:</span> <span class="pre">absent}</span></code> to delete one.</p></li>
+<li><p><strong>Change a destination.</strong>
+Change the entry.
+A partial entry does not reset the rest: the module sends the whole configuration, with the cluster’s values for the options you left out (QUIRK-062 in <a class="reference internal" href="../reference/quirks.html"><span class="std std-doc">Quirks</span></a>).</p></li>
+<li><p><strong>CloudWatch.</strong>
+Use <code class="docutils literal notranslate"><span class="pre">type:</span> <span class="pre">CLOUDWATCH</span></code> with <code class="docutils literal notranslate"><span class="pre">log_group_name</span></code> and <code class="docutils literal notranslate"><span class="pre">region</span></code>.
+The cluster refuses a CloudWatch destination outside AWS, and the step fails with its reason.</p></li>
+<li><p><strong>The Terraform provider sets the CloudWatch destination.</strong>
+On a CNQ cluster in AWS the provider can set it.
+List <code class="docutils literal notranslate"><span class="pre">audit.cloudwatch</span></code> as Terraform’s, and on a cluster of kind <code class="docutils literal notranslate"><span class="pre">cnq</span></code> or unset keep the default <code class="docutils literal notranslate"><span class="pre">network.floating_ips</span></code>, since a list replaces it:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># host_vars/edge01.yml</span>
+<span class="nt">qumulo_terraform_owned_areas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">network.floating_ips</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">audit.cloudwatch</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p>The baseline then refuses a declared <code class="docutils literal notranslate"><span class="pre">CLOUDWATCH</span></code> entry before any step writes, even one that would change nothing, so leave the CloudWatch destination out of <code class="docutils literal notranslate"><span class="pre">qumulo_audit_destinations</span></code>.
+List <code class="docutils literal notranslate"><span class="pre">audit</span></code> instead to leave every destination to Terraform.
+<code class="docutils literal notranslate"><span class="pre">qumulo_take_over_from_terraform:</span> <span class="pre">true</span></code> hands either back to the role, and the floating addresses with them.
+<a class="reference internal" href="../explanation/terraform-ownership.html#parts-of-an-area-dns-fqdn-and-audit-cloudwatch"><span class="std std-ref">Terraform ownership</span></a> explains why the areas are split.</p>
+</li>
+</ul>
+</section>
+</section>
+<section id="see-also">
+<h2>See also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../reference/variables.html"><span class="std std-doc">Inventory variables</span></a> lists every variable, its precedence and its owner.</p></li>
+<li><p><a class="reference internal" href="nexus.html"><span class="std std-doc">Register a cluster with Nexus</span></a> covers monitoring and the Nexus connection, which sit beside the audit log in the baseline but are a separate task.</p></li>
+<li><p><a class="reference internal" href="manage-certificates.html"><span class="std std-doc">Manage certificates</span></a> covers <code class="docutils literal notranslate"><span class="pre">qumulo_ssl</span></code> and <code class="docutils literal notranslate"><span class="pre">qumulo_ssl_ciphers</span></code>.</p></li>
+<li><p><a class="reference internal" href="active-directory.html"><span class="std std-doc">Join a cluster to Active Directory</span></a> covers <code class="docutils literal notranslate"><span class="pre">qumulo_ad</span></code>, the identity mappings, home directories and SAML.</p></li>
+<li><p><a class="reference internal" href="rotate-admin-password.html"><span class="std std-doc">Rotate the admin password</span></a> covers <code class="docutils literal notranslate"><span class="pre">admin</span></code>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="respond-to-a-refusal.html" class="btn btn-neutral float-left" title="Respond to a refusal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tenants.html" class="btn btn-neutral float-right" title="Manage tenants" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>

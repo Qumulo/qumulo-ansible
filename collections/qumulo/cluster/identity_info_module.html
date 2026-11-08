@@ -1,0 +1,1190 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>qumulo.cluster.identity_info module – Read a Qumulo cluster’s local users and groups, roles, directory services and sign-in settings &mdash; qumulo.cluster  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=41de9001" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/ansible.css?v=b54c304f" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/antsibull-minimal.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/rtd-ethical-ads.css?v=289b023e" />
+
+  
+    <link rel="shortcut icon" href="../../../_static/images/Ansible-Mark-RGB_Black.png"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=7f41d439"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="qumulo.cluster.kerberos_keytab module – Install, replace or delete a Qumulo cluster’s Kerberos keytab" href="kerberos_keytab_module.html" />
+    <link rel="prev" title="qumulo.cluster.identity_attributes module – Manage the home directory a Qumulo cluster gives an Active Directory, LDAP or POSIX identity" href="identity_attributes_module.html" /><!-- extra head elements for Ansible beyond RTD Sphinx Theme -->
+
+
+
+
+</head>
+
+<body class="wy-body-for-nav"><!-- extra body elements for Ansible beyond RTD Sphinx Theme -->
+
+<div class="DocSite-globalNav ansibleNav">
+  <ul>
+    <li><a href="https://www.ansible.com/blog" target="_blank">Blog</a></li>
+    <li><a href="https://forum.ansible.com/" target="_blank">Ansible community forum</a></li>
+    <li><a href="https://docs.ansible.com/" target="_blank">Documentation</a></li>
+  </ul>
+</div>
+
+<a class="DocSite-nav" href="../../../index.html" style="padding-bottom: 30px;">
+
+  <img class="DocSiteNav-logo"
+    src="../../../_static/images/Ansible-Mark-RGB_White.png"
+    alt="Ansible Logo">
+  <div class="DocSiteNav-title">qumulo.cluster documentation</div>
+</a>
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            qumulo.cluster
+          </a><!--- Based on https://github.com/rtfd/sphinx_rtd_theme/pull/438/files -->
+
+<div class="version">
+  
+    
+  
+</div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <label class="sr-only" for="q">Search docs:</label>
+    <input type="text" class="st-default-search-input" id="q" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+  
+              <p class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-cluster.html">Your first cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/first-fleet.html">Your first fleet</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">How-to guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/install-the-collection.html">Install and pin the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/set-up-inventory.html">Set up an inventory for your clusters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/store-secrets.html">Keep secrets out of the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/adopt-a-cluster.html">Adopt a cluster you already run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/terraform.html">Use a Terraform root’s output as the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/respond-to-a-refusal.html">Respond to a refusal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/inventory-recipes.html">Declare common settings in the inventory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/tenants.html">Manage tenants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/active-directory.html">Join a cluster to Active Directory</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-certificates.html">Manage the cluster’s TLS certificate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nfs-kerberos.html">Serve NFS with Kerberos from a standalone KDC</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/s3.html">Serve a directory as an S3 bucket</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/nexus.html">Register a cluster with Nexus</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/look-up-identities-and-paths.html">Look up identities, DNS names and paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pair-edge-with-hub.html">Pair an edge with its hub through a portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/replicate-a-directory.html">Replicate a directory to another cluster</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/licensing.html">License an edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-sizing.html">Size and resize an edge’s cache</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/clone-edge.html">Clone an edge’s configuration onto a new edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/edge-rebuild.html">Rebuild an unprotected edge</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/restore-replica.html">Restore a rebuilt edge’s data from its replica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/fail-over-replication.html">Fail over to a replica, and fail back</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/upgrade.html">Upgrade a fleet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/resume-an-upgrade.html">Recover an upgrade that stopped</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-admin-password.html">Rotate the admin password</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-access-token.html">Rotate the access token a host connects with</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/rotate-encryption-key.html">Rotate the encryption key</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/snapshot-before-a-change.html">Take a snapshot before a change</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/manage-lock-keys.html">Manage the keys that lock snapshots</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../how-to/pipeline.html">Run the playbooks from a pipeline</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/README.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/variables.html">Inventory variables</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/terraform-inventory.html">The Terraform inventory plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/capture-and-clone.html">What capture and clone read and write</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/upgrade.html">The upgrade: variables, steps and files</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/playbooks-and-roles.html">Playbooks and roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/tested-versions.html">Tested Qumulo Core versions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/gaps.html">Gap register</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/quirks.html">Quirk register</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Explanation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/architecture.html">Architecture of the collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/authentication.html">Authentication, trust and secrets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/state-management.html">State management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/refusals-and-guards.html">Refusals and guards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/edges-and-portals.html">Edges, hubs and portals</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/licensing-and-capacity.html">Licensing and capacity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/rebuilds.html">Rebuilds</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/replication.html">Replication</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/upgrades.html">How upgrades work</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/terraform-ownership.html">Terraform ownership</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/multitenancy.html">Tenants and the continuity rule</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../explanation/identity.html">Identity and Active Directory</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Plugin reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Collection Index</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Collections in the Qumulo Namespace</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Qumulo.Cluster</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="index.html#description">Description</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="index.html#plugin-index">Plugin Index</a></li>
+<li class="toctree-l4"><a class="reference internal" href="index.html#role-index">Role Index</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_filter.html">Index of all Filter Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_inventory.html">Index of all Inventory Plugins</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_module.html">Index of all Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index_role.html">Index of all Roles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../environment_variables.html">Index of all Collection Environment Variables</a></li>
+</ul>
+<!-- extra nav elements for Ansible beyond RTD Sphinx Theme -->
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">qumulo.cluster</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Collection Index</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Collections in the Qumulo Namespace</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Qumulo.Cluster</a></li>
+      <li class="breadcrumb-item active">qumulo.cluster.identity_info module – Read a Qumulo cluster’s local users and groups, roles, directory services and sign-in settings</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+  
+           <div itemprop="articleBody">
+             
+  <span class="target" id="ansible-collections-qumulo-cluster-identity-info-module"></span><section id="qumulo-cluster-identity-info-module-read-a-qumulo-cluster-s-local-users-and-groups-roles-directory-services-and-sign-in-settings">
+<h1>qumulo.cluster.identity_info module – Read a Qumulo cluster’s local users and groups, roles, directory services and sign-in settings<a class="headerlink" href="#qumulo-cluster-identity-info-module-read-a-qumulo-cluster-s-local-users-and-groups-roles-directory-services-and-sign-in-settings" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This module is part of the <a class="reference external" href="https://galaxy.ansible.com/ui/repo/published/qumulo/cluster/">qumulo.cluster collection</a> (version 0.1.0).</p>
+<p>It is not included in <code class="docutils literal notranslate"><span class="pre">ansible-core</span></code>.
+To check whether it is installed, run <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">list</span></code>.</p>
+<p>To install it, use: <code class="code docutils literal notranslate"><span class="pre">ansible-galaxy</span> <span class="pre">collection</span> <span class="pre">install</span> <span class="pre">qumulo.cluster</span></code>.</p>
+<p>To use it in a playbook, specify: <code class="code docutils literal notranslate"><span class="pre">qumulo.cluster.identity_info</span></code>.</p>
+</div>
+<p class="ansible-version-added">New in qumulo.cluster 0.1.0</p>
+<nav class="contents local" id="contents">
+<ul class="simple">
+<li><p><a class="reference internal" href="#synopsis" id="id1">Synopsis</a></p></li>
+<li><p><a class="reference internal" href="#parameters" id="id2">Parameters</a></p></li>
+<li><p><a class="reference internal" href="#attributes" id="id3">Attributes</a></p></li>
+<li><p><a class="reference internal" href="#notes" id="id4">Notes</a></p></li>
+<li><p><a class="reference internal" href="#examples" id="id5">Examples</a></p></li>
+<li><p><a class="reference internal" href="#return-values" id="id6">Return Values</a></p></li>
+</ul>
+</nav>
+<section id="synopsis">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Synopsis</a><a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Gathers the identity configuration of one Qumulo cluster and changes nothing.</p></li>
+<li><p>Each subset has the shape of the options of the module that manages it. Users and groups are listed by name and role members as trustee strings, never by server ids.</p></li>
+<li><p>No secret is returned. Local passwords cannot be read; the LDAP bind password and the Kerberos keytab are not read.</p></li>
+<li><p>With <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code>, <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><span class="std std-ref"><span class="pre">expand_trustees</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-ad-objects"><span class="std std-ref"><span class="pre">find_ad_objects</span></span></a></strong></code> it also looks up trustees and Active Directory objects, and returns what each term names. A lookup runs whatever <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-gather-subset"><span class="std std-ref"><span class="pre">gather_subset</span></span></a></strong></code> lists, and in check mode too, since it changes nothing.</p></li>
+<li><p>A subset or a lookup the cluster cannot answer is listed in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-unavailable-subsets"><span class="std std-ref"><span class="pre">unavailable_subsets</span></span></a></code> with the reason, and the other subsets and lookups are still gathered.</p></li>
+</ul>
+</section>
+<section id="parameters">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Parameters</a><a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Comments</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_host"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-api-host"><strong>api_host</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_host" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span> / <span class="ansible-option-required">required</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Address or name of the Qumulo cluster’s REST API.</p>
+<p>An IPv6 address is given bare, as <code class="ansible-value docutils literal notranslate"><span class="pre">fd00::5</span></code>; the URL puts it in brackets.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_HOST</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_password"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-api-password"><strong>api_password</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_password" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Password of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-api-username"><span class="std std-ref"><span class="pre">api_username</span></span></a></strong></code>.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PASSWORD</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_port"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-api-port"><strong>api_port</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_port" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>TCP port of the REST API.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_PORT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">8000</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_token"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-api-token"><strong>api_token</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_token" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>An access token, sent in place of logging in.</p>
+<p>An access token is bound to one cluster and does not survive a rebuild.</p>
+<p>Set exactly one of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code> and <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-api-token"><span class="std std-ref"><span class="pre">api_token</span></span></a></strong></code>. An empty string counts as unset.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_TOKEN</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-api_username"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-api-username"><strong>api_username</strong></p>
+<a class="ansibleOptionLink" href="#parameter-api_username" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>User that logs in with <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-api-password"><span class="std std-ref"><span class="pre">api_password</span></span></a></strong></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_API_USERNAME</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-ca_path"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-ca-path"><strong>ca_path</strong></p>
+<a class="ansibleOptionLink" href="#parameter-ca_path" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">path</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>PEM file of the certificate authority that signed the cluster’s certificate.</p>
+<p>On Python 3.13 and later this must be a CA certificate, with basic constraints.</p>
+<p>A bare self-signed leaf certificate cannot be pinned here on Python 3.13 and later; such a cluster is reached only with <code class="ansible-option-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-validate-certs"><span class="std std-ref"><span class="pre">validate_certs=false</span></span></a></code>.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_CA_PATH</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expand_trustees"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><strong>expand_trustees</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expand_trustees" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Trustees to expand, each answered in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees"><span class="std std-ref"><span class="pre">identity.expanded_trustees</span></span></a></code> under the term as given.</p>
+<p>A term has the grammar of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code>, and is found first, with the same key, miss and error rules. A term that is not found sends no expand, and its entry has <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">found</span></code>. A term whose find has an error has that <code class="docutils literal notranslate"><span class="pre">error</span></code> in its entry.</p>
+<p>The expansion is what the cluster itself works out for the identity. <code class="docutils literal notranslate"><span class="pre">type</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">USER</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">GROUP</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">UNKNOWN</span></code>, the last for an identity that nothing maps to a POSIX identity. <code class="docutils literal notranslate"><span class="pre">identity</span></code> is the identity found, and <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code> and <code class="docutils literal notranslate"><span class="pre">smb_identity</span></code> are the identities the cluster uses over NFS and over SMB, each null where the cluster gives none. <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code> is null for <code class="ansible-value docutils literal notranslate"><span class="pre">UNKNOWN</span></code>, and set for a <code class="ansible-value docutils literal notranslate"><span class="pre">USER</span></code> or a <code class="ansible-value docutils literal notranslate"><span class="pre">GROUP</span></code> from the identity’s POSIX mapping. <code class="docutils literal notranslate"><span class="pre">equivalents</span></code> are the identities the cluster treats as the same principal, and <code class="docutils literal notranslate"><span class="pre">groups</span></code> are the groups it counts the identity a member of, sorted by trustee and SID. The cluster gives the groups in no fixed order, so the sort is the collection’s.</p>
+<p>A local user expands as <code class="ansible-value docutils literal notranslate"><span class="pre">USER</span></code>, with its NFS uid in <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code> and among <code class="docutils literal notranslate"><span class="pre">equivalents</span></code>, and with <code class="ansible-value docutils literal notranslate"><span class="pre">Users</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">Authenticated</span> <span class="pre">Users</span></code> among its <code class="docutils literal notranslate"><span class="pre">groups</span></code>. The cluster adds <code class="ansible-value docutils literal notranslate"><span class="pre">Authenticated</span> <span class="pre">Users</span></code> to the groups of every identity but the guest, and <code class="docutils literal notranslate"><span class="pre">groups</span></code> holds nested groups, since the cluster follows each group and its equivalents (read from Qumulo Core’s source; the guest’s groups were observed).</p>
+<p>An AD user’s <code class="docutils literal notranslate"><span class="pre">equivalents</span></code> hold the uid and gid from the directory’s RFC 2307 attributes when the cluster reads them, and from a user-defined mapping when mappings are on (read from the source, not observed). An AD user with neither expanded as <code class="ansible-value docutils literal notranslate"><span class="pre">UNKNOWN</span></code> on the AD lane, with a null <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code>, no <code class="docutils literal notranslate"><span class="pre">equivalents</span></code>, and <code class="ansible-value docutils literal notranslate"><span class="pre">Authenticated</span> <span class="pre">Users</span></code> its only group. None of its directory groups were in <code class="docutils literal notranslate"><span class="pre">groups</span></code>; <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-ad-objects"><span class="std std-ref"><span class="pre">find_ad_objects</span></span></a></strong></code> shows them in <code class="docutils literal notranslate"><span class="pre">groups</span></code> and <code class="docutils literal notranslate"><span class="pre">primary_group_sid</span></code>.</p>
+<p>A 400 to the expand itself fails the task, naming the term, since the collection built its body from the find.</p>
+<p>A mapping, a POSIX attribute or a group the directory changed just now may not show in the expansion until the caches are cleared or expire; see the notes.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-expected_cluster_uuid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-expected-cluster-uuid"><strong>expected_cluster_uuid</strong></p>
+<a class="ansibleOptionLink" href="#parameter-expected_cluster_uuid" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The UUID the cluster at <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-api-host"><span class="std std-ref"><span class="pre">api_host</span></span></a></strong></code> must have.</p>
+<p>Before the first credentials are sent, the module reads the cluster’s UUID from <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/v1/node/state</span></code>, which needs no login, and fails when it differs, so that no credentials are sent to the wrong cluster. On a mismatch the task fails with <code class="docutils literal notranslate"><span class="pre">live_cluster_uuid</span></code> and <code class="docutils literal notranslate"><span class="pre">expected_cluster_uuid</span></code> in its result.</p>
+<p>An empty value disables this identity guard, and a module that logs in warns.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_EXPECTED_CLUSTER_UUID</span></code> environment variable is used.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-find_ad_objects"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-find-ad-objects"><strong>find_ad_objects</strong></p>
+<a class="ansibleOptionLink" href="#parameter-find_ad_objects" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Active Directory objects to read, each answered in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects"><span class="std std-ref"><span class="pre">identity.found_ad_objects</span></span></a></code> under the term as given.</p>
+<p>A term is <code class="ansible-value docutils literal notranslate"><span class="pre">dn:&lt;distinguished</span> <span class="pre">name&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">sid:&lt;SID&gt;</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">name:&lt;sAMAccountName&gt;</span></code>. A DN has an <code class="ansible-value docutils literal notranslate"><span class="pre">=</span></code> in it, and a SID is a whole SID. A <code class="ansible-value docutils literal notranslate"><span class="pre">name:</span></code> term is a bare sAMAccountName, and searches the joined domain’s configured base DNs only, not its trusted domains (read from the source), so a term that holds <code class="ansible-value docutils literal notranslate"><span class="pre">\</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">&#64;</span></code> is refused. Any other term outside that grammar fails the task before any request is sent. The message names the term and the accepted forms.</p>
+<p>A term given twice is one key and is read once.</p>
+<p>A term that names no object is not an error. Its entry has <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">found</span></code> and no objects, and the task neither fails nor warns. That is a <code class="ansible-value docutils literal notranslate"><span class="pre">dn:</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">sid:</span></code> read the server answers with 404 <code class="docutils literal notranslate"><span class="pre">ad_not_found_error</span></code>, and a <code class="ansible-value docutils literal notranslate"><span class="pre">name:</span></code> read that answers an empty list.</p>
+<p>A <code class="ansible-value docutils literal notranslate"><span class="pre">name:</span></code> term can name more than one object; each object is listed once, by its SID.</p>
+<p>A 400 <code class="docutils literal notranslate"><span class="pre">distinguished_name_decode_error</span></code> or <code class="docutils literal notranslate"><span class="pre">ms_sid_decode_error</span></code> to a term’s read is that term’s <code class="docutils literal notranslate"><span class="pre">error</span></code>, as for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code>, and the other terms are still read. Any other 400 fails the task.</p>
+<p>A cluster that is not joined to a domain, or is joined to more than one, answers every AD read with a 409. The lookup is then unavailable. It is listed in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-unavailable-subsets"><span class="std std-ref"><span class="pre">unavailable_subsets</span></span></a></code> under <code class="ansible-value docutils literal notranslate"><span class="pre">found_ad_objects</span></code> with the server’s description, no more AD reads are sent, its key is absent from <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity"><span class="std std-ref"><span class="pre">identity</span></span></a></code>, and the other subsets and lookups are still gathered. Outside a domain the server’s description is “The cluster has not joined any AD domains yet.”. The answer for a cluster joined to more than one domain was read from the source, not observed.</p>
+<p>In check mode a domain that an earlier task of the same run would join is not joined yet, so the lookup is unavailable, and an account that task would create is a miss.</p>
+<p>Each object’s <code class="docutils literal notranslate"><span class="pre">trustee</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">ad:&lt;NETBIOS&gt;\&lt;name&gt;</span></code> for an object of the joined domain, the form that <a class="reference internal" href="user_defined_mappings_module.html#ansible-collections-qumulo-cluster-user-defined-mappings-module"><span class="std std-ref">qumulo.cluster.user_defined_mappings</span></a> takes in <code class="docutils literal notranslate"><span class="pre">down_level_logon_name</span></code>, and null for any other object. That is an object of a trusted domain, which a <code class="ansible-value docutils literal notranslate"><span class="pre">dn:</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">sid:</span></code> read can answer for (read from the source, not observed), and any object when the cluster reports no NetBIOS name for the domain. A find of the trustee also makes the domain known to the cluster, as <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code> describes for a SID.</p>
+<p>The object’s <code class="docutils literal notranslate"><span class="pre">uid</span></code> and <code class="docutils literal notranslate"><span class="pre">gid</span></code> are the directory’s own attributes, <code class="docutils literal notranslate"><span class="pre">uidNumber</span></code> and <code class="docutils literal notranslate"><span class="pre">gidNumber</span></code>, null when the object has none. They are not what the cluster maps the object to, since the read applies no id mapping and no user-defined mapping, and ignores <code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes</span></code> (read from the source, not observed). The <code class="docutils literal notranslate"><span class="pre">nfs_identity</span></code> of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><span class="std std-ref"><span class="pre">expand_trustees</span></span></a></strong></code> shows the uid the cluster uses.</p>
+<p>A read of an object the cluster has read before is answered from its directory cache, so it still answers while the domain controller is out of reach, and may be older than a change just made on the domain controller; see the notes. An object the node had not cached was not read with the domain controller away.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-find_trustees"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><strong>find_trustees</strong></p>
+<a class="ansibleOptionLink" href="#parameter-find_trustees" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Trustees to find, each answered in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees"><span class="std std-ref"><span class="pre">identity.found_trustees</span></span></a></code> under the term as given.</p>
+<p>A term is a trustee in any form the collection’s modules take, <code class="ansible-value docutils literal notranslate"><span class="pre">local:&lt;name&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ad:&lt;DOMAIN&gt;\&lt;name&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ad:&lt;name&gt;&#64;&lt;domain&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ldap_user:&lt;name&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ldap_group:&lt;name&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">qumulo_support:&lt;name&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">Everyone</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">world:Everyone</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">internal:File</span> <span class="pre">Owner</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">internal:File</span> <span class="pre">Group</span> <span class="pre">Owner</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">uid:&lt;n&gt;</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">gid:&lt;n&gt;</span></code>, and a SID with the prefix <code class="ansible-value docutils literal notranslate"><span class="pre">sid:</span></code> or without it. A bare name, a <code class="ansible-value docutils literal notranslate"><span class="pre">sid:</span></code> term that is not a SID, a uid or gid that is not a non-negative integer, and any other term outside that grammar fails the task before any request is sent. The message names the term and the accepted forms.</p>
+<p>A term given twice is one key and is found once. Two spellings of one identity, such as <code class="ansible-value docutils literal notranslate"><span class="pre">ad:CORP\alice</span></code> and <code class="ansible-value docutils literal notranslate"><span class="pre">ad:alice&#64;corp.example.com</span></code>, are two keys holding the same identity.</p>
+<p>A term that no identity source holds is not an error. Its entry has <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">found</span></code> and null in every field after it, and the task neither fails nor warns. That includes a local, AD or LDAP name nothing holds, an <code class="ansible-value docutils literal notranslate"><span class="pre">ad:</span></code> name other than <code class="ansible-value docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code> on a cluster that is not joined to a domain, and an <code class="ansible-value docutils literal notranslate"><span class="pre">ldap_user:</span></code> name while LDAP is off.</p>
+<p>A <code class="ansible-value docutils literal notranslate"><span class="pre">uid:</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">gid:</span></code> term, and a SID of a domain the cluster knows, have <code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code> in <code class="docutils literal notranslate"><span class="pre">found</span></code> whether or not an account carries the number or the SID. The cluster turns the number or the SID into an identity of its own without asking a directory, so <code class="docutils literal notranslate"><span class="pre">found</span></code> there means that the cluster can name an identity by the term, and not that an account holds it. <code class="docutils literal notranslate"><span class="pre">name</span></code> is null when nothing names the identity. The find answers the same, with a null <code class="docutils literal notranslate"><span class="pre">name</span></code>, for the uid of a local user made with that NFS uid; it does not name the local user.</p>
+<p>A SID of a domain the node has not found a name in since it started is not found by SID, whether or not the cluster is joined (QUIRK-100). The term’s entry has <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">found</span></code> and the server’s <code class="docutils literal notranslate"><span class="pre">class</span></code> and <code class="docutils literal notranslate"><span class="pre">description</span></code> in <code class="docutils literal notranslate"><span class="pre">error</span></code>, and the other terms are still found. A find of a name in the domain, such as <code class="ansible-value docutils literal notranslate"><span class="pre">ad:CORP\Domain</span> <span class="pre">Users</span></code>, lifts it, and a later find of the SID then succeeds.</p>
+<p>The SID of Authenticated Users, <code class="ansible-value docutils literal notranslate"><span class="pre">S-1-5-11</span></code>, is the exception. The module looks it up by the name <code class="ansible-value docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, which the cluster finds joined to a domain or not, so both terms are found.</p>
+<p>An error that belongs to a term is recorded in its entry, and the task gives one warning naming the terms with an entry that has an <code class="docutils literal notranslate"><span class="pre">error</span></code>. A uid of 2^32 or more, a gid past 32 bits and an oversized part of a SID earn a 400 that is recorded the same way, and so does, by Qumulo Core’s source, an <code class="ansible-value docutils literal notranslate"><span class="pre">ldap_user:</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">ldap_group:</span></code> name that more than one LDAP entry carries or that the LDAP search refuses (not observed, since no lane runs an LDAP server). Any other 400 fails the task.</p>
+<p>With no Active Directory domain controller in reach, the find of an AD name fails the task. For a name the node has not found, the server answers 404 <code class="docutils literal notranslate"><span class="pre">ad_domain_controller_not_found_error</span></code>, which is not a miss (QUIRK-102). For a name the node has cached, the server answers 500 <code class="docutils literal notranslate"><span class="pre">network_timeout_error</span></code> after about a minute. The client never sends a 500 again. If that answer comes within <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-request-timeout"><span class="std std-ref"><span class="pre">request_timeout</span></span></a></strong></code> the task fails with it at once. With the default <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-request-timeout"><span class="std std-ref"><span class="pre">request_timeout</span></span></a></strong></code> of 60 seconds it usually does not, so the client sends the find again until <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-retry-timeout"><span class="std std-ref"><span class="pre">retry_timeout</span></span></a></strong></code> is spent and the task fails with the message that the address is unreachable for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-retry-timeout"><span class="std std-ref"><span class="pre">retry_timeout</span></span></a></strong></code> seconds, with a reason that ends in “timed out”.</p>
+<p>The cluster caches a miss of a local name for about a minute, and creating the name does not lift it (QUIRK-017). A local name looked up just before it is created stays unresolvable for about a minute, to every module that resolves it.</p>
+<p>The answers for AD and LDAP names are cached too, and may be older than a change just made; see the notes.</p>
+<p>In check mode a trustee that an earlier task of the same run would create, or that needs a join an earlier task would make, is not there yet, so its term is a miss.</p>
+<p>A local identity’s SID is the cluster’s own, and changes when the cluster is rebuilt.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-gather_subset"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-gather-subset"><strong>gather_subset</strong></p>
+<a class="ansibleOptionLink" href="#parameter-gather_subset" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The subsets of facts to gather. <code class="ansible-value docutils literal notranslate"><span class="pre">all</span></code> gathers every subset.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">[]</span></code> gathers every subset too, unless a lookup option is given; then only the lookups run.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">local_users</span></code>: the local users, as <a class="reference internal" href="local_user_module.html#ansible-collections-qumulo-cluster-local-user-module"><span class="std std-ref">qumulo.cluster.local_user</span></a> takes them.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">local_groups</span></code>: the local groups and their members, as <a class="reference internal" href="local_group_module.html#ansible-collections-qumulo-cluster-local-group-module"><span class="std std-ref">qumulo.cluster.local_group</span></a> takes them.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">role_members</span></code>: the members of every role, one entry per role, as <a class="reference internal" href="role_member_module.html#ansible-collections-qumulo-cluster-role-member-module"><span class="std std-ref">qumulo.cluster.role_member</span></a> takes them.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">ad</span></code>: the Active Directory membership, as <a class="reference internal" href="ad_domain_module.html#ansible-collections-qumulo-cluster-ad-domain-module"><span class="std std-ref">qumulo.cluster.ad_domain</span></a> takes it, with its join status.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">ldap</span></code>: the LDAP settings.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">kerberos</span></code>: the Kerberos settings.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">roles</span></code>: the custom roles, as <a class="reference internal" href="role_module.html#ansible-collections-qumulo-cluster-role-module"><span class="std std-ref">qumulo.cluster.role</span></a> takes them.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">user_defined_mappings</span></code>: the mappings, as <a class="reference internal" href="user_defined_mappings_module.html#ansible-collections-qumulo-cluster-user-defined-mappings-module"><span class="std std-ref">qumulo.cluster.user_defined_mappings</span></a> takes them.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">saml</span></code>: the SAML settings, as <a class="reference internal" href="saml_settings_module.html#ansible-collections-qumulo-cluster-saml-settings-module"><span class="std std-ref">qumulo.cluster.saml_settings</span></a> takes them, the IdP certificate included, which is public.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">access_tokens</span></code>: every access token, by its user, as <a class="reference internal" href="access_token_module.html#ansible-collections-qumulo-cluster-access-token-module"><span class="std std-ref">qumulo.cluster.access_token</span></a> returns them, never with a bearer.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">&quot;all&quot;</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;local_users&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;local_groups&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;role_members&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ad&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;ldap&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;kerberos&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;roles&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;user_defined_mappings&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;saml&quot;</span></code></p></li>
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">&quot;access_tokens&quot;</span></code></p></li>
+</ul>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">[&quot;all&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-request_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-request-timeout"><strong>request_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-request_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to wait for one HTTP response.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_REQUEST_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">60</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-retry_timeout"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-retry-timeout"><strong>retry_timeout</strong></p>
+<a class="ansibleOptionLink" href="#parameter-retry_timeout" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Seconds to keep retrying a request that is safe to resend, after a lost connection or an HTTP 502, 503 or 504.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_RETRY_TIMEOUT</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-default-bold">Default:</strong> <code class="ansible-option-default docutils literal notranslate"><span class="pre">300</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="parameter-validate_certs"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-parameter-validate-certs"><strong>validate_certs</strong></p>
+<a class="ansibleOptionLink" href="#parameter-validate_certs" title="Permalink to this option"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Verify the cluster’s TLS certificate.</p>
+<p>If not set, the value of the <code class="xref std std-envvar docutils literal notranslate"><span class="pre">QUMULO_VALIDATE_CERTS</span></code> environment variable is used.</p>
+<p class="ansible-option-line"><strong class="ansible-option-choices">Choices:</strong></p>
+<ul class="simple">
+<li><p><code class="ansible-option-choices-entry docutils literal notranslate"><span class="pre">false</span></code></p></li>
+<li><p><code class="ansible-option-default-bold docutils literal notranslate"><strong><span class="pre">true</span></strong></code> <span class="ansible-option-choices-default-mark">← (default)</span></p></li>
+</ul>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="attributes">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Attributes</a><a class="headerlink" href="#attributes" title="Link to this heading"></a></h2>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Support</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-action_group"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-attribute-action-group"><strong>action_group</strong></p>
+<a class="ansibleOptionLink" href="#attribute-action_group" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-property">Action group:</strong> <strong class="ansible-attribute-support-full">qumulo.cluster.qumulo</strong></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Use <code class="docutils literal notranslate"><span class="pre">group/qumulo.cluster.qumulo</span></code> in <code class="docutils literal notranslate"><span class="pre">module_defaults</span></code> to set the connection options for this module.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-check_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-attribute-check-mode"><strong>check_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-check_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Can run in check mode and return a changed status prediction without modifying the cluster.</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-diff_mode"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-attribute-diff-mode"><strong>diff_mode</strong></p>
+<a class="ansibleOptionLink" href="#attribute-diff_mode" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-none">none</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Will return details on what has changed, or would change in check mode, when in diff mode.</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="attribute-idempotent"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-attribute-idempotent"><strong>idempotent</strong></p>
+<a class="ansibleOptionLink" href="#attribute-idempotent" title="Permalink to this attribute"></a></div></td>
+<td><div class="ansible-option-cell"><p><strong class="ansible-attribute-support-label">Support: </strong><strong class="ansible-attribute-support-full">full</strong></p>
+<p>This action does not modify the cluster.</p>
+</div></td>
+<td><div class="ansible-option-cell"><p>When run twice in a row outside check mode with the same arguments, the second run reports no change.</p>
+<p>This assumes that nothing else changed the cluster in between.</p>
+</div></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Notes</a><a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>API: <code class="ansible-value docutils literal notranslate"><span class="pre">local_users</span></code> GET /v1/users/ and /v1/groups/; <code class="ansible-value docutils literal notranslate"><span class="pre">local_groups</span></code> GET /v1/groups/ and /v1/groups/{id}/members/; <code class="ansible-value docutils literal notranslate"><span class="pre">role_members</span></code> GET /v1/auth/roles/ and /v1/auth/roles/{role}/members (paginated); <code class="ansible-value docutils literal notranslate"><span class="pre">ad</span></code> GET /v1/ad/status and /v1/ad/monitor; <code class="ansible-value docutils literal notranslate"><span class="pre">ldap</span></code> GET /v2/ldap/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">kerberos</span></code> GET /v1/auth/kerberos-settings; <code class="ansible-value docutils literal notranslate"><span class="pre">roles</span></code> GET /v1/auth/roles/; <code class="ansible-value docutils literal notranslate"><span class="pre">user_defined_mappings</span></code> GET /v1/auth/user-defined-mappings/; <code class="ansible-value docutils literal notranslate"><span class="pre">saml</span></code> GET /v1/saml/settings; <code class="ansible-value docutils literal notranslate"><span class="pre">access_tokens</span></code> GET /v1/auth/access-tokens/ (paginated), which lists every user’s tokens and needs PRIVILEGE_ACCESS_TOKENS_READ.</p></li>
+<li><p>API of the lookups: <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code> POST /v1/identity/find, which needs the RBAC privilege PRIVILEGE_IDENTITY_READ; <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><span class="std std-ref"><span class="pre">expand_trustees</span></span></a></strong></code> the same find for each term, then POST /v1/identity/expand for each term found, which needs PRIVILEGE_IDENTITY_READ too; <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-ad-objects"><span class="std std-ref"><span class="pre">find_ad_objects</span></span></a></strong></code> GET /v1/ad/distinguished-names/{dn}/object for a <code class="ansible-value docutils literal notranslate"><span class="pre">dn:</span></code> term, GET /v1/ad/sids/{sid}/object for a <code class="ansible-value docutils literal notranslate"><span class="pre">sid:</span></code> term and GET /v1/ad/usernames/{username}/objects/ for a <code class="ansible-value docutils literal notranslate"><span class="pre">name:</span></code> term, which need PRIVILEGE_AD_USE, and GET /v1/ad/status once per task after the first object is found, unless the <code class="ansible-value docutils literal notranslate"><span class="pre">ad</span></code> subset of the same task read it, which needs PRIVILEGE_AD_READ. A task whose user lacks a privilege fails with the server’s 403, which names it. The privileges of the expand and of the AD reads are read from Qumulo Core’s source, not observed.</p></li>
+<li><p>The lookups send one request per term, one after another through one login, and keep nothing past the task. <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><span class="std std-ref"><span class="pre">expand_trustees</span></span></a></strong></code> sends a find and then an expand for each term it finds. A hundred terms are a hundred requests, or up to two hundred for <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><span class="std std-ref"><span class="pre">expand_trustees</span></span></a></strong></code>.</p></li>
+<li><p>Leaving <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-gather-subset"><span class="std std-ref"><span class="pre">gather_subset</span></span></a></strong></code> unset also gathers every subset, which lists every user, group, role member and role, and reads the AD, LDAP, Kerberos, mapping and SAML settings and lists every access token, each with the privileges of its own reads. With a lookup, give <code class="ansible-value docutils literal notranslate"><span class="pre">[]</span></code> to run only the lookups.</p></li>
+<li><p>An unavailable lookup’s key is absent from <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity"><span class="std std-ref"><span class="pre">identity</span></span></a></code>, and is listed in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-unavailable-subsets"><span class="std std-ref"><span class="pre">unavailable_subsets</span></span></a></code>.</p></li>
+<li><p>The cluster caches the answers of AD and LDAP, a miss among them, per node, with a soft lifetime of 15 minutes, after which the cached answer is served stale and refreshed in the background, and a hard lifetime of 24 hours (read from Qumulo Core’s source, not observed). A change made in the domain, on an LDAP server, or by <a class="reference internal" href="user_defined_mappings_module.html#ansible-collections-qumulo-cluster-user-defined-mappings-module"><span class="std std-ref">qumulo.cluster.user_defined_mappings</span></a> may not show in a lookup that follows it. <a class="reference internal" href="auth_cache_clear_module.html#ansible-collections-qumulo-cluster-auth-cache-clear-module"><span class="std std-ref">qumulo.cluster.auth_cache_clear</span></a> clears the identity cache of the node it reaches, and emptied the directory cache of that node on the AD lane, so that an object read after it showed a group just added on the domain controller. Whether it reaches every node of a cluster was not seen.</p></li>
+<li><p>The configured domain controllers are read from the monitor of the last AD operation, which a later operation replaces, so <code class="ansible-value docutils literal notranslate"><span class="pre">ad.domain_controllers</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when that record is not for the joined domain (G-AD-DCS).</p></li>
+<li><p>Registers: G-AD-DCS, QUIRK-017, QUIRK-100, QUIRK-102.</p></li>
+</ul>
+</div>
+</section>
+<section id="examples">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Examples</a><a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-yaml+jinja notranslate"><div class="highlight"><pre><span></span><span class="c1"># These tasks carry no connection options. Set them once for the play with module_defaults for</span>
+<span class="c1"># group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the identity configuration</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">identity</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read only who is in which role</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">role_members</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">roles</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the local users and the groups they belong to</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">local_users</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">local_groups</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local_identities</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the Active Directory membership</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ad</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad_membership</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the domain the cluster is joined to</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">ad_membership.identity.ad.domain</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="s1">'not joined'</span><span class="o">,</span> <span class="kp">true</span><span class="o">)</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the custom roles and their privileges</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">roles</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">custom_roles</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Read the single sign-on and mapping settings</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">saml</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">user_defined_mappings</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sign_in</span>
+
+<span class="c1"># gather_subset: [] makes a lookup the only thing the task reads. Without it the task also reads every subset.</span>
+<span class="c1"># Look a local name up only to check one that should exist already, never just before creating it: the cluster caches a</span>
+<span class="c1"># miss for about a minute (QUIRK-017).</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find the trustees an ACL is about to name</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">find_trustees</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">local:svc-backup</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'ad:CORP\Engineering'</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad:alice@corp.example.com</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uid:1001</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trustees</span>
+
+<span class="c1"># A trustee nothing holds is a miss, not an error, so the find passes and this task stops the play. It also stops</span>
+<span class="c1"># on a term whose entry has an error, which has found: false.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Stop unless every trustee exists</span>
+<span class="w">  </span><span class="nt">ansible.builtin.assert</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">that</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trustees.identity.found_trustees | dict2items | rejectattr('value.found') | list | length == 0</span>
+<span class="w">    </span><span class="nt">fail_msg</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
+<span class="w">      </span><span class="no">The cluster does not know</span>
+<span class="w">      </span><span class="cp">{{</span> <span class="nv">trustees.identity.found_trustees</span> <span class="o">|</span> <span class="nf">dict2items</span> <span class="o">|</span> <span class="nf">rejectattr</span><span class="o">(</span><span class="s1">'value.found'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'key'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">join</span><span class="o">(</span><span class="s1">', '</span><span class="o">)</span> <span class="cp">}}</span>
+
+<span class="c1"># The entry's trustee is the canonical form, which another task can name. A term is a key as given, so a name with a</span>
+<span class="c1"># backslash is read through a variable.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find the SID of an Active Directory user</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">find_trustees</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"</span><span class="cp">{{</span> <span class="nv">alice</span> <span class="cp">}}</span><span class="s">"</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alice_sid</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the user's SID</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">alice_sid.identity.found_trustees</span><span class="o">[</span><span class="nv">alice</span><span class="o">]</span><span class="nv">.sid</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="c1"># The SID of a domain the node has not found a name in since it started is the term's error. Finding a name of the</span>
+<span class="c1"># domain first, in the same list, lifts it (QUIRK-100).</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find an Active Directory group by its SID, after a name of its domain</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">find_trustees</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'ad:CORP\Domain</span><span class="nv"> </span><span class="s">Users'</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sid:S-1-5-21-1-2-3-1108</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">group_sid</span>
+
+<span class="c1"># A uid nothing carries is still found: found means the cluster can name an identity by it, and name is null.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find the identity the cluster makes of a uid</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">find_trustees</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">uid</span><span class="p p-Indicator">:</span><span class="nv">2001</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">by_uid</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the uid's identity, which has no name unless something names it</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">by_uid.identity.found_trustees</span><span class="o">[</span><span class="s1">'uid:2001'</span><span class="o">]</span> <span class="cp">}}</span><span class="s">"</span>
+
+<span class="c1"># A mapping is read through the identity cache, so clear the cache first when the mapping was just made.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Clear the authentication cache before checking a mapping</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.auth_cache_clear</span><span class="p">:</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Expand an Active Directory user to see its NFS identity and groups</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">expand_trustees</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"</span><span class="cp">{{</span> <span class="nv">alice</span> <span class="cp">}}</span><span class="s">"</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">expansion</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the uid the cluster uses over NFS, and the groups it counts the user in</span>
+<span class="w">  </span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alice</span><span class="p">:</span><span class="w"> </span><span class="s">'ad:CORP\alice'</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">expansion.identity.expanded_trustees</span><span class="o">[</span><span class="nv">alice</span><span class="o">]</span><span class="nv">.nfs_identity.uid</span> <span class="o">|</span> <span class="nf">default</span><span class="o">(</span><span class="s1">'none'</span><span class="o">)</span> <span class="cp">}}</span>
+<span class="w">      </span><span class="cp">{{</span> <span class="nv">expansion.identity.expanded_trustees</span><span class="o">[</span><span class="nv">alice</span><span class="o">]</span><span class="nv">.groups</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'trustee'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">expansion.identity.expanded_trustees[alice].found</span>
+
+<span class="c1"># The lookup is unavailable on a cluster that is not joined to a domain, or is joined to more than one. Its key is then</span>
+<span class="c1"># absent, so read it only when it is not listed in unavailable_subsets.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Look up an Active Directory account by name and by DN</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">find_ad_objects</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">name:alice</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dn:CN=bob,CN=Users,DC=corp,DC=example,DC=com</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ad_objects</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show the trustee of the account found by name</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">ad_objects.identity.found_ad_objects</span><span class="o">[</span><span class="s1">'name:alice'</span><span class="o">]</span><span class="nv">.objects</span> <span class="o">|</span> <span class="nf">map</span><span class="o">(</span><span class="nv">attribute</span><span class="o">=</span><span class="s1">'trustee'</span><span class="o">)</span> <span class="o">|</span> <span class="nf">list</span> <span class="cp">}}</span><span class="s">"</span>
+<span class="w">  </span><span class="nt">when</span><span class="p">:</span><span class="w"> </span><span class="s">"'found_ad_objects'</span><span class="nv"> </span><span class="s">not</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">(ad_objects.unavailable_subsets</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">default({}))"</span>
+
+<span class="c1"># A lookup only reads, so a check run answers as a real run does. What an earlier task of the play would create is not</span>
+<span class="c1"># there yet, so its term is a miss.</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Find a user in a check run</span>
+<span class="w">  </span><span class="nt">qumulo.cluster.identity_info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gather_subset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">    </span><span class="nt">find_trustees</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">local</span><span class="p p-Indicator">:</span><span class="nv">svc-backup</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">check_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">register</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">trustees_preview</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Show whether the check run found the user</span>
+<span class="w">  </span><span class="nt">ansible.builtin.debug</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">msg</span><span class="p">:</span><span class="w"> </span><span class="s">"</span><span class="cp">{{</span> <span class="nv">trustees_preview.identity.found_trustees</span><span class="o">[</span><span class="s1">'local:svc-backup'</span><span class="o">]</span><span class="nv">.found</span> <span class="cp">}}</span><span class="s">"</span>
+</pre></div>
+</div>
+</section>
+<section id="return-values">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Return Values</a><a class="headerlink" href="#return-values" title="Link to this heading"></a></h2>
+<p>Common return values are documented <a class="reference external" href="https://docs.ansible.com/projects/ansible/devel/reference_appendices/common_return_values.html#common-return-values" title="(in Ansible devel)"><span class="xref std std-ref">here</span></a>, the following are the fields unique to this module:</p>
+<table class="longtable ansible-option-table docutils align-default" style="width: 100%">
+<thead>
+<tr class="row-odd"><th class="head"><p>Key</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity"><strong>identity</strong></p>
+<a class="ansibleOptionLink" href="#return-identity" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The gathered facts. Each key is present only when its subset was gathered.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;ad&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;status&quot;:</span> <span class="pre">&quot;NOT_IN_DOMAIN&quot;},</span> <span class="pre">&quot;local_groups&quot;:</span> <span class="pre">[{&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;members&quot;:</span> <span class="pre">[&quot;admin&quot;],</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;Users&quot;}],</span> <span class="pre">&quot;local_users&quot;:</span> <span class="pre">[{&quot;home_directory&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;admin&quot;,</span> <span class="pre">&quot;primary_group&quot;:</span> <span class="pre">&quot;Users&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">0}],</span> <span class="pre">&quot;role_members&quot;:</span> <span class="pre">[{&quot;members&quot;:</span> <span class="pre">[&quot;local:admin&quot;],</span> <span class="pre">&quot;role&quot;:</span> <span class="pre">&quot;Administrators&quot;}]}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/access_tokens"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-access-tokens"><strong>access_tokens</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/access_tokens" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every access token, sorted by user and creation time, with <code class="docutils literal notranslate"><span class="pre">user</span></code> and <code class="docutils literal notranslate"><span class="pre">creator</span></code> as trustees, <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">creation_time</span></code>, <code class="docutils literal notranslate"><span class="pre">expiration_time</span></code>, null for never, and <code class="docutils literal notranslate"><span class="pre">enabled</span></code>. A token’s bearer is never read.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;creation_time&quot;:</span> <span class="pre">&quot;2026-06-01T09:30:00.000000000Z&quot;,</span> <span class="pre">&quot;creator&quot;:</span> <span class="pre">&quot;local:admin&quot;,</span> <span class="pre">&quot;enabled&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;expiration_time&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;id&quot;:</span> <span class="pre">&quot;1000000000000000000001&quot;,</span> <span class="pre">&quot;user&quot;:</span> <span class="pre">&quot;local:svc-backup&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/ad"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-ad"><strong>ad</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/ad" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The AD membership, with <code class="docutils literal notranslate"><span class="pre">status</span></code>, <code class="docutils literal notranslate"><span class="pre">domain</span></code>, <code class="docutils literal notranslate"><span class="pre">domain_netbios</span></code>, <code class="docutils literal notranslate"><span class="pre">ou</span></code>, <code class="docutils literal notranslate"><span class="pre">search_trusted_domains</span></code>, <code class="docutils literal notranslate"><span class="pre">use_ad_posix_attributes</span></code>, <code class="docutils literal notranslate"><span class="pre">base_dn</span></code> and <code class="docutils literal notranslate"><span class="pre">domain_controllers</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">domain</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">null</span></code> when the cluster is not joined.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;base_dn&quot;:</span> <span class="pre">&quot;CN=Users,DC=corp,DC=example,DC=com&quot;,</span> <span class="pre">&quot;domain&quot;:</span> <span class="pre">&quot;corp.example.com&quot;,</span> <span class="pre">&quot;domain_controllers&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;domain_netbios&quot;:</span> <span class="pre">&quot;CORP&quot;,</span> <span class="pre">&quot;ou&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;search_trusted_domains&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;status&quot;:</span> <span class="pre">&quot;JOINED_TO_DOMAIN&quot;,</span> <span class="pre">&quot;use_ad_posix_attributes&quot;:</span> <span class="pre">false}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees"><strong>expanded_trustees</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Each term of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><span class="std std-ref"><span class="pre">expand_trustees</span></span></a></strong></code>, under the term as given, with its expansion.</p>
+<p>Each value holds the keys below, on every path. A term that is not found, or whose find has an <code class="docutils literal notranslate"><span class="pre">error</span></code>, has <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">found</span></code>, null in <code class="docutils literal notranslate"><span class="pre">type</span></code> and in the three identities, and empty lists.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-expand-trustees"><span class="std std-ref"><span class="pre">expand_trustees</span></span></a></strong></code> is given</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;local:admin&quot;:</span> <span class="pre">{&quot;equivalents&quot;:</span> <span class="pre">[{&quot;domain&quot;:</span> <span class="pre">&quot;POSIX_USER&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-88-1-0&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;uid:0&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">0}],</span> <span class="pre">&quot;found&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;groups&quot;:</span> <span class="pre">[{&quot;domain&quot;:</span> <span class="pre">&quot;ACTIVE_DIRECTORY&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;Authenticated</span> <span class="pre">Users&quot;,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-11&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;ad:NT</span> <span class="pre">AUTHORITY\\Authenticated</span> <span class="pre">Users&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null}],</span> <span class="pre">&quot;identity&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">&quot;LOCAL&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;admin&quot;,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-21-1-2-3-500&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;local:admin&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null},</span> <span class="pre">&quot;nfs_identity&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">&quot;POSIX_USER&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-88-1-0&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;uid:0&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">0},</span> <span class="pre">&quot;smb_identity&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">&quot;LOCAL&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;admin&quot;,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-21-1-2-3-500&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;local:admin&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null},</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">&quot;USER&quot;},</span> <span class="pre">&quot;local:nobody&quot;:</span> <span class="pre">{&quot;equivalents&quot;:</span> <span class="pre">[],</span> <span class="pre">&quot;found&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;groups&quot;:</span> <span class="pre">[],</span> <span class="pre">&quot;identity&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;nfs_identity&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;smb_identity&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;type&quot;:</span> <span class="pre">null}}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/equivalents"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-equivalents"><strong>equivalents</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/equivalents" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identities the cluster treats as the same principal, each with the keys of <code class="docutils literal notranslate"><span class="pre">identity</span></code>, sorted by trustee and SID. A local user’s include its NFS uid.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;domain&quot;:</span> <span class="pre">&quot;POSIX_USER&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-88-1-0&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;uid:0&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">0}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/error"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-error"><strong>error</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/error" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s answer to the term’s find, as in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees"><span class="std std-ref"><span class="pre">identity.found_trustees</span></span></a></code>. Then <code class="docutils literal notranslate"><span class="pre">found</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when the term’s find has an error</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/error/class"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-error-class"><strong>class</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/error/class" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s error class.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;api_identity_unsupported_domain_error&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/error/description"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-error-description"><strong>description</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/error/description" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s description of it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;Unknown</span> <span class="pre">SID</span> <span class="pre">domain</span> <span class="pre">S-1-5-21-1-2-3&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/found"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-found"><strong>found</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/found" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the cluster can name an identity by the term, as in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees"><span class="std std-ref"><span class="pre">identity.found_trustees</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">true</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/groups"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-groups"><strong>groups</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/groups" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The groups the cluster counts the identity a member of, each with the keys of <code class="docutils literal notranslate"><span class="pre">identity</span></code>, sorted by trustee and SID. Empty when the term is not found.</p>
+<p>Authenticated Users is written <code class="ansible-value docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, a name the cluster finds joined to a domain or not. It is found by that name or by its SID, <code class="ansible-value docutils literal notranslate"><span class="pre">S-1-5-11</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;domain&quot;:</span> <span class="pre">&quot;ACTIVE_DIRECTORY&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;Authenticated</span> <span class="pre">Users&quot;,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-11&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;ad:NT</span> <span class="pre">AUTHORITY\\Authenticated</span> <span class="pre">Users&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/identity"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-identity"><strong>identity</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/identity" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity expanded, with the keys of an entry of <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees"><span class="std std-ref"><span class="pre">identity.found_trustees</span></span></a></code> other than <code class="docutils literal notranslate"><span class="pre">found</span></code> and <code class="docutils literal notranslate"><span class="pre">error</span></code>. Null when the term is not found.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/identity/domain"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-identity-domain"><strong>domain</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/identity/domain" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s domain.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;LOCAL&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/identity/gid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-identity-gid"><strong>gid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/identity/gid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s NFS gid, or null.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/identity/name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-identity-name"><strong>name</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/identity/name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s name, or null.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/identity/sid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-identity-sid"><strong>sid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/identity/sid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s SID, or null.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;S-1-5-21-1-2-3-500&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/identity/trustee"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-identity-trustee"><strong>trustee</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/identity/trustee" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity as a trustee, or null when it has no form to write it in.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;local:admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/identity/uid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-identity-uid"><strong>uid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/identity/uid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s NFS uid, or null.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/nfs_identity"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-nfs-identity"><strong>nfs_identity</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/nfs_identity" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity the cluster uses over NFS, with the keys of <code class="docutils literal notranslate"><span class="pre">identity</span></code>. Null when the term is not found, and for a <code class="ansible-value docutils literal notranslate"><span class="pre">UNKNOWN</span></code> identity.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;domain&quot;:</span> <span class="pre">&quot;POSIX_USER&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-88-1-0&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;uid:0&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">0}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/smb_identity"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-smb-identity"><strong>smb_identity</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/smb_identity" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity the cluster uses over SMB, with the keys of <code class="docutils literal notranslate"><span class="pre">identity</span></code>. Null when the term is not found, and where the cluster gives none.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;domain&quot;:</span> <span class="pre">&quot;LOCAL&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;admin&quot;,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-21-1-2-3-500&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;local:admin&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/expanded_trustees/type"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees-type"><strong>type</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/expanded_trustees/type" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The kind of principal the cluster makes of the identity, <code class="ansible-value docutils literal notranslate"><span class="pre">USER</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">GROUP</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">UNKNOWN</span></code>, or null when the term is not found.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;USER&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects"><strong>found_ad_objects</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Each term of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-ad-objects"><span class="std std-ref"><span class="pre">find_ad_objects</span></span></a></strong></code>, under the term as given, with the objects it names.</p>
+<p>Each value holds the keys below, on every path.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-ad-objects"><span class="std std-ref"><span class="pre">find_ad_objects</span></span></a></strong></code> is given and it is not in <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-unavailable-subsets"><span class="std std-ref"><span class="pre">unavailable_subsets</span></span></a></code></p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;name:alice&quot;:</span> <span class="pre">{&quot;found&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;objects&quot;:</span> <span class="pre">[{&quot;classes&quot;:</span> <span class="pre">[&quot;top&quot;,</span> <span class="pre">&quot;organizationalPerson&quot;,</span> <span class="pre">&quot;person&quot;,</span> <span class="pre">&quot;user&quot;],</span> <span class="pre">&quot;dn&quot;:</span> <span class="pre">&quot;CN=alice,CN=Users,DC=corp,DC=example,DC=com&quot;,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;groups&quot;:</span> <span class="pre">[&quot;CN=Domain</span> <span class="pre">Admins,CN=Users,DC=corp,DC=example,DC=com&quot;],</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;alice&quot;,</span> <span class="pre">&quot;primary_group_sid&quot;:</span> <span class="pre">&quot;S-1-5-21-1-2-3-513&quot;,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-21-1-2-3-1104&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;ad:CORP\\alice&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null}]},</span> <span class="pre">&quot;name:nobody&quot;:</span> <span class="pre">{&quot;found&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;objects&quot;:</span> <span class="pre">[]}}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/error"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-error"><strong>error</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/error" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s answer to the term’s read, when it answered 400 with a class that is the term’s own fault. Then <code class="docutils literal notranslate"><span class="pre">found</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> and <code class="docutils literal notranslate"><span class="pre">objects</span></code> is empty.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when the term has an error</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/error/class"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-error-class"><strong>class</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/error/class" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s error class, <code class="ansible-value docutils literal notranslate"><span class="pre">distinguished_name_decode_error</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">ms_sid_decode_error</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;distinguished_name_decode_error&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/error/description"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-error-description"><strong>description</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/error/description" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s description of it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;The</span> <span class="pre">distinguished</span> <span class="pre">name</span> <span class="pre">could</span> <span class="pre">not</span> <span class="pre">be</span> <span class="pre">decoded.&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/found"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-found"><strong>found</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/found" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the term names at least one object.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">true</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects"><strong>objects</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The objects the term names, each once, in the order the server gave them. Empty when the term names none.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/classes"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-classes"><strong>classes</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/classes" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The object’s LDAP object classes.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;top&quot;,</span> <span class="pre">&quot;organizationalPerson&quot;,</span> <span class="pre">&quot;person&quot;,</span> <span class="pre">&quot;user&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/dn"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-dn"><strong>dn</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/dn" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The object’s distinguished name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;CN=alice,CN=Users,DC=corp,DC=example,DC=com&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/gid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-gid"><strong>gid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/gid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The directory’s <code class="docutils literal notranslate"><span class="pre">gidNumber</span></code> attribute, or null when the object has none. It is not the gid the cluster maps the object to.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/groups"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-groups"><strong>groups</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/groups" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The distinguished names of the groups the object is a direct member of.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[&quot;CN=Domain</span> <span class="pre">Admins,CN=Users,DC=corp,DC=example,DC=com&quot;]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-name"><strong>name</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The object’s sAMAccountName, without the domain.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;alice&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/primary_group_sid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-primary-group-sid"><strong>primary_group_sid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/primary_group_sid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The SID of the user’s primary group, or null for an object that is not a user.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;S-1-5-21-1-2-3-513&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/sid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-sid"><strong>sid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/sid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The object’s SID.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;S-1-5-21-1-2-3-1104&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/trustee"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-trustee"><strong>trustee</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/trustee" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p><code class="ansible-value docutils literal notranslate"><span class="pre">ad:&lt;NETBIOS&gt;\&lt;name&gt;</span></code> for an object of the joined domain, which another task can name as a trustee.</p>
+<p>Null for an object of any other domain, and for any object when the cluster reports no NetBIOS name for the domain.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;ad:CORP\\alice&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_ad_objects/objects/uid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-ad-objects-objects-uid"><strong>uid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_ad_objects/objects/uid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The directory’s <code class="docutils literal notranslate"><span class="pre">uidNumber</span></code> attribute, or null when the object has none. It is not the uid the cluster maps the object to; see <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity-expanded-trustees"><span class="std std-ref"><span class="pre">identity.expanded_trustees</span></span></a></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees"><strong>found_trustees</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Each term of <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code>, under the term as given, with the identity it names.</p>
+<p>Each value holds the keys below, on every path. A term that is not found, or whose find has an <code class="docutils literal notranslate"><span class="pre">error</span></code>, has <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">found</span></code> and null in the other identity keys. No value holds the cluster’s own id of an identity.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code> is given</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;local:admin&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">&quot;LOCAL&quot;,</span> <span class="pre">&quot;found&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;admin&quot;,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-21-1-2-3-500&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;local:admin&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null},</span> <span class="pre">&quot;local:nobody&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;found&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null},</span> <span class="pre">&quot;sid:S-1-5-21-9-9-9-1104&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;error&quot;:</span> <span class="pre">{&quot;class&quot;:</span> <span class="pre">&quot;api_identity_unsupported_domain_error&quot;,</span> <span class="pre">&quot;description&quot;:</span> <span class="pre">&quot;Unknown</span> <span class="pre">SID</span> <span class="pre">domain</span> <span class="pre">S-1-5-21-9-9-9&quot;},</span> <span class="pre">&quot;found&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">null},</span> <span class="pre">&quot;uid:2001&quot;:</span> <span class="pre">{&quot;domain&quot;:</span> <span class="pre">&quot;POSIX_USER&quot;,</span> <span class="pre">&quot;found&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;sid&quot;:</span> <span class="pre">&quot;S-1-5-88-1-2001&quot;,</span> <span class="pre">&quot;trustee&quot;:</span> <span class="pre">&quot;uid:2001&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">2001}}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/domain"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-domain"><strong>domain</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/domain" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s domain as the cluster names it, such as <code class="ansible-value docutils literal notranslate"><span class="pre">LOCAL</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">ACTIVE_DIRECTORY</span></code>, <code class="ansible-value docutils literal notranslate"><span class="pre">POSIX_USER</span></code> or <code class="ansible-value docutils literal notranslate"><span class="pre">WORLD</span></code>, or null when the term is not found.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;LOCAL&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/error"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-error"><strong>error</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/error" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s answer to the term, when it answered 400 with a class that is the term’s own fault. Then <code class="docutils literal notranslate"><span class="pre">found</span></code> is <code class="ansible-value docutils literal notranslate"><span class="pre">false</span></code>.</p>
+<p>That is a SID of a domain the node has not found a name in (QUIRK-100), a uid of 2^32 or more, a gid past 32 bits, an oversized SID part, and, read from the source, an ambiguous or refused LDAP name.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when the term has an error</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/error/class"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-error-class"><strong>class</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/error/class" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s error class.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;api_identity_unsupported_domain_error&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/error/description"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-error-description"><strong>description</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/error/description" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The server’s description of it.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;Unknown</span> <span class="pre">SID</span> <span class="pre">domain</span> <span class="pre">S-1-5-21-1-2-3&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/found"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-found"><strong>found</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/found" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">boolean</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Whether the cluster can name an identity by the term.</p>
+<p><code class="ansible-value docutils literal notranslate"><span class="pre">true</span></code> for a <code class="ansible-value docutils literal notranslate"><span class="pre">uid:</span></code>, a <code class="ansible-value docutils literal notranslate"><span class="pre">gid:</span></code> or a SID of a known domain even when no account carries it; see <code class="ansible-option docutils literal notranslate"><strong><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-parameter-find-trustees"><span class="std std-ref"><span class="pre">find_trustees</span></span></a></strong></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">true</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/gid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-gid"><strong>gid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/gid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s NFS gid, or null when the term is not found or the identity has none.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/name"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-name"><strong>name</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/name" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s name, <code class="ansible-value docutils literal notranslate"><span class="pre">NETBIOS\name</span></code> for an AD identity, or null when the term is not found or nothing names the identity.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/sid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-sid"><strong>sid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/sid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s SID, or null when the term is not found or the identity has none. A local identity’s SID is the cluster’s own, and changes when the cluster is rebuilt.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;S-1-5-21-1-2-3-500&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/trustee"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-trustee"><strong>trustee</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/trustee" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity as a trustee in the collection’s grammar, which a later task can name. It is null when the term is not found, and when the identity has no form to write it in.</p>
+<p>An identity with no name is written by its uid, gid or SID.</p>
+<p>Authenticated Users is written <code class="ansible-value docutils literal notranslate"><span class="pre">ad:NT</span> <span class="pre">AUTHORITY\Authenticated</span> <span class="pre">Users</span></code>, a name the cluster finds joined to a domain or not. It is found by that name or by its SID, <code class="ansible-value docutils literal notranslate"><span class="pre">S-1-5-11</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;local:admin&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/found_trustees/uid"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-found-trustees-uid"><strong>uid</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/found_trustees/uid" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">integer</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The identity’s NFS uid, or null when the term is not found or the identity has none.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> always</p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/kerberos"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-kerberos"><strong>kerberos</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/kerberos" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The Kerberos settings, without the keytab.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;use_alt_security_identities_mapping&quot;:</span> <span class="pre">false}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/ldap"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-ldap"><strong>ldap</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/ldap" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The LDAP settings, without the bind password.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;bind_uri&quot;:</span> <span class="pre">&quot;ldap://ldap.example.com&quot;,</span> <span class="pre">&quot;use_ldap&quot;:</span> <span class="pre">true,</span> <span class="pre">&quot;user&quot;:</span> <span class="pre">&quot;cn=bind&quot;}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/local_groups"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-local-groups"><strong>local_groups</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/local_groups" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every local group, sorted by name, with <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">gid</span></code> and <code class="docutils literal notranslate"><span class="pre">members</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;gid&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;members&quot;:</span> <span class="pre">[&quot;admin&quot;],</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;Users&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/local_users"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-local-users"><strong>local_users</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/local_users" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every local user, sorted by name, with <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">primary_group</span></code>, <code class="docutils literal notranslate"><span class="pre">uid</span></code> and <code class="docutils literal notranslate"><span class="pre">home_directory</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;home_directory&quot;:</span> <span class="pre">null,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;admin&quot;,</span> <span class="pre">&quot;primary_group&quot;:</span> <span class="pre">&quot;Users&quot;,</span> <span class="pre">&quot;uid&quot;:</span> <span class="pre">0}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/role_members"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-role-members"><strong>role_members</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/role_members" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every role, sorted by name, with <code class="docutils literal notranslate"><span class="pre">role</span></code> and <code class="docutils literal notranslate"><span class="pre">members</span></code> as trustee strings.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;members&quot;:</span> <span class="pre">[&quot;local:admin&quot;],</span> <span class="pre">&quot;role&quot;:</span> <span class="pre">&quot;Administrators&quot;}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/roles"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-roles"><strong>roles</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/roles" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">list</span> / <span class="ansible-option-elements">elements=dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>Every custom role, sorted by name, with <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">description</span></code> and <code class="docutils literal notranslate"><span class="pre">privileges</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">[{&quot;description&quot;:</span> <span class="pre">&quot;Reads</span> <span class="pre">snapshots&quot;,</span> <span class="pre">&quot;name&quot;:</span> <span class="pre">&quot;Backup-Operators&quot;,</span> <span class="pre">&quot;privileges&quot;:</span> <span class="pre">[&quot;PRIVILEGE_SNAPSHOT_READ&quot;]}]</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/saml"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-saml"><strong>saml</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/saml" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The SAML settings, the IdP certificate as canonical PEM.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;cluster_dns_name&quot;:</span> <span class="pre">&quot;&quot;,</span> <span class="pre">&quot;enabled&quot;:</span> <span class="pre">false,</span> <span class="pre">&quot;idp_certificate&quot;:</span> <span class="pre">&quot;&quot;,</span> <span class="pre">&quot;idp_entity_id&quot;:</span> <span class="pre">&quot;&quot;,</span> <span class="pre">&quot;idp_sso_url&quot;:</span> <span class="pre">&quot;&quot;,</span> <span class="pre">&quot;require_sso&quot;:</span> <span class="pre">false}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-indent"></div><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-identity/user_defined_mappings"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-identity-user-defined-mappings"><strong>user_defined_mappings</strong></p>
+<a class="ansibleOptionLink" href="#return-identity/user_defined_mappings" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-indent-desc"></div><div class="ansible-option-cell"><p>The mappings from AD users to LDAP users, as <code class="docutils literal notranslate"><span class="pre">mappings</span></code>.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> success</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;mappings&quot;:</span> <span class="pre">[{&quot;down_level_logon_name&quot;:</span> <span class="pre">&quot;CORP\\alice&quot;,</span> <span class="pre">&quot;ldap_name&quot;:</span> <span class="pre">&quot;alice&quot;}]}</span></code></p>
+</div></td>
+</tr>
+<tr class="row-even"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-term"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-term"><strong>term</strong></p>
+<a class="ansibleOptionLink" href="#return-term" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">string</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>The term of a lookup whose read failed, as given. It is absent when the task failed before a request, on a term outside the grammar.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when the read of a term fails</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">&quot;ad:CORP\\alice&quot;</span></code></p>
+</div></td>
+</tr>
+<tr class="row-odd"><td><div class="ansible-option-cell">
+<div class="ansibleOptionAnchor" id="return-unavailable_subsets"></div><p class="ansible-option-title" id="ansible-collections-qumulo-cluster-identity-info-module-return-unavailable-subsets"><strong>unavailable_subsets</strong></p>
+<a class="ansibleOptionLink" href="#return-unavailable_subsets" title="Permalink to this return value"></a><p class="ansible-option-type-line"><span class="ansible-option-type">dictionary</span></p>
+</div></td>
+<td><div class="ansible-option-cell"><p>Each requested subset or lookup this cluster could not answer, with the reason.</p>
+<p>The key of an unavailable lookup is absent from <code class="ansible-return-value docutils literal notranslate"><a class="reference internal" href="#ansible-collections-qumulo-cluster-identity-info-module-return-identity"><span class="std std-ref"><span class="pre">identity</span></span></a></code>. <code class="ansible-value docutils literal notranslate"><span class="pre">found_ad_objects</span></code> is unavailable on a cluster that is not joined to a domain, or is joined to more than one, with the server’s description.</p>
+<p class="ansible-option-line"><strong class="ansible-option-returned-bold">Returned:</strong> when a subset or a lookup was unavailable</p>
+<p class="ansible-option-line ansible-option-sample"><strong class="ansible-option-sample-bold">Sample:</strong> <code class="ansible-option-sample docutils literal notranslate"><span class="pre">{&quot;found_ad_objects&quot;:</span> <span class="pre">&quot;The</span> <span class="pre">cluster</span> <span class="pre">has</span> <span class="pre">not</span> <span class="pre">joined</span> <span class="pre">any</span> <span class="pre">AD</span> <span class="pre">domains</span> <span class="pre">yet.&quot;}</span></code></p>
+</div></td>
+</tr>
+</tbody>
+</table>
+<section id="authors">
+<h3>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Qumulo, Inc. (&#64;Qumulo)</p></li>
+</ul>
+</section>
+<section id="collection-links">
+<h3>Collection links<a class="headerlink" href="#collection-links" title="Link to this heading"></a></h3>
+<ul class="ansible-links">
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible/issues" rel="noopener external" target="_blank">Issue Tracker</a></span></li>
+<li><span><a aria-role="button" class="ansible-link reference external" href="https://github.com/Qumulo/qumulo-ansible" rel="noopener external" target="_blank">Repository (Sources)</a></span></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          
+
+<footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="identity_attributes_module.html" class="btn btn-neutral float-left" title="qumulo.cluster.identity_attributes module – Manage the home directory a Qumulo cluster gives an Active Directory, LDAP or POSIX identity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kerberos_keytab_module.html" class="btn btn-neutral float-right" title="qumulo.cluster.kerberos_keytab module – Install, replace or delete a Qumulo cluster’s Kerberos keytab" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright Qumulo, Inc..</p>
+  </div>
+
+  
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script><!-- extra footer elements for Ansible beyond RTD Sphinx Theme -->
+
+</body>
+</html>
