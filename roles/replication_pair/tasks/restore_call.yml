@@ -1,0 +1,9 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One answer of the step module for restore_relationship.yml's relationship. A looped include's when is read for
+# every item before any of them runs, so the loop has none, and this include's when, read as it runs, ends the calls
+# once the relationship has an outcome or waits.
+- name: Ask the step module, and run its answer, while the relationship has neither an outcome nor a wait
+  ansible.builtin.include_tasks: restore_call_body.yml
+  when: replication_pair_restore_surveying | bool or replication_pair_restore_state[replication_pair_restore_name].status == 'active'

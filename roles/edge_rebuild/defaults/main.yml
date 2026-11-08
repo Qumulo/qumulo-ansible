@@ -1,0 +1,16 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# meta/argument_specs.yml documents each variable.
+edge_rebuild_allow_data_loss: false
+edge_rebuild_ad_leave: "{{ qumulo_ad is defined }}"
+edge_rebuild_nexus_deregister: true
+edge_rebuild_drain_timeout: 3600
+# Beside the inventory source on disk that defines the host, never inside it:
+# given a directory, Ansible reads every .yml file in it as an inventory. Empty
+# for a host from no source on disk, as from a host list given with -i.
+edge_rebuild_artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+edge_rebuild_ignore_drift: false
+edge_rebuild_acknowledge: []
+edge_rebuild_old_edge_destroyed: false
+edge_rebuild_validate_factory_certs: true

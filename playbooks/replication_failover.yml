@@ -1,0 +1,52 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Fails a source host's named replication relationships over to their targets, copies the targets' writes back, or
+# fails them back (the replication_failover role, specs/025-replication-failover). Run it on the source host, the one
+# whose qumulo_replication_relationships declares them, even when that cluster is down: a failover sends it nothing.
+#
+#   ansible-playbook qumulo.cluster.replication_failover -i <inventory> -l edge01 --check \
+#     -e replication_failover_action=failover -e '{"replication_failover_relationships": ["dr01:/replicas/edge01"]}'
+#   ansible-playbook qumulo.cluster.replication_failover -i <inventory> -l edge01 \
+#     -e replication_failover_action=failover -e '{"replication_failover_relationships": ["dr01:/replicas/edge01"]}' \
+#     -e replication_failover_allow_data_loss=true
+#
+# The check run is the dry run: it prints each relationship's state and every step left, and writes nothing.
+- name: Fail over, resync or fail back a source host's replication relationships
+  hosts: "{{ replication_failover_hosts | default('qumulo_clusters') }}"
+  serial: 1
+  gather_facts: false
+  tasks:
+    - name: Run on one source host at a time
+      ansible.builtin.assert:
+        that: ansible_play_hosts_all | length == 1
+        fail_msg: >-
+          The run acts on one source host's relationships, and this run names {{ ansible_play_hosts_all | length }}:
+          {{ ansible_play_hosts_all | join(', ') }}. Limit it with -l <source host>.
+        quiet: true
+
+    - name: Record how to connect to the source and to the targets of its relationships
+      ansible.builtin.include_role:
+        name: qumulo.cluster.cluster_baseline
+        tasks_from: connections.yml
+      vars:
+        cluster_baseline_connection_hosts: >-
+          {{ ([inventory_hostname] + qumulo_replication_relationships | default([]) | map(attribute='target', default='') | list)
+             | select('in', hostvars) | unique | list }}
+
+    - name: Run the action
+      ansible.builtin.include_role:
+        name: qumulo.cluster.replication_failover
+      vars:
+        replication_failover_connections: "{{ cluster_baseline_connections }}"
+
+    - name: Report each relationship's outcome
+      ansible.builtin.debug:
+        msg: >-
+          {{ replication_failover_result.name }}: {{ replication_failover_result.state_before }} to {{ replication_failover_result.state_after }}{{
+             (', steps ' ~ replication_failover_result.steps | join(', ')) if replication_failover_result.steps else '' }}{{
+             ('. ' ~ replication_failover_result.notes | join(' ')) if replication_failover_result.notes else '' }}
+      loop: "{{ replication_failover_results }}"
+      loop_control:
+        loop_var: replication_failover_result
+        label: "{{ replication_failover_result.name }}"

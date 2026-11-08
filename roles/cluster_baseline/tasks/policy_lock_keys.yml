@@ -1,0 +1,46 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 2's check of the snapshot policies' lock keys (spec 026, Decision 4).
+# A declared lock_key must be in the key store, which a rebuilt or cloned
+# cluster holds only once each key is registered again, and no step of the
+# role registers a key. So the check needs only the inventory and one read,
+# and runs here, before any write, as the other step 2 checks do. Without
+# the consent it refuses every policy, not only the ones whose key is
+# missing, so that the run writes nothing it would have to finish later;
+# with it, step 20 applies a policy whose key is missing without the key,
+# and hands it off.
+# An earlier run of this role in the play left its hand-offs, which a report
+# would otherwise read for this one.
+- name: Forget the lock key hand-offs of an earlier run of this role
+  ansible.builtin.set_fact:
+    cluster_baseline_policy_lock_key_hand_offs: []
+
+- name: Read the key store for the policies' lock keys
+  qumulo.cluster.snapshot_info:
+    gather_subset: [security_keys]
+  register: cluster_baseline_lock_key_store
+  when: cluster_baseline_locked_policies | length > 0
+  vars:
+    # The entries that would set a key; a removal sets none.
+    # A lock_key that is unset, null or "" sets no key, as the plan and step 20 read it.
+    cluster_baseline_locked_policies: >-
+      {{ (qumulo_snapshot_policies | default([]) | selectattr('lock_key', 'defined') | selectattr('lock_key')
+          | rejectattr('state', 'defined') | list)
+         + (qumulo_snapshot_policies | default([]) | selectattr('lock_key', 'defined') | selectattr('lock_key')
+            | selectattr('state', 'defined') | rejectattr('state', 'equalto', 'absent') | list) }}
+
+- name: Plan the snapshot policies against the key store
+  ansible.builtin.set_fact:
+    cluster_baseline_policy_plan: >-
+      {{ qumulo_snapshot_policies | default([])
+         | qumulo.cluster.policy_lock_keys(
+             none if cluster_baseline_lock_key_store.unavailable_subsets | default({}) is truthy
+             else cluster_baseline_lock_key_store.snapshots.security_keys | default([]),
+             qumulo_allow_deferred_policy_lock_keys | default(false) | bool,
+             cluster_baseline_lock_key_store.unavailable_subsets.security_keys | default('')) }}
+
+- name: Refuse a policy whose lock key is not in the key store
+  ansible.builtin.fail:
+    msg: "{{ cluster_baseline_policy_plan.refusal }}"
+  when: cluster_baseline_policy_plan.refusal | length > 0

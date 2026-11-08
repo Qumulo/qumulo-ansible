@@ -1,0 +1,88 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# A round of phase 2: one poll of the edge's target list, which holds every R, until a waiting R holds a recovery point,
+# is ENDED or is missing from the list, deleted by hand, or the earliest deadline among the waiting relationships
+# passes. Then every waiting R is checked against that read before any of them goes on, deadlines last, so one that
+# landed while another's steps ran is never stopped: one that landed runs steps 5 to 9 at once, and one ENDED, missing,
+# or past its deadline, is stopped.
+- name: List the relationships that wait
+  ansible.builtin.set_fact:
+    replication_pair_restore_waiting: "{{ replication_pair_restore_state.values() | selectattr('status', 'equalto', 'waiting') | list }}"
+
+# Ansible makes retries + 1 attempts and retries sleeps, so the last attempt falls at or past the earliest deadline.
+- name: Poll the edge's target list until a waiting R lands or ends, or the earliest deadline passes
+  qumulo.cluster.replication_info:
+    gather_subset: [target]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[inventory_hostname] }}"
+  register: replication_pair_restore_round_read
+  until: >-
+    replication_pair_restore_waited >= replication_pair_restore_timeouts.wait | int
+    or (replication_pair_restore_round_read.replication is defined
+        and (replication_pair_restore_round_read.replication.target_relationships | default([])
+               | selectattr('id', 'in', replication_pair_restore_waiting | map(attribute='relationship_id') | list)
+               | selectattr('state', 'equalto', 'ENDED') | list
+             + replication_pair_restore_round_read.replication.target_relationships | default([])
+               | selectattr('id', 'in', replication_pair_restore_waiting | map(attribute='relationship_id') | list)
+               | selectattr('recovery_point') | list != []
+             or replication_pair_restore_waiting | map(attribute='relationship_id')
+               | reject('in', replication_pair_restore_round_read.replication.target_relationships | default([]) | map(attribute='id') | list)
+               | list != []))
+  retries: >-
+    {{ [((replication_pair_restore_timeouts.wait | int - replication_pair_restore_waited)
+         / [replication_pair_restore_timeouts.poll_delay | int, 1] | max) | round(0, 'ceil') | int, 0] | max }}
+  delay: "{{ replication_pair_restore_timeouts.poll_delay | int }}"
+  ignore_errors: true
+  vars:
+    # Seconds since the earliest wait started; every relationship waits the same timeout.
+    replication_pair_restore_waited: >-
+      {{ (now(utc=true) - (replication_pair_restore_waiting | map(attribute='wait_started') | min
+                            | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).total_seconds() }}
+
+- name: Check each waiting R against the round's read
+  qumulo.cluster.replication_restore_step:
+    edge: "{{ inventory_hostname }}"
+    entry_point: "{{ replication_pair_restore_entry_point }}"
+    relationship:
+      source_path: "{{ replication_pair_restore_waiter.picked.source_path }}"
+      target: "{{ replication_pair_restore_waiter.picked.target_host }}"
+      target_path: "{{ replication_pair_restore_waiter.picked.target_path }}"
+    edge_cluster_uuid: "{{ qumulo_cluster_uuid }}"
+    target_cluster_uuid: "{{ hostvars[replication_pair_restore_waiter.picked.target_host].qumulo_cluster_uuid }}"
+    edge_relationships: "{{ replication_pair_restore_round_read.replication | default(omit) }}"
+    waiting:
+      relationship_id: "{{ replication_pair_restore_waiter.relationship_id }}"
+      wait_started: "{{ replication_pair_restore_waiter.wait_started }}"
+    wait_timeout: "{{ replication_pair_restore_timeouts.wait }}"
+  loop: "{{ replication_pair_restore_waiting }}"
+  loop_control:
+    loop_var: replication_pair_restore_waiter
+    label: "{{ replication_pair_restore_waiter.picked.name }}"
+  register: replication_pair_restore_checked
+
+- name: Stop each R that ended or passed its deadline, and go on with each that landed
+  ansible.builtin.set_fact:
+    replication_pair_restore_state: >-
+      {%- set found = namespace(state=replication_pair_restore_state) -%}
+      {%- for result in replication_pair_restore_checked.results -%}
+        {%- set name = result.replication_pair_restore_waiter.picked.name -%}
+        {%- if result.decision == 'stopped' -%}
+          {%- set found.state = found.state | combine({name: {'status': 'decided', 'outcome': {'name': name, 'outcome': result.outcome,
+                'fails': result.fails, 'message': result.message, 'summary': '', 'note': '', 'sequence': []}}}, recursive=true) -%}
+        {%- elif result.decision == 'landed' -%}
+          {%- set found.state = found.state | combine({name: {'status': 'active'}}, recursive=true) -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.state }}
+
+- name: Run steps 5 to 9 of each R that landed
+  ansible.builtin.include_tasks: restore_relationship.yml
+  vars:
+    replication_pair_restore_surveying: false
+  loop: >-
+    {{ replication_pair_restore_checked.results | selectattr('decision', 'equalto', 'landed')
+       | map(attribute='replication_pair_restore_waiter') | map(attribute='picked') | list }}
+  loop_control:
+    loop_var: replication_pair_restore_picked
+    label: "{{ replication_pair_restore_picked.name }}"

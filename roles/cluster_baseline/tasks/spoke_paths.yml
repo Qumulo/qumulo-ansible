@@ -1,0 +1,31 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The cluster refuses a quota or a snapshot policy under a spoke root
+# (G-SPOKE-PATHS), but only when that step writes, after the portal and every
+# step before it; s3_bucket refuses a bucket there, since the data is the hub's.
+# The edge_rebuild role runs this file too, before it drains.
+- name: Refuse a quota, snapshot policy or S3 bucket under a spoke root before anything is written
+  ansible.builtin.assert:
+    that: cluster_baseline_under_spoke_roots | length == 0
+    fail_msg: >-
+      {{ inventory_hostname }}: {{ cluster_baseline_under_spoke_roots | join('; ') }}: the cluster refuses quotas and
+      snapshot policies under a portal's spoke root (G-SPOKE-PATHS), and an S3 bucket there would serve the hub's
+      data; declare them on local directories, or on the hub
+    quiet: true
+  vars:
+    cluster_baseline_spoke_roots: >-
+      {{ qumulo_portal.roots | default([]) | map(attribute='spoke_root') | map('regex_replace', '/+$', '') | list }}
+    cluster_baseline_under_spoke_roots: >-
+      {%- set found = namespace(paths=[]) -%}
+      {%- for variable, items in [('qumulo_quotas', qumulo_quotas | default([])),
+                                  ('qumulo_snapshot_policies', qumulo_snapshot_policies | default([])),
+                                  ('qumulo_s3_buckets', qumulo_s3_buckets | default([]))] -%}
+        {%- for item in items if item.path is defined and item.state | default('present') == 'present' -%}
+          {%- set path = item.path | regex_replace('/+$', '') -%}
+          {%- for root in cluster_baseline_spoke_roots if root and (path == root or path.startswith(root ~ '/')) -%}
+            {%- set found.paths = found.paths + [variable ~ ' ' ~ item.path ~ ' is in the spoke root ' ~ root] -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.paths }}

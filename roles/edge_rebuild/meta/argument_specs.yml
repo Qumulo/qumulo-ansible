@@ -1,0 +1,156 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+argument_specs:
+  main:
+    short_description: Rebuild a Qumulo unprotected edge, draining it first, and bring the new edge back to its baseline
+    version_added: 0.1.0
+    description:
+      - A rebuilt edge always has a new UUID (G-UUID); everything keyed on the old one is cleaned up or replayed. The
+        role replays the inventory, never the state of the edge it destroys.
+      - Whatever O(edge_rebuild_phase) is, the role first checks the inventory against the argument specification of
+        the cluster_baseline role, which refuses a key that a variable's options do not list, such as a misspelt one,
+        with C(Validation of arguments failed:). That check comes before any contact with an edge, so a rebuild in one
+        run is refused before it drains anything.
+      - With O(edge_rebuild_phase=predestroy), on the old edge, it checks the UUID with M(qumulo.cluster.cluster_guard);
+        writes the info modules' facts to C(captured-<UTC>.yml); fails with M(qumulo.cluster.edge_rebuild_preflight)
+        when the edge holds state the inventory does not declare, declares absent, or the replay cannot create again,
+        data outside the portal's spoke roots among it, reading each replication peer's record of the relationships the
+        inventory declares with the edge as their source or target, through the peer's inventory host; drains every
+        portal the edge holds with the portal_pair role, through the inventory host in C(qumulo_hubs) whose
+        C(qumulo_cluster_uuid) is its hub's, declared or not, and deletes it on both sides; leaves the domain; removes
+        the Nexus registration and, with C(qumulo_nexus_api_token), retires the UUID in Nexus; and writes
+        C(predestroy-<UTC>.yml), which records what was drained and deleted and says the edge is safe to destroy. A
+        check run writes no record.
+      - With O(edge_rebuild_phase=replay), on the new edge, it connects as C(admin) with O(edge_rebuild_admin_password);
+        checks that the edge is UNCONFIGURED, or newly formed and empty, with M(qumulo.cluster.cluster_guard) in mode
+        C(rebuilt), and that it is not the cluster C(qumulo_cluster_uuid) names; deletes the hub's record of the old
+        UUID; forms the edge with M(qumulo.cluster.unprotected_edge_create) when it is UNCONFIGURED; switches
+        C(qumulo_cluster_uuid) to the new UUID and adds the old one to C(qumulo_previous_cluster_uuids); retires the old
+        UUID in Nexus with C(qumulo_nexus_api_token); runs the cluster_baseline role, which pairs the edge with its hub
+        again and holds each replication relationship whose replica may be the only copy of the edge's data; and writes
+        C(rebuild-<UTC>.yml) with the C(host_vars) patch and what is left to hands, each relationship into the edge
+        waiting for the second pass, each lock key the old edge held (or that its key store could not be read) and each
+        snapshot policy applied without its lock key among it. It refuses C(qumulo_replication_release) and C(qumulo_replication_restore)
+        first.
+      - With O(edge_rebuild_phase=all), it runs predestroy, then O(edge_rebuild_reinstall_tasks), then replay, and
+        checks what the replay needs from the inventory before the predestroy changes anything.
+      - The replay needs C(-e qumulo_rebuild=true), O(edge_rebuild_eula_accepted), the C(admin) password, the old edge's
+        C(qumulo_cluster_uuid), C(qumulo_cluster_name),
+        both keys of C(qumulo_factory_defaults), a C(qumulo_portal.hub) in the C(qumulo_hubs) group with
+        C(qumulo_cluster_uuid), C(qumulo_portal_hosts) on the edge and on the hub, no quota or snapshot policy under a
+        spoke root, no path with both a mode in C(qumulo_directories) and an ACL in C(qumulo_file_acls)
+        (G-FS-ACL-MODE), and with C(qumulo_ad) a record that the old edge left the domain with credentials, or
+        O(edge_rebuild_old_edge_destroyed). An edge formed by hand needs C(qumulo_new_cluster_uuid), its new UUID.
+      - A rebuilt edge forms unlicensed with the smaller of its platform's capacity and 1 TB (G-EDGE-FLOOR), and
+        provisioning never shrinks (G-CLAMP-SHRINK). The role refuses a declared C(qumulo_capacity.clamp) more than its rounding tolerance below
+        min(1 TB, O(edge_cache_resize_floor_bytes)), whatever C(qumulo_capacity.license) says, and
+        C(qumulo_capacity.license=none) beside a license document, as the license step does. Both refusals come before
+        the drain in a rebuild in one run, and before the formation in the replay phase of one in two runs.
+      - Without C(qumulo_new_cluster_uuid), the replay takes the edge's C(qumulo_cluster_uuid) as the new UUID when it
+        is not the old one, as when a Terraform edge resource that the C(qumulo.cluster.terraform) inventory plugin
+        reads is replaced; with O(edge_rebuild_phase=all) it reads the inventory again after the reinstall tasks for
+        that. A replay on its own whose inventory UUID no predestroy record names takes the old UUID from the newest
+        predestroy record that says it was safe to destroy, of a UUID no rebuild report has replaced. The report then
+        has no C(host_vars) patch.
+      - A rebuilt edge's key store is empty, so the role refuses, before the predestroy changes anything, in either form
+        of the rebuild, an inventory whose C(qumulo_snapshot_policies) declares a C(lock_key), unless
+        V(-e qumulo_allow_deferred_policy_lock_keys=true) is given; a value in the inventory has no effect.
+        With it, the replay applies those policies without their keys and hands them off; register the keys, then run
+        the baseline again.
+      - Under C(--check), predestroy predicts its changes, drains nothing and writes no record, a rebuild in one run stops
+        before the reinstall, and a replay onto an UNCONFIGURED node stops after predicting the formation.
+      - Connects through the play's C(module_defaults) for C(group/qumulo.cluster.qumulo), as
+        C(playbooks/edge_predestroy.yml) and C(playbooks/edge_rebuild.yml) set them.
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      edge_rebuild_phase:
+        description: Which part of the rebuild to run.
+        type: str
+        required: true
+        choices: [predestroy, replay, all]
+      edge_rebuild_reinstall_tasks:
+        description:
+          - The absolute path of a tasks file that reinstalls the edge, run between the phases with
+            O(edge_rebuild_phase=all). It runs on the edge's host, and when it returns the node must answer at
+            C(qumulo_api_host), UNCONFIGURED or newly formed.
+        type: path
+      edge_rebuild_allow_data_loss:
+        description:
+          - When the drain fails, force the deletion of the portal on both sides, losing the edge's writes that the hub has
+            not received; and delete without a drain a portal whose hub no inventory host names. In the replay, delete the
+            hub's DISCONNECTED record of an old edge no predestroy record shows drained.
+        type: bool
+        default: false
+      edge_rebuild_ad_leave:
+        description:
+          - Leave the domain in predestroy. Only with C(qumulo_ad.join_user) and C(qumulo_ad.join_password) does the leave
+            delete the computer account, and only then does the record say the old edge left, which a replay with
+            C(qumulo_ad) needs.
+          - Defaults to whether C(qumulo_ad) is set.
+        type: bool
+      edge_rebuild_nexus_deregister:
+        description: Remove the edge's Nexus registration in predestroy, and with C(qumulo_nexus_api_token) retire its UUID.
+        type: bool
+        default: true
+      edge_rebuild_drain_timeout:
+        description: Seconds to wait for the drain, and for each portal record to go.
+        type: int
+        default: 3600
+      edge_rebuild_eula_accepted:
+        description: Accept Qumulo's end user license agreement, which forming the edge needs. Required for the replay.
+        type: bool
+      edge_rebuild_admin_password:
+        description:
+          - The password of the new edge's C(admin) user, which the replay forms the edge with and connects as, until the
+            baseline changes it. Defaults to C(qumulo_api_password).
+          - The replay never connects with C(qumulo_api_token) or another C(qumulo_api_username), which belong to the old
+            edge.
+        type: str
+        no_log: true
+      edge_rebuild_artifact_dir:
+        description:
+          - Where each edge's records go, under a directory named after its inventory host.
+          - Defaults to an C(artifacts) directory beside the inventory source that defines the host, never inside it.
+        type: path
+      edge_rebuild_ignore_drift:
+        description:
+          - Rebuild although the edge holds tenants, tenant networks, shares, exports, quotas, policies, users, groups or
+            portal roots the inventory does not declare, or declares absent. They are lost. It also accepts a tenant 1
+            that the rebuilt edge gains, when the old edge lacks one, and a network the old edge holds in no tenant that
+            the rebuilt edge puts in tenant 1. It does not waive an inventory the replay would
+            refuse. State the replay cannot create again still needs O(edge_rebuild_acknowledge).
+        type: bool
+        default: false
+      edge_rebuild_acknowledge:
+        description:
+          - Areas of state the replay cannot create again to rebuild without, from V(network), V(kmip), V(replication),
+            the replication relationships the inventory does not declare present, V(s3_keys), V(access_tokens) and
+            V(local_data), data outside the portal's spoke roots, which no drain moves to the hub, and the target
+            directories of declared relationships the replay cannot rebuild from their sources. The report lists what
+            each needs by hand.
+        type: list
+        elements: str
+        default: []
+      edge_rebuild_old_edge_destroyed:
+        description:
+          - Declares that the old edge is gone, for a replay with C(qumulo_ad) that finds no predestroy record of a domain
+            leave. A join under the old name resets the computer account a live old edge still uses.
+        type: bool
+        default: false
+      edge_cache_resize_floor_bytes:
+        description:
+          - The capacity a rebuilt edge provisions at formation, if its platform is larger (G-EDGE-FLOOR), as the
+            C(qumulo.cluster.edge_cache_resize) role reads it. The refusal of a declared clamp below the floor follows
+            it, bounded by 1 TB.
+        type: int
+        default: 1000000000000
+      edge_rebuild_validate_factory_certs:
+        description:
+          - With V(false), the replay connects to the new edge without verifying the factory certificate it serves, which
+            nothing can verify (G-FACTORY-TLS), until the baseline installs C(qumulo_ssl) and verifies the edge from then on
+            with C(qumulo_ssl.ca_path_after), which it then needs. It applies to the new edge only; the hub stays
+            verified, and the certificate step turns verification back on. It is a variable of the edge host, as
+            C(host_vars) set it.
+        type: bool
+        default: true

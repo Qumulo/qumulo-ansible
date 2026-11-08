@@ -1,0 +1,48 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: tenancy_status_due
+  short_description: Whether the cluster_baseline role's step 2 reads the cluster's network status
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - Gives true when the cluster holds two or more tenants, or when a present entry of the tenants names a tenant the
+      cluster lacks once the entries' renames are made, so the run creates a tenant. That is when the continuity rule
+      can need the network status, which step 2 of the C(cluster_baseline) role then reads with
+      M(qumulo.cluster.network_info)'s C(status) subset.
+    - It is the test M(qumulo.cluster.tenancy_plan) makes on the same inputs, made before the plan runs so that the plan
+      runs once.
+    - Each entry and each cluster tenant needs a C(name), and each cluster tenant an C(id); one without fails the
+      filter, naming C(qumulo_tenants).
+    - The tenants that this test counts are defined by Qumulo's multitenancy REST API, which Qumulo marks as preview;
+      a later Qumulo Core release may change it.
+  options:
+    _input:
+      description: The entries of C(qumulo_tenants), or null or an empty list when it is unset.
+      type: list
+      elements: dict
+      required: true
+    cluster_tenants:
+      description: The cluster's tenants, as M(qumulo.cluster.tenant_info) returns them in C(tenants).
+      type: list
+      elements: dict
+      required: true
+
+EXAMPLES: |
+  - name: Read the tenants
+    qumulo.cluster.tenant_info:
+    register: tenants_read
+
+  - name: Read the network document, and the network status when the cluster has or gains a second tenant
+    qumulo.cluster.network_info:
+      gather_subset: "{{ ['document', 'status'] if status_due | bool else ['document'] }}"
+    vars:
+      status_due: "{{ qumulo_tenants | default([]) | qumulo.cluster.tenancy_status_due(tenants_read.tenants) }}"
+
+RETURN:
+  _value:
+    description: Whether step 2 reads the network status.
+    returned: always
+    type: bool
+    sample: true

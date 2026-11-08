@@ -1,0 +1,179 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Plans every named relationship before the first write of any, prints the plan, refuses a plan that refuses and a real
+# run without the consent, then runs each relationship's steps (specs/025-replication-failover). A failback runs each
+# relationship up to its sync wait first, then waits for all of them together, then cuts each over, so the writes on
+# the target stay stopped for one wait, not one per relationship.
+- name: Find the named relationships among the host's present ones
+  ansible.builtin.set_fact:
+    replication_failover_selected: >-
+      {%- set found = namespace(entries=[]) -%}
+      {%- for name in replication_failover_relationships | map('regex_replace', '(?<=.)/+$', '') -%}
+        {%- for entry in qumulo_replication_relationships | default([]) if entry.state | default('present') == 'present'
+              and (entry.target ~ ':' ~ (entry.target_path | regex_replace('(?<=.)/+$', ''))) == name -%}
+          {%- set found.entries = found.entries + [{'name': name, 'entry': entry}] -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.entries }}
+    replication_failover_results: []
+    replication_failover_plans: []
+    replication_failover_waiting: []
+    replication_failover_source_down: false
+    replication_failover_tenancy: {}
+    # -e replication_failover_allow_newer_writes=edge01 arrives as a string, in which `in` would match any substring, so
+    # it becomes a list of host names, split at commas as the argument spec reads it.
+    replication_failover_newer_hosts: >-
+      {{ (replication_failover_allow_newer_writes | split(',') | map('trim') | reject('equalto', '') | list)
+         if replication_failover_allow_newer_writes is string else replication_failover_allow_newer_writes | list }}
+
+- name: Refuse a name that matches no present relationship, a target host outside the inventory, and a host without its UUID
+  ansible.builtin.assert:
+    that:
+      - replication_failover_relationships | length > 0
+      - replication_failover_unknown == []
+      - replication_failover_hostless == []
+      - replication_failover_no_uuid == []
+    fail_msg: >-
+      {{ 'replication_failover_relationships names no relationship. ' if replication_failover_relationships | length == 0 else '' }}{{
+         ('Each name is <target host>:<target path> of a present entry of ' ~ inventory_hostname ~ "'s qumulo_replication_relationships, and "
+          ~ replication_failover_unknown | join(', ') ~ ' matches none. ') if replication_failover_unknown else '' }}{{
+         ('The target hosts ' ~ replication_failover_hostless | join(', ') ~ ' are not in the inventory. ') if replication_failover_hostless else '' }}{{
+         ('The hosts ' ~ replication_failover_no_uuid | join(', ') ~ ' have no qumulo_cluster_uuid, which the relationship\'s records are matched by.')
+         if replication_failover_no_uuid else '' }}
+    quiet: true
+  vars:
+    replication_failover_no_uuid: >-
+      {%- set found = namespace(hosts=[]) -%}
+      {%- for host in ([inventory_hostname] + replication_failover_selected | map(attribute='entry.target') | list) | unique if host in hostvars -%}
+        {%- if not hostvars[host].qumulo_cluster_uuid | default('') -%}
+          {%- set found.hosts = found.hosts + [host] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.hosts }}
+    replication_failover_unknown: >-
+      {{ replication_failover_relationships | map('regex_replace', '(?<=.)/+$', '') | difference(replication_failover_selected | map(attribute='name')) }}
+    replication_failover_hostless: >-
+      {{ replication_failover_selected | map(attribute='entry.target') | reject('in', hostvars) | unique | list }}
+
+# A restore past the old record's delete leaves its relationship reading as failed over; a resync or failback would turn
+# it away from the restore (spec 025, Decision 15). Its restore record says so. A failover cannot: before the delete the
+# old record refuses it, and after the reconnect the restore is done, so for a failover the record is only noted.
+- name: Look for a restore record of each relationship
+  ansible.builtin.stat:
+    path: >-
+      {{ replication_failover_artifact_dir }}/{{ inventory_hostname }}/restore/{{
+         {'source_path': item.entry.source_path, 'target_cluster_uuid': hostvars[item.entry.target].qumulo_cluster_uuid,
+          'target_path': item.entry.target_path} | qumulo.cluster.restore_key_hash }}.yml
+  loop: "{{ replication_failover_selected }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: replication_failover_restore_records
+  delegate_to: localhost
+  when: replication_failover_artifact_dir | length > 0
+
+- name: Refuse a resync or failback of a relationship a restore is under way on, and note the record for a failover
+  vars:
+    replication_failover_restoring: >-
+      {{ replication_failover_restore_records.results | default([]) | selectattr('stat', 'defined') | selectattr('stat.exists')
+         | map(attribute='item.name') | list }}
+    replication_failover_restoring_text: >-
+      A restore of {{ replication_failover_restoring | join(', ') }} is under way: its restore record is in
+      {{ replication_failover_artifact_dir }}/{{ inventory_hostname }}/restore/. Finish it with playbooks/replication_restore.yml
+      before a {{ replication_failover_action }}. If the relationship was reconnected by hand, remove the record.
+  when: replication_failover_restoring | length > 0
+  block:
+    - name: Refuse a resync or failback of a relationship a restore is under way on
+      ansible.builtin.fail:
+        msg: "{{ replication_failover_restoring_text }}"
+      when: replication_failover_action != 'failover'
+
+    - name: Note the restore record of a relationship being failed over
+      ansible.builtin.debug:
+        msg: >-
+          {{ replication_failover_restoring_text | regex_replace(' Finish it with .*$', '') }} A failover cannot turn the relationship
+          away from the restore, so it goes on; if the relationship was reconnected by hand, remove the record.
+
+- name: Read and plan each relationship before any write
+  ansible.builtin.include_tasks: survey.yml
+  loop: "{{ replication_failover_selected }}"
+  loop_control:
+    loop_var: replication_failover_item
+    label: "{{ replication_failover_item.name }}"
+
+- name: Print each relationship's state and every step left
+  ansible.builtin.debug:
+    msg: >-
+      {{ [item.name ~ ': ' ~ (('refused: ' ~ item.msg) if item.failed else (item.state ~ ', recovery point ' ~ (item.recovery_point or 'none')
+          ~ (', nothing to do' if item.done else '')))]
+         + (item.steps | default([]) | map(attribute='text') | list) + (item.notes | default([])) }}
+  loop: "{{ replication_failover_plans }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Fail before any write when a plan refused
+  ansible.builtin.assert:
+    that: replication_failover_refused == []
+    fail_msg: >-
+      {{ replication_failover_refused | length }} of the {{ replication_failover_plans | length }} relationships were refused, and nothing was changed.
+      {{ replication_failover_refused | map(attribute='name') | zip(replication_failover_refused | map(attribute='msg')) | map('join', ': ') | join(' ') }}
+    quiet: true
+  vars:
+    replication_failover_refused: "{{ replication_failover_plans | selectattr('failed') | list }}"
+
+- name: Fail before any write without the consent
+  ansible.builtin.fail:
+    msg: >-
+      The {{ replication_failover_action }} above changes which copy of each relationship clients may write, and sends directories back to
+      the recovery point. Read the plan, then run again with -e replication_failover_allow_data_loss=true.
+  when:
+    - not ansible_check_mode
+    - not replication_failover_allow_data_loss | bool
+    - replication_failover_plans | rejectattr('done') | list | length > 0
+
+- name: Run each relationship's steps
+  when: not ansible_check_mode
+  block:
+    - name: Run each relationship, up to its sync wait in a failback
+      ansible.builtin.include_tasks: relationship.yml
+      loop: "{{ replication_failover_selected }}"
+      loop_control:
+        loop_var: replication_failover_item
+        label: "{{ replication_failover_item.name }}"
+      vars:
+        replication_failover_stop_at: "{{ 'await_sync' if replication_failover_action == 'failback' else '' }}"
+        replication_failover_synced: false
+
+    - name: Wait for every relationship's sync together, then cut each over
+      when: replication_failover_waiting | length > 0
+      block:
+        - name: Note when the waits start
+          ansible.builtin.set_fact:
+            replication_failover_sync_started: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ') }}"
+
+        - name: Wait for the waiting relationships' syncs, those on one target host together
+          ansible.builtin.include_tasks: sync.yml
+          loop: "{{ replication_failover_waiting | map(attribute='target') | unique | list }}"
+          loop_control:
+            loop_var: replication_failover_sync_target
+
+        - name: Cut each relationship over
+          ansible.builtin.include_tasks: relationship.yml
+          loop: "{{ replication_failover_selected | selectattr('name', 'in', replication_failover_waiting | map(attribute='name')) | list }}"
+          loop_control:
+            loop_var: replication_failover_item
+            label: "{{ replication_failover_item.name }}"
+          vars:
+            replication_failover_stop_at: ""
+            replication_failover_synced: true
+
+- name: Report the check run's plans as the results
+  ansible.builtin.set_fact:
+    replication_failover_results: >-
+      {%- set found = namespace(results=[]) -%}
+      {%- for item in replication_failover_plans -%}
+        {%- set found.results = found.results + [{'name': item.name, 'id': item.relationship_id, 'state_before': item.state, 'state_after': item.state,
+              'steps': [], 'plan': item.steps | map(attribute='text') | list, 'notes': item.notes}] -%}
+      {%- endfor -%}
+      {{ found.results }}
+  when: ansible_check_mode

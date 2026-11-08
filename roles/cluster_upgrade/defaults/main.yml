@@ -1,0 +1,11 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# meta/argument_specs.yml documents each variable.
+# The edge_rebuild role's own expression, so the commit records sit beside the restore files.
+cluster_upgrade_artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+cluster_upgrade_wait_timeout: 3600
+cluster_upgrade_reboot_timeout: 43200
+cluster_upgrade_unblock_timeout: 14400
+cluster_upgrade_peer_timeout: 1800
+cluster_upgrade_poll_delay: 30

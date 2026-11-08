@@ -1,0 +1,30 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One answer of the plan module from read.yml's reads, in replication_failover_answer. A refusal is registered, not
+# raised, so that the caller decides; a refused answer has no state.
+- name: Ask the plan for the next step of {{ replication_failover_item.name }}
+  qumulo.cluster.replication_failover_plan:
+    action: "{{ replication_failover_action }}"
+    relationship: "{{ replication_failover_item.entry }}"
+    source_host: "{{ inventory_hostname }}"
+    target_host: "{{ replication_failover_item.entry.target }}"
+    source_cluster_uuid: "{{ qumulo_cluster_uuid }}"
+    target_cluster_uuid: "{{ hostvars[replication_failover_item.entry.target].qumulo_cluster_uuid }}"
+    source_previous_cluster_uuids: "{{ qumulo_previous_cluster_uuids | default([]) }}"
+    source_replication_address: "{{ qumulo_replication_address | default(omit) }}"
+    source_replication_port: "{{ qumulo_replication_port | default(3712) }}"
+    target_replication_address: "{{ hostvars[replication_failover_item.entry.target].qumulo_replication_address | default(omit) }}"
+    target_replication_port: "{{ hostvars[replication_failover_item.entry.target].qumulo_replication_port | default(3712) }}"
+    source_relationships: >-
+      {{ omit if replication_failover_source_down | default(false) | bool else replication_failover_source_read.replication | default(omit) }}
+    source_error: "{{ replication_failover_source_error | default(omit) }}"
+    target_relationships: "{{ replication_failover_target_read.replication }}"
+    source_tenancy: "{{ replication_failover_tenancy[inventory_hostname] | default(omit) }}"
+    target_tenancy: "{{ replication_failover_tenancy[replication_failover_item.entry.target] | default(omit) }}"
+    last_verb: "{{ replication_failover_last_verb | default(omit, true) }}"
+    allow_partial_job: "{{ replication_failover_allow_partial_job | bool }}"
+    newer_writes_hosts: "{{ replication_failover_newer_hosts }}"
+    synced: "{{ replication_failover_synced | default(false) | bool }}"
+  register: replication_failover_answer
+  failed_when: false

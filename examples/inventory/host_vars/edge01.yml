@@ -1,0 +1,189 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The edge. It declares everything it holds, since a rebuild replays this
+# inventory and never the edge it destroys. Variables from
+# group_vars/qumulo_edges.yml and group_vars/qumulo_clusters.yml apply too.
+
+# The admin password, encrypted. group_vars/qumulo_clusters.yml passes it to
+# the modules as qumulo_api_password, and a rebuild forms the new edge with it.
+vault_qumulo_api_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  32303364623465666362333136396539623761386663303039343261633961643465386164383336
+  6565336139323430356635613733393861656636663564330a326163303239306634366630646666
+  35333731633535343761633066653866363734323038383337333030346666386230356536343235
+  3730353736353331620a383736633635633366303632663962353339646664383733633636623138
+  65633635363931316533343761633135663630386363313136656262613536333534386531343732
+  6264353934396631353336653333353865383430343134623362
+
+# The license document Qumulo issued for this edge's UUID, as the license
+# file's JSON text, encrypted: group_vars/qumulo_edges.yml hands it to
+# qumulo_capacity.license_document. This one is a placeholder for a UUID no
+# cluster has, so the baseline does not apply it. After a rebuild, replace it
+# with the document issued for the new UUID.
+vault_qumulo_license_document: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  37353963636131643463383936613937303763643132343039336665353433316535303733613964
+  6636336661376431613933613831393066326236666261390a363231633366393462316638663566
+  65386533623633323531323735633664333532353763346435346633393337616438333261643237
+  3064376536346139340a376564653432333639333935383339663433353064666663636130353661
+  30363734626239323534373462333931336335373562373930343937336130376637336264326263
+  39663439653965666262633138366138343032323861616230393062313063303936663964666132
+  63643835643363663166643164376162333661633532383332616238356366613430343630383661
+  30346464663962643236633932653635646539656433303531613964333437626466653064633464
+  66613764656261333665363236396262636162613331333930623966343735346262616435363131
+  31643234663861636632633762393963343662313439356361636265633238383761373631666162
+  39393562353034663864366238363361623063336361636638666161343433353034666263326564
+  36656235623964366335366364316562366638623430656136623735366163316534353039363437
+  36343537646436303765306561633361333331323734326635623862383735373337616632303066
+  66306261373039616332613663313062663461363232303238636562366538303732363534643061
+  62326630326663356537333833626263303934393735383936343830613066306131366361386537
+  39363463643563666234386135313232613737353736313734633562376562303033353335373639
+  6231
+
+# The cluster's name: step 5, qumulo.cluster.cluster_settings. It is also the
+# edge's computer account in the domain, and a rebuild forms the edge with it.
+qumulo_cluster_name: edge01
+
+# The certificate the edge serves: step 6, qumulo.cluster.ssl_certificate. The
+# chain comes from a file beside the inventory directory, and the private key is
+# encrypted inline.
+qumulo_ssl:
+  certificate: "{{ lookup('ansible.builtin.file', inventory_dir ~ '/../files/edge01-chain.pem') }}"
+  private_key: !vault |
+    $ANSIBLE_VAULT;1.1;AES256
+    37616232343633616630663838633162393865363136323338326134353535643939303339303737
+    3364323663336339346135306438386432363836616430360a323664333232306432396334656233
+    39643562623633643865393065353766316464656337366566393761626430636561336539653464
+    6638643630316436390a393331353832643239303963386630396232303465383364333438636238
+    66383663666437623530333064316663613463393534633234383262386232353233396337666534
+    3161663366383138396361656665666631396235383564373237
+  # The CA to verify the edge with once the certificate step has run. A rebuilt
+  # edge serves a factory certificate nothing can verify (G-FACTORY-TLS), so the
+  # replay verifies the edge from this step on.
+  ca_path_after: "{{ inventory_dir }}/../files/qumulo-ca.pem"
+
+# The edge's half of the portal: step 16, the portal_pair role. hub names an
+# inventory host in qumulo_hubs. The spoke creates each spoke_root; each
+# hub_root must exist on the hub.
+qumulo_portal:
+  hub: hub01
+  type: read_write
+  roots:
+    - spoke_root: /projects
+      hub_root: /projects
+
+# The address the hub reaches the edge at. This edge has no floating IP, so
+# it is the node's IP; an edge with a floating IP gives that instead.
+qumulo_portal_hosts:
+  - address: 10.20.0.5
+
+# Local groups and users: step 13, qumulo.cluster.local_group and local_user.
+# Groups are created first, then users, then the groups' members.
+qumulo_local_groups:
+  - name: edge-admins
+    gid: 5000
+    members: [svc-backup]
+qumulo_local_users:
+  - name: svc-backup
+    primary_group: Users
+    uid: 5001
+    # A password cannot be read back (G-PASSWORD): on_create sends it only when
+    # the user is created, so a second run reports no change.
+    password: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      37656465653039393963363061656332616236393635323563316332623230376266663564623934
+      6266376361396239353066396634313037356462666537300a373263646364633531353464373963
+      61316437633739653034393233323465393862313733623931663666663636646433636437626539
+      3164646533666561350a336165363538306238623431366135333262383631353961383864633631
+      65643332346437313366326234636630303537366130323039623264343263613232633531336132
+      3365313838346461376161663736393134333861353833636131
+    update_password: on_create
+  # A user to delete. A list adds to what the cluster has, so a user that is
+  # only left out stays.
+  - name: svc-legacy
+    state: absent
+
+# Role assignments: step 15, qumulo.cluster.role_member. ad: trustees resolve
+# only after the join, which the role runs first. Each list adds to what the
+# role has; purge: true makes it the whole list.
+qumulo_role_members:
+  - role: Administrators
+    members: ['ad:CORP\Qumulo-Admins', 'local:edge-admins']
+  - role: Observers
+    members: ['ad:CORP\Qumulo-Observers']
+
+# Directories: step 17, qumulo.cluster.directory. /local holds data outside
+# the portal's spoke root, which no drain moves to the hub.
+qumulo_directories:
+  - path: /local/scratch
+    mode: '0775'
+    owner: local:svc-backup
+    group: local:edge-admins
+
+# SMB shares and NFS exports: steps 18 and 19. A share may serve a spoke root.
+qumulo_smb_shares:
+  - share_name: projects
+    fs_path: /projects
+    description: The hub's projects, cached
+    permissions:
+      - trustee: 'ad:CORP\Engineering'
+        rights: [READ, WRITE]
+  - share_name: scratch
+    fs_path: /local/scratch
+    permissions:
+      - trustee: 'ad:CORP\Engineering'
+        rights: [ALL]
+    # Only the site's clients: an address no entry allows cannot connect.
+    network_permissions:
+      - address_ranges: [10.20.0.0/16]
+        rights: [ALL]
+qumulo_nfs_exports:
+  - export_path: /projects
+    fs_path: /projects
+    restrictions:
+      - host_restrictions: [10.20.0.0/16]
+        user_mapping: NFS_MAP_ROOT
+        map_to_user: uid:65534
+        map_to_group: gid:65534
+
+# Quotas and snapshot policies: step 20, on local paths only. The edge refuses
+# both under a spoke root such as /projects (G-SPOKE-PATHS), and the role fails
+# before it writes anything when one is declared there.
+qumulo_quotas:
+  - path: /local/scratch
+    limit: 500GB
+qumulo_snapshot_policies:
+  - policy_name: scratch-hourly
+    path: /local/scratch
+    expiration_time_to_live: 7days
+    schedule:
+      frequency: SCHEDULE_HOURLY_OR_LESS
+      fire_every: 1
+      fire_every_interval: FIRE_IN_HOURS
+      on_days: [EVERY_DAY]
+      timezone: UTC
+
+# Replication: step 21, the qumulo.cluster.replication_pair role. The edge's
+# local data goes to hub01, which declares the target directory, path only,
+# and the address the edge reaches it at. The relationship is the two paths
+# and hub01's UUID; the address is a setting. A refusal comes before any
+# write on either cluster and names what lifts it.
+qumulo_replication_relationships:
+  - source_path: /local/scratch
+    target: hub01
+    target_path: /replicas/edge01-scratch
+    blackout_windows:
+      - {start_hour: 8, start_minute: 0, end_hour: 18, end_minute: 0, on_days: [MON, TUE, WED, THU, FRI]}
+    blackout_window_timezone: America/Los_Angeles
+
+# Rebuild variables: the edge_rebuild role. docs/how-to/edge-rebuild.md is the
+# runbook. The replay connects to the new edge without verifying its factory
+# certificate until the certificate step, then with qumulo_ssl.ca_path_after.
+# Set it here, never with -e, which would also reach the hub's connection.
+edge_rebuild_validate_factory_certs: false
+# State the replay cannot create again, which you will recreate by hand. The
+# predestroy phase refuses while the edge holds such state that is not listed.
+# Add local_data only once /local/scratch is copied off the edge: it gives up
+# the files outside the spoke root and their snapshots.
+edge_rebuild_acknowledge: []

@@ -1,0 +1,10 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# meta: refresh_inventory takes no when, so replay.yml includes this file only
+# when the inventory is to be read again. The refresh reads every inventory
+# source again for the whole play, cached or not, dynamic cloud inventories
+# included; for an inventory the reinstall tasks did not change, the old UUID
+# comes back and nothing else differs.
+- name: Read the inventory again, as reinstall tasks that replace a Terraform edge resource change it
+  ansible.builtin.meta: refresh_inventory

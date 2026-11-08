@@ -1,0 +1,44 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 8's reconnect, after the record is marked. A definite refusal, one with no maybe_applied, clears the mark only
+# while R still reads DISCONNECTED on the target, so the next run may send it again; a lost answer keeps the mark, so
+# no second reconnect is ever sent. Either way the relationship fails with the action's way on.
+- name: Reconnect R on the target, with no wait
+  qumulo.cluster.replication_reverse:
+    relationship_id: "{{ replication_pair_restore_action.options.relationship_id }}"
+    verb: reconnect
+    allow_data_loss: "{{ replication_pair_restore_action.options.allow_data_loss }}"
+  register: replication_pair_restore_reconnected
+  failed_when: false
+
+- name: Undo the mark after a definite refusal, while R is still DISCONNECTED
+  when:
+    - replication_pair_restore_reconnected.relationship is not defined
+    - replication_pair_restore_reconnected.maybe_applied is not defined
+  block:
+    - name: Read R on the target after the refusal
+      qumulo.cluster.replication_info:
+        relationship_id: "{{ replication_pair_restore_action.options.relationship_id }}"
+        side: target
+      register: replication_pair_restore_refused
+
+    - name: Write the record back unmarked
+      ansible.builtin.copy:
+        dest: "{{ replication_pair_restore_action.on_refusal.path }}"
+        mode: "0600"
+        content: "{{ replication_pair_restore_action.on_refusal.record | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}"
+      delegate_to: localhost
+      when: >-
+        (replication_pair_restore_refused.replication.relationship | default(none, true) or {}).state | default('')
+        == replication_pair_restore_action.on_refusal.clear_mark_when
+
+- name: Fail the relationship with the way on, when the reconnect was not sent
+  ansible.builtin.set_fact:
+    replication_pair_restore_halt:
+      outcome: failed
+      fails: true
+      message: >-
+        {{ replication_pair_restore_reconnected.msg | default('the reconnect failed') | regex_replace('\.$', '') }}.
+        {{ replication_pair_restore_action.on_refusal.way_on }}
+  when: replication_pair_restore_reconnected.relationship is not defined

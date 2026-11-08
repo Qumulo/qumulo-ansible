@@ -1,0 +1,58 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# In a rebuild in one run, preconditions.yml checks what the replay needs from
+# the inventory before the predestroy phase drains anything. What only the new
+# edge can show, its state and its certificate, the replay checks once the
+# edge is reinstalled.
+- name: Require a phase, a directory for the records, and the reinstall tasks for a rebuild in one run
+  ansible.builtin.assert:
+    that:
+      - edge_rebuild_phase | default('') in ['predestroy', 'replay', 'all']
+      - edge_rebuild_phase != 'all' or edge_rebuild_reinstall_tasks is defined
+      - edge_rebuild_artifact_dir | length > 0
+    fail_msg: >-
+      {{ inventory_hostname }}: edge_rebuild_phase must be predestroy, replay or all, and all needs
+      edge_rebuild_reinstall_tasks, the tasks file that reinstalls the edge between the two phases. A host that comes
+      from no inventory file or directory also needs edge_rebuild_artifact_dir.
+    quiet: true
+
+# The replay's baseline refuses at its door a variable its argument spec does not allow, such as a misspelt key, but
+# only after the destroy; checked here, it is refused before anything is drained.
+- name: Check the inventory against the baseline's argument spec
+  ansible.builtin.validate_argument_spec:
+    argument_spec: "{{ (lookup('ansible.builtin.file', role_path ~ '/../cluster_baseline/meta/argument_specs.yml') | from_yaml).argument_specs.main.options }}"
+
+- name: Name this run's artifacts
+  ansible.builtin.set_fact:
+    edge_rebuild_stamp: "{{ now(utc=true, fmt='%Y%m%dT%H%M%SZ') }}"
+    edge_rebuild_host_dir: "{{ edge_rebuild_artifact_dir }}/{{ inventory_hostname }}"
+
+- name: Check what the replay needs before anything changes
+  ansible.builtin.include_tasks: preconditions.yml
+  when: edge_rebuild_phase in ['replay', 'all']
+
+- name: Drain the old edge and record that it is safe to destroy
+  ansible.builtin.include_tasks: predestroy.yml
+  when: edge_rebuild_phase in ['predestroy', 'all']
+
+# A check run drained nothing, so the edge must not be reinstalled, and there
+# is no new edge to replay onto.
+- name: Stop a check run of the rebuild before the reinstall
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }}: check run: the rebuild would now run {{ edge_rebuild_reinstall_tasks }} to reinstall the
+      edge, then form it again and replay its inventory
+  when:
+    - edge_rebuild_phase == 'all'
+    - ansible_check_mode
+
+- name: Reinstall the edge
+  ansible.builtin.include_tasks: "{{ edge_rebuild_reinstall_tasks }}"
+  when:
+    - edge_rebuild_phase == 'all'
+    - not ansible_check_mode
+
+- name: Form the new edge, if needed, and replay its inventory
+  ansible.builtin.include_tasks: replay.yml
+  when: edge_rebuild_phase == 'replay' or (edge_rebuild_phase == 'all' and not ansible_check_mode)

@@ -1,0 +1,62 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One replication_reverse verb, on the cluster the step names, then the step's polls. A make-writable has the run's
+# consent; a reconnect compares its directory with the recovery point unless replication_failover_allow_newer_writes
+# names the host it is sent to, and its refusal of the writes it found is reported naming that variable.
+# The consent gate runs on the survey's plans; this holds it for a step that a later read put in their place.
+- name: Refuse a verb without the run's consent
+  ansible.builtin.assert:
+    that: replication_failover_allow_data_loss | bool
+    fail_msg: "{{ replication_failover_item.name }}: a step is due that the plan printed before the run did not list; run again to read it"
+    quiet: true
+
+- name: "{{ replication_failover_step.text }}"
+  qumulo.cluster.replication_reverse:
+    relationship_id: "{{ replication_failover_step.relationship_id }}"
+    verb: "{{ replication_failover_step.verb }}"
+    allow_data_loss: >-
+      {{ replication_failover_step.verb == 'make_writable'
+         or (replication_failover_step.verb == 'reconnect' and replication_failover_step.host in replication_failover_newer_hosts) }}
+    source_address: "{{ replication_failover_step.source_address | default(omit) }}"
+    source_port: "{{ replication_failover_step.source_port | default(omit) }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_failover_connections[replication_failover_step.host] }}"
+  register: replication_failover_verb
+  failed_when: false
+
+- name: Stop when the reconnect found writes after the recovery point
+  ansible.builtin.fail:
+    msg: >-
+      {{ replication_failover_item.name }}: {{ replication_failover_step.host }}'s
+      {{ replication_failover_verb.msg | regex_replace('; copy what should be kept.*$', '') }}.
+      {{ replication_failover_found_writes[replication_failover_step.name] }}
+  when: replication_failover_verb.changes is defined
+  vars:
+    # The way on from writes found on each reconnect's host. A failback run again reads the relationship as failed over
+    # and resyncs first, so the target's writes reach the source, and its own last reconnect compares again.
+    replication_failover_found_writes:
+      reconnect_source: >-
+        To keep them, copy them to {{ replication_failover_item.entry.target }} over a protocol first; to discard them, run again with
+        -e '{"replication_failover_allow_newer_writes": ["{{ replication_failover_step.host }}"]}'.
+      reconnect_target: Run the failback again, which resyncs them to {{ inventory_hostname }} first.
+
+# The module names its own option; through the role, a reconnect skips its comparison when the host is named in
+# replication_failover_allow_newer_writes.
+- name: Stop on any other failure of the verb
+  ansible.builtin.fail:
+    msg: >-
+      {{ replication_failover_item.name }}: {{ replication_failover_verb.msg
+         | replace('set allow_data_loss to reconnect without comparing', replication_failover_skip_comparison) }}
+  when: replication_failover_verb.relationship is not defined
+  vars:
+    replication_failover_skip_comparison: >-
+      run again with -e '{"replication_failover_allow_newer_writes": ["{{ replication_failover_step.host }}"]}' to reconnect without comparing
+
+- name: Keep what the verb noted
+  ansible.builtin.set_fact:
+    replication_failover_notes: "{{ replication_failover_notes + replication_failover_verb.notes | default([]) }}"
+
+- name: Wait for the records the verb moves
+  ansible.builtin.include_tasks: poll.yml
+  when: replication_failover_step.polls | length > 0

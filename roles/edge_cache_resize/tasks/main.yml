@@ -1,0 +1,54 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Read the edge's UUID, clamp, license cap, file system size and product type
+  qumulo.cluster.cluster_info:
+    gather_subset: [node, capacity, license, filesystem, product]
+  register: edge_cache_resize_info
+
+- name: Require the clamp, the license, the file system size and the product type, which choose the route
+  ansible.builtin.assert:
+    that:
+      - edge_cache_resize_missing | length == 0
+      - edge_cache_resize_info.cluster.product.unprotected_edge is boolean
+    fail_msg: >-
+      {{ inventory_hostname }}: cannot choose a route:
+      {{ ('the cluster did not answer ' ~ (edge_cache_resize_missing | join(', ')) ~ ': '
+          ~ (edge_cache_resize_info.unavailable_subsets | to_json))
+         if edge_cache_resize_missing
+         else 'its product type is unknown, since its metrics carry no qumulo_info sample with a cluster_type label,
+               and the product type decides whether the 1 TB unlicensed ceiling applies' }}
+    quiet: true
+  vars:
+    edge_cache_resize_missing: >-
+      {{ (edge_cache_resize_info.unavailable_subsets | default({})).keys()
+         | intersect(['capacity', 'license', 'filesystem', 'product']) | sort }}
+
+- name: Choose the route to the target clamp
+  qumulo.cluster.edge_cache_route:
+    target: "{{ qumulo_capacity.clamp }}"
+    stored: "{{ edge_cache_resize_info.cluster.capacity_clamp }}"
+    license_cap: "{{ edge_cache_resize_info.cluster.license.usable_capacity_cap }}"
+    total: "{{ edge_cache_resize_info.cluster.filesystem.total_size_bytes }}"
+    unprotected_edge: "{{ edge_cache_resize_info.cluster.product.unprotected_edge }}"
+    margin: "{{ omit if edge_cache_resize_margin_bytes is none else edge_cache_resize_margin_bytes }}"
+    floor: "{{ edge_cache_resize_floor_bytes }}"
+  register: edge_cache_resize_plan
+
+- name: Record the route
+  ansible.builtin.set_fact:
+    edge_cache_resize_route: "{{ edge_cache_resize_plan.route }}"
+    edge_cache_resize_rebuilding: false
+
+- name: Report the route and its inputs
+  ansible.builtin.debug:
+    msg: >-
+      {{ edge_cache_resize_plan.route }}: {{ edge_cache_resize_plan.reason }}
+      (T={{ edge_cache_resize_plan.target }},
+      R={{ 'unset' if edge_cache_resize_plan.stored is none else edge_cache_resize_plan.stored }},
+      L={{ 'none' if edge_cache_resize_plan.ceiling is none else edge_cache_resize_plan.ceiling }},
+      C={{ edge_cache_resize_plan.total }}, margin={{ edge_cache_resize_plan.margin }})
+
+- name: Take the route
+  ansible.builtin.include_tasks: "{{ edge_cache_resize_plan.route }}.yml"
+  when: not edge_cache_resize_plan_only | bool

@@ -1,0 +1,23 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Hand the license over to its owner
+  ansible.builtin.fail:
+    msg: >-
+      {{ inventory_hostname }}: blocked_license: {{ edge_cache_resize_plan.reason }}; the target clamp is
+      {{ edge_cache_resize_plan.target }} bytes. Once Qumulo has issued a license with a usable capacity of at least
+      {{ edge_cache_resize_plan.target }} bytes for cluster {{ edge_cache_resize_info.cluster.cluster_id }}, put its
+      document in qumulo_capacity.license_document, encrypted with ansible-vault, and run ansible-playbook
+      qumulo.cluster.edge_license_complete -i <inventory> -l {{ inventory_hostname }}, which applies it and then sets
+      the clamp. A raised cap applies at the next quorum formation, {{ edge_cache_resize_formation }}
+      (G-LICENSE).{{ edge_cache_resize_runs_unlicensed }}
+  vars:
+    edge_cache_resize_runs_unlicensed: >-
+      {{ (' It declares qumulo_capacity.license: none; set it to pending or required, keeping its '
+          ~ 'other keys, before supplying the document. Without a license, the baseline writes the clamp, which then '
+          ~ 'limits a license that arrives later.')
+         if (qumulo_capacity | default({})).license | default('pending') == 'none' else '' }}
+    edge_cache_resize_formation: >-
+      {{ "which this role does not cause, since the stored clamp already allows the target; re-forming quorum then is a hand-off to the cluster's owner"
+         if edge_cache_resize_plan.stored is not none and edge_cache_resize_plan.stored >= edge_cache_resize_plan.target
+         else "which the clamp's own write causes" }}

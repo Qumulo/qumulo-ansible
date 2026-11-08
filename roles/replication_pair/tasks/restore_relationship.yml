@@ -1,0 +1,88 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One relationship of the restore, from restore.yml: replication_pair_restore_picked, as the step module's pick gives
+# it, or, with replication_pair_restore_surveying, replication_pair_restore_entry, a declared entry whose answer only
+# tells its siblings whether it is done or past X's delete. Each call of restore_call.yml asks the module once and runs
+# the step it answers; the calls end at an outcome or at step 4's wait. The block's rescue keeps a failure inside the
+# relationship as its failed outcome, unless the failure stops the run.
+- name: Name the relationship
+  ansible.builtin.set_fact:
+    replication_pair_restore_declared: "{{ replication_pair_restore_declared_entry }}"
+    replication_pair_restore_name: >-
+      {{ inventory_hostname }}:{{ (replication_pair_restore_declared_entry.source_path | regex_replace('/+$', '')) or '/' }} to
+      {{ replication_pair_restore_declared_entry.target }}:{{ (replication_pair_restore_declared_entry.target_path | regex_replace('/+$', '')) or '/' }}
+    replication_pair_restore_named: "{{ (replication_pair_restore_picked | default({})).named | default(false) }}"
+    # The declared directories under the source path, which step 9's summary names as replaced or deleted.
+    replication_pair_restore_subdirectory_paths: >-
+      {%- set source = (replication_pair_restore_declared_entry.source_path | regex_replace('/+$', '')) or '/' -%}
+      {%- set found = namespace(paths=[]) -%}
+      {%- for directory in qumulo_directories | default([]) if directory.path is defined and directory.state | default('present') == 'present' -%}
+        {%- set path = (directory.path | regex_replace('/+$', '')) or '/' -%}
+        {%- if path != source and path.startswith(source.rstrip('/') ~ '/') -%}
+          {%- set found.paths = found.paths + [path] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.paths | unique | list }}
+  vars:
+    replication_pair_restore_wanted: >-
+      {{ replication_pair_restore_entry
+         if replication_pair_restore_surveying | bool
+         else {'source_path': replication_pair_restore_picked.source_path, 'target': replication_pair_restore_picked.target_host,
+               'target_path': replication_pair_restore_picked.target_path} }}
+    replication_pair_restore_declared_entry: >-
+      {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+      {%- set wanted = [canonical(replication_pair_restore_wanted.source_path), replication_pair_restore_wanted.target,
+                        canonical(replication_pair_restore_wanted.target_path)] -%}
+      {%- set found = namespace(entry=none) -%}
+      {%- for entry in qumulo_replication_relationships | default([]) if found.entry is none and entry.state | default('present') == 'present' -%}
+        {%- if [canonical(entry.source_path), entry.target, canonical(entry.target_path)] == wanted -%}
+          {%- set found.entry = entry -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.entry }}
+
+- name: Start the relationship's state
+  ansible.builtin.set_fact:
+    replication_pair_restore_state: >-
+      {{ replication_pair_restore_state | combine({replication_pair_restore_name: {
+           'status': 'active', 'relationship_id': none, 'ran_step_3': false, 'wait_started': none, 'outcome': none,
+           'picked': replication_pair_restore_picked}}) }}
+  when:
+    - not replication_pair_restore_surveying | bool
+    - replication_pair_restore_name not in replication_pair_restore_state
+
+- name: Restore the relationship, keeping its failure
+  block:
+    # A restore takes at most nine steps, and the module's answers before them, such as the removal of a stale record.
+    - name: Ask the step module, and run its answer
+      ansible.builtin.include_tasks: restore_call.yml
+      loop: "{{ range(1 if replication_pair_restore_surveying | bool else 12) | list }}"
+      loop_control:
+        loop_var: replication_pair_restore_call
+
+    - name: Fail a relationship whose answers did not settle
+      ansible.builtin.fail:
+        msg: "the restore's step module gave no outcome and no wait after 12 answers"
+      when:
+        - not replication_pair_restore_surveying | bool
+        - replication_pair_restore_state[replication_pair_restore_name].status == 'active'
+  rescue:
+    # A restore record of an unknown format is the controller's problem, not the relationship's, so it stops the edge.
+    - name: Fail the edge on a failure that stops the run
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg }}"
+      when: ansible_failed_result.stops_run | default(false)
+
+    - name: Keep the relationship's failure as its outcome
+      ansible.builtin.set_fact:
+        replication_pair_restore_state: >-
+          {{ replication_pair_restore_state | combine({replication_pair_restore_name: {'status': 'decided', 'outcome': {
+               'name': replication_pair_restore_name, 'outcome': 'failed', 'fails': true, 'summary': '', 'note': '', 'sequence': [],
+               'message': (ansible_failed_result.msg | default('failed') | regex_replace('\.$', ''))
+                          ~ '. Fix the cause and run ' ~ replication_pair_restore_command ~ ' again.'}}}, recursive=true) }}
+      vars:
+        replication_pair_restore_command: >-
+          ansible-playbook qumulo.cluster.{{ 'edge_license_complete' if replication_pair_restore_entry_point == 'second_pass'
+          else 'replication_restore' }} -i <inventory> -l {{ inventory_hostname }}
+      when: not replication_pair_restore_surveying | bool

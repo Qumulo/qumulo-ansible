@@ -1,0 +1,13 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Require a free threshold, the only way to keep this cache below the floor
+  ansible.builtin.assert:
+    that: qumulo_capacity.free_threshold is defined
+    fail_msg: >-
+      {{ inventory_hostname }}: below_floor: {{ edge_cache_resize_plan.reason }}. Neither the clamp nor a rebuild
+      makes the cache that small; set qumulo_capacity.free_threshold to keep part of it free instead.
+    quiet: true
+
+- name: Apply the free threshold
+  ansible.builtin.include_tasks: free_threshold.yml

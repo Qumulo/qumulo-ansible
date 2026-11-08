@@ -1,0 +1,77 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Brings each edge's cache to qumulo_capacity.clamp by the route the
+# qumulo.cluster.edge_cache_resize role chooses, one edge at a time, because
+# raising a clamp re-forms that edge's quorum. Run it with --check first: the
+# role then only reports each edge's route and its inputs.
+#
+#   ansible-playbook playbooks/edge_cache_resize.yml -l edge01 --check
+#   ansible-playbook playbooks/edge_cache_resize.yml -l edge01
+#
+# The blocked_license and rebuild routes fail their edge on purpose, with the
+# hand-off or the plan. Under serial: 1 a failed edge ends the play for the
+# edges after it, whatever max_fail_percentage says, so each edge runs in a
+# block whose rescue keeps its message and ends only that edge, and the last
+# play fails, naming each edge that failed. A failed automatic rebuild still
+# ends the run, so the same failure cannot drain and destroy the edges after it.
+- name: Resize the cache of each edge
+  hosts: qumulo_edges
+  serial: 1
+  gather_facts: false
+  module_defaults:
+    group/qumulo.cluster.qumulo:
+      api_host: "{{ qumulo_api_host }}"
+      api_port: "{{ qumulo_api_port | default(8000) }}"
+      api_username: "{{ qumulo_api_username | default('admin') }}"
+      api_password: "{{ qumulo_api_password | default('') }}"
+      api_token: "{{ qumulo_api_token | default('') }}"
+      validate_certs: "{{ qumulo_validate_certs | default(true) }}"
+      ca_path: "{{ qumulo_ca_path | default(omit) }}"
+      expected_cluster_uuid: "{{ qumulo_cluster_uuid | default('') }}"
+  tasks:
+    - name: Resize the edge's cache, keeping a failure for the last play
+      block:
+        - name: Forget a failure an earlier play of this run kept
+          ansible.builtin.set_fact:
+            edge_cache_resize_failure: ""
+
+        - name: Check that the edge is the expected cluster, and wait until it is ready
+          qumulo.cluster.cluster_guard:
+
+        - name: Resize the cache
+          ansible.builtin.import_role:
+            name: qumulo.cluster.edge_cache_resize
+      rescue:
+        - name: Keep the edge's failure, named by the edge
+          ansible.builtin.set_fact:
+            edge_cache_resize_failure: >-
+              {{ edge_cache_resize_message if edge_cache_resize_message.startswith(inventory_hostname ~ ':')
+                 else inventory_hostname ~ ': ' ~ edge_cache_resize_message }}
+          vars:
+            edge_cache_resize_message: "{{ ansible_failed_result.msg | default('failed') }}"
+
+        - name: End the run when a rebuild failed, before it drains and destroys the next edge the same way
+          ansible.builtin.fail:
+            msg: "{{ edge_cache_resize_failure }}"
+          when: edge_cache_resize_rebuilding | default(false) | bool
+
+        - name: Go on with the next edge
+          ansible.builtin.meta: end_host
+
+- name: Report the edges that failed
+  hosts: qumulo_edges
+  gather_facts: false
+  tasks:
+    - name: Fail when an edge failed, naming each with its message
+      ansible.builtin.assert:
+        that: edge_cache_resize_failed == []
+        fail_msg: >-
+          {{ edge_cache_resize_failed | length }} of {{ ansible_play_hosts_all | length }} edges failed.
+          {{ edge_cache_resize_failed | join(' ') }}
+        quiet: true
+      run_once: true
+      vars:
+        edge_cache_resize_failed: >-
+          {{ ansible_play_hosts_all | map('extract', hostvars) | selectattr('edge_cache_resize_failure', 'defined')
+             | map(attribute='edge_cache_resize_failure') | select | list }}

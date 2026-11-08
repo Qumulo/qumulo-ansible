@@ -1,0 +1,448 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Gives a fresh cluster (the target) the configuration of another cluster (the
+# source), and leaves the source running as it was. Configuration only: no
+# data is copied; a replication relationship is the way to copy data.
+#
+#   ansible-playbook playbooks/clone_edge.yml -i inventory \
+#     -e clone_edge_source=edge01 -e clone_edge_target=edge02 -e clone_edge_name=edge02
+#
+# The target is an inventory host in qumulo_clusters for a cluster that is
+# formed and ACTIVE, as Terraform or Qumulo's installer leaves it, with its own
+# qumulo_api_host and credentials; its qumulo_cluster_uuid may be left out. It
+# must hold nothing formation does not create: no local user but admin and
+# guest, no domain join, no tenant but the one formation creates, and no share
+# or export but the factory ones in that tenant, unless
+# clone_edge_allow_configured_target is set or this clone wrote its file
+# before. The source is an inventory host, or a cluster outside the inventory
+# reached through clone_edge_source_api_host and the other clone_edge_source_*
+# variables below, which clone_edge_source then only names.
+#
+# qumulo.cluster.capture_info reads the source, changing nothing on it, and
+# qumulo.cluster.clone_host_vars copies what it read, except what belongs to one
+# cluster only, each by its own rule: the UUID is the target's, never the
+# source's or one the source took over in a rebuild; the name is
+# clone_edge_name, which is also the computer account in the domain, so the AD
+# join is a fresh join; the comments ask for a Nexus join key of the clone's
+# own and a license for its UUID; portals, replication relationships, the
+# network document, the tenants' networks, and the shares, exports and
+# directories in the source's spoke roots or receiving its replication, nested
+# under a tenant or not, and the quotas and snapshot policies on them, are left
+# out, since a peer's record of each, and the addresses, are the source's. The
+# tenants are kept with their names, services and SMB and NFS settings, so the
+# first pass creates each tenant with no network; declare the clone's networks
+# under its tenants. Variables the target's
+# inventory already defines are left out too, each with a note, since a
+# host_vars file outranks them; Ansible cannot tell a variable given with -e
+# from one the inventory defines, so give no captured variable with -e. The
+# baseline refuses a share or export declared twice, so each share or export
+# entry the inventory declares the same way, as a group's flat
+# qumulo_smb_shares can beside the tenants' shares the clone writes, or removes,
+# is left out too, with a note; one the inventory declares with other values
+# fails the play before it writes. The play refuses a target whose UUID is the source's or another inventory
+# host's, and a name the source or another inventory cluster has.
+#
+# The result goes to host_vars/<target>.yml beside the inventory source that
+# defines the target, or in clone_edge_host_vars_dir, sorted, each string
+# written !unsafe, with a header that names the source and comments that name
+# each secret to supply and what was left out. A run that would write a
+# different file over an existing one fails instead, and the file is left as
+# it was: remove it and pass -e clone_edge_allow_configured_target=true to
+# clone again, since the target is no longer fresh. So does a target that has
+# host_vars elsewhere, as adoption does.
+#
+# Then the cluster_baseline role runs on the target from that file: the first
+# pass. Its license hand-off says how to finish; without a join key or
+# qumulo_nexus_api_token, the registration is skipped without a word. The
+# secrets the first pass cannot do without, a password for each local user to
+# create and the AD join credentials, come from clone_edge_supply, keyed as
+# the comments name them, and are never written; a join key given there
+# registers the target in the same pass:
+#
+#   clone_edge_supply:
+#     "qumulo_local_users[svc-backup].password": "{{ vault_svc_backup_password }}"
+#     qumulo_ad.join_user: svc-qjoin
+#     qumulo_ad.join_password: "{{ vault_qumulo_ad_join_password }}"
+#     qumulo_monitoring.nexus_join_key: "{{ vault_edge02_join_key }}"
+#
+# The play fails, once the file is written, if one it cannot do without is
+# missing, naming each; a run without clone_edge_supply shows the keys.
+# -e clone_edge_check_only=true writes the file, then runs the baseline in
+# check mode, which changes nothing on the target and needs the same secrets.
+# Before it reads or writes anything, it refuses a target whose inventory
+# declares a portal or replication relationships: the portal_pair and
+# replication_pair roles skip the pairing only under --check, not under check
+# mode the check_mode keyword sets. Run the play with --check --diff instead,
+# which writes no file and changes nothing anywhere. A second run writes the
+# same file, and the baseline changes nothing.
+#
+# Variables:
+#   clone_edge_source, clone_edge_target, clone_edge_name  required
+#   clone_edge_supply          secrets for the first pass, as above; default {}
+#   clone_edge_check_only      run the baseline in check mode; default false
+#   clone_edge_allow_configured_target
+#                              clone onto a target that holds configuration; default false
+#   clone_edge_host_vars_dir   the absolute path to write <target>.yml in; default
+#                              host_vars/ beside the inventory source that defines the target
+#   clone_edge_source_api_host, clone_edge_source_api_port,
+#   clone_edge_source_api_username, clone_edge_source_api_password,
+#   clone_edge_source_api_token, clone_edge_source_validate_certs,
+#   clone_edge_source_ca_path, clone_edge_source_cluster_uuid
+#                              a source outside the inventory, read as the
+#                              playbooks' qumulo_* connection variables are
+- name: Check what to clone
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Require the source, the target and the clone's name
+      ansible.builtin.assert:
+        that:
+          - clone_edge_source | default('') | length > 0
+          - clone_edge_target | default('') | length > 0
+          - clone_edge_name | default('') | length > 0
+        fail_msg: >-
+          give the cluster to clone in clone_edge_source, the fresh cluster's inventory host in clone_edge_target, and
+          the clone's new name in clone_edge_name
+        quiet: true
+
+    - name: Require the target to be an inventory cluster other than the source
+      ansible.builtin.assert:
+        that:
+          - clone_edge_target in groups['qumulo_clusters'] | default([])
+          - clone_edge_target != clone_edge_source
+        fail_msg: >-
+          clone_edge_target must name the fresh cluster's own host in the qumulo_clusters group, not
+          {{ clone_edge_target }}
+        quiet: true
+
+    - name: Require the address of a source outside the inventory
+      ansible.builtin.assert:
+        that: clone_edge_source in hostvars or clone_edge_source_api_host is defined
+        fail_msg: >-
+          {{ clone_edge_source }} is no inventory host; add it to the inventory, or give its address in
+          clone_edge_source_api_host and its credentials in the other clone_edge_source_* variables
+        quiet: true
+
+    - name: Add the source outside the inventory, for this run only
+      ansible.builtin.add_host:
+        name: "{{ clone_edge_source }}"
+        qumulo_api_host: "{{ clone_edge_source_api_host }}"
+        qumulo_api_port: "{{ clone_edge_source_api_port | default(8000) }}"
+        qumulo_api_username: "{{ clone_edge_source_api_username | default('admin') }}"
+        qumulo_api_password: "{{ clone_edge_source_api_password | default('') }}"
+        qumulo_api_token: "{{ clone_edge_source_api_token | default('') }}"
+        qumulo_validate_certs: "{{ clone_edge_source_validate_certs | default(true) }}"
+        qumulo_ca_path: "{{ clone_edge_source_ca_path | default(omit) }}"
+        qumulo_cluster_uuid: "{{ clone_edge_source_cluster_uuid | default('') }}"
+      when: clone_edge_source not in hostvars
+      no_log: true  # it holds the source's password
+
+# The first play fails without clone_edge_target; a syntax check reads this
+# one without running that play, and the default matches no host.
+- name: Clone the source's configuration onto the target
+  hosts: "{{ clone_edge_target | default('clone_edge_target_unset') }}"
+  gather_facts: false
+  module_defaults:
+    group/qumulo.cluster.qumulo:
+      api_host: "{{ qumulo_api_host }}"
+      api_port: "{{ qumulo_api_port | default(8000) }}"
+      api_username: "{{ qumulo_api_username | default('admin') }}"
+      api_password: "{{ qumulo_api_password | default('') }}"
+      api_token: "{{ qumulo_api_token | default('') }}"
+      validate_certs: "{{ qumulo_validate_certs | default(true) }}"
+      ca_path: "{{ qumulo_ca_path | default(omit) }}"
+      expected_cluster_uuid: "{{ qumulo_cluster_uuid | default('') }}"
+  vars_files: [vars/host_vars_file.yml]
+  vars:
+    clone_edge_inventory_source: "{{ capture_sources | first | default('') }}"
+    clone_edge_dir: >-
+      {{ clone_edge_host_vars_dir if clone_edge_host_vars_dir is defined
+         else (clone_edge_inventory_source if clone_edge_inventory_source is directory
+               else clone_edge_inventory_source | dirname) ~ '/host_vars' }}
+    clone_edge_file: "{{ clone_edge_dir }}/{{ inventory_hostname }}.yml"
+  tasks:
+    - name: Require one inventory source to write the target's host_vars beside, or clone_edge_host_vars_dir
+      ansible.builtin.assert:
+        that: clone_edge_host_vars_dir is defined or capture_sources | length == 1
+        fail_msg: >-
+          {{ inventory_hostname }}: {{ 'no inventory file or directory defines it'
+          if capture_sources | length == 0 else 'it is in each of ' ~ capture_sources | join(' and ') }}, so the clone
+          cannot tell which host_vars directory to write; give -i the one source that defines it, or set
+          clone_edge_host_vars_dir
+        quiet: true
+
+    # include_vars reads a relative path against the playbook, and stat and copy against the working directory.
+    - name: Require an absolute clone_edge_host_vars_dir
+      ansible.builtin.assert:
+        that: clone_edge_host_vars_dir is not defined or clone_edge_host_vars_dir is ansible.builtin.abs
+        fail_msg: "clone_edge_host_vars_dir is {{ clone_edge_host_vars_dir | default('') }}; give it as an absolute path"
+        quiet: true
+
+    # The portal_pair and replication_pair roles skip the pairing only under
+    # --check; under check mode the check_mode keyword sets, they would wait
+    # for a pairing that never happens.
+    - name: Require a target without a portal or replication relationships for a check-only run
+      ansible.builtin.assert:
+        that: qumulo_portal is not defined and qumulo_replication_relationships is not defined
+        fail_msg: >-
+          {{ inventory_hostname }}: its inventory declares {{ 'a portal' if qumulo_portal is defined
+          else 'replication relationships' }}, which clone_edge_check_only cannot predict; run the clone with --check
+          --diff instead, which writes no file, or without clone_edge_check_only
+        quiet: true
+      when: clone_edge_check_only | default(false) | bool
+
+    - name: Read the cluster_baseline role's areas, which the clone leaves to Terraform
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../roles/cluster_baseline/vars/main.yml"
+
+    - name: Read the target's state and version
+      qumulo.cluster.cluster_info:
+        gather_subset: [node, version]
+      register: clone_edge_target_info
+
+    - name: Require a formed target that no other inventory host names
+      ansible.builtin.assert:
+        that:
+          - clone_edge_target_info.cluster.cluster_id is not none
+          - clone_edge_named_by == []
+        fail_msg: >-
+          {{ inventory_hostname }}: {{ 'it is ' ~ clone_edge_target_info.cluster.state ~ ' and belongs to no cluster yet;
+          form it first, as Terraform or the installer does' if clone_edge_target_info.cluster.cluster_id is none
+          else 'its UUID, ' ~ clone_edge_target_info.cluster.cluster_id ~ ', is the qumulo_cluster_uuid of '
+          ~ clone_edge_named_by | join(' and ') ~ ', so it is not a fresh cluster; give the fresh cluster as the target' }}
+        quiet: true
+      vars:
+        clone_edge_named_by: >-
+          {{ capture_inventory_clusters | dict2items
+             | selectattr('key', 'equalto', clone_edge_target_info.cluster.cluster_id | default('', true) | lower)
+             | map(attribute='value') | reject('equalto', inventory_hostname) | list }}
+
+    # tenants, so that the shares and exports sit under their tenants, where the fresh-target check reads them.
+    - name: Read what the target holds, which tells whether it is fresh and what its first pass needs
+      qumulo.cluster.capture_info:
+        gather_subset: [local_users, ad, smb, nfs, tenants, s3]
+        expected_cluster_uuid: "{{ clone_edge_target_info.cluster.cluster_id }}"
+      register: clone_edge_target_read
+
+    - name: Read the source, changing nothing on it
+      module_defaults:
+        group/qumulo.cluster.qumulo:
+          api_host: "{{ hostvars[clone_edge_source].qumulo_api_host }}"
+          api_port: "{{ hostvars[clone_edge_source].qumulo_api_port | default(8000) }}"
+          api_username: "{{ hostvars[clone_edge_source].qumulo_api_username | default('admin') }}"
+          api_password: "{{ hostvars[clone_edge_source].qumulo_api_password | default('') }}"
+          api_token: "{{ hostvars[clone_edge_source].qumulo_api_token | default('') }}"
+          validate_certs: "{{ hostvars[clone_edge_source].qumulo_validate_certs | default(true) }}"
+          ca_path: "{{ hostvars[clone_edge_source].qumulo_ca_path | default(omit) }}"
+          expected_cluster_uuid: "{{ hostvars[clone_edge_source].qumulo_cluster_uuid | default('') }}"
+      block:
+        - name: Read the source's state and version
+          qumulo.cluster.cluster_info:
+            gather_subset: [node, version]
+          register: clone_edge_source_info
+
+        - name: Require a formed source
+          ansible.builtin.assert:
+            that: clone_edge_source_info.cluster.cluster_id is not none
+            fail_msg: >-
+              {{ clone_edge_source }} is {{ clone_edge_source_info.cluster.state }}: it belongs to no cluster, so there is
+              nothing to clone; give a formed cluster as the source
+            quiet: true
+
+        # The areas the target's inventory gives to Terraform are not read.
+        - name: Read everything the collection configures on the source
+          qumulo.cluster.capture_info:
+            inventory_clusters: "{{ capture_inventory_clusters }}"
+            leave_out: "{{ cluster_baseline_owned_areas }}"
+          register: clone_edge_capture
+
+    - name: Look for the target's host_vars file
+      ansible.builtin.stat:
+        path: "{{ clone_edge_file }}"
+      register: clone_edge_existing
+      delegate_to: localhost
+
+    - name: Look for host_vars of the target's beside every inventory source
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: "{{ capture_host_vars_paths | reject('equalto', clone_edge_file) | list }}"
+      register: clone_edge_elsewhere
+      delegate_to: localhost
+
+    - name: Refuse a target with host_vars the clone does not write
+      ansible.builtin.fail:
+        msg: >-
+          {{ inventory_hostname }}: {{ clone_edge_found | join(' and ') }} already holds host_vars, and the clone writes
+          only {{ clone_edge_file }}; move what you keep into that file once the clone has written it, or into the
+          inventory's host entry or group_vars, remove the rest, then clone again
+      when: clone_edge_found | length > 0
+      vars:
+        clone_edge_found: "{{ clone_edge_elsewhere.results | selectattr('stat.exists') | map(attribute='item') | list }}"
+
+    - name: Read the file a run before this one wrote
+      ansible.builtin.slurp:
+        path: "{{ clone_edge_file }}"
+      register: clone_edge_existing_text
+      when: clone_edge_existing.stat.exists
+      delegate_to: localhost
+
+    # include_vars reads !unsafe, which the from_yaml filter cannot.
+    - name: Read the variables it holds
+      ansible.builtin.include_vars:
+        file: "{{ clone_edge_file }}"
+        name: clone_edge_written
+      when: clone_edge_existing.stat.exists
+
+    # A variable the file holds is the inventory's once the file exists, and is
+    # not one the inventory defines on its own. Only the keys of a mapping the
+    # inventory defines are kept, never its values, and only those whose value
+    # is not empty, so that a placeholder never counts as a secret given.
+    - name: Name each captured variable the target's inventory defines, with the keys of a mapping
+      ansible.builtin.set_fact:
+        clone_edge_inventory_defines: >-
+          {%- set found = namespace(defines={}) -%}
+          {%- for variable in clone_edge_capture.capture.host_vars -%}
+            {%- if variable in hostvars[inventory_hostname] and variable not in clone_edge_written | default({}) -%}
+              {%- set value = hostvars[inventory_hostname][variable] -%}
+              {%- set found.defines = found.defines | combine({variable: value | dict2items | selectattr('value') | map(attribute='key') | list
+                    if value is mapping else none}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ found.defines }}
+
+    # A second run of this clone finds the target configured by the first.
+    - name: Derive the target's host_vars from the source's
+      qumulo.cluster.clone_host_vars:
+        capture: "{{ clone_edge_capture.capture }}"
+        cluster_uuid: "{{ clone_edge_target_info.cluster.cluster_id }}"
+        cluster_name: "{{ clone_edge_name }}"
+        inventory_defines: "{{ clone_edge_inventory_defines }}"
+        names_in_use: >-
+          {{ groups['qumulo_clusters'] | reject('equalto', inventory_hostname) | map('extract', hostvars)
+             | selectattr('qumulo_cluster_name', 'defined') | map(attribute='qumulo_cluster_name') | list }}
+        target: "{{ clone_edge_target_read.capture }}"
+        allow_configured_target: "{{ clone_edge_allow_configured_target | default(false) | bool or clone_edge_existing.stat.exists }}"
+        supplied: "{{ (clone_edge_supply | default({})).keys() | list }}"
+      register: clone_edge_derived
+
+    - name: Require the name the inventory gives the target, when it gives one, to be the clone's
+      ansible.builtin.assert:
+        that: "'qumulo_cluster_name' in clone_edge_derived.host_vars or qumulo_cluster_name == clone_edge_name"
+        fail_msg: >-
+          {{ inventory_hostname }}: the inventory names it {{ qumulo_cluster_name | default('') }}, not
+          {{ clone_edge_name }}; give that name in clone_edge_name, or take qumulo_cluster_name out of the inventory
+        quiet: true
+
+    # A variable the inventory defines stays in force beside the file, as a group's flat qumulo_smb_shares does
+    # beside the qumulo_tenants the clone writes, so the file leaves out each entry the inventory declares too. A
+    # variable an earlier clone's file holds is that file's, not the inventory's. The target creates each share from the
+    # inventory's entry alone, so a key the source's share sets that the inventory's entry leaves out refuses too.
+    - name: Leave out the shares and exports the target's inventory declares too
+      ansible.builtin.set_fact:
+        clone_edge_kept: >-
+          {{ clone_edge_derived.host_vars | qumulo.cluster.host_vars_duplicates(hostvars[inventory_hostname],
+               lacks_tenant_1=clone_edge_target_read.capture.left_out | selectattr('what', 'equalto', 'tenant 1') | list | length > 0,
+               exclude=clone_edge_written | default({}) | list, cluster_holds_entries=false) }}
+
+    - name: Refuse host_vars that declare a share or export the target's inventory declares otherwise
+      ansible.builtin.fail:
+        msg: >-
+          {{ inventory_hostname }}: the inventory already declares what the clone would write, in a way it cannot leave
+          out, and the baseline refuses a share or export declared twice: {{ clone_edge_kept.refusals | join('; ') }}.
+          Give the inventory's entry each such key with the value the source holds, change the share or export on the
+          source to the inventory's values, or take the entry out of the inventory; then clone again. Nothing was
+          written, and nothing changed on the target
+      when: clone_edge_kept.refusals | length > 0
+
+    # Each string is written !unsafe, so that Ansible never templates one read from the source.
+    - name: Render the target's host_vars
+      qumulo.cluster.host_vars_text:
+        variables: "{{ clone_edge_kept.variables }}"
+        header: |-
+          Cloned from {{ clone_edge_source }}, cluster {{ clone_edge_derived.source_uuid }}, by playbooks/clone_edge.yml
+          onto cluster {{ clone_edge_target_info.cluster.cluster_id | lower }}. Configuration only: no data is copied.
+          Variables the inventory already defines are left out. A second clone writes the same file, and refuses to
+          replace it once it differs.
+        supply: "{{ clone_edge_derived.supply }}"
+        left_out: "{{ clone_edge_derived.left_out + clone_edge_kept.left_out }}"
+      register: clone_edge_text
+      delegate_to: localhost
+
+    - name: Write the target's host_vars
+      vars:
+        clone_edge_content: "{{ clone_edge_text.text }}"
+      block:
+        - name: Refuse to replace a host_vars file the clone would write differently
+          ansible.builtin.fail:
+            msg: >-
+              {{ inventory_hostname }}: {{ clone_edge_file }} holds other host_vars than this clone writes, and the clone
+              never replaces them; remove the file and pass -e clone_edge_allow_configured_target=true to clone again,
+              since the target is no longer fresh, or manage the target with playbooks/baseline.yml
+          when:
+            - clone_edge_existing.stat.exists
+            - clone_edge_existing_text.content | b64decode != clone_edge_content
+
+        - name: Create the target's host_vars directory
+          ansible.builtin.file:
+            path: "{{ clone_edge_dir }}"
+            state: directory
+            mode: "0755"
+          delegate_to: localhost
+
+        - name: Write the file
+          ansible.builtin.copy:
+            dest: "{{ clone_edge_file }}"
+            mode: "0644"
+            content: "{{ clone_edge_content }}"
+          delegate_to: localhost
+
+    - name: Require the secrets the first pass cannot do without
+      ansible.builtin.assert:
+        that: clone_edge_derived.first_pass_needs == []
+        fail_msg: >-
+          {{ inventory_hostname }}: the first baseline needs {{ clone_edge_derived.first_pass_needs | join(', ') }},
+          which neither clone_edge_supply nor the inventory gives; give each in clone_edge_supply, keyed as the supply
+          lines in {{ clone_edge_file }} name them; nothing changed on the target
+        quiet: true
+
+    # The run's own copy of the variables, with the secrets merged in. Each
+    # outranks the inventory's for this run alone, and none is written.
+    - name: Give the baseline the target's variables, with the secrets clone_edge_supply holds
+      ansible.builtin.set_fact:
+        "{{ item.key }}": "{{ item.value }}"  # noqa: var-naming[no-jinja]
+      loop: "{{ clone_edge_run_vars | dict2items }}"
+      no_log: true  # the secrets
+      vars:
+        # A mapping the file keeps though the inventory defines it holds only the
+        # inventory's secrets, which this run takes from the inventory. A key of
+        # clone_edge_supply is variable.key, or qumulo_local_users[name].password;
+        # clone_host_vars refused any other.
+        clone_edge_run_vars: >-
+          {%- set out = namespace(vars=clone_edge_kept.variables) -%}
+          {%- for variable, keys in clone_edge_inventory_defines.items() -%}
+            {%- if keys and variable in out.vars -%}
+              {%- set out.vars = out.vars | combine({variable: out.vars[variable] | combine(hostvars[inventory_hostname][variable])}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- for path, value in (clone_edge_supply | default({})).items() -%}
+            {%- if path.startswith('qumulo_local_users[') and path.endswith('].password') -%}
+              {%- set user = path.removeprefix('qumulo_local_users[').removesuffix('].password') -%}
+              {%- set users = namespace(entries=[]) -%}
+              {%- for entry in out.vars.qumulo_local_users -%}
+                {%- set users.entries = users.entries + [entry | combine({'password': value}) if entry.name == user else entry] -%}
+              {%- endfor -%}
+              {%- set out.vars = out.vars | combine({'qumulo_local_users': users.entries}) -%}
+            {%- else -%}
+              {%- set variable, key = path.split('.', 1) -%}
+              {%- set out.vars = out.vars | combine({variable: out.vars[variable] | default({}) | combine({key: value})}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ out.vars }}
+
+    - name: Run the first baseline on the target
+      ansible.builtin.import_role:
+        name: qumulo.cluster.cluster_baseline
+      vars:
+        cluster_baseline_check_mode: "{{ clone_edge_check_only | default(false) | bool or ansible_check_mode }}"
+      check_mode: "{{ clone_edge_check_only | default(false) | bool or ansible_check_mode }}"

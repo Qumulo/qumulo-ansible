@@ -1,0 +1,263 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Written once the edge has its new UUID, so a replay that fails later still
+# leaves the UUID and the host_vars patch behind, and again at the end. A new
+# UUID always needs its own license, so the license is handed off unless the
+# baseline found it active: the replay is the first pass, and the second runs
+# once Qumulo has issued the license for the new UUID. The patch holds the
+# whole qumulo_previous_cluster_uuids list, since applying it replaces a
+# list, and the new UUID unless the inventory already names it, as
+# Terraform's output does once the reinstall tasks replaced the edge's
+# resource: a UUID or an address in host_vars would outrank the inventory
+# plugin's from then on, so that patch holds the list alone.
+- name: Note whether the inventory already names the new UUID
+  ansible.builtin.set_fact:
+    edge_rebuild_uuid_in_inventory: "{{ edge_rebuild_inventory_uuid | default('') in [qumulo_cluster_uuid | lower] }}"
+
+# Every source host's step 21 for a relationship into the edge is left to
+# the second pass, the capacity gate's, or to the source's baseline when the
+# edge's capacity is not declared; the replay never runs it. A held
+# relationship is one the edge is the source of, which its own step 21 kept.
+- name: Gather the relationships into the edge, and the held ones
+  ansible.builtin.set_fact:
+    edge_rebuild_into_edge: >-
+      {%- set found = namespace(pairs=[]) -%}
+      {%- for name in groups['all'] if name != inventory_hostname -%}
+        {%- for entry in hostvars[name].qumulo_replication_relationships | default([])
+              if entry.target | default('') == inventory_hostname and not entry.target_gone | default(false) | bool -%}
+          {%- set found.pairs = found.pairs + [{'source': name, 'source_path': entry.source_path, 'target_path': entry.target_path,
+                                                'present': entry.state | default('present') == 'present'}] -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.pairs }}
+    edge_rebuild_held: "{{ cluster_baseline_replication_results | default([]) | selectattr('status', 'equalto', 'held') | list }}"
+
+# The patch always holds the old UUID, so applying it leads the hand-offs on
+# both paths: until then the inventory names the wrong UUID, or none of the
+# edge's previous ones.
+- name: List what is left to hand off
+  ansible.builtin.set_fact:
+    edge_rebuild_hand_offs: >-
+      {{ ['Apply host_vars_patch to host_vars/' ~ inventory_hostname ~ '.yml first.']
+         + ([inventory_hostname ~ ' runs without a license.'] if edge_rebuild_runs_unlicensed else
+           [cluster_baseline_license_hand_off
+           if cluster_baseline_license_pending | default(false) | bool else
+           ('No license check ran for ' ~ qumulo_cluster_uuid ~ ', '
+            ~ ('since qumulo_capacity is not declared' if qumulo_capacity is not defined
+               else 'since the baseline failed before it' if edge_rebuild_report_status | default('') == 'formed; the baseline failed'
+               else 'since the baseline has not run yet')
+            ~ '; a new UUID needs its own license, which Qumulo issues in Nexus once the edge is registered there. Put the '
+            ~ 'license document issued for ' ~ qumulo_cluster_uuid ~ ' in qumulo_capacity.license_document for '
+            ~ inventory_hostname ~ ', encrypted with ansible-vault, then run ansible-playbook '
+            ~ 'qumulo.cluster.edge_license_complete -i <inventory> -l ' ~ inventory_hostname ~ ', which applies it (G-LICENSE).')]
+          if cluster_baseline_license_pending | default(false) | bool or cluster_baseline_license is not defined else [])
+         + (['The license allows more capacity than the file system has, and the clamp did not change, so the cap '
+             ~ 'applies at the next quorum formation.']
+            if cluster_baseline_needs_quorum_bounce | default(false) | bool else [])
+         + (['The Nexus join key in qumulo_monitoring.nexus_join_key is spent; replace it before it is needed again.']
+            if qumulo_monitoring.nexus_join_key | default('') | length > 0 and qumulo_nexus_api_token | default('') | length == 0
+            else [])
+         + (['Retire ' ~ edge_rebuild_previous_uuid ~ ' in Nexus, or ask Qumulo Care to; without qumulo_nexus_api_token '
+             ~ 'the rebuild cannot (G-NEXUS-RETIRE).']
+            if qumulo_nexus_api_token | default('') | length == 0 else [])
+         + (["admin's password on the new edge is edge_rebuild_admin_password, not the qumulo_api_password the inventory "
+             ~ 'connects with; an inventory that connects as admin must set qumulo_api_password to it.']
+            if edge_rebuild_admin_password_changed | default(false) | bool else [])
+         + ["Check the DNS A and PTR records for " ~ qumulo_api_host ~ " and the edge's node addresses."]
+         + ([] if edge_rebuild_uuid_in_inventory else
+            ['If Terraform holds this edge in its state, that state still names ' ~ edge_rebuild_previous_uuid
+             ~ '; replace the resource or override qumulo_cluster_uuid (G-TF-STALE).'])
+         + (['The edge joined ' ~ qumulo_ad.domain ~ ' as ' ~ qumulo_cluster_name | upper ~ '$. '
+             ~ ('The leave deleted the old computer account, with its group memberships and delegations; grant them again.'
+                if edge_rebuild_previous.ad_left | default(false) | bool
+                else 'The old computer account was reused; check its group memberships and delegations.')]
+            if qumulo_ad is defined else [])
+         + (['The hub ' ~ edge_rebuild_records_left | join(', ') ~ ' may still hold its record of ' ~ edge_rebuild_previous_uuid
+             ~ ', which the predestroy phase could not reach; delete it there with qumulo.cluster.portal_hub, state absent and '
+             ~ 'allow_data_loss (G-PORTAL-STALE).']
+            if edge_rebuild_records_left else [])
+         + (['Until host_vars_patch is applied, the replication step of ' ~ edge_rebuild_into_edge | map(attribute='source') | unique | join(', ')
+             ~ ' fails at the identity guard of ' ~ inventory_hostname ~ ', which still expects ' ~ edge_rebuild_previous_uuid ~ '.']
+            if edge_rebuild_into_edge and not edge_rebuild_uuid_in_inventory else [])
+         + edge_rebuild_second_pass
+         + edge_rebuild_held_texts
+         + (edge_rebuild_previous.acknowledged | default([]) | map(attribute='area') | map('extract', edge_rebuild_hand_off_text)
+            | list | zip(edge_rebuild_previous.acknowledged | default([]) | map(attribute='detail')) | map('join', ' ') | list)
+         + edge_rebuild_s3_made
+         + edge_rebuild_s3_failed
+         + (['The old edge held the lock keys ' ~ edge_rebuild_previous.security_keys | join(', ') ~ ', which a rebuild does not '
+             ~ 'carry; register each again with qumulo.cluster.security_key, from its private key or a signature of its name.']
+            if edge_rebuild_previous.security_keys | default([]) else [])
+         + (["The old edge's key store could not be read, so the record names none of its lock keys; register again with "
+             ~ 'qumulo.cluster.security_key each key its snapshot policies declare.']
+            if 'security_keys' in edge_rebuild_previous and edge_rebuild_previous.security_keys is none else [])
+         + cluster_baseline_policy_lock_key_hand_offs | default([]) }}
+  vars:
+    # An edge that declares license: none expects no license, so no license is handed off while it holds none.
+    edge_rebuild_runs_unlicensed: >-
+      {{ (qumulo_capacity | default({})).license | default('pending') == 'none'
+         and (cluster_baseline_license | default({})).license_status | default('absent') != 'active' }}
+    # A message that names the restore has the second pass as its way on, so it gets no baseline run of its own.
+    edge_rebuild_held_texts: >-
+      {%- set found = namespace(texts=[]) -%}
+      {%- for held in edge_rebuild_held -%}
+        {%- set found.texts = found.texts + [held.message if held.restore_form | default(false) | bool
+              else held.message ~ ' The run that releases it is ansible-playbook qumulo.cluster.baseline -i <inventory> -l '
+              ~ inventory_hostname ~ ', after the host_vars patch.'] -%}
+      {%- endfor -%}
+      {{ found.texts }}
+    # The second pass creates each one create-first, and deletes the source's record of the old UUID after it. A pair
+    # the predestroy phase found to be the only copy of a rebuilt source's data (outcome only_copy) was acknowledged
+    # lost, and with it the hold on the source's side, so its hand-off says so instead. One whose target path is equal
+    # to or nested with the source path of a hold by X, a holder from a previous UUID of the edge, waits for that
+    # restore, which fills the path with its last replica, as the second pass defers it; a hold by O4 alone has no X,
+    # so no restore and no deferral. While it waits, a baseline run of its source would create it before the restore,
+    # so the source's other relationships into the edge get no baseline run of their own; the deferral's run creates
+    # them all.
+    edge_rebuild_second_pass: >-
+      {%- set found = namespace(texts=[], waiting=[], hold=none) -%}
+      {%- set previous = (qumulo_previous_cluster_uuids | default([]) + [edge_rebuild_previous_uuid]) | map('lower') | list -%}
+      {%- set x_holds = namespace(paths=[]) -%}
+      {%- for held in edge_rebuild_held
+            if held.holders | default([]) | map(attribute='source_cluster_uuid') | map('lower') | select('in', previous) | list -%}
+        {%- set x_holds.paths = x_holds.paths + [(held.key.source_path | regex_replace('/+$', '')) or '/'] -%}
+      {%- endfor -%}
+      {%- set held_paths = x_holds.paths -%}
+      {%- for pair in edge_rebuild_into_edge if pair.present -%}
+        {%- set target = (pair.target_path | regex_replace('/+$', '')) or '/' -%}
+        {%- for path in held_paths if path == target or target.startswith(path.rstrip('/') ~ '/') or path.startswith(target.rstrip('/') ~ '/') -%}
+          {%- set found.waiting = found.waiting + [pair.source] -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {%- for pair in edge_rebuild_into_edge if pair.present -%}
+        {%- set name = pair.source ~ ':' ~ pair.source_path ~ ' to ' ~ inventory_hostname ~ ':' ~ pair.target_path -%}
+        {%- set target = (pair.target_path | regex_replace('/+$', '')) or '/' -%}
+        {%- set found.hold = none -%}
+        {%- for path in held_paths if found.hold is none
+              and (path == target or target.startswith(path.rstrip('/') ~ '/') or path.startswith(target.rstrip('/') ~ '/')) -%}
+          {%- set found.hold = path -%}
+        {%- endfor -%}
+        {%- set only_copy = edge_rebuild_previous.replication | default([]) | selectattr('side', 'equalto', 'target')
+              | selectattr('outcome', 'equalto', 'only_copy')
+              | selectattr('source_path', 'equalto', pair.source_path | regex_replace('(.)/+$', '\\1'))
+              | selectattr('target_path', 'equalto', pair.target_path | regex_replace('(.)/+$', '\\1')) | list -%}
+        {%- set run = ('Run ansible-playbook qumulo.cluster.edge_license_complete -i <inventory> -l ' ~ inventory_hostname
+                       ~ '; after the clamp it creates the relationship to ' ~ qumulo_cluster_uuid)
+                      if edge_rebuild_runs_unlicensed else
+                      ('Run ansible-playbook qumulo.cluster.edge_license_complete -i <inventory> -l ' ~ inventory_hostname
+                       ~ ' once the license applies; after the license and the clamp it creates the relationship to ' ~ qumulo_cluster_uuid)
+                      if qumulo_capacity is defined else
+                      ('Run ansible-playbook qumulo.cluster.baseline -i <inventory> -l ' ~ pair.source ~ ', which creates the relationship to '
+                       ~ qumulo_cluster_uuid) -%}
+        {%- if found.hold is not none -%}
+          {%- set found.texts = found.texts + [pair.source ~ ':' ~ pair.source_path ~ ' to ' ~ inventory_hostname ~ ':' ~ target
+                ~ ' waits for the restore of ' ~ found.hold ~ ', which fills ' ~ target ~ ' with its last replica. Once that restore is done, '
+                ~ 'set allow_non_empty_target: true on the entry and run ansible-playbook qumulo.cluster.baseline -i <inventory> -l '
+                ~ pair.source ~ '.'] -%}
+        {%- elif qumulo_capacity is not defined and pair.source in found.waiting -%}
+          {#- No hand-off: the source's baseline run that the deferral's hand-off names creates this one too. -#}
+        {%- elif only_copy -%}
+          {%- set found.texts = found.texts + [name ~ ': the old edge held what may have been the only copy of the data ' ~ pair.source
+                ~ ' had before its own rebuild, under its record from ' ~ only_copy[0].peer_cluster_uuid ~ ', which was the hold on '
+                ~ pair.source ~ "'s side. Both are gone with the old edge, as local_data and replication acknowledged. The second pass "
+                ~ 'creates the relationship from ' ~ pair.source ~ ':' ~ pair.source_path ~ ' as it is, so copy back into it first any copy '
+                ~ 'of that data you kept. ' ~ run ~ '.'] -%}
+        {%- else -%}
+          {%- set found.texts = found.texts + [name ~ ' waits for the second pass: ' ~ pair.source ~ ' has no replica of ' ~ pair.source_path
+                ~ ' until then. ' ~ run ~ ', then deletes ' ~ (pair.source ~ "'s" if qumulo_capacity is defined else 'its') ~ ' record of '
+                ~ edge_rebuild_previous_uuid ~ '.'] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.texts }}
+    # Each S3 key entry the baseline's last step failed on, which a run after the patch tries again.
+    edge_rebuild_s3_failed: >-
+      {%- set found = namespace(lines=[]) -%}
+      {%- for result in (cluster_baseline_s3_key_results | default({})).results | default([]) if result.failed | default(false) -%}
+        {%- set found.lines = found.lines + ['The S3 key entry for ' ~ result.item.user ~ ' failed: ' ~ result.msg | default('') ~ '.'] -%}
+      {%- endfor -%}
+      {{ found.lines }}
+    # Each key the baseline's last step made, with the file of its secret.
+    edge_rebuild_s3_made: >-
+      {%- set found = namespace(lines=[]) -%}
+      {%- for key in cluster_baseline_s3_access_keys | default([]) -%}
+        {%- set found.lines = found.lines + ['Made S3 access key ' ~ key.access_key_id ~ ' for ' ~ key.user ~ '; its secret is in '
+              ~ key.secret_file ~ '. Give it to the key\'s consumers, and set access_key_id to it in qumulo_s3_access_keys.'] -%}
+      {%- endfor -%}
+      {{ found.lines }}
+    # The declared hub's record the replay deletes itself.
+    edge_rebuild_records_left: >-
+      {{ edge_rebuild_previous.portals | default([]) | selectattr('hub_record_left') | rejectattr('declared')
+         | map(attribute='hub_cluster_uuid') | list }}
+    edge_rebuild_hand_off_text:
+      access_tokens: "Access tokens are gone with the old edge; issue new ones and give them to their consumers:"
+      s3_keys: >-
+        S3 access keys are gone with the old edge, and the replay makes a new one for each key qumulo_s3_access_keys
+        declares; each key it made is named below with the file of its secret, and each entry that failed is named too;
+        give each secret to its consumers, and set the entry's access_key_id to the new id before the next run. The old
+        edge held
+      replication: >-
+        Replication the inventory does not declare is gone with the old edge, and each peer keeps its record of it; declare
+        it and run the baseline on its source, or delete that record on the peer:
+      kmip: "The key store was not replayed; configure it again:"
+      network: "The network was not replayed; configure it again:"
+      local_data: "Data outside the portal's spoke roots is gone with the old edge; restore it from a copy if it is needed:"
+
+- name: Create the edge's artifact directory
+  ansible.builtin.file:
+    path: "{{ edge_rebuild_host_dir }}"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+
+- name: Write the rebuild report
+  ansible.builtin.copy:
+    dest: "{{ edge_rebuild_host_dir }}/rebuild-{{ edge_rebuild_stamp }}.yml"
+    mode: "0600"
+    content: |
+      {% if edge_rebuild_uuid_in_inventory %}
+      # Written by the qumulo.cluster.edge_rebuild role's replay. The inventory already names the new UUID, so
+      # host_vars_patch holds only qumulo_previous_cluster_uuids, and the management network the preflight inferred
+      # when there is one; apply it to host_vars/{{ inventory_hostname }}.yml,
+      # and leave the UUID and the replication address to the inventory. From then on playbooks/baseline.yml
+      # manages the edge.
+      {% else %}
+      # Written by the qumulo.cluster.edge_rebuild role's replay. Apply host_vars_patch to
+      # host_vars/{{ inventory_hostname }}.yml; from then on playbooks/baseline.yml manages the edge.
+      {% endif %}
+      {{ edge_rebuild_report | combine({'previous_record': edge_rebuild_previous_record} if edge_rebuild_previous_record | default('') else {})
+         | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}
+  delegate_to: localhost
+  vars:
+    edge_rebuild_report:
+      status: "{{ edge_rebuild_report_status }}"
+      previous_cluster_uuid: "{{ edge_rebuild_previous_uuid }}"
+      cluster_uuid: "{{ qumulo_cluster_uuid }}"
+      # Whether the replay formed the edge, or adopted one formed before it.
+      formed: "{{ edge_rebuild_guard.state == 'UNCONFIGURED' }}"
+      # The whole list, since applying the patch replaces it, with the old UUID, even when the formation failed
+      # before the replay added it; never the new UUID.
+      # With the management network the preflight inferred, which the inventory lacks and later baselines need too.
+      host_vars_patch: >-
+        {{ ({} if edge_rebuild_uuid_in_inventory else {'qumulo_cluster_uuid': qumulo_cluster_uuid})
+           | combine({'qumulo_previous_cluster_uuids': (qumulo_previous_cluster_uuids | default([]) | map('lower') | list
+                                                        + [edge_rebuild_previous_uuid]) | unique | reject('equalto', qumulo_cluster_uuid) | list})
+           | combine({'qumulo_management_network': edge_rebuild_management_network}
+                     if qumulo_management_network | default(none) is none and edge_rebuild_management_network | default(none) is not none
+                     else {}) }}
+      hub_record_of_previous: >-
+        {{ 'deleted' if edge_rebuild_stale_hub_deleted | default({}) is changed
+           else ('none' if qumulo_portal is defined else 'no portal') }}
+      hand_offs: "{{ edge_rebuild_hand_offs }}"
+      # The restore's report claim: each relationship step 21 held, by its key, until a restore stamp names this report.
+      held: >-
+        {%- set found = namespace(entries=[]) -%}
+        {%- for result in edge_rebuild_held -%}
+          {%- set found.entries = found.entries + [{'key': {
+                'source_path': (result.key.source_path | regex_replace('/+$', '')) or '/',
+                'target_host': result.key.target_host,
+                'target_cluster_uuid': result.key.target_cluster_uuid | lower,
+                'target_path': (result.key.target_path | regex_replace('/+$', '')) or '/'},
+              'holders': result.holders | map(attribute='id') | list}] -%}
+        {%- endfor -%}
+        {{ found.entries }}

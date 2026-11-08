@@ -1,0 +1,45 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One relationship's steps: rounds of read, plan and one step, until the plan says done, or, with
+# replication_failover_stop_at, until that step is next. A failback from failed over has seven steps, and each
+# step's own polls end it where the next starts, so twelve rounds leave room for rounds that only read a lagging
+# record (research F13).
+- name: Start {{ replication_failover_item.name }}
+  ansible.builtin.set_fact:
+    replication_failover_done: false
+    replication_failover_last_verb: null
+    replication_failover_steps_run: []
+    replication_failover_first: {}
+    replication_failover_notes: []
+
+- name: Run the rounds of {{ replication_failover_item.name }}
+  ansible.builtin.include_tasks: round.yml
+  loop: "{{ range(12) | list }}"
+  loop_control:
+    loop_var: replication_failover_round
+    label: "{{ replication_failover_item.name }} round {{ replication_failover_round + 1 }}"
+
+- name: Fail when the relationship did not finish in its rounds, {{ replication_failover_item.name }}
+  ansible.builtin.fail:
+    msg: >-
+      {{ replication_failover_item.name }} still had steps left after twelve rounds, the next {{ replication_failover_answer.step.name | default('none') }};
+      run again to resume from the records.
+  when: not replication_failover_done | bool
+
+- name: Keep the outcome of {{ replication_failover_item.name }}
+  ansible.builtin.set_fact:
+    replication_failover_results: >-
+      {{ replication_failover_results | rejectattr('name', 'equalto', replication_failover_item.name) | list
+         + [{'name': replication_failover_item.name, 'id': replication_failover_answer.relationship_id,
+             'state_before': (replication_failover_results | selectattr('name', 'equalto', replication_failover_item.name)
+                              | map(attribute='state_before') | first | default(replication_failover_first.state)),
+             'state_after': replication_failover_answer.state,
+             'steps': (replication_failover_results | selectattr('name', 'equalto', replication_failover_item.name)
+                       | map(attribute='steps') | first | default([])) + replication_failover_steps_run,
+             'plan': replication_failover_first.steps | map(attribute='text') | list,
+             'notes': (replication_failover_first.notes | default([]) + replication_failover_notes + replication_failover_answer.notes) | unique}] }}
+    replication_failover_waiting: >-
+      {{ replication_failover_waiting + ([{'name': replication_failover_item.name, 'target': replication_failover_item.entry.target,
+         'relationship_id': replication_failover_answer.relationship_id}]
+         if (replication_failover_answer.step or {}).name | default('') == replication_failover_stop_at != '' else []) }}

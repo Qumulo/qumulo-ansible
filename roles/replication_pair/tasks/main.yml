@@ -1,0 +1,68 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The role asserts its own inputs only, as portal_pair does; the inventory's
+# rules are cluster_baseline's step 21, so a play can call the role directly.
+- name: Forget the result of an earlier relationship
+  ansible.builtin.set_fact:
+    replication_pair_result: {}
+
+- name: Name the relationship and its two clusters
+  ansible.builtin.set_fact:
+    replication_pair_state: "{{ replication_pair_relationship.state | default('present') }}"
+    replication_pair_source_uuid: "{{ replication_pair_source.expected_cluster_uuid | default('') | lower }}"
+    replication_pair_target_uuid: >-
+      {{ ((replication_pair_target | default({}, true)).expected_cluster_uuid
+          | default(replication_pair_relationship.target_cluster_uuid | default(''), true)) | lower }}
+    replication_pair_name: >-
+      {{ replication_pair_relationship.source_path | default('') }} to
+      {{ replication_pair_target_host }}:{{ replication_pair_relationship.target_path | default('') }}
+
+# The restore's files are named by this key's hash, and a rebuild report's held: list holds it.
+- name: Name the relationship's key, its paths without their trailing slash
+  ansible.builtin.set_fact:
+    replication_pair_key:
+      source_path: "{{ (replication_pair_relationship.source_path | default('') | regex_replace('/+$', '')) or '/' }}"
+      target_host: "{{ replication_pair_target_host }}"
+      target_cluster_uuid: "{{ replication_pair_target_uuid }}"
+      target_path: "{{ (replication_pair_relationship.target_path | default('') | regex_replace('/+$', '')) or '/' }}"
+
+- name: Require two different cluster UUIDs, the paths, and a target address that is an IP literal
+  ansible.builtin.assert:
+    that:
+      - replication_pair_source_uuid | length > 0
+      - replication_pair_target_uuid | length > 0
+      - replication_pair_source_uuid != replication_pair_target_uuid
+      - replication_pair_relationship.source_path | default('') | length > 0
+      - replication_pair_relationship.target_path | default('') | length > 0
+      - >-
+        replication_pair_state == 'absent'
+        or replication_pair_target_address | default('', true) | string is match(replication_pair_ipv4)
+        or replication_pair_target_address | default('', true) | string is match(replication_pair_ipv6)
+    fail_msg: >-
+      {{ replication_pair_name }}: replication_pair_source and replication_pair_target must each set
+      expected_cluster_uuid to its own cluster's UUID, and the two must differ; the relationship needs source_path and
+      target_path; and replication_pair_target_address, the target host's qumulo_replication_address, must be the IP
+      address the source reaches the target at, never a host name
+      (it is {{ replication_pair_target_address | default('unset', true) }})
+    quiet: true
+  vars:
+    replication_pair_ipv4: '^((25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$'
+    # Loose: the source module refuses, before any write, what this lets through that is not an address.
+    replication_pair_ipv6: '^[0-9A-Fa-f.]*:[0-9A-Fa-f:.]*$'
+
+- name: Require target_gone only to remove, with the target's UUID and no release
+  ansible.builtin.assert:
+    that:
+      - replication_pair_state == 'absent'
+      - replication_pair_release == []
+    fail_msg: >-
+      {{ replication_pair_name }}: replication_pair_target_gone removes a relationship whose target is gone for good,
+      so it needs state absent; it deletes only on the source, so a release, which binds to a record on the target,
+      has nothing to lift
+    quiet: true
+  when: replication_pair_target_gone | bool
+
+- name: Pair or remove
+  ansible.builtin.include_tasks:
+    file: "{{ 'pair.yml' if replication_pair_state == 'present' else 'remove.yml' }}"

@@ -1,0 +1,67 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+name: Bug report
+description: A module, role or playbook did something it should not have.
+labels: [community]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue is public. Do not paste passwords, tokens or keys, your clusters' addresses or host names, or anything
+        else you would not publish. Replace such values with placeholders such as `cluster.example.com`.
+  - type: input
+    id: collection-version
+    attributes:
+      label: Collection version
+      description: "`ansible-galaxy collection list qumulo.cluster` shows it."
+    validations:
+      required: true
+  - type: input
+    id: core-version
+    attributes:
+      label: Qumulo Core version
+      description: The version of the cluster the task ran against, for example 7.10.3.
+    validations:
+      required: true
+  - type: input
+    id: ansible-core-version
+    attributes:
+      label: ansible-core version
+      description: "`ansible --version` shows it."
+    validations:
+      required: false
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: What the cluster runs on.
+      options:
+        - Hardware cluster
+        - Cloud Native Qumulo (CNQ)
+        - Virtual edge
+        - Hardware edge
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What the module did, with its output. Redact it first.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: false
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: The task
+      description: The task or playbook that shows it, with each address, host name and secret redacted.
+      render: yaml
+    validations:
+      required: false

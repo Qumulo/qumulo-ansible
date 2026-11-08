@@ -1,0 +1,216 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The restore of a rebuilt edge's relationships from their replicas, from the
+# edge's host context (plan, Restore). Both entry points run this file:
+# playbooks/replication_restore.yml, with replication_restore_entry_point
+# playbook, and the second pass's restore play, with second_pass, which
+# passes its target read and report claim as replication_restore_targets and
+# replication_restore_report_claims; without them this file reads both.
+# replication_pair_connections holds the edge's and each target host's
+# connection, as cluster_baseline's connections.yml records them.
+#
+# qumulo.cluster.replication_restore_step decides everything: first which
+# relationships the run picks, then, before every step, which step runs
+# next, from fresh reads; the role runs only the answer. Phase 1 takes each
+# picked relationship in turn up to step 4, the full sync's wait, before the
+# next one's step 1. Phase 2 waits for the syncs together, in rounds, and
+# finishes each one that lands. Each relationship's outcome joins
+# replication_pair_restore_outcomes; a failure inside a relationship is its
+# failed outcome, and anything else fails the edge.
+- name: Name the restore's inputs
+  ansible.builtin.set_fact:
+    replication_pair_restore_entry_point: "{{ replication_restore_entry_point }}"
+    replication_pair_restore_timeouts:
+      authorize: "{{ replication_pair_wait_timeout | int }}"
+      wait: "{{ replication_restore_wait_timeout | default(86400) | int }}"
+      reverse: "{{ replication_restore_reverse_timeout | default(300) | int }}"
+      reconnect: "{{ replication_restore_reconnect_timeout | default(1800) | int }}"
+      resume: "{{ replication_restore_resume_window | default(86400) | int }}"
+      poll_delay: "{{ replication_restore_poll_delay | default(30) | int }}"
+    replication_pair_restore_uuids: >-
+      {%- set found = namespace(uuids={}) -%}
+      {%- for name in groups['all'] if hostvars[name].qumulo_cluster_uuid | default('', true) != '' -%}
+        {%- set found.uuids = found.uuids | combine({name: hostvars[name].qumulo_cluster_uuid | lower}) -%}
+      {%- endfor -%}
+      {{ found.uuids }}
+    replication_pair_restore_outcomes: []
+    replication_pair_restore_warnings: []
+    replication_pair_restore_state: {}
+    replication_pair_restore_past_delete: {}
+
+- name: Read the target hosts of the edge's relationships
+  ansible.builtin.include_tasks: restore_targets.yml
+  vars:
+    replication_pair_targets_edge: "{{ inventory_hostname }}"
+  when: replication_restore_targets is not defined
+
+- name: Read the edge's report claim
+  ansible.builtin.include_tasks: restore_claims.yml
+  vars:
+    replication_pair_claims_host: "{{ inventory_hostname }}"
+    replication_pair_claims_dir: "{{ replication_pair_artifact_dir }}"
+  when: replication_restore_report_claims is not defined
+
+- name: Keep the target read and the report claim this run decides by
+  ansible.builtin.set_fact:
+    replication_pair_restore_targets_read: "{{ replication_restore_targets | default(replication_pair_restore_targets) }}"
+    replication_pair_restore_claims: "{{ replication_restore_report_claims | default(replication_pair_report_claims[inventory_hostname]) }}"
+
+- name: Choose the relationships the run restores
+  qumulo.cluster.replication_restore_step:
+    edge: "{{ inventory_hostname }}"
+    entry_point: "{{ replication_pair_restore_entry_point }}"
+    previous_cluster_uuids: "{{ qumulo_previous_cluster_uuids | default([]) }}"
+    inventory_cluster_uuids: "{{ replication_pair_restore_uuids }}"
+    artifact_dir: "{{ replication_pair_artifact_dir }}"
+    relationships: "{{ qumulo_replication_relationships | default([]) }}"
+    names: "{{ qumulo_replication_restore | default(omit) }}"
+    release: "{{ qumulo_replication_release is defined }}"
+    targets: "{{ replication_pair_restore_targets_read }}"
+    report_claims: "{{ replication_pair_restore_claims }}"
+    restore_files: >-
+      {{ query('ansible.builtin.fileglob', replication_pair_restore_files_dir ~ '/*.yml') | map('basename') | list
+         if replication_pair_artifact_dir | length > 0 and replication_pair_restore_files_dir is directory else [] }}
+  vars:
+    # Read only when it exists: the fileglob lookup warns on a missing directory, as before the edge's first restore.
+    replication_pair_restore_files_dir: "{{ replication_pair_artifact_dir ~ '/' ~ inventory_hostname ~ '/restore' }}"
+  register: replication_pair_restore_pick
+
+- name: Refuse the whole run before any relationship
+  ansible.builtin.fail:
+    msg: "{{ replication_pair_restore_pick.refusal }}"
+  when: replication_pair_restore_pick.refusal | length > 0
+
+- name: Keep the outcomes the run decides before any step, and its warnings
+  ansible.builtin.set_fact:
+    # Every outcome has the keys a report reads, as the role builds them; the pick's own outcomes, such as a fan-out
+    # loser's, may lack the empty ones.
+    replication_pair_restore_outcomes: >-
+      {%- set found = namespace(outcomes=[]) -%}
+      {%- for outcome in replication_pair_restore_pick.outcomes -%}
+        {%- set found.outcomes = found.outcomes + [{'summary': '', 'note': '', 'sequence': []} | combine(outcome)] -%}
+      {%- endfor -%}
+      {{ found.outcomes }}
+    replication_pair_restore_warnings: "{{ replication_pair_restore_pick.warnings | default([]) }}"
+    replication_pair_restore_lock: "{{ replication_pair_artifact_dir }}/{{ inventory_hostname }}/restore/lock"
+    # The longest the restore of the picked relationships can take (plan, the restore record): per relationship, step
+    # 3's authorize wait, step 5's and step 8's polls and the module's reads, and step 4's wait once.
+    replication_pair_restore_lease: >-
+      {{ replication_pair_restore_pick.picked | length
+         * (replication_pair_restore_timeouts.authorize | int + replication_pair_restore_timeouts.reverse | int
+            + replication_pair_restore_timeouts.reconnect | int + 600)
+         + replication_pair_restore_timeouts.wait | int }}
+
+# An empty artifact directory takes no lock, since nothing can be written
+# under it: step 1 refuses each relationship that would start, and step 7
+# stops one that would delete X.
+- name: Restore the picked relationships, holding the edge's lock
+  when:
+    - not replication_pair_restore_pick.ends
+    - replication_pair_restore_pick.picked | length > 0
+  block:
+    - name: Take the edge's restore lock
+      qumulo.cluster.replication_restore_lock:
+        path: "{{ replication_pair_restore_lock }}"
+        lease: "{{ replication_pair_restore_lease | int }}"
+      register: replication_pair_restore_lock_held
+      when:
+        - not ansible_check_mode
+        - replication_pair_artifact_dir | length > 0
+
+    # A sibling restored first fills the directory a nested relationship's step 1 refuses; the refusal names it.
+    - name: Read whether each relationship nested with another is done or past X's delete
+      ansible.builtin.include_tasks: restore_relationship.yml
+      vars:
+        replication_pair_restore_surveying: true
+      loop: >-
+        {%- set found = namespace(entries=[]) -%}
+        {%- set present = qumulo_replication_relationships | default([]) | rejectattr('state', 'defined') | list
+              + qumulo_replication_relationships | default([]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list -%}
+        {%- for entry in present -%}
+          {%- set path = (entry.source_path | regex_replace('/+$', '')) or '/' -%}
+          {%- for other in present if other is not sameas entry -%}
+            {%- set other_path = (other.source_path | regex_replace('/+$', '')) or '/' -%}
+            {%- if path == other_path or path == '/' or other_path == '/' or path.startswith(other_path ~ '/') or other_path.startswith(path ~ '/') -%}
+              {%- set found.entries = found.entries + [entry] -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+        {{ found.entries | unique | list }}
+      loop_control:
+        loop_var: replication_pair_restore_entry
+        label: "{{ replication_pair_restore_entry.source_path }}"
+
+    - name: Phase 1, each picked relationship in turn, up to the full sync's wait
+      ansible.builtin.include_tasks: restore_relationship.yml
+      vars:
+        replication_pair_restore_surveying: false
+      loop: "{{ replication_pair_restore_pick.picked }}"
+      loop_control:
+        loop_var: replication_pair_restore_picked
+        label: "{{ replication_pair_restore_picked.name }}"
+
+    # The lease ran from the take; phase 2 gets the whole of it again, in case phase 1's reads ran past their share.
+    # The renewal keeps the take's token, and registers apart, so a renewal that fails leaves the take's result, whose
+    # token the always: below removes the lock by.
+    - name: Renew the edge's restore lock for phase 2
+      qumulo.cluster.replication_restore_lock:
+        path: "{{ replication_pair_restore_lock }}"
+        lease: "{{ replication_pair_restore_lease | int }}"
+        token: "{{ replication_pair_restore_lock_held.token }}"
+      register: replication_pair_restore_lock_renewed
+      when:
+        - not ansible_check_mode
+        - replication_pair_artifact_dir | length > 0
+
+    # A relationship resumed at step 4 waits from the end of phase 1.
+    - name: Start the wait of each relationship resumed at step 4
+      ansible.builtin.set_fact:
+        replication_pair_restore_state: >-
+          {%- set found = namespace(state={}) -%}
+          {%- for name, state in replication_pair_restore_state.items() -%}
+            {%- set found.state = found.state | combine({name: state | combine(
+                  {'wait_started': state.wait_started or now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ')} if state.status == 'waiting' else {})}) -%}
+          {%- endfor -%}
+          {{ found.state }}
+
+    # Each round retires at least one relationship, so as many rounds as relationships wait. The includes are
+    # siblings, and the when that reads what is still waiting is inside restore_round.yml (plan, Phases).
+    - name: Phase 2, wait for the full syncs together, and finish each one that lands
+      ansible.builtin.include_tasks: restore_round.yml
+      loop: "{{ range(replication_pair_restore_state.values() | selectattr('status', 'equalto', 'waiting') | list | length) | list }}"
+      loop_control:
+        loop_var: replication_pair_restore_round
+  always:
+    - name: Remove the edge's restore lock, if this run holds it
+      qumulo.cluster.replication_restore_lock:
+        path: "{{ replication_pair_restore_lock }}"
+        state: absent
+        # A take that failed returned no token, so the removal removes nothing.
+        token: "{{ replication_pair_restore_lock_held.token | default('') }}"
+      when:
+        - not ansible_check_mode
+        - replication_pair_artifact_dir | length > 0
+
+    # Here, so that a failure of the edge still keeps the outcomes decided before it: once step 9 removes a restored
+    # relationship's record, its outcome is the only place left that holds the snapshot ids the restore left.
+    - name: Keep each decided relationship's outcome
+      ansible.builtin.set_fact:
+        replication_pair_restore_outcomes: >-
+          {{ replication_pair_restore_outcomes
+             + replication_pair_restore_state.values() | selectattr('status', 'equalto', 'decided') | map(attribute='outcome') | list }}
+
+# A relationship that landed and then waited again has no round left.
+- name: Fail each relationship that still waits when phase 2's rounds end
+  ansible.builtin.set_fact:
+    replication_pair_restore_outcomes: >-
+      {%- set found = namespace(outcomes=replication_pair_restore_outcomes) -%}
+      {%- for name, state in replication_pair_restore_state.items() if state.status != 'decided' -%}
+        {%- set found.outcomes = found.outcomes + [{'name': name, 'outcome': 'failed', 'fails': true, 'summary': '', 'note': '', 'sequence': [],
+              'message': 'R ' ~ state.relationship_id ~ " still waited for its full sync when phase 2's rounds ended. Run ansible-playbook "
+                         ~ 'qumulo.cluster.' ~ ('edge_license_complete' if replication_pair_restore_entry_point == 'second_pass'
+                                                else 'replication_restore') ~ ' -i <inventory> -l ' ~ inventory_hostname
+                         ~ ' again, which resumes it.'}] -%}
+      {%- endfor -%}
+      {{ found.outcomes }}

@@ -1,0 +1,151 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Steps 2, 3a, 3 and 3b (specs/014-multi-tenancy, plan "cluster_baseline"). Step 2 reads the cluster once and runs
+# tenancy_plan, which refuses before any write what the inventory breaks and what a tenant write or the network PUT
+# would cut off. 3a, 3 and 3b loop over its answer, as data.yml (steps 18 and 19) and tenants_absent.yml (step 20a)
+# do later; every disable comes after every binding.
+- name: Read the tenants
+  qumulo.cluster.tenant_info:
+  register: cluster_baseline_tenants
+
+# Status only where the continuity rule can need it (decision D26).
+- name: Read the network document, and the network status when the cluster has or gains a second tenant
+  qumulo.cluster.network_info:
+    gather_subset: "{{ ['document', 'status'] if cluster_baseline_status_due | bool else ['document'] }}"
+  vars:
+    cluster_baseline_status_due: "{{ qumulo_tenants | default([]) | qumulo.cluster.tenancy_status_due(cluster_baseline_tenants.tenants) }}"
+  register: cluster_baseline_network_read
+
+- name: Read the shares
+  qumulo.cluster.smb_info:
+    gather_subset: [shares]
+  register: cluster_baseline_smb_read
+
+- name: Read the exports, the NFS settings and each tenant's NFS settings
+  qumulo.cluster.nfs_info:
+    gather_subset: [exports, settings, tenant_settings]
+  register: cluster_baseline_nfs_read
+
+- name: Read the protection type, which tells a cloud cluster when qumulo_cluster_kind does not
+  qumulo.cluster.cluster_info:
+    gather_subset: [protection]
+  register: cluster_baseline_protection
+  when: qumulo_tenants is defined and qumulo_cluster_kind | default(none) is none
+
+# A null qumulo_cluster_kind counts as unset, as tier 2's config gives it; tenancy_plan's choices would refuse null.
+- name: Plan steps 3a to 20a, refusing before any write
+  qumulo.cluster.tenancy_plan:
+    tenants: "{{ qumulo_tenants | default([]) }}"
+    network: "{{ qumulo_network | default(omit) }}"
+    smb_shares: "{{ qumulo_smb_shares | default([]) }}"
+    nfs_exports: "{{ qumulo_nfs_exports | default([]) }}"
+    factory_defaults: "{{ qumulo_factory_defaults | default({}) }}"
+    nfs_settings: "{{ qumulo_nfs_settings | default(omit) }}"
+    management_network: "{{ omit if cluster_baseline_management_network is none else cluster_baseline_management_network }}"
+    cluster_port: "{{ qumulo_cluster_port | default(omit) }}"
+    cluster_kind: "{{ omit if qumulo_cluster_kind | default(none) is none else qumulo_cluster_kind }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+    api_host_after: "{{ qumulo_api_host_after | default(omit) }}"
+    api_host: "{{ qumulo_api_host }}"
+    api_port: "{{ qumulo_api_port | default(8000) }}"
+    owned_parts: "{{ cluster_baseline_owned_parts }}"
+    cluster:
+      tenants: "{{ cluster_baseline_tenants.tenants }}"
+      network: "{{ cluster_baseline_network_read.network.document }}"
+      status: "{{ cluster_baseline_network_read.network.status | default(omit) }}"
+      status_unavailable: "{{ cluster_baseline_network_read.unavailable_subsets.status | default(omit) }}"
+      protection_type: "{{ cluster_baseline_protection.cluster.protection.protection_system_type | default(omit) }}"
+      smb_shares: "{{ cluster_baseline_smb_read.smb.shares }}"
+      nfs_exports: "{{ cluster_baseline_nfs_read.nfs.exports }}"
+      nfs_overrides: "{{ cluster_baseline_nfs_read.nfs.tenant_settings }}"
+      nfs_settings: "{{ cluster_baseline_nfs_read.nfs.settings }}"
+  register: cluster_baseline_tenancy
+
+# Right after the plan, so a run that a later step fails still warns. The provider rewrites the network document for
+# either owned area, network.floating_ips included when it is only the default for a cluster of kind cnq or unset, so
+# both warn.
+- name: Warn that a Terraform apply that leaves out the tenants unbinds the networks
+  ansible.builtin.set_fact:
+    cluster_baseline_tenancy_warning: "{{ cluster_baseline_tenancy_warning_text | qumulo.cluster.warn }}"
+  vars:
+    cluster_baseline_tenancy_warning_text: >-
+      {{ inventory_hostname }}: {{ 'qumulo_terraform_owned_areas' if qumulo_terraform_owned_areas is defined
+      else 'qumulo_managed_by: terraform_provider' }} gives Terraform
+      {{ cluster_baseline_owned | intersect(['network', 'network.floating_ips']) | join(' and ') }}, so a Terraform
+      apply writes the network document, and the cluster has {{ cluster_baseline_tenancy.tenants | length }} tenants
+      once this run is done. An apply that sends the networks without their tenants unbinds them, which cuts off every
+      tenant's clients. Before the next apply, give each network its tenant in the Terraform configuration, if the
+      provider can send it, or stop Terraform from writing the network document.{{
+      ' Or, ' ~ cluster_baseline_kind_remedy ~ '.' if cluster_baseline_kind_remedy else '' }}
+  when:
+    - cluster_baseline_owned | intersect(['network', 'network.floating_ips']) | length > 0
+    - cluster_baseline_tenancy.tenants | length >= 2
+
+# The options are step 3's, so the check and the write cannot disagree. It sends PUT /v3/network/validate with each new
+# tenant's networks without a tenant, and reads no status, since the plan gives management_network (spec FR-027).
+- name: Check step 3's network document with the cluster before step 3a writes
+  qumulo.cluster.network_config:
+    frontend_networks: "{{ cluster_baseline_tenancy.network.frontend_networks | default(omit) }}"
+    managed_interfaces: "{{ cluster_baseline_tenancy.network.managed_interfaces | default(omit) }}"
+    owned_parts: "{{ cluster_baseline_owned_parts }}"
+    managed_by: "{{ qumulo_managed_by | default('none') }}"
+    take_over_from_terraform: "{{ cluster_baseline_take_over_floating }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+    api_host_after: "{{ qumulo_api_host_after | default(omit) }}"
+    management_network: "{{ cluster_baseline_tenancy.network.management_network | default(omit) }}"
+    cluster_port: "{{ qumulo_cluster_port | default(omit) }}"
+    planned_tenants: "{{ cluster_baseline_tenancy.network.planned_tenants | default(omit) }}"
+  check_mode: true
+  changed_when: false
+  register: cluster_baseline_network_check
+  when: cluster_baseline_tenancy.validate
+
+# A create passes every switch its entry sets. The plan gives planned_networks and planned_tenants together, and tenant
+# reads them only in check mode. management_network may be [0], so it is passed through default(omit), never tested.
+# The collection polls nothing after a second tenant's create; a play that needs REST back waits itself.
+- name: Rename tenants, turn their services on and create tenants (step 3a)
+  qumulo.cluster.tenant:
+    name: "{{ item.name }}"
+    previous_name: "{{ item.previous_name | default(omit) }}"
+    web_ui_enabled: "{{ item.web_ui_enabled | default(omit) }}"
+    rest_api_enabled: "{{ item.rest_api_enabled | default(omit) }}"
+    ssh_enabled: "{{ item.ssh_enabled | default(omit) }}"
+    replication_enabled: "{{ item.replication_enabled | default(omit) }}"
+    nfs_enabled: "{{ item.nfs_enabled | default(omit) }}"
+    smb_enabled: "{{ item.smb_enabled | default(omit) }}"
+    management_network: "{{ item.management_network | default(omit) }}"
+    cluster_port: "{{ qumulo_cluster_port | default(omit) }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+    planned_networks: "{{ item.planned_networks | default(omit) }}"
+    planned_tenants: "{{ item.planned_tenants | default(omit) }}"
+  loop: "{{ cluster_baseline_tenancy.step_3a }}"
+  loop_control:
+    label: "{{ item.previous_name ~ ' to ' ~ item.name if item.previous_name is defined else item.name }}"
+  register: cluster_baseline_step_3a
+
+- name: Apply the network document (step 3)
+  ansible.builtin.include_tasks: network.yml
+  when: cluster_baseline_tenancy.network != {}
+
+# The same options as step 3a's, so a reader sees one shape; previous_name reaches a tenant 3a renamed, which tenant
+# reads as the record of a rename done.
+- name: Turn tenants' services off (step 3b)
+  qumulo.cluster.tenant:
+    name: "{{ item.name }}"
+    previous_name: "{{ item.previous_name | default(omit) }}"
+    web_ui_enabled: "{{ item.web_ui_enabled | default(omit) }}"
+    rest_api_enabled: "{{ item.rest_api_enabled | default(omit) }}"
+    ssh_enabled: "{{ item.ssh_enabled | default(omit) }}"
+    replication_enabled: "{{ item.replication_enabled | default(omit) }}"
+    nfs_enabled: "{{ item.nfs_enabled | default(omit) }}"
+    smb_enabled: "{{ item.smb_enabled | default(omit) }}"
+    management_network: "{{ item.management_network | default(omit) }}"
+    cluster_port: "{{ qumulo_cluster_port | default(omit) }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+    planned_networks: "{{ item.planned_networks | default(omit) }}"
+    planned_tenants: "{{ item.planned_tenants | default(omit) }}"
+  loop: "{{ cluster_baseline_tenancy.step_3b }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: cluster_baseline_step_3b

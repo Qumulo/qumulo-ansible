@@ -1,0 +1,38 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# What every hub shares. hub01 is a Cloud Native Qumulo cluster that the
+# Terraform provider formed. For a hub formed otherwise, set qumulo_managed_by
+# to none and qumulo_terraform_owned_areas to [].
+
+# Ownership. The qumulo.cluster.terraform inventory plugin sets both from the
+# root's output, as host variables that outrank these; write them here only
+# for a hub listed by hand, as hub01 is in this example. cluster_baseline reads
+# them in step 2 and refuses to manage an area Terraform owns.
+qumulo_managed_by: terraform_provider
+# The provider applies the floating addresses again on every run, so they are
+# Terraform's. qumulo_network may still declare the rest of the network.
+qumulo_terraform_owned_areas: [network.floating_ips]
+
+# The Active Directory join: step 14, qumulo.cluster.ad_domain. The collection
+# owns it unless qumulo_terraform_owned_areas lists ad.
+qumulo_ad:
+  domain: corp.example.com
+  domain_netbios: CORP
+  ou: OU=Hubs,OU=Qumulo,DC=corp,DC=example,DC=com
+  join_user: svc-qjoin
+  join_password: "{{ vault_qumulo_ad_join_password }}"
+
+# What becomes of the share and the export every formation creates (G-FACTORY):
+# steps 18 and 19. absent removes them.
+qumulo_factory_defaults:
+  smb_files_share: absent
+  nfs_root_export: absent
+
+# Role assignments: step 15, qumulo.cluster.role_member. Each list adds to what
+# the role has; purge: true makes it the whole list.
+qumulo_role_members:
+  - role: Administrators
+    members: ['ad:CORP\Qumulo-Admins']
+  - role: Observers
+    members: ['ad:CORP\Qumulo-Observers']

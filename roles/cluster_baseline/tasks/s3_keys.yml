@@ -1,0 +1,79 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 22, the last: the S3 access keys, the removals first, so that a user at
+# the limit of two can be given a new key in the same run. It runs last so that
+# no later step's failure can stop it after a key is made. The cluster returns
+# a new key's secret only once, so the module writes it at once to a file under
+# the host's artifact directory, and refuses to make a key without one; the
+# task sets no_log, since its result holds the secret too. Each entry's failure
+# is collected and reported after the loop, without the secret.
+- name: Keep or make the S3 access keys, the removals first
+  qumulo.cluster.s3_access_key:
+    user: "{{ item.user }}"
+    access_key_id: "{{ item.access_key_id | default(omit) }}"
+    # Every id this user's present entries declare, so a rebuild makes each gone key again, and no more.
+    declared_access_key_ids: >-
+      {%- set found = namespace(ids=[]) -%}
+      {%- for entry in qumulo_s3_access_keys | default([])
+            if entry.user == item.user and entry.state | default('present') != 'absent'
+               and entry.access_key_id | default('', true) | string | length > 0 -%}
+        {%- set found.ids = found.ids + [entry.access_key_id | string] -%}
+      {%- endfor -%}
+      {{ found.ids }}
+    secret_destination: >-
+      {{ item.secret_destination | default((cluster_baseline_artifact_dir ~ '/' ~ inventory_hostname ~ '/secrets')
+         if cluster_baseline_artifact_dir else omit) }}
+    state: "{{ item.state | default('present') }}"
+  loop: >-
+    {%- set found = namespace(removals=[], others=[]) -%}
+    {%- for entry in qumulo_s3_access_keys | default([]) -%}
+      {%- if entry.state | default('present') == 'absent' -%}
+        {%- set found.removals = found.removals + [entry] -%}
+      {%- else -%}
+        {%- set found.others = found.others + [entry] -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {{ found.removals + found.others }}
+  loop_control:
+    label: "{{ item.user }} {{ item.access_key_id | default('') }}"
+  register: cluster_baseline_s3_key_results
+  # Each entry runs, and a failed one keeps failed: true for the assert below, which names it.
+  ignore_errors: true
+  no_log: true  # a key the cluster makes comes back with its secret
+
+- name: Name each S3 key the step made, and the file of its secret
+  ansible.builtin.set_fact:
+    cluster_baseline_s3_access_keys: >-
+      {%- set found = namespace(keys=[]) -%}
+      {%- for result in cluster_baseline_s3_key_results.results if result.secret_file is defined -%}
+        {%- set found.keys = found.keys + [{'user': result.s3_access_key.user, 'access_key_id': result.s3_access_key.access_key_id,
+                                            'secret_file': result.secret_file}] -%}
+      {%- endfor -%}
+      {{ found.keys }}
+
+- name: Hand off each S3 key the step made
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }}: made S3 access key {{ item.access_key_id }} for {{ item.user }}; its secret, which the
+      cluster never shows again, is in {{ item.secret_file }}, readable only by its owner. Give it to the key's consumers,
+      and set access_key_id: '{{ item.access_key_id }}' in its qumulo_s3_access_keys entry before the next run.
+  loop: "{{ cluster_baseline_s3_access_keys }}"
+  loop_control:
+    label: "{{ item.access_key_id }}"
+
+- name: Fail when an S3 key entry failed, naming each
+  ansible.builtin.assert:
+    that: cluster_baseline_s3_key_failures == []
+    fail_msg: >-
+      {{ inventory_hostname }}: {{ cluster_baseline_s3_key_failures | join('; ') }}{{
+      '; no artifact directory is set, as for a host from no inventory file or directory, so set
+      cluster_baseline_artifact_dir or the entry\'s secret_destination for the files of new keys\' secrets'
+      if not cluster_baseline_artifact_dir and cluster_baseline_s3_key_failures | select('search', 'set secret_destination') | list
+      else '' }}
+    quiet: true
+  vars:
+    cluster_baseline_s3_key_failures: >-
+      {{ cluster_baseline_s3_key_results.results | selectattr('failed', 'defined') | selectattr('failed')
+         | map(attribute='item.user') | zip(cluster_baseline_s3_key_results.results | selectattr('failed', 'defined')
+         | selectattr('failed') | map(attribute='msg')) | map('join', ': ') | list }}

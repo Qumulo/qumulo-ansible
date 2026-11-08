@@ -1,0 +1,28 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The new edge's key store is empty when the replay reaches the baseline, and
+# a key is registered only from its private key or a signature of its name,
+# which the rebuild does not hold. So a declared lock key always stops the
+# replay's step 2 unless the consent lets step 20 apply the policy without it
+# (spec 026, Decision 4). The predestroy phase and the preconditions both run
+# this, so both forms of the rebuild refuse before the predestroy changes
+# anything, and a replay refuses before it forms the edge.
+- name: Refuse a policy lock key the rebuilt edge's empty key store cannot hold
+  ansible.builtin.assert:
+    that: not edge_rebuild_locked_policies or qumulo_allow_deferred_policy_lock_keys | default(false) | bool
+    fail_msg: >-
+      {{ inventory_hostname }}: qumulo_snapshot_policies declares lock keys for {{ edge_rebuild_locked_policies | join(', ') }},
+      and the rebuilt edge's key store is empty until each key is registered again with qumulo.cluster.security_key, which
+      takes its private key or a signature of its name; pass -e qumulo_allow_deferred_policy_lock_keys=true to the rebuild,
+      so the replay applies those policies without their keys and hands them off, then register the keys and run the
+      baseline again
+    quiet: true
+  vars:
+    # The entries that would set a key: a removal sets none, and a lock_key that is null or "" sets none.
+    edge_rebuild_locked_policies: >-
+      {{ ((qumulo_snapshot_policies | default([]) | selectattr('lock_key', 'defined') | selectattr('lock_key')
+           | rejectattr('state', 'defined') | list)
+          + (qumulo_snapshot_policies | default([]) | selectattr('lock_key', 'defined') | selectattr('lock_key')
+             | selectattr('state', 'defined') | rejectattr('state', 'equalto', 'absent') | list))
+         | map(attribute='policy_name') | list }}

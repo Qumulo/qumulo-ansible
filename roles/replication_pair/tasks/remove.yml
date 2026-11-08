@@ -1,0 +1,57 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The source first, then the target: the source tells the target of its
+# delete only once (G-REPL-NOTIFY), and the target's delete removes the record
+# that delete ended, or the live one a lost notification left. The target
+# directory keeps its data. A removal has no check pass, so a release bound to
+# a holder deletes it for this run alone.
+- name: Delete the relationship on the source, and the records of the target's previous UUIDs
+  qumulo.cluster.replication_relationship:
+    source_path: "{{ replication_pair_relationship.source_path }}"
+    target_cluster_uuid: "{{ replication_pair_target_uuid }}"
+    target_path: "{{ replication_pair_relationship.target_path }}"
+    previous_target_cluster_uuids: "{{ replication_pair_previous_target_uuids }}"
+    state: absent
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_source }}"
+  register: replication_pair_source_result
+
+- name: Delete the target's records of it, keeping the directory and its data
+  qumulo.cluster.replication_target:
+    source_cluster_uuid: "{{ replication_pair_source_uuid }}"
+    source_path: "{{ replication_pair_relationship.source_path }}"
+    target_path: "{{ replication_pair_relationship.target_path }}"
+    release: "{{ replication_pair_release }}"
+    previous_source_cluster_uuids: "{{ replication_pair_previous_source_uuids }}"
+    state: absent
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_target }}"
+  register: replication_pair_target_result
+  when: not replication_pair_target_gone | bool
+
+- name: Check that each release deleted the record it is bound to
+  qumulo.cluster.replication_pair_plan:
+    removed: "{{ replication_pair_target_result }}"
+    release: "{{ replication_pair_release }}"
+    target_host: "{{ replication_pair_target_host }}"
+    target_path: "{{ replication_pair_relationship.target_path }}"
+  register: replication_pair_plan
+  when: not replication_pair_target_gone | bool
+
+- name: Record what the removal deleted and left
+  ansible.builtin.set_fact:
+    replication_pair_result:
+      status: removed
+      deleted: "{{ replication_pair_source_result.deleted + replication_pair_target_result.deleted | default([]) }}"
+      snapshots: "{{ replication_pair_source_result.snapshots + replication_pair_target_result.snapshots | default([]) }}"
+      holders: "{{ replication_pair_target_result.holders | default([]) }}"
+      notes: >-
+        {{ replication_pair_source_result.notes | default([]) + replication_pair_target_result.notes | default([])
+           + (['the target ' ~ replication_pair_target_host ~ ' was not touched, since replication_pair_target_gone says it is gone for good']
+              if replication_pair_target_gone | bool else []) }}
+
+- name: Fail on a release that lifted nothing
+  ansible.builtin.fail:
+    msg: "{{ replication_pair_plan.message }}"
+  when: replication_pair_plan is not skipped and replication_pair_plan.status == 'refused'

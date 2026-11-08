@@ -1,0 +1,334 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Both modules run in check mode first, with the options their real passes
+# take, and replication_pair_plan joins what they report. Every refusal comes
+# before the first write on either cluster, the target directory's included:
+# the source's create registers the relationship on the target in the same
+# request, so a refusal after it would leave records on both. Only then come
+# the capacity gate, the target directory, the create and the authorize.
+- name: Read the release as the target's passes take it, and the target's declared directories
+  qumulo.cluster.replication_pair_plan:
+    release: "{{ replication_pair_release }}"
+    target_host: "{{ replication_pair_target_host }}"
+    target_path: "{{ replication_pair_relationship.target_path }}"
+    target_directories: "{{ replication_pair_target_directories }}"
+  register: replication_pair_forms
+
+# A check run takes the tenant writes of the target host's own cluster_baseline run in the play, its steps 3a and 3b,
+# since those come before step 21 and a real run has written them by the time the target check reads the tenants. A
+# target host outside the play planned none.
+- name: Name the target host's own tenant writes, which a check run's target check takes
+  ansible.builtin.set_fact:
+    replication_pair_target_tenant_writes: >-
+      {{ replication_pair_target_plan.step_3a | default([]) + replication_pair_target_plan.step_3b | default([]) if ansible_check_mode else [] }}
+  vars:
+    replication_pair_target_plan: "{{ (hostvars[replication_pair_target_host] | default({})).cluster_baseline_tenancy | default({}, true) }}"
+
+# A refusal is a result for the plan to join, keeping its msg and unmet, so the target check still runs.
+- name: Check the source side without writing
+  qumulo.cluster.replication_relationship:
+    source_path: "{{ replication_pair_relationship.source_path }}"
+    target_cluster_uuid: "{{ replication_pair_target_uuid }}"
+    target_path: "{{ replication_pair_relationship.target_path }}"
+    target_address: "{{ replication_pair_target_address }}"
+    target_port: "{{ replication_pair_target_port }}"
+    replication_enabled: "{{ replication_pair_relationship.replication_enabled | default(omit) }}"
+    map_local_ids_to_nfs_ids: "{{ replication_pair_relationship.map_local_ids_to_nfs_ids | default(omit) }}"
+    source_root_read_only: "{{ replication_pair_relationship.source_root_read_only | default(omit) }}"
+    blackout_windows: "{{ replication_pair_relationship.blackout_windows | default(omit) }}"
+    blackout_window_timezone: "{{ replication_pair_relationship.blackout_window_timezone | default(omit) }}"
+    recreate: "{{ replication_pair_relationship.recreate | default(false) }}"
+    recreate_changed_peer: true
+    previous_target_cluster_uuids: "{{ replication_pair_previous_target_uuids }}"
+    inventory_cluster_uuids: "{{ replication_pair_inventory_cluster_uuids }}"
+    release: "{{ replication_pair_release }}"
+    source_path_pending: "{{ replication_pair_source_path_pending }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_source }}"
+  check_mode: true
+  changed_when: false
+  register: replication_pair_source_check
+  failed_when: false
+
+# The relationship's id is the source's record of the key, read by the check;
+# with none, the source creates and every record of the key on the target is
+# stale. The role keys on the id rather than the source's creates, since a
+# refused source check returns neither, and the target check must still run.
+- name: Check the target side without writing
+  qumulo.cluster.replication_target:
+    source_cluster_uuid: "{{ replication_pair_source_uuid }}"
+    source_path: "{{ replication_pair_relationship.source_path }}"
+    target_path: "{{ replication_pair_relationship.target_path }}"
+    relationship_id: "{{ replication_pair_source_check.relationship.id | default(omit, true) }}"
+    source_creates: "{{ replication_pair_source_check.relationship.id | default(none) is none }}"
+    allow_non_empty_directory: "{{ replication_pair_relationship.allow_non_empty_target | default(false) }}"
+    directory_pending: true
+    source_empty: "{{ replication_pair_source_check.source_empty if replication_pair_source_check.source_empty | default(none) is not none else omit }}"
+    source_files: "{{ replication_pair_source_check.source_files if replication_pair_source_check.source_files | default(none) is not none else omit }}"
+    source_bytes: "{{ replication_pair_source_check.source_bytes if replication_pair_source_check.source_bytes | default(none) is not none else omit }}"
+    strict_capacity: "{{ replication_pair_strict_capacity }}"
+    release: "{{ replication_pair_forms.target_release }}"
+    previous_source_cluster_uuids: "{{ replication_pair_previous_source_uuids }}"
+    replication_address: "{{ replication_pair_target_address }}"
+    planned_tenant_writes: "{{ replication_pair_target_tenant_writes }}"
+    wait: false
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_target }}"
+  check_mode: true
+  changed_when: false
+  register: replication_pair_target_check
+  failed_when: false
+
+- name: Join both checks
+  qumulo.cluster.replication_pair_plan:
+    source: "{{ replication_pair_source_check }}"
+    target: "{{ replication_pair_target_check }}"
+    release: "{{ replication_pair_release }}"
+    target_host: "{{ replication_pair_target_host }}"
+    target_path: "{{ replication_pair_relationship.target_path }}"
+    previous_source_cluster_uuids: "{{ replication_pair_previous_source_uuids }}"
+    allow_non_empty_target: "{{ replication_pair_relationship.allow_non_empty_target | default(false) }}"
+    target_directories: "{{ replication_pair_target_directories }}"
+    source_host: "{{ replication_pair_source_host if replication_pair_source_known else omit }}"
+    source_path: "{{ replication_pair_relationship.source_path }}"
+    source_cluster_uuid: "{{ replication_pair_source_uuid }}"
+    source_license_rule: "{{ replication_pair_license_rule if replication_pair_source_known else omit }}"
+    source_replication_address: >-
+      {{ hostvars[replication_pair_source_host].qumulo_replication_address | default(omit) if replication_pair_source_known else omit }}
+  vars:
+    # The held message names the restore by the source host's inventory, by the license rule (specs/011-replication,
+    # plan, Restore, step 1's preconditions): a qumulo_edges host expects a license unless it declares license: none.
+    replication_pair_source_known: "{{ replication_pair_source_host | length > 0 and replication_pair_source_host in hostvars }}"
+    replication_pair_license_rule: >-
+      {{ 'outside_edges' if replication_pair_source_host not in groups['qumulo_edges'] | default([])
+         else 'none' if (hostvars[replication_pair_source_host].qumulo_capacity | default({})).license | default('pending') == 'none'
+         else 'expected' }}
+  register: replication_pair_plan
+
+- name: Keep a held relationship for the report, and write nothing
+  ansible.builtin.set_fact:
+    replication_pair_result:
+      status: held
+      message: "{{ replication_pair_plan.message }}"
+      releases: "{{ replication_pair_plan.releases }}"
+      holders: "{{ replication_pair_plan.holders }}"
+      unmet: "{{ replication_pair_plan.unmet }}"
+      key: "{{ replication_pair_key }}"
+      # The message names the restore, so the rebuild report adds no baseline run that releases it.
+      restore_form: "{{ replication_pair_plan.restore_form | default(false) }}"
+  when: replication_pair_plan.status == 'held' and replication_pair_on_held == 'report'
+
+- name: Stop before any write on either cluster
+  ansible.builtin.fail:
+    msg: "{{ replication_pair_plan.message }}"
+  when: replication_pair_plan.status == 'refused' or (replication_pair_plan.status == 'held' and replication_pair_on_held == 'fail')
+
+- name: Check that the target edge's license and clamp apply before a create or an authorize
+  ansible.builtin.include_tasks: gate.yml
+  when:
+    - replication_pair_plan.status == 'go'
+    - replication_pair_target_capacity is not none
+    - replication_pair_plan.pairing
+
+- name: Pair the relationship
+  when:
+    - replication_pair_plan.status == 'go'
+    - replication_pair_result.status | default('') != 'deferred'
+  vars:
+    replication_pair_failover: [DISCONNECTING, DISCONNECTED, RECONNECTING, REESTABLISHING]
+  block:
+    - name: Create the target directory's declared ancestors, as the target host declares them
+      qumulo.cluster.directory:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode | default(omit) }}"
+        owner: "{{ item.owner | default(omit) }}"
+        group: "{{ item.group | default(omit) }}"
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_pair_target }}"
+      loop: "{{ replication_pair_forms.ancestors }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+    # Path only: replication sets the directory's attributes from the source, and
+    # never through the server's allow-fs-path-create.
+    - name: Create the target directory, path only
+      qumulo.cluster.directory:
+        path: "{{ replication_pair_relationship.target_path }}"
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_pair_target }}"
+
+    - name: Create the relationship on the source, or change its settings
+      qumulo.cluster.replication_relationship:
+        source_path: "{{ replication_pair_relationship.source_path }}"
+        target_cluster_uuid: "{{ replication_pair_target_uuid }}"
+        target_path: "{{ replication_pair_relationship.target_path }}"
+        target_address: "{{ replication_pair_target_address }}"
+        target_port: "{{ replication_pair_target_port }}"
+        replication_enabled: "{{ replication_pair_relationship.replication_enabled | default(omit) }}"
+        map_local_ids_to_nfs_ids: "{{ replication_pair_relationship.map_local_ids_to_nfs_ids | default(omit) }}"
+        source_root_read_only: "{{ replication_pair_relationship.source_root_read_only | default(omit) }}"
+        blackout_windows: "{{ replication_pair_relationship.blackout_windows | default(omit) }}"
+        blackout_window_timezone: "{{ replication_pair_relationship.blackout_window_timezone | default(omit) }}"
+        recreate: "{{ replication_pair_relationship.recreate | default(false) }}"
+        recreate_changed_peer: true
+        previous_target_cluster_uuids: "{{ replication_pair_previous_target_uuids }}"
+        inventory_cluster_uuids: "{{ replication_pair_inventory_cluster_uuids }}"
+        release: "{{ replication_pair_release }}"
+        source_path_pending: "{{ replication_pair_source_path_pending }}"
+        # The source's own hand-off from its check, null after a create or when a delete is due.
+        relationship_id: "{{ replication_pair_source_check.read_by_id | default(omit, true) }}"
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_pair_source }}"
+      register: replication_pair_source_result
+
+    # In check mode a create has no id yet, so the target predicts as its check did.
+    - name: Authorize it on the target, and wait until it is ESTABLISHED
+      qumulo.cluster.replication_target:
+        source_cluster_uuid: "{{ replication_pair_source_uuid }}"
+        source_path: "{{ replication_pair_relationship.source_path }}"
+        target_path: "{{ replication_pair_relationship.target_path }}"
+        allow_non_empty_directory: "{{ replication_pair_relationship.allow_non_empty_target | default(false) }}"
+        directory_pending: true
+        source_empty: "{{ replication_pair_source_check.source_empty if replication_pair_source_check.source_empty | default(none) is not none else omit }}"
+        source_files: "{{ replication_pair_source_check.source_files if replication_pair_source_check.source_files | default(none) is not none else omit }}"
+        source_bytes: "{{ replication_pair_source_check.source_bytes if replication_pair_source_check.source_bytes | default(none) is not none else omit }}"
+        strict_capacity: "{{ replication_pair_strict_capacity }}"
+        release: "{{ replication_pair_forms.target_release }}"
+        previous_source_cluster_uuids: "{{ replication_pair_previous_source_uuids }}"
+        replication_address: "{{ replication_pair_target_address }}"
+        planned_tenant_writes: "{{ replication_pair_target_tenant_writes }}"
+        relationship_id: "{{ replication_pair_source_result.relationship.id | default(omit, true) }}"
+        source_creates: "{{ replication_pair_source_result.relationship.id | default(none) is none }}"
+        wait: "{{ replication_pair_source_result.relationship.state | default('') not in replication_pair_failover }}"
+        wait_timeout: "{{ replication_pair_wait_timeout }}"
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_pair_target }}"
+      register: replication_pair_target_result
+
+    # The source learns of the authorize on its next poll of the target.
+    - name: Wait until the source's record is ESTABLISHED too
+      qumulo.cluster.replication_info:
+        gather_subset: [source]
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_pair_source }}"
+      register: replication_pair_source_side
+      until: >-
+        replication_pair_source_side.replication.source_relationships | default([])
+        | selectattr('id', 'equalto', replication_pair_target_result.relationship.id)
+        | rejectattr('state', 'equalto', 'AWAITING_AUTHORIZATION') | list | length > 0
+      retries: "{{ (replication_pair_wait_timeout | int / 5) | round(0, 'ceil') | int }}"
+      delay: 5
+      when:
+        - not (ansible_check_mode or replication_pair_check_pass | bool)
+        - replication_pair_target_result.relationship.state | default('') == 'ESTABLISHED'
+        - replication_pair_source_result.relationship.state | default('') == 'AWAITING_AUTHORIZATION'
+
+    - name: Fail when the source's record ENDED instead
+      ansible.builtin.fail:
+        msg: >-
+          {{ replication_pair_name }}: the source's record {{ replication_pair_source_record.id }} is ENDED
+          ({{ replication_pair_source_record.end_reason }}) after the authorize, so the relationship is not paired; the
+          target directory may have been renamed or deleted. Remove the relationship on both sides, then declare it again
+      vars:
+        replication_pair_source_record: >-
+          {{ replication_pair_source_side.replication.source_relationships
+             | selectattr('id', 'equalto', replication_pair_target_result.relationship.id) | first }}
+      when:
+        - replication_pair_source_side is not skipped
+        - replication_pair_source_record.state == 'ENDED'
+
+    - name: Record the relationship as each side reports it
+      ansible.builtin.set_fact:
+        replication_pair_result:
+          status: "{{ 'failover' if replication_pair_target_result.relationship.state | default('') in replication_pair_failover else 'paired' }}"
+          source: >-
+            {{ (replication_pair_source_side.replication.source_relationships
+                | selectattr('id', 'equalto', replication_pair_target_result.relationship.id) | first)
+               if replication_pair_source_side is not skipped else replication_pair_source_result.relationship }}
+          target: "{{ replication_pair_target_result.relationship }}"
+          snapshots: "{{ replication_pair_source_result.snapshots + replication_pair_target_result.snapshots }}"
+          unmet: "{{ replication_pair_plan.unmet }}"
+
+# The restore stamp. A relationship from a rebuilt source that a real pass
+# pairs ends the hold the source's newest rebuild report claims, as the copy
+# and the release does, so the stamp retires that claim (the restore's
+# report claim, roles/replication_pair/tasks/restore_claims.yml). The claim
+# is read once per source host in a run; a stamp retires only its own key.
+# A claim the controller cannot read, or a stamp it cannot write, warns, and
+# the baseline passes.
+- name: Retire the rebuild report's claim on the relationship
+  when:
+    - not (ansible_check_mode or replication_pair_check_pass | bool)
+    - replication_pair_result.status | default('') == 'paired'
+    - replication_pair_result.target.state | default('') == 'ESTABLISHED'
+    - replication_pair_previous_source_uuids | length > 0
+    - replication_pair_source_host | length > 0
+  vars:
+    replication_pair_stamp_artifact_dir: >-
+      {{ hostvars[replication_pair_source_host].edge_rebuild_artifact_dir
+         | default(ansible_inventory_sources | qumulo.cluster.artifact_dir(hostvars[replication_pair_source_host].inventory_file | default(''))) }}
+    replication_pair_stamp_claims: "{{ replication_pair_report_claims[replication_pair_source_host] }}"
+    replication_pair_stamp_dir: "{{ replication_pair_stamp_artifact_dir }}/{{ replication_pair_source_host }}/restore"
+    replication_pair_stamp_file: "{{ replication_pair_stamp_dir }}/done-{{ replication_pair_key | qumulo.cluster.restore_key_hash }}.yml"
+  block:
+    - name: Read the source's report claim, once per source host in a run
+      ansible.builtin.include_tasks: restore_claims.yml
+      vars:
+        replication_pair_claims_host: "{{ replication_pair_source_host }}"
+        replication_pair_claims_dir: "{{ replication_pair_stamp_artifact_dir }}"
+      when: replication_pair_source_host not in replication_pair_report_claims | default({}, true)
+
+    - name: Write the restore stamp while the report claims the relationship
+      when: >-
+        replication_pair_key | qumulo.cluster.restore_key_hash
+        in replication_pair_stamp_claims.claimed | map('qumulo.cluster.restore_key_hash')
+      block:
+        # Never with a mode for an existing directory, which it would change (decision 16).
+        - name: Create the source's restore directory, only when it is missing
+          ansible.builtin.file:
+            path: "{{ replication_pair_stamp_dir }}"
+            state: directory
+            mode: "0700"
+          delegate_to: localhost
+          changed_when: false
+          when: replication_pair_stamp_dir is not directory
+
+        - name: Write the restore stamp
+          ansible.builtin.copy:
+            dest: "{{ replication_pair_stamp_file }}"
+            mode: "0600"
+            content: >-
+              {{ {'format': 1, 'key': replication_pair_key, 'r_id': replication_pair_result.target.id | default(none),
+                  'report': replication_pair_stamp_claims.report, 'written_at': now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ')}
+                 | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}
+          delegate_to: localhost
+          changed_when: false
+
+        - name: Retire the claim in this run's read
+          ansible.builtin.set_fact:
+            replication_pair_report_claims: >-
+              {%- set kept = namespace(keys=[]) -%}
+              {%- set own = replication_pair_key | qumulo.cluster.restore_key_hash -%}
+              {%- for key in replication_pair_stamp_claims.claimed if key | qumulo.cluster.restore_key_hash != own -%}
+                {%- set kept.keys = kept.keys + [key] -%}
+              {%- endfor -%}
+              {{ replication_pair_report_claims
+                 | combine({replication_pair_source_host: replication_pair_stamp_claims | combine({'claimed': kept.keys})}) }}
+  rescue:
+    # The read adds the host to replication_pair_report_claims, so a host
+    # missing from it is a read that failed.
+    - name: Warn that the restore stamp is not written
+      ansible.builtin.set_fact:
+        replication_pair_stamp_warning: "{{ replication_pair_stamp_warning_text | qumulo.cluster.warn }}"
+      vars:
+        replication_pair_stamp_failed: >-
+          {{ 'Could not write' if replication_pair_source_host in replication_pair_report_claims | default({}, true)
+             else "Could not read the rebuild report's claim for" }}
+        replication_pair_stamp_warning_text: >-
+          {{ replication_pair_stamp_failed }} the restore stamp {{ replication_pair_stamp_file }}:
+          {{ ansible_failed_result.msg | default('failed') | regex_replace('\\.$', '') }}.
+          Until it is written, a second pass that finds a failover by hand or a target that does not answer fails on
+          {{ replication_pair_source_host }}:{{ replication_pair_key.source_path }} to
+          {{ replication_pair_target_host }}:{{ replication_pair_key.target_path }}. Make {{ replication_pair_stamp_artifact_dir }}
+          writable, or run from a controller where it is, then run the baseline or the second pass again; either writes it.

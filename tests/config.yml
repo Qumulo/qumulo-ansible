@@ -1,0 +1,7 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Modules talk to the cluster over HTTPS from the controller and never run on
+# a managed node, so ansible-test only checks them against controller Pythons.
+modules:
+  python_requires: controller

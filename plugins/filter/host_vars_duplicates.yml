@@ -1,0 +1,278 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: host_vars_duplicates
+  short_description: A host_vars file's variables without the shares and exports the inventory already declares
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - Takes the variables a C(host_vars) file is to hold and the host's inventory variables, and returns the variables
+      without each SMB share and NFS export entry that the inventory declares too, with a note for each. The
+      C(cluster_baseline) role's tenancy step refuses a share, export or network declared twice. With
+      O(captured_tenants) it also adds each captured share or export that the inventory does not declare to the flat
+      list, with C(tenants) naming the tenant.
+    - An entry is left out when the inventory declares the same share or export with the same values, and the
+      inventory's entry applies. Only the keys the inventory's entry gives are compared for other values. The two
+      entries are compared in the form the share and export modules accept, without the modules' directory lookup, so a
+      spelling that reads back the same is the same value, apart from trustees (below). C(create_fs_path), C(tenants),
+      C(tenant_id), C(tenant) and C(state) are not compared. C(fs_path) is compared without a trailing slash and a mode
+      as V(644) and V(0644) alike. A share's C(permissions) are compared with C(type) defaulting to V(ALLOWED), the
+      rights expanded and sorted (V(ALL) is V(READ), V(WRITE) and V(CHANGE_PERMISSIONS), in any letter case) and each
+      trustee as written, in the form the share module's C(trustee) takes, so V(Everyone) and V(world:Everyone) are one
+      trustee but V(ad:engineering@corp) and V(ad:Engineering@CORP) are two, because the filter looks up no directory,
+      and its C(network_permissions) the same way. An export's C(restrictions) are compared with the defaults of
+      M(qumulo.cluster.nfs_export) filled in and C(require_tls) V(false) equal to unset, and its
+      C(fields_to_present_as_32_bit) with V(ALL) expanded.
+    - A key whose value is null, in either entry, counts as unset, as the share and export modules treat a null option
+      as not given.
+    - A key the file's entry gives that the inventory's entry omits is handled by O(cluster_holds_entries). When it is
+      V(true), the entry is still left out, and its note names each such key whose value is not what a create gives,
+      saying the cluster keeps it and no entry declares it now. When it is V(false), each such key refuses, "with other
+      values of ..., which the inventory's entry leaves out", and a key equal to its create default does not. The
+      create defaults, as observed on Qumulo Core 7.10.3, are for an SMB share C(description) V("") with
+      C(network_permissions) allowing every address all rights, C(access_based_enumeration_enabled),
+      C(require_encryption) and C(expand_fs_path_variables) V(false), C(offline_files_caching_mode) V(NO_CACHING),
+      C(default_file_create_mode) V(0644) and C(default_directory_create_mode) V(0755), and for an NFS export
+      C(description) V("") and C(fields_to_present_as_32_bit) V([]). A share's C(permissions), an export's
+      C(restrictions) and C(fs_path) have no create default, so a missing one refuses when O(cluster_holds_entries) is
+      V(false) and the file's entry gives it.
+    - An entry is also left out when the inventory removes the share or export, with C(state) V(absent) or with
+      C(qumulo_factory_defaults) C(smb_files_share) or C(nfs_root_export) V(absent), so the next baseline removes it
+      from the cluster. A removal in the file's own C(qumulo_factory_defaults) of a share or export the inventory
+      declares is left out too. A flat entry of the file that names several tenants loses only those the inventory
+      declares it for, and one that names V(all) is written as the list of the present tenants that remain, which does
+      not cover a tenant added to the inventory later. When the file's C(qumulo_factory_defaults) is left empty by what
+      is left out, it is left out of the variables.
+    - A network that both declare, a share or export that the inventory declares with other values and, when
+      O(cluster_holds_entries) is V(false), one whose file entry gives a key the inventory's omits with a value other
+      than a create gives, are not left out. Each is named in RV(_value.refusals), and C(playbooks/capture.yml) with
+      C(qumulo_adopt) and C(playbooks/clone_edge.yml) refuse to write the file for any.
+    - A variable the file holds outranks the inventory's, so the inventory's C(qumulo_tenants), C(qumulo_smb_shares),
+      C(qumulo_nfs_exports), C(qumulo_factory_defaults) and C(qumulo_network) count only where the file leaves them out.
+    - An SMB share is the same share when its C(share_name) matches ignoring case, and an NFS export when its
+      C(export_path) matches exactly, each within one tenant. A network is the same network when its C(id) matches,
+      whichever tenant holds it. A network under a tenant declared V(absent) is not counted.
+    - A flat entry claims the tenants it names in C(tenants), every declared tenant for V(all) and, with no C(tenants),
+      the only present tenant. With C(tenant_id) V(1) it claims tenant 1, which is the present entry renamed from
+      V(Default), else the present entry named V(Default); with O(captured_tenants), tenant 1 is the captured one
+      instead (below). When C(qumulo_tenants) is unset or empty, the cluster's one
+      tenant is what a flat entry with no C(tenants), C(tenant_id) V(1) and a factory removal claim. When
+      O(lacks_tenant_1) is true there is no tenant 1, so C(tenant_id) V(1) and a factory removal claim no tenant.
+    - C(qumulo_factory_defaults) with C(smb_files_share) or C(nfs_root_export) V(absent) claims tenant 1's factory
+      V(Files) share or V(/) export.
+    - Two declarations both in the inventory, or both in the file, are not compared. Neither is a claim the baseline
+      refuses for a reason of its own, such as an entry with no name, or with no tenant while several are present, nor
+      an entry with a C(tenant_id) other than V(1), which only the cluster can resolve.
+    - When the inventory defines C(qumulo_tenants) the file cannot hold the captured one, and O(captured_tenants) gives
+      it. The filter then reads tenant 1, the one tenant that a flat entry with no C(tenants) names, and C(tenants) V(all)
+      from the captured tenants instead of from the inventory's list, and judges what each captured tenant holds against
+      the inventory's. Tenant 1 is the captured tenant renamed from V(Default), else the captured V(Default), under the
+      name the inventory's entry gives it. A tenant the inventory removes still counts toward the one tenant, as the
+      baseline counts it until it deletes it. A captured tenant
+      matches an inventory entry by C(previous_name) only when that entry's name is not a captured tenant's name.
+      C(name), C(previous_name), C(state), C(networks), C(smb_shares) and C(nfs_exports) are not tenant settings, and the
+      rest are compared as written, by the keys the inventory gives. A captured network is compared by the keys the
+      inventory gives, as written, except that under a tenant's entry an omitted C(vlan_id) counts as untagged; a flat
+      C(qumulo_network) listing takes no C(vlan_id).
+      C(docs/reference/capture-and-clone.md) says what is written, what gets a note and what is refused.
+  options:
+    _input:
+      description: The variables the C(host_vars) file is to hold, by name. The filter does not change them.
+      type: dict
+      required: true
+    inventory:
+      description: The host's variables from the inventory, as C(hostvars[inventory_hostname]) gives them.
+      type: dict
+      required: true
+    lacks_tenant_1:
+      description: Whether the cluster the baseline will run on has no tenant 1, as the capture notes it.
+      type: bool
+      default: false
+    exclude:
+      description:
+        - Names of variables whose value in O(inventory) is not the inventory's, such as those an earlier clone's file
+          holds. The filter ignores each in O(inventory).
+      type: list
+      elements: str
+      default: []
+    cluster_holds_entries:
+      description:
+        - Whether the cluster the baseline runs on holds the file's entries already, as an adopted cluster does.
+          V(false) for a fresh cluster, which creates each share or export from the inventory's entry alone, so a key
+          the file's entry gives that the inventory's omits refuses unless it equals its create default.
+      type: bool
+      default: true
+    captured_tenants:
+      description:
+        - The captured C(qumulo_tenants), when the file leaves it out because the inventory defines it.
+        - Each share or export under a captured tenant is then written in the file's flat list for its tenant, unless the
+          inventory declares it, and the captured tenants and their networks are judged against the inventory's.
+          Tenant 1, the one tenant and C(tenants) V(all) are read from these tenants. A C(tenants) V(all) is written as
+          these tenants only when the inventory's present tenants differ from them after its renames and removals.
+        - Leave it unset when the file holds C(qumulo_tenants), which the filter then judges by its own entries.
+      type: list
+      elements: dict
+
+EXAMPLES: |
+  # The group's flat share and the captured tenant's share have the same name, ignoring case, so the tenant's is left
+  # out of the file. The result holds the file's variables without it, a note for it, and no refusal.
+  - name: Leave out of a host_vars file the shares the inventory already declares
+    ansible.builtin.debug:
+      msg: "{{ file_variables | qumulo.cluster.host_vars_duplicates(inventory_variables) }}"
+    vars:
+      inventory_variables:
+        qumulo_smb_shares:
+          - {share_name: Projects, fs_path: /projects}
+      file_variables:
+        qumulo_tenants:
+          - name: Default
+            smb_shares:
+              - {share_name: Files, fs_path: /}
+              - {share_name: projects, fs_path: /projects}
+
+  # For a clone, the fresh target creates each share from the inventory's entry alone. The inventory's Projects share
+  # leaves out the description that the source's share sets, so the result holds a refusal that names description and
+  # the Projects share is not left out. With cluster_holds_entries left true, as adoption does, the share is left out
+  # and its note says the cluster keeps the description and no entry declares it now.
+  - name: Refuse a clone file whose share sets a key the inventory's entry leaves out
+    ansible.builtin.debug:
+      msg: "{{ file_variables | qumulo.cluster.host_vars_duplicates(inventory_variables, cluster_holds_entries=false) }}"
+    vars:
+      inventory_variables:
+        qumulo_smb_shares:
+          - {share_name: Projects, fs_path: /projects}
+      file_variables:
+        qumulo_tenants:
+          - name: Default
+            smb_shares:
+              - {share_name: Projects, fs_path: /projects/, description: Team projects}
+
+  # The inventory defines qumulo_tenants, so the file leaves out the captured one and passes it as captured_tenants. The
+  # inventory declares the Default tenant but not its Projects share, so the share is written in the file's flat
+  # qumulo_smb_shares for Default. The captured Archive tenant is not in the inventory, so the result holds a note
+  # for it, and no refusal.
+  - name: Keep the shares a captured tenant holds when the inventory defines qumulo_tenants
+    ansible.builtin.debug:
+      msg: "{{ file_variables | qumulo.cluster.host_vars_duplicates(inventory_variables, captured_tenants=captured) }}"
+    vars:
+      inventory_variables:
+        qumulo_tenants:
+          - name: Default
+      file_variables:
+        qumulo_smb_shares: []
+      captured:
+        - name: Default
+          smb_shares:
+            - {share_name: Projects, fs_path: /projects}
+        - name: Archive
+
+  # Stops the play, before it writes anything, when the file holds a network the inventory declares too, as
+  # playbooks/capture.yml does for qumulo_adopt. The inventory here declares network 2 and the file network 1, so the
+  # play goes on. With network 1 in both, the assert fails and its message names where each declares it.
+  - name: Stop before writing a file that declares a network the inventory declares
+    ansible.builtin.assert:
+      that: kept.refusals == []
+      fail_msg: "{{ kept.refusals | join('; ') }}"
+    vars:
+      inventory_variables:
+        qumulo_network:
+          frontend_networks:
+            - {id: 2, name: Backup}
+      file_variables:
+        qumulo_tenants:
+          - name: Default
+            networks:
+              - {id: 1, name: Default}
+      kept: "{{ file_variables | qumulo.cluster.host_vars_duplicates(inventory_variables) }}"
+
+  # A fleet's group_vars remove the factory share and export. The captured Default tenant holds both, so both are left
+  # out of the file and the next baseline removes them from the cluster. For a cluster that has no tenant 1, set
+  # lacks_tenant_1 to true and the removal then claims nothing.
+  - name: Leave out the factory share and export that the inventory removes
+    ansible.builtin.debug:
+      msg: "{{ file_variables | qumulo.cluster.host_vars_duplicates(inventory_variables, lacks_tenant_1=false) }}"
+    vars:
+      inventory_variables:
+        qumulo_factory_defaults:
+          smb_files_share: absent
+          nfs_root_export: absent
+      file_variables:
+        qumulo_tenants:
+          - name: Default
+            smb_shares:
+              - {share_name: Files, fs_path: /}
+              - {share_name: Projects, fs_path: /projects}
+            nfs_exports:
+              - {export_path: /, fs_path: /}
+
+  # On a second clone, hostvars already hold the first clone's file. Its qumulo_factory_defaults is that file's, not the
+  # inventory's, so exclude names it and the Files share stays in the new file. Without exclude, the share would be
+  # left out.
+  - name: Judge a second clone against the inventory without the earlier file's variables
+    ansible.builtin.debug:
+      msg: "{{ file_variables | qumulo.cluster.host_vars_duplicates(inventory_variables, exclude=earlier_file_variables) }}"
+    vars:
+      earlier_file_variables: [qumulo_factory_defaults]
+      inventory_variables:
+        qumulo_factory_defaults:
+          smb_files_share: absent
+      file_variables:
+        qumulo_tenants:
+          - name: Default
+            smb_shares:
+              - {share_name: Files, fs_path: /}
+
+RETURN:
+  _value:
+    description: The variables to write, a note for each entry left out, and a sentence for each refusal.
+    returned: always
+    type: dict
+    contains:
+      variables:
+        description:
+          - The given variables without the entries left out.
+          - A C(smb_shares) or C(nfs_exports) of a tenant that is left empty is removed.
+          - A C(qumulo_factory_defaults) left empty is removed.
+          - A flat entry with C(tenants) V(all) that loses a tenant is written with the list of the present tenants that
+            remain.
+          - With O(captured_tenants), each captured share or export that the inventory does not declare is added to the
+            flat list with C(tenants) V([<tenant>]), and a flat C(tenants) V(all) is written as the captured tenants when
+            the inventory's present tenants differ from them after its renames and removals.
+        type: dict
+        sample:
+          qumulo_tenants:
+            - name: Default
+              smb_shares:
+                - {share_name: Files, fs_path: /}
+      left_out:
+        description:
+          - A note for each entry left out, in the shape of O(qumulo.cluster.host_vars_text#module:left_out), with
+            C(what) and C(why).
+          - With O(captured_tenants), also a note for each captured tenant that the inventory does not declare, or
+            declares V(absent), or that the capture itself declares V(absent) and the inventory does not declare, and
+            for each captured share or export that cannot be written because the inventory defines both
+            C(qumulo_tenants) and the flat list, and for each flat entry with C(tenants) V(all) written as the captured
+            tenants.
+          - An empty list when nothing is left out.
+        type: list
+        elements: dict
+        sample:
+          - what: the SMB share Projects of tenant Default
+            why: >-
+              the inventory declares it in qumulo_smb_shares[0], and the baseline refuses an SMB share declared twice;
+              the inventory's entry applies
+      refusals:
+        description:
+          - A sentence for each network both declare and each share or export the inventory declares with other values,
+            or, when O(cluster_holds_entries) is V(false), without a key the file's entry gives, naming where the
+            inventory declares it and where the file does, or, for a captured tenant, the capture.
+          - With O(captured_tenants), also a sentence for each captured tenant the inventory declares with other
+            switches or settings, and for each captured network the inventory does not list for that tenant or lists with
+            other values.
+          - An empty list when there is none.
+        type: list
+        elements: str
+        sample:
+          - network 1, which the inventory declares in qumulo_network.frontend_networks[0] and the file in
+            qumulo_tenants[Default].networks[0]

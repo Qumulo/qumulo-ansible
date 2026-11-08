@@ -1,0 +1,13 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# meta/argument_specs.yml documents each variable. The qumulo_* variables are
+# the inventory's, shared with the collection's other roles, so the tasks read
+# them with defaults rather than defining them here.
+cluster_baseline_guard: true
+cluster_baseline_check_mode: "{{ ansible_check_mode }}"
+cluster_baseline_replication_on_held: fail
+# Where a new S3 key's secret is written, under a directory named after the
+# inventory host, as edge_rebuild_artifact_dir is: beside the inventory source
+# on disk, never inside it. Empty for a host from no source on disk.
+cluster_baseline_artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"

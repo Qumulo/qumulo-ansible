@@ -1,0 +1,24 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Brings each cluster's system and identity settings to the baseline its
+# inventory declares, with the qumulo.cluster.cluster_baseline role. Run it with
+# --check first; a second run changes nothing.
+#
+#   ansible-playbook playbooks/baseline.yml -l edge01 --check --diff
+#   ansible-playbook playbooks/baseline.yml -l edge01
+- name: Bring each cluster to its baseline
+  hosts: qumulo_clusters
+  gather_facts: false
+  module_defaults:
+    group/qumulo.cluster.qumulo:
+      api_host: "{{ qumulo_api_host }}"
+      api_port: "{{ qumulo_api_port | default(8000) }}"
+      api_username: "{{ qumulo_api_username | default('admin') }}"
+      api_password: "{{ qumulo_api_password | default('') }}"
+      api_token: "{{ qumulo_api_token | default('') }}"
+      validate_certs: "{{ qumulo_validate_certs | default(true) }}"
+      ca_path: "{{ qumulo_ca_path | default(omit) }}"
+      expected_cluster_uuid: "{{ qumulo_cluster_uuid | default('') }}"
+  roles:
+    - role: qumulo.cluster.cluster_baseline

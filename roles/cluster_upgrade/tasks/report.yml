@@ -1,0 +1,54 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The report of the hops so far, rewritten at each hop's end, a failed hop's included, to
+# <cluster_upgrade_artifact_dir>/upgrade-<UTC>.yml on the controller (FR-021). A check run writes it too, marked as one.
+
+# The mark task keeps each step's results only while some host is left to run it, so when the last host fails, its
+# failure is not in cluster_upgrade_results. A host that left the play runs no task after its failure, so its
+# registers still hold this hop's results up to that failure, since hop.yml clears them at the hop's start; only those
+# the mark task has not kept are added.
+- name: Keep the results the mark task did not, of the hosts that left the play
+  ansible.builtin.set_fact:
+    cluster_upgrade_results: >-
+      {%- set found = namespace(results=cluster_upgrade_results | default({})) -%}
+      {%- for host in cluster_upgrade_hop.hosts | reject('in', ansible_play_hosts) -%}
+        {%- for name in ['cluster_upgrade_unblock_refusal', 'cluster_upgrade_prepare', 'cluster_upgrade_prepare_again',
+                         'cluster_upgrade_readiness', 'cluster_upgrade_step_readiness', 'cluster_upgrade_commit',
+                         'cluster_upgrade_reboots'] -%}
+          {%- set result = hostvars[host][name] | default(none) -%}
+          {%- if result is mapping and result is not skipped and result not in found.results[host] | default([]) -%}
+            {%- set found.results = found.results | combine({host: found.results[host] | default([]) + [result]}) -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.results }}
+  run_once: true
+
+- name: Report the hop
+  qumulo.cluster.upgrade_report:
+    hop: "{{ cluster_upgrade_hop }}"
+    results: "{{ cluster_upgrade_results | default({}) }}"
+    held: "{{ upgrade_held | default([]) }}"
+    lock_held: "{{ upgrade_lock_held | default([]) }}"
+    # The hosts step 2 kept for a second prepare: one whose unit was held before step 3 is held, not failed.
+    prepare_failed: >-
+      {%- set found = namespace(hosts=[]) -%}
+      {%- for host in cluster_upgrade_hop.hosts if hostvars[host].upgrade_prepare_failed | default(false) -%}
+        {%- set found.hosts = found.hosts + [host] -%}
+      {%- endfor -%}
+      {{ found.hosts }}
+    check_mode_run: "{{ ansible_check_mode }}"
+    peers: "{{ cluster_upgrade_peers | default({'commits': [], 'reboots': []}) }}"
+    window: "{{ cluster_upgrade_window.window | default(none) }}"
+    lines: "{{ [upgrade_stop_reason] if upgrade_stop_reason is defined else [] }}"
+  register: cluster_upgrade_report
+  run_once: true
+
+- name: Keep the hop's report
+  ansible.builtin.set_fact:
+    cluster_upgrade_reports: "{{ cluster_upgrade_reports + [cluster_upgrade_report.report] }}"
+  run_once: true
+
+- name: Write the report file
+  ansible.builtin.import_tasks: write_report.yml

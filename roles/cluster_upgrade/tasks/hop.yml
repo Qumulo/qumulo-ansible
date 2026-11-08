@@ -1,0 +1,310 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One hop, cluster_upgrade_hop of the plan, on every host of the play at once (FR-018). A host that fails a step leaves
+# the play; the mark task after the step holds its unit, and every unit that follows it, by the plan's holds.
+- name: Run the hop to {{ cluster_upgrade_hop.release }}
+  block:
+    - name: Run the hop's steps
+      when: not upgrade_stop
+      block:
+        - name: Start the hop's facts
+          ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+            upgrade_moves: "{{ inventory_hostname in cluster_upgrade_hop.moves }}"
+            upgrade_reboots_only: "{{ cluster_upgrade_hop.hosts[inventory_hostname].reboots_only | default(false) }}"
+            upgrade_prepare_failed: false
+            upgrade_ready: false
+            upgrade_committed: false
+            cluster_upgrade_entry: "{{ cluster_upgrade_hop.hosts[inventory_hostname] | default(none) }}"
+
+        # A host that leaves the play registers nothing more, so without this its later registers would still hold the
+        # last hop's results when the mark task and the report read them.
+        - name: Clear the registers the mark task and the report read
+          ansible.builtin.set_fact:
+            cluster_upgrade_unblock_refusal: null
+            cluster_upgrade_prepare: null
+            cluster_upgrade_prepare_again: null
+            cluster_upgrade_readiness: null
+            cluster_upgrade_step_readiness: null
+            cluster_upgrade_commit: null
+            cluster_upgrade_reboots: null
+
+        # Once per hop, so an inventory image whose URL a lookup presigns is the same URL at every step: a URL signed
+        # again would differ from the PREPARED one, and every prepare: false call would refuse F17.
+        - name: Pin each host's image secret for the hop
+          ansible.builtin.set_fact:
+            cluster_upgrade_image_secret: >-
+              {{ qumulo_upgrade_images[cluster_upgrade_entry.image_index] | qumulo.cluster.url_secret
+                 if cluster_upgrade_entry.image_index is not none else {} }}
+          no_log: true
+          when: cluster_upgrade_entry is not none
+
+        - name: Hold, for the hop, what a refused lock protects
+          ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+            upgrade_held: >-
+              {{ upgrade_lock_held | default([]) | select('in', cluster_upgrade_hop.moves)
+                 | map('extract', cluster_upgrade_hop.hosts, 'holds') | flatten | unique | sort }}
+            cluster_upgrade_results: {}
+            cluster_upgrade_peers: {commits: [], reboots: []}
+          run_once: true
+
+        - name: Warn that forks or the prepare throttle puts the hop's prepares or commits in batches
+          ansible.builtin.debug:
+            msg: "{{ cluster_upgrade_hop.forks_warning }}"
+          run_once: true
+          when: cluster_upgrade_hop.forks_warning | default(none) is not none
+
+        # The calling play takes each lock after the plan and releases it in its always:.
+        - name: Renew this run's restore locks to the hop's lease
+          when: not ansible_check_mode
+          block:
+            - name: Renew this host's restore lock
+              qumulo.cluster.replication_restore_lock:
+                path: >-
+                  {{ edge_rebuild_artifact_dir | default(ansible_inventory_sources
+                     | qumulo.cluster.artifact_dir(inventory_file | default(''))) }}/{{ inventory_hostname }}/restore/lock
+                state: present
+                holder: upgrade
+                token: "{{ upgrade_lock_token }}"
+                lease: "{{ cluster_upgrade_hop.lease | int }}"
+              when: inventory_hostname in upgrade_lock_hosts | default([])
+          rescue:
+            - name: Stop the run before the hop, since a lock it holds was lost
+              ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+                upgrade_stop: true
+                upgrade_stop_reason: >-
+                  The run stopped before the hop to {{ cluster_upgrade_hop.release }}: {{ inventory_hostname }}'s restore lock
+                  could not be renewed: {{ ansible_failed_result.msg | default('no message', true) }}
+                cluster_upgrade_stopped_in: "{{ cluster_upgrade_hop.number }}"
+              run_once: true
+
+        - name: Step 1, wait out a reboot under way, then the upgrade's preflight
+          when:
+            - not upgrade_stop
+            - upgrade_moves
+            - inventory_hostname not in upgrade_held
+          block:
+            # A read that gets no answer or a server error is part of the reboot, as when the API host's own node is
+            # down, so the wait goes on through it until reboot_timeout; so does one whose subset cluster_info could not
+            # read, as when a gateway answers 404 while a node restarts. A read the cluster refuses ends the wait.
+            - name: Step 1, wait while a reboot is under way
+              qumulo.cluster.cluster_info:
+                gather_subset: [upgrade]
+              register: cluster_upgrade_reboot_read
+              until: >-
+                cluster_upgrade_reboot_read.status | default(500) | int < 500
+                or (cluster_upgrade_reboot_read.cluster.upgrade is defined
+                    and (cluster_upgrade_reboot_read.cluster.upgrade.reboot.state | default('REBOOT_IDLE') in ['REBOOT_PAUSED', 'REBOOT_PAUSED_DUE_TO_ERROR']
+                         or (cluster_upgrade_reboot_read.cluster.upgrade.status.state | default('') != 'UPGRADE_STATE_REBOOTING'
+                             and cluster_upgrade_reboot_read.cluster.upgrade.reboot.state | default('REBOOT_IDLE') != 'REBOOT_IN_PROGRESS')))
+              retries: "{{ (cluster_upgrade_reboot_timeout | int / [cluster_upgrade_poll_delay | int, 1] | max) | round(0, 'ceil') | int }}"
+              delay: "{{ cluster_upgrade_poll_delay | int }}"
+              failed_when: >-
+                cluster_upgrade_reboot_read.failed | default(false)
+                or cluster_upgrade_reboot_read.cluster.upgrade is not defined
+                or cluster_upgrade_reboot_read.cluster.upgrade.reboot.state | default('REBOOT_IDLE') != 'REBOOT_IDLE'
+                or cluster_upgrade_reboot_read.cluster.upgrade.status.state | default('') == 'UPGRADE_STATE_REBOOTING'
+
+            # No reboot is under way by now, so this wait reads the preflight alone: only a reboot wait may poll the
+            # reboot status, since each read asks every node for its boot identity (FR-025a).
+            - name: Step 1, wait while the upgrade's preflight reads blocked
+              qumulo.cluster.cluster_info:
+                gather_subset: [upgrade_blocked]
+              register: cluster_upgrade_unblock_read
+              until: >-
+                cluster_upgrade_unblock_read.cluster is not defined
+                or (cluster_upgrade_unblock_read.cluster.upgrade_blocked is defined
+                    and (not cluster_upgrade_unblock_read.cluster.upgrade_blocked.is_blocked | default(false)
+                         or cluster_upgrade_unblock_read.cluster.upgrade_blocked.cluster_degraded | default(false)))
+              retries: "{{ (cluster_upgrade_unblock_timeout | int / [cluster_upgrade_poll_delay | int, 1] | max) | round(0, 'ceil') | int }}"
+              delay: "{{ cluster_upgrade_poll_delay | int }}"
+              failed_when: >-
+                cluster_upgrade_unblock_read.failed | default(false)
+                or cluster_upgrade_unblock_read.cluster.upgrade_blocked is not defined
+                or cluster_upgrade_unblock_read.cluster.upgrade_blocked.is_blocked | default(false)
+          rescue:
+            - name: Step 1, fail with the reason the hop cannot start
+              ansible.builtin.fail:
+                msg: "{{ cluster_upgrade_unblock_messages[cluster_upgrade_unblock_reason] }}"
+              vars:
+                cluster_upgrade_reboot: "{{ (cluster_upgrade_reboot_read.cluster | default({})).upgrade.reboot | default({}) }}"
+                cluster_upgrade_blocked: "{{ (cluster_upgrade_unblock_read.cluster | default({})).upgrade_blocked | default({}) }}"
+                cluster_upgrade_blocked_reason: "{{ (cluster_upgrade_blocked.blocked_reason | default('', true) | string).rstrip('.') }}"
+                cluster_upgrade_unblock_reason: >-
+                  {{ 'reboot_read' if cluster_upgrade_reboot_read is failed and cluster_upgrade_reboot_read.cluster is not defined
+                     else 'reboot_unread' if cluster_upgrade_reboot_read.cluster.upgrade is not defined
+                     else cluster_upgrade_reboot.state if cluster_upgrade_reboot.state | default('') in ['REBOOT_PAUSED', 'REBOOT_PAUSED_DUE_TO_ERROR']
+                     else 'rebooting' if cluster_upgrade_reboot_read is failed
+                     else 'unblock_read' if cluster_upgrade_unblock_read.cluster is not defined
+                     else 'unblock_unread' if cluster_upgrade_unblock_read.cluster.upgrade_blocked is not defined
+                     else 'degraded' if cluster_upgrade_blocked.cluster_degraded | default(false)
+                     else 'blocked' }}
+                cluster_upgrade_unblock_messages:
+                  reboot_read: "{{ cluster_upgrade_reboot_read.msg | default('') }}"
+                  unblock_read: "{{ cluster_upgrade_unblock_read.msg | default('') }}"
+                  reboot_unread: >-
+                    {{ inventory_hostname }}'s upgrade status could not be read within {{ cluster_upgrade_reboot_timeout }} seconds:
+                    {{ (cluster_upgrade_reboot_read.unavailable_subsets | default({})).upgrade | default('no reason given') }}.
+                  unblock_unread: >-
+                    {{ inventory_hostname }}'s upgrade preflight could not be read within {{ cluster_upgrade_unblock_timeout }} seconds:
+                    {{ (cluster_upgrade_unblock_read.unavailable_subsets | default({})).upgrade_blocked | default('no reason given') }}.
+                  REBOOT_PAUSED: >-
+                    {{ inventory_hostname }}'s reboot is paused, and this run did not pause it. Follow "Resume a paused
+                    reboot" in the collection's docs/how-to/resume-an-upgrade.md, then run the upgrade again.
+                  REBOOT_PAUSED_DUE_TO_ERROR: >-
+                    {{ inventory_hostname }}'s reboot stopped on an error: {{ cluster_upgrade_reboot.error_message | default('no message', true) }}.
+                    Contact Qumulo Care before running anything else on {{ inventory_hostname }}.
+                  rebooting: >-
+                    {{ inventory_hostname }} still reads REBOOTING after {{ cluster_upgrade_reboot_timeout }} seconds, with
+                    {{ cluster_upgrade_reboot.rebooted_node_count | default('none') }} of {{ cluster_upgrade_reboot.total_node_count | default('its') }}
+                    nodes rebooted. Wait for the reboot to finish, then run the upgrade again, or raise cluster_upgrade_reboot_timeout.
+                  degraded: >-
+                    {{ inventory_hostname }} cannot be upgraded now: {{ cluster_upgrade_blocked_reason }}. Bring the node or disk back
+                    into the cluster, then run the upgrade again.
+                  blocked: >-
+                    {{ inventory_hostname }} still reads blocked after {{ cluster_upgrade_unblock_timeout }} seconds:
+                    {{ cluster_upgrade_blocked_reason }}. On a large file system the background work can take longer; run the
+                    upgrade again, which picks up where it stopped, or raise cluster_upgrade_unblock_timeout.
+              register: cluster_upgrade_unblock_refusal
+
+        - name: Hold the units of the hosts step 1 failed
+          ansible.builtin.import_tasks: mark.yml
+          vars:
+            cluster_upgrade_mark_results: [cluster_upgrade_unblock_refusal]
+
+        # A failure a second prepare cannot lift, as F21's wrong image, fails the host again; any other keeps it in the
+        # play for step 3's prepare.
+        - name: Step 2, prepare every host the hop moves
+          when:
+            - not upgrade_stop
+            - upgrade_moves
+            - inventory_hostname not in upgrade_held
+          block:
+            - name: Step 2, prepare
+              qumulo.cluster.upgrade:
+                state: prepared
+                commit_record: "{{ cluster_upgrade_artifact_dir }}/{{ inventory_hostname }}/upgrade/commit.yml"
+              register: cluster_upgrade_prepare
+              throttle: "{{ cluster_upgrade_prepare_throttle | default(0) }}"
+          rescue:
+            - name: Step 2, fail a host whose prepare cannot succeed in this run
+              ansible.builtin.fail:
+                msg: "{{ ansible_failed_result.msg | default('') }}"
+              when: ansible_failed_result.final | default(false) | bool
+
+            - name: Step 2, keep the host for step 3's prepare
+              ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+                upgrade_prepare_failed: true
+
+        - name: Hold the units of the hosts step 2 failed
+          ansible.builtin.import_tasks: mark.yml
+          vars:
+            cluster_upgrade_mark_results: [cluster_upgrade_prepare]
+
+        - name: Step 3, prepare again each host whose first prepare failed
+          qumulo.cluster.upgrade:
+            state: prepared
+            commit_record: "{{ cluster_upgrade_artifact_dir }}/{{ inventory_hostname }}/upgrade/commit.yml"
+          register: cluster_upgrade_prepare_again
+          throttle: "{{ cluster_upgrade_prepare_throttle | default(0) }}"
+          when:
+            - not upgrade_stop
+            - upgrade_moves
+            - upgrade_prepare_failed
+            - inventory_hostname not in upgrade_held
+
+        - name: Hold the units of the hosts whose second prepare failed
+          ansible.builtin.import_tasks: mark.yml
+          vars:
+            cluster_upgrade_mark_results: [cluster_upgrade_prepare_again]
+
+        # No throttle: these waits download nothing.
+        - name: Step 3, check that each host may commit
+          qumulo.cluster.upgrade:
+            state: prepared
+            prepare: false
+            ready_to_commit: true
+          register: cluster_upgrade_readiness
+          when:
+            - not upgrade_stop
+            - upgrade_moves
+            - inventory_hostname not in upgrade_held
+
+        - name: Step 3, note each host ready to commit
+          ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+            upgrade_ready: true
+          when:
+            - not upgrade_stop
+            - cluster_upgrade_readiness is not skipped
+
+        - name: Hold the units of the hosts step 3 failed
+          ansible.builtin.import_tasks: mark.yml
+          vars:
+            cluster_upgrade_mark_results: [cluster_upgrade_readiness]
+
+        - name: Step 4, ask whether the hop's commits may begin
+          qumulo.cluster.upgrade_plan:
+            window:
+              hop: "{{ cluster_upgrade_hop }}"
+              held: "{{ upgrade_held }}"
+          register: cluster_upgrade_window
+          run_once: true
+          when:
+            - not upgrade_stop
+            - cluster_upgrade_hop.windows | length > 0
+
+        - name: Hold the units the maintenance window holds
+          ansible.builtin.import_tasks: mark.yml
+          vars:
+            cluster_upgrade_mark_window: true
+
+        - name: Step 5, commit the schedule's steps in order
+          ansible.builtin.include_tasks: commit_step.yml
+          loop: "{{ cluster_upgrade_hop.steps }}"
+          loop_control:
+            loop_var: cluster_upgrade_step
+            label: "round {{ cluster_upgrade_step.round }}, wave {{ cluster_upgrade_step.wave }}"
+
+        - name: Step 6, read the moved components' portals and the replication their hosts touch
+          ansible.builtin.import_tasks: peers.yml
+          vars:
+            cluster_upgrade_peer_reading: commits
+
+        - name: Step 7, wait for the reboots of the committed hosts
+          qumulo.cluster.upgrade:
+            state: rebooted
+            commit: false
+          register: cluster_upgrade_reboots
+          when:
+            - not upgrade_stop
+            - upgrade_committed or (upgrade_reboots_only and inventory_hostname not in upgrade_held)
+
+        - name: Keep the reboots' results
+          ansible.builtin.import_tasks: mark.yml
+          vars:
+            cluster_upgrade_mark_results: [cluster_upgrade_reboots]
+
+        - name: Step 8, read the portals and the replication again
+          ansible.builtin.import_tasks: peers.yml
+          vars:
+            cluster_upgrade_peer_reading: reboots
+
+        # Decision 44: hop k+1 starts only when every host of hop k is done, and a hop outside the maintenance window
+        # ends the run, even one whose window held nothing, as when it only closes splits. upgrade_stop gates every
+        # later task.
+        - name: Stop the run after the hop when a host it moved is held or has left the play, or it was outside the window
+          ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+            upgrade_stop: "{{ cluster_upgrade_stops }}"
+            cluster_upgrade_stopped_in: "{{ cluster_upgrade_hop.number if cluster_upgrade_stops else none }}"
+          vars:
+            cluster_upgrade_stops: >-
+              {{ upgrade_stop
+                 or cluster_upgrade_hop.moves | select('in', upgrade_held) | list | length > 0
+                 or cluster_upgrade_hop.hosts | reject('in', ansible_play_hosts) | list | length > 0
+                 or (cluster_upgrade_window.window.inside | default(true)) is false }}
+          run_once: true
+          when: not upgrade_stop
+  always:
+    - name: Step 9, write the report
+      ansible.builtin.include_tasks: report.yml
+      when: not upgrade_stop or cluster_upgrade_stopped_in | default(none) | string == cluster_upgrade_hop.number | string

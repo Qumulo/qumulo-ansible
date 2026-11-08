@@ -1,0 +1,19 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The first read and plan of one relationship, kept in replication_failover_plans with its name; a refusal is kept
+# with failed and msg, so that every relationship is planned before the run fails.
+- name: Read both clusters for {{ replication_failover_item.name }}
+  ansible.builtin.include_tasks: read.yml
+
+- name: Plan {{ replication_failover_item.name }}
+  ansible.builtin.include_tasks: ask.yml
+  vars:
+    replication_failover_last_verb: null
+    replication_failover_synced: false
+
+- name: Keep the plan of {{ replication_failover_item.name }}
+  ansible.builtin.set_fact:
+    replication_failover_plans: >-
+      {{ replication_failover_plans + [replication_failover_answer | combine({'name': replication_failover_item.name,
+         'failed': replication_failover_answer.state is not defined, 'msg': replication_failover_answer.msg | default('')})] }}

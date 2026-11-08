@@ -1,0 +1,73 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Every subset of every info module but SMB's sessions, which name the
+# clients and users connected at the time; none of them returns a secret. The
+# capture is a record of the edge as it was, for people: nothing replays it.
+- name: Read the cluster
+  qumulo.cluster.cluster_info:
+    gather_subset: [all]
+  register: edge_rebuild_capture_cluster
+
+- name: Read the identity settings
+  qumulo.cluster.identity_info:
+  register: edge_rebuild_capture_identity
+
+- name: Read monitoring, Nexus, audit and encryption
+  qumulo.cluster.monitoring_info:
+  register: edge_rebuild_capture_monitoring
+
+- name: Read the portals
+  qumulo.cluster.portal_info:
+  register: edge_rebuild_capture_portals
+
+- name: Read the file system
+  qumulo.cluster.filesystem_info:
+  register: edge_rebuild_capture_filesystem
+
+- name: Read SMB
+  qumulo.cluster.smb_info:
+    gather_subset: [shares, settings]
+  register: edge_rebuild_capture_smb
+
+- name: Read NFS
+  qumulo.cluster.nfs_info:
+  register: edge_rebuild_capture_nfs
+
+- name: Read snapshots
+  qumulo.cluster.snapshot_info:
+  register: edge_rebuild_capture_snapshots
+
+# Data, not inventory: an entry's target names an inventory host, which the
+# capture does not know.
+- name: Read the replication relationships
+  qumulo.cluster.replication_info:
+  register: edge_rebuild_capture_replication
+
+- name: Create the edge's artifact directory
+  ansible.builtin.file:
+    path: "{{ edge_rebuild_host_dir }}"
+    state: directory
+    mode: "0700"
+  delegate_to: localhost
+
+- name: Write the capture
+  ansible.builtin.copy:
+    dest: "{{ edge_rebuild_host_dir }}/captured-{{ edge_rebuild_stamp }}.yml"
+    mode: "0600"
+    content: |
+      # Captured from {{ inventory_hostname }} by the qumulo.cluster.edge_rebuild role before its drain. A record, not
+      # an inventory: the replay applies the inventory, never this file.
+      {{ edge_rebuild_capture | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}
+  delegate_to: localhost
+  vars:
+    edge_rebuild_capture:
+      cluster: "{{ edge_rebuild_capture_cluster.cluster }}"
+      identity: "{{ edge_rebuild_capture_identity.identity | default({}) }}"
+      monitoring: "{{ edge_rebuild_capture_monitoring.monitoring | default({}) }}"
+      portals: "{{ edge_rebuild_capture_portals.portals }}"
+      filesystem: "{{ edge_rebuild_capture_filesystem.filesystem | default({}) }}"
+      smb: "{{ edge_rebuild_capture_smb.smb | default({}) }}"
+      nfs: "{{ edge_rebuild_capture_nfs.nfs | default({}) }}"
+      snapshots: "{{ edge_rebuild_capture_snapshots.snapshots | default({}) }}"
+      replication: "{{ edge_rebuild_capture_replication.replication | default({}) }}"

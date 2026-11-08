@@ -1,0 +1,171 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# After the portal: directories and shares may lie under its authorized roots.
+# Steps 18 and 19 loop over step 2's plan: at each, the removals go first, the
+# factory share or export and an absent tenant's included, then the global
+# settings, then each tenant's settings, then the present shares or exports. So
+# NFSv4.1 can be turned on in the run that removes nested exports, a deleted
+# tenant's included. S3 follows the exports: a bucket's directory and the base
+# path are declared directories, and a policy's principals are local users or
+# domain identities, which the steps before have made or joined.
+- name: Apply the directories
+  qumulo.cluster.directory:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode | default(omit) }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ qumulo_directories | default([]) }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+# After the directories they apply to, which the task above creates; step 2 has
+# already refused a path that also declares a mode (G-FS-ACL-MODE).
+- name: Apply the file ACLs
+  qumulo.cluster.file_acl:
+    path: "{{ item.path }}"
+    aces: "{{ item.aces }}"
+    control: "{{ item.control | default(omit) }}"
+    posix_special_permissions: "{{ item.posix_special_permissions | default(omit) }}"
+    allow_data_loss: "{{ item.allow_data_loss | default(omit) }}"
+  loop: "{{ qumulo_file_acls | default([]) }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Remove the SMB shares the run removes, before the SMB settings
+  qumulo.cluster.smb_share:
+    share_name: "{{ item.share_name }}"
+    tenant: "{{ item.tenant | default(omit) }}"
+    tenants: "{{ item.tenants | default(omit) }}"
+    state: absent
+  loop: "{{ cluster_baseline_tenancy.smb.removals | default([]) }}"
+  loop_control:
+    label: "{{ cluster_baseline_entry_label }}"
+
+- name: Apply the SMB settings
+  qumulo.cluster.smb_settings:
+    session_encryption: "{{ qumulo_smb_settings.session_encryption | default(omit) }}"
+    supported_dialects: "{{ qumulo_smb_settings.supported_dialects | default(omit) }}"
+    hide_shares_from_unauthorized_users: "{{ qumulo_smb_settings.hide_shares_from_unauthorized_users | default(omit) }}"
+    hide_shares_from_unauthorized_hosts: "{{ qumulo_smb_settings.hide_shares_from_unauthorized_hosts | default(omit) }}"
+    snapshot_directory_mode: "{{ qumulo_smb_settings.snapshot_directory_mode | default(omit) }}"
+    bypass_traverse_checking: "{{ qumulo_smb_settings.bypass_traverse_checking | default(omit) }}"
+    signing_required: "{{ qumulo_smb_settings.signing_required | default(omit) }}"
+  when: qumulo_smb_settings is defined
+
+- name: Apply each tenant's SMB settings, or return them to the global ones
+  qumulo.cluster.smb_settings:
+    tenant: "{{ item.tenant }}"
+    state: "{{ item.state }}"
+    session_encryption: "{{ item.session_encryption | default(omit) }}"
+    supported_dialects: "{{ item.supported_dialects | default(omit) }}"
+    hide_shares_from_unauthorized_users: "{{ item.hide_shares_from_unauthorized_users | default(omit) }}"
+    hide_shares_from_unauthorized_hosts: "{{ item.hide_shares_from_unauthorized_hosts | default(omit) }}"
+    snapshot_directory_mode: "{{ item.snapshot_directory_mode | default(omit) }}"
+    bypass_traverse_checking: "{{ item.bypass_traverse_checking | default(omit) }}"
+    signing_required: "{{ item.signing_required | default(omit) }}"
+  loop: "{{ cluster_baseline_tenancy.smb.overrides | default([]) }}"
+  loop_control:
+    label: "{{ item.tenant }}"
+
+- name: Apply the SMB shares
+  qumulo.cluster.smb_share:
+    share_name: "{{ item.share_name }}"
+    tenant: "{{ item.tenant | default(omit) }}"
+    tenants: "{{ item.tenants | default(omit) }}"
+    fs_path: "{{ item.fs_path | default(omit) }}"
+    create_fs_path: "{{ item.create_fs_path | default(omit) }}"
+    description: "{{ item.description | default(omit) }}"
+    permissions: "{{ item.permissions | default(omit) }}"
+    network_permissions: "{{ item.network_permissions | default(omit) }}"
+    access_based_enumeration_enabled: "{{ item.access_based_enumeration_enabled | default(omit) }}"
+    require_encryption: "{{ item.require_encryption | default(omit) }}"
+    default_file_create_mode: "{{ item.default_file_create_mode | default(omit) }}"
+    default_directory_create_mode: "{{ item.default_directory_create_mode | default(omit) }}"
+    expand_fs_path_variables: "{{ item.expand_fs_path_variables | default(omit) }}"
+    offline_files_caching_mode: "{{ item.offline_files_caching_mode | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ cluster_baseline_tenancy.smb.shares | default([]) }}"
+  loop_control:
+    label: "{{ cluster_baseline_entry_label }}"
+
+- name: Remove the NFS exports the run removes, before the NFS settings
+  qumulo.cluster.nfs_export:
+    export_path: "{{ item.export_path }}"
+    tenant: "{{ item.tenant | default(omit) }}"
+    tenants: "{{ item.tenants | default(omit) }}"
+    state: absent
+  loop: "{{ cluster_baseline_tenancy.nfs.removals | default([]) }}"
+  loop_control:
+    label: "{{ cluster_baseline_entry_label }}"
+
+- name: Apply the NFS settings
+  qumulo.cluster.nfs_settings:
+    v4_enabled: "{{ qumulo_nfs_settings.v4_enabled | default(omit) }}"
+    krb5_enabled: "{{ qumulo_nfs_settings.krb5_enabled | default(omit) }}"
+    krb5i_enabled: "{{ qumulo_nfs_settings.krb5i_enabled | default(omit) }}"
+    krb5p_enabled: "{{ qumulo_nfs_settings.krb5p_enabled | default(omit) }}"
+    auth_sys_enabled: "{{ qumulo_nfs_settings.auth_sys_enabled | default(omit) }}"
+    idmap_domain: "{{ qumulo_nfs_settings.idmap_domain | default(omit) }}"
+  when: qumulo_nfs_settings is defined
+
+- name: Apply each tenant's NFS settings, or return them to the global ones
+  qumulo.cluster.nfs_settings:
+    tenant: "{{ item.tenant }}"
+    state: "{{ item.state }}"
+    v4_enabled: "{{ item.v4_enabled | default(omit) }}"
+    krb5_enabled: "{{ item.krb5_enabled | default(omit) }}"
+    krb5i_enabled: "{{ item.krb5i_enabled | default(omit) }}"
+    krb5p_enabled: "{{ item.krb5p_enabled | default(omit) }}"
+    auth_sys_enabled: "{{ item.auth_sys_enabled | default(omit) }}"
+    idmap_domain: "{{ item.idmap_domain | default(omit) }}"
+  loop: "{{ cluster_baseline_tenancy.nfs.overrides | default([]) }}"
+  loop_control:
+    label: "{{ item.tenant }}"
+
+- name: Apply the NFS exports
+  qumulo.cluster.nfs_export:
+    export_path: "{{ item.export_path }}"
+    tenant: "{{ item.tenant | default(omit) }}"
+    tenants: "{{ item.tenants | default(omit) }}"
+    fs_path: "{{ item.fs_path | default(omit) }}"
+    create_fs_path: "{{ item.create_fs_path | default(omit) }}"
+    description: "{{ item.description | default(omit) }}"
+    fields_to_present_as_32_bit: "{{ item.fields_to_present_as_32_bit | default(omit) }}"
+    restrictions: "{{ item.restrictions | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ cluster_baseline_tenancy.nfs.exports | default([]) }}"
+  loop_control:
+    label: "{{ cluster_baseline_entry_label }}"
+
+- name: Include the S3 settings, buckets and policies
+  ansible.builtin.include_tasks: s3.yml
+  when: qumulo_s3_settings is defined or qumulo_s3_buckets is defined or qumulo_s3_bucket_policies is defined
+
+# After the directories and ACLs, so that a new cluster serves nothing over FTP before they are in place, and after the
+# local users, one of which the anonymous user names.
+- name: Apply the FTP settings
+  qumulo.cluster.ftp_settings:
+    enabled: "{{ qumulo_ftp_settings.enabled | default(omit) }}"
+    check_remote_host: "{{ qumulo_ftp_settings.check_remote_host | default(omit) }}"
+    log_operations: "{{ qumulo_ftp_settings.log_operations | default(omit) }}"
+    chroot_users: "{{ qumulo_ftp_settings.chroot_users | default(omit) }}"
+    allow_unencrypted_connections: "{{ qumulo_ftp_settings.allow_unencrypted_connections | default(omit) }}"
+    expand_wildcards: "{{ qumulo_ftp_settings.expand_wildcards | default(omit) }}"
+    anonymous_user: "{{ qumulo_ftp_settings.anonymous_user | default(omit) }}"
+    greeting: "{{ qumulo_ftp_settings.greeting | default(omit) }}"
+  when: qumulo_ftp_settings is defined
+
+# Local directories only: the cluster refuses both inside a spoke's roots (G-SPOKE-PATHS).
+- name: Apply the directory quotas
+  qumulo.cluster.directory_quota:
+    path: "{{ item.path }}"
+    limit: "{{ item.limit | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ qumulo_quotas | default([]) }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+- name: Apply the snapshot policies, each with its lock key
+  ansible.builtin.include_tasks: snapshot_policies.yml

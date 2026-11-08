@@ -1,0 +1,260 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 21: the replication relationships, through the replication_pair role.
+# This file has two entry points:
+# - by default, the cluster is the source, and the loop covers its own
+#   qumulo_replication_relationships, the absent ones first;
+# - with cluster_baseline_replication_as_target, the cluster is the target,
+#   and the loop covers the present entries of every inventory host that name
+#   it, each source's connection built from its host variables. The edge's
+#   second pass, playbooks/edge_license_complete.yml, runs it once the
+#   license and the clamp apply, which the capacity gate waits for. That
+#   playbook passes two maps keyed by <source host>:<target path>, the path
+#   without its trailing slash, which replication_relationship.yml reads:
+#   cluster_baseline_replication_on_held_entries, an entry's own on_held, and
+#   cluster_baseline_replication_deferred_entries, the hand-off of an entry
+#   that waits for a restore and does not run.
+# The inventory's rules are asserted here, once, before the loop, as the
+# portal step does; the role asserts only its own inputs. Each relationship
+# runs in a block whose rescue keeps its failure, and the step fails after
+# the loop, naming each one, so one refusal never stops the others.
+- name: Gather the relationships this step declares, the removals first
+  ansible.builtin.set_fact:
+    cluster_baseline_replication_pairs: >-
+      {%- set found = namespace(pairs=[]) -%}
+      {%- if cluster_baseline_replication_as_target | default(false) | bool -%}
+        {%- for name in groups['all'] -%}
+          {%- for entry in hostvars[name].qumulo_replication_relationships | default([]) -%}
+            {%- if entry.target | default('') == inventory_hostname and entry.state | default('present') == 'present' -%}
+              {%- set found.pairs = found.pairs + [{'source': name, 'entry': entry}] -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endfor -%}
+      {%- else -%}
+        {%- set entries = qumulo_replication_relationships | default([]) -%}
+        {%- for entry in (entries | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | list)
+                         + (entries | rejectattr('state', 'defined') | list)
+                         + (entries | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list) -%}
+          {%- set found.pairs = found.pairs + [{'source': inventory_hostname, 'entry': entry}] -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {{ found.pairs }}
+    cluster_baseline_replication_results: []
+
+# The second entry point checks the entries that name this cluster, which
+# only the source hosts' own runs validate against the argument spec.
+- name: Check the state of each relationship into this cluster
+  ansible.builtin.assert:
+    that: cluster_baseline_replication_unknown == []
+    fail_msg: >-
+      {{ inventory_hostname }}: relationships into this cluster with a state other than present or absent:
+      {{ cluster_baseline_replication_unknown | join(', ') }}
+    quiet: true
+  vars:
+    cluster_baseline_replication_unknown: >-
+      {%- set found = namespace(entries=[]) -%}
+      {%- for name in groups['all'] -%}
+        {%- for entry in hostvars[name].qumulo_replication_relationships | default([]) -%}
+          {%- if entry.target | default('') == inventory_hostname and entry.state | default('present') not in ['present', 'absent'] -%}
+            {%- set found.entries = found.entries + [name ~ ':' ~ entry.source_path | default('?') ~ ' (' ~ entry.state ~ ')'] -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.entries }}
+  when: cluster_baseline_replication_as_target | default(false) | bool
+
+# An edge that nothing replicates into has nothing to check at its second pass;
+# the rules still fail the source hosts' own runs.
+- name: Check the inventory's replication declarations and the release
+  when: not cluster_baseline_replication_as_target | default(false) | bool or cluster_baseline_replication_pairs != []
+  block:
+    # The release is for one run. Its form is replication_pair_plan's to check.
+    - name: Check the form of every release entry
+      qumulo.cluster.replication_pair_plan:
+        release: "{{ qumulo_replication_release }}"
+        target_host: "{{ inventory_hostname }}"
+        target_path: /
+      when: qumulo_replication_release is defined
+
+    # An entry for a target host this run reaches must name a relationship of
+    # the run; one for any other host is another run's, so --limit still works.
+    - name: Check that each release entry this run reaches names a relationship of the run
+      ansible.builtin.assert:
+        that: cluster_baseline_replication_stray == []
+        fail_msg: >-
+          {{ inventory_hostname }}: release entry {{ cluster_baseline_replication_stray | join(', ') }} names no replication
+          relationship of this run, so it lifts nothing; a release is for one run only, so remove it or correct it
+        quiet: true
+      vars:
+        cluster_baseline_replication_declared: >-
+          {%- set found = namespace(pairs=[]) -%}
+          {%- if cluster_baseline_replication_as_target | default(false) | bool -%}
+            {%- set found.pairs = cluster_baseline_replication_pairs -%}
+          {%- else -%}
+            {%- for name in ansible_play_hosts_all -%}
+              {%- for entry in hostvars[name].qumulo_replication_relationships | default([]) -%}
+                {%- set found.pairs = found.pairs + [{'source': name, 'entry': entry}] -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endif -%}
+          {{ found.pairs | map(attribute='entry') | map(attribute='target', default='')
+             | zip(found.pairs | map(attribute='entry') | map(attribute='target_path', default='') | map('regex_replace', '(?<=.)/+$', ''))
+             | map('join', ':') | list }}
+        cluster_baseline_replication_reached: >-
+          {{ (ansible_play_hosts_all + cluster_baseline_replication_declared | map('regex_replace', ':.*$', '') | list) | unique }}
+        cluster_baseline_replication_stray: >-
+          {%- set found = namespace(entries=[]) -%}
+          {%- for entry in qumulo_replication_release | default([]) -%}
+            {%- set host = entry.split(':', 1)[0] -%}
+            {%- set path = entry.split(':', 1)[1].rsplit('@', 1)[0] | regex_replace('(?<=.)/+$', '') -%}
+            {%- if host in cluster_baseline_replication_reached and (host ~ ':' ~ path) not in cluster_baseline_replication_declared -%}
+              {%- set found.entries = found.entries + [entry] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ found.entries }}
+
+    # A path compares without its trailing slashes; inside means equal or nested.
+    - name: Check the inventory's replication declarations before any relationship
+      ansible.builtin.assert:
+        that: cluster_baseline_replication_problems == []
+        fail_msg: "{{ inventory_hostname }}: {{ cluster_baseline_replication_problems | join('; ') }}"
+        quiet: true
+      vars:
+        cluster_baseline_replication_problems: >-
+          {%- set found = namespace(problems=[], declared={}, overlapping=[]) -%}
+          {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+          {%- macro inside(path, root) -%}{{ path == root or root == '/' or path.startswith(root ~ '/') }}{%- endmacro -%}
+          {%- for pair in cluster_baseline_replication_pairs -%}
+            {%- set entry = pair.entry -%}
+            {%- set source = hostvars[pair.source] -%}
+            {%- set target_name = entry.target | default('') -%}
+            {%- set path = canonical(entry.target_path | default('')) -%}
+            {%- set name = pair.source ~ ':' ~ entry.source_path | default('?') ~ ' to ' ~ target_name ~ ':' ~ path -%}
+            {%- set present = entry.state | default('present') == 'present' -%}
+            {%- set gone = entry.target_gone | default(false) | bool -%}
+            {%- if entry.source_path | default('') == '' or entry.target_path | default('') == '' -%}
+              {%- set found.problems = found.problems + [name ~ ' needs source_path and target_path'] -%}
+            {%- endif -%}
+            {%- if gone and present -%}
+              {%- set found.problems = found.problems + [name ~ ': target_gone is for state absent only'] -%}
+            {%- endif -%}
+            {%- if target_name not in hostvars -%}
+              {%- if not (gone and entry.target_cluster_uuid | default('') != '') -%}
+                {%- set found.problems = found.problems + [name ~ ': target must name an inventory host; a removal whose target has left the inventory '
+                      ~ 'sets target_gone and target_cluster_uuid'] -%}
+              {%- endif -%}
+            {%- else -%}
+              {%- set target = hostvars[target_name] -%}
+              {%- if target.qumulo_cluster_uuid | default('', true) == '' -%}
+                {%- set found.problems = found.problems + [name ~ ': ' ~ target_name ~ ' needs qumulo_cluster_uuid'] -%}
+              {%- elif target.qumulo_cluster_uuid | lower == source.qumulo_cluster_uuid | default('') | lower -%}
+                {%- set found.problems = found.problems + [name ~ ': the source and the target are one cluster, ' ~ target.qumulo_cluster_uuid] -%}
+              {%- endif -%}
+              {%- if present -%}
+                {%- if target.qumulo_replication_address | default('', true) == '' -%}
+                  {%- set found.problems = found.problems + [name ~ ': ' ~ target_name ~ ' needs qumulo_replication_address, the IP address the source '
+                        ~ 'reaches it at; it is never derived from qumulo_api_host or the network status'] -%}
+                {%- endif -%}
+                {%- set directories = target.qumulo_directories | default([]) -%}
+                {%- set declared = directories | selectattr('path', 'defined') | selectattr('path', 'regex', '^' ~ (path | regex_escape) ~ '/*$') | list -%}
+                {%- if path == '/' -%}
+                  {%- set found.problems = found.problems + [name ~ ': the target path cannot be /'] -%}
+                {%- elif declared == [] -%}
+                  {%- set found.problems = found.problems + [name ~ ': ' ~ target_name ~ "'s qumulo_directories must declare the target path, path only"] -%}
+                {%- else -%}
+                  {%- set attributes = declared | map('dict2items') | flatten | rejectattr('key', 'in', ['path', 'state']) | map(attribute='key') | list
+                        + (['state: absent'] if declared | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | list else []) -%}
+                  {%- if attributes -%}
+                    {%- set found.problems = found.problems + [name ~ ': ' ~ target_name ~ ' declares the target path with ' ~ (attributes | unique
+                          | join(', ')) ~ '; declare it path only, since replication sets its attributes from the source'] -%}
+                  {%- endif -%}
+                {%- endif -%}
+                {%- for directory in directories | selectattr('path', 'defined') -%}
+                  {%- if canonical(directory.path).startswith(path ~ '/') and path != '/' -%}
+                    {%- set found.problems = found.problems + [name ~ ': ' ~ target_name ~ ' declares ' ~ directory.path ~ ' inside the target path, which '
+                          ~ 'replication decides the content of'] -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- for root in (target.qumulo_portal | default({})).roots | default([]) -%}
+                  {%- if inside(path, canonical(root.spoke_root)) | bool -%}
+                    {%- set found.problems = found.problems + [name ~ ': the target path lies inside the portal spoke root ' ~ root.spoke_root] -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- for spoke in groups['all'] if (hostvars[spoke].qumulo_portal | default({})).hub | default('') == target_name -%}
+                  {%- for root in hostvars[spoke].qumulo_portal.roots | default([]) -%}
+                    {%- if inside(path, canonical(root.hub_root)) | bool -%}
+                      {%- set found.problems = found.problems + [name ~ ': the target path lies inside the hub root ' ~ root.hub_root ~ ' that ' ~ spoke
+                            ~ ' declares'] -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endfor -%}
+                {%- set found.overlapping = [] -%}
+                {%- for other in groups['all'] -%}
+                  {%- for peer in hostvars[other].qumulo_replication_relationships | default([]) -%}
+                    {%- set peer_path = canonical(peer.target_path | default('')) -%}
+                    {%- if peer.target | default('') == target_name and peer.state | default('present') == 'present'
+                          and (peer_path == path or path.startswith(peer_path ~ '/') or peer_path.startswith(path ~ '/')) -%}
+                      {%- set found.overlapping = found.overlapping + [other ~ ' declares ' ~ target_name ~ ':' ~ peer_path] -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endfor -%}
+                {%- if found.overlapping | length > 1 -%}
+                  {%- set found.problems = found.problems + [name ~ ': its target path is equal to or nested with another; a target directory serves one '
+                        ~ 'relationship (' ~ found.overlapping | join(', ') ~ ')'] -%}
+                {%- endif -%}
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- for name in groups['all'] if hostvars[name].qumulo_replication_address | default('', true) != '' -%}
+            {%- set address = hostvars[name].qumulo_replication_address ~ ':' ~ hostvars[name].qumulo_replication_port | default(3712) -%}
+            {%- if address in found.declared -%}
+              {%- set found.problems = found.problems + [found.declared[address] ~ ' and ' ~ name ~ ' both declare the replication address ' ~ address] -%}
+            {%- endif -%}
+            {%- set found.declared = found.declared | combine({address: name}) -%}
+          {%- endfor -%}
+          {%- for name in groups['all'] -%}
+            {%- set uuid = hostvars[name].qumulo_cluster_uuid | default('', true) | lower -%}
+            {%- if uuid != '' and uuid in hostvars[name].qumulo_previous_cluster_uuids | default([]) | map('lower') -%}
+              {%- set found.problems = found.problems + [name ~ "'s qumulo_previous_cluster_uuids holds its own qumulo_cluster_uuid " ~ uuid] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ found.problems | unique }}
+
+- name: Record how to connect to each cluster of the relationships
+  ansible.builtin.include_tasks: connections.yml
+  vars:
+    cluster_baseline_connection_hosts: >-
+      {%- set found = namespace(hosts=[inventory_hostname]) -%}
+      {%- for pair in cluster_baseline_replication_pairs -%}
+        {%- set found.hosts = found.hosts + [pair.source] + ([] if pair.entry.target_gone | default(false) | bool else [pair.entry.target]) -%}
+      {%- endfor -%}
+      {{ found.hosts | select('in', hostvars) | unique | list }}
+  when: cluster_baseline_replication_pairs != []
+
+- name: Declare or remove each relationship
+  ansible.builtin.include_tasks: replication_relationship.yml
+  loop: "{{ cluster_baseline_replication_pairs }}"
+  loop_control:
+    loop_var: cluster_baseline_replication_pair
+    label: >-
+      {{ cluster_baseline_replication_pair.source }}:{{ cluster_baseline_replication_pair.entry.source_path }} to
+      {{ cluster_baseline_replication_pair.entry.target }}:{{ cluster_baseline_replication_pair.entry.target_path }}
+
+- name: Hand off the relationships that wait for their target edge or for a restore
+  ansible.builtin.debug:
+    msg: "{{ item.hand_off }}"
+  loop: "{{ cluster_baseline_replication_results | selectattr('hand_off', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Fail when a relationship was held, refused or failed, naming each
+  ansible.builtin.assert:
+    that: cluster_baseline_replication_failed == []
+    fail_msg: >-
+      {{ inventory_hostname }}: {{ cluster_baseline_replication_failed | length }} of
+      {{ cluster_baseline_replication_results | length }} replication relationships did not converge.
+      {{ cluster_baseline_replication_failed | map(attribute='message') | join(' ') }}
+    quiet: true
+  vars:
+    cluster_baseline_replication_failed: "{{ cluster_baseline_replication_results | selectattr('status', 'equalto', 'failed') | list }}"

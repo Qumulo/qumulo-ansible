@@ -1,0 +1,18 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One peer host's relationships, edge_rebuild_replication_peer's, for
+# replication.yml: none when it does not answer.
+- name: Read the relationships of {{ edge_rebuild_replication_peer }}
+  qumulo.cluster.replication_info:
+    gather_subset: [source, target]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[edge_rebuild_replication_peer] }}"
+  register: edge_rebuild_replication_read
+  ignore_errors: true
+
+- name: Keep what the peer reports, {{ edge_rebuild_replication_peer }}
+  ansible.builtin.set_fact:
+    edge_rebuild_replication_peers: >-
+      {{ edge_rebuild_replication_peers | combine({edge_rebuild_replication_peer:
+           edge_rebuild_replication_read.replication if edge_rebuild_replication_read is succeeded else none}) }}

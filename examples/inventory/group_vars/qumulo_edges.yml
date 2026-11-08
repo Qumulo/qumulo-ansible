@@ -1,0 +1,73 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# What every edge shares. A host_vars file overrides any of these whole.
+
+# Ownership: cluster_baseline step 2. An edge formed by Qumulo's installer has
+# no Terraform owner, so the collection manages every area. For an edge from
+# the qumulo.cluster.terraform inventory plugin, the plugin sets both.
+qumulo_managed_by: none
+qumulo_terraform_owned_areas: []
+
+# DNS for the edges' site: step 4, qumulo.cluster.dns_settings. Owned by the
+# collection unless qumulo_terraform_owned_areas lists dns.
+qumulo_dns:
+  servers: [10.20.0.2, 10.20.0.3]
+  search_domains: [corp.example.com]
+
+# The Active Directory join: step 14, qumulo.cluster.ad_domain. join_user and
+# join_password also let a rebuild's predestroy phase delete the computer
+# account, which the replay's join under the same name needs.
+qumulo_ad:
+  domain: corp.example.com
+  domain_netbios: CORP
+  ou: OU=Edges,OU=Qumulo,DC=corp,DC=example,DC=com
+  join_user: svc-qjoin
+  join_password: "{{ vault_qumulo_ad_join_password }}"
+
+# Capacity: steps 9 to 11, and the edge_cache_resize role. The collection owns
+# it unless qumulo_terraform_owned_areas lists capacity.
+qumulo_capacity:
+  # The capacity clamp, the edge's cache size: qumulo.cluster.capacity_clamp.
+  # An edge's disk cannot be resized or added to once it is formed, so give it
+  # a large thin-provisioned disk, clamp the file system down here, and raise
+  # the clamp as the cache needs to grow, within the license's cap. Set it
+  # before a license cap can apply: an unset clamp limits nothing, and
+  # provisioned capacity never shrinks. Raising it re-forms quorum once. A
+  # clamp below the stored one fails the baseline; playbooks/edge_cache_resize.yml
+  # chooses the route to a smaller cache.
+  clamp: 4TB
+  # The license comes in two passes, and nothing waits for it. The first
+  # baseline registers a new edge with Nexus; with no license yet it skips the
+  # clamp and hands the license off, naming the edge's UUID. Once Qumulo has
+  # issued the license for that UUID, its document goes in the edge's
+  # host_vars, encrypted, and the playbook qumulo.cluster.edge_license_complete
+  # applies it with qumulo.cluster.license, then sets the clamp, whose write
+  # applies the license's cap; once the edge holds the license, it needs no
+  # document. A document for another UUID, as after a rebuild, is not
+  # applied. required instead of pending also flags a missing license in
+  # cluster_baseline_license_missing.
+  license_document: "{{ vault_qumulo_license_document | default(none) }}"
+  license: pending
+  # The fraction of capacity the edge keeps free by evicting cached hub data:
+  # qumulo.cluster.portal_eviction_settings.
+  free_threshold: 0.15
+
+# What becomes of the share and the export every formation creates (G-FACTORY).
+# A rebuild needs both keys, since a new formation creates both again. The
+# NFSv4.1 setting below needs the / export gone.
+qumulo_factory_defaults:
+  smb_files_share: absent
+  nfs_root_export: absent
+
+# SMB and NFS server settings: steps 18 and 19, qumulo.cluster.smb_settings and
+# nfs_settings. A setting left out keeps the cluster's value.
+qumulo_smb_settings:
+  signing_required: true
+  supported_dialects: [SMB2_DIALECT_3_0, SMB2_DIALECT_3_11]
+qumulo_nfs_settings:
+  v4_enabled: true
+
+# A rebuild forms the edge again, which needs Qumulo's end user license
+# agreement accepted: the edge_rebuild role's replay.
+edge_rebuild_eula_accepted: true

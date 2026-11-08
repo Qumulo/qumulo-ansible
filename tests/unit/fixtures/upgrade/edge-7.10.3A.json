@@ -1,0 +1,364 @@
+{
+ "source": "T1700p's docker-edge subset, 2026-11-04: a Qumulo Core 7.10.3A container formed as an unprotected edge. Host names, UUIDs, MAC addresses and serial numbers are replaced; error stacks are dropped. The image URL is a documentation address that answers nothing.",
+ "exchanges": [
+  {
+   "what": "version",
+   "method": "GET",
+   "path": "/v1/version",
+   "body": null,
+   "status": 200,
+   "response": {
+    "revision_id": "Qumulo Core 7.10.3A",
+    "build_id": "385145.1.82.1.73",
+    "flavor": "release",
+    "build_date": "2026-10-29T17:46:14Z"
+   }
+  },
+  {
+   "what": "node state",
+   "method": "GET",
+   "path": "/v1/node/state",
+   "body": null,
+   "status": 200,
+   "response": {
+    "node_id": 1,
+    "state": "ACTIVE",
+    "cluster_id": "00000000-0000-4000-8000-000000000001"
+   }
+  },
+  {
+   "what": "v3 status, no login",
+   "method": "GET",
+   "path": "/v3/upgrade/status",
+   "body": null,
+   "status": 401,
+   "response": {
+    "module": "server",
+    "error_class": "http_unauthorized_error",
+    "description": "Need to log in first to establish credentials.",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v3/upgrade/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "UPGRADE_STATE_IDLE",
+    "progress": null,
+    "settings": null,
+    "error_info": null
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v2/upgrade/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "UPGRADE_STATE_IDLE",
+    "progress": null,
+    "settings": null,
+    "error_info": null
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v2/upgrade/blocked",
+   "body": null,
+   "status": 200,
+   "response": {
+    "is_blocked": false,
+    "cluster_degraded": false,
+    "blocked_reason": ""
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v1/cluster/protection/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "blocks_per_stripe": 1,
+    "data_blocks_per_stripe": 1,
+    "protection_system_type": "PROTECTION_SYSTEM_TYPE_EC",
+    "max_node_failures": 0,
+    "max_drive_failures": 0,
+    "max_drive_spares": 0,
+    "remaining_node_failures": 0,
+    "remaining_drive_failures": 0,
+    "pending_configuration": null
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v1/shutdown/reboot/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "REBOOT_IDLE",
+    "rolling": false,
+    "upgrade_initiated": false,
+    "total_node_count": 0,
+    "rebooted_node_count": 0,
+    "error_message": null
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v1/cluster/nodes/",
+   "body": null,
+   "status": 200,
+   "response": [
+    {
+     "id": 1,
+     "node_status": "online",
+     "node_name": "edge-1",
+     "uuid": "00000000-0000-4000-8000-000000000002",
+     "label": "00:00:00:00:00:01",
+     "model_number": "None",
+     "serial_number": "00000000-0000-4000-8000-000000000003",
+     "mac_address": ""
+    }
+   ]
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v1/license/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "LICENSE_STATE_NONE",
+    "license": null
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v1/license/enforcement",
+   "body": null,
+   "status": 200,
+   "response": {
+    "license_is_enforced": false
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v2/portal/hubs/",
+   "body": null,
+   "status": 200,
+   "response": {
+    "entries": []
+   }
+  },
+  {
+   "what": "read",
+   "method": "GET",
+   "path": "/v2/portal/spokes/",
+   "body": null,
+   "status": 200,
+   "response": {
+    "entries": []
+   }
+  },
+  {
+   "what": "verify, boolean waiver",
+   "method": "POST",
+   "path": "/v2/upgrade/verify-image?override_compatibility_check=true",
+   "body": {
+    "image_path": "http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg"
+   },
+   "status": 500,
+   "response": {
+    "module": "server",
+    "error_class": "os_error_ENOENT",
+    "description": "exec([ /opt/qumulo/qinternal/install/verify.py, --path, http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg, --override-compatibility-check ])",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "verify, named rule",
+   "method": "POST",
+   "path": "/v2/upgrade/verify-image?compatibility_overrides=allow_upgrade_from_limited_release",
+   "body": {
+    "image_path": "http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg"
+   },
+   "status": 500,
+   "response": {
+    "module": "server",
+    "error_class": "os_error_ENOENT",
+    "description": "exec([ /opt/qumulo/qinternal/install/verify.py, --path, http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg ])",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "verify, no waiver",
+   "method": "POST",
+   "path": "/v2/upgrade/verify-image",
+   "body": {
+    "image_path": "http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg"
+   },
+   "status": 500,
+   "response": {
+    "module": "server",
+    "error_class": "os_error_ENOENT",
+    "description": "exec([ /opt/qumulo/qinternal/install/verify.py, --path, http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg ])",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "status after verifies",
+   "method": "GET",
+   "path": "/v3/upgrade/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "UPGRADE_STATE_IDLE",
+    "progress": null,
+    "settings": null,
+    "error_info": null
+   }
+  },
+  {
+   "what": "prepare, rolling, count 1, boolean waiver",
+   "method": "POST",
+   "path": "/v2/upgrade/prepare?override_compatibility_check=true",
+   "body": {
+    "image_path": "http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg",
+    "auto_commit": false,
+    "do_rolling_reboot": true,
+    "num_nodes_to_reboot": 1
+   },
+   "status": 500,
+   "response": {
+    "module": "server",
+    "error_class": "os_error_ENOENT",
+    "description": "exec([ /opt/qumulo/qinternal/install/verify.py, --path, http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg, --override-compatibility-check ])",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "prepare, rolling, count 0",
+   "method": "POST",
+   "path": "/v2/upgrade/prepare",
+   "body": {
+    "image_path": "http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg",
+    "auto_commit": false,
+    "do_rolling_reboot": true,
+    "num_nodes_to_reboot": 0
+   },
+   "status": 500,
+   "response": {
+    "module": "server",
+    "error_class": "os_error_ENOENT",
+    "description": "exec([ /opt/qumulo/qinternal/install/verify.py, --path, http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg ])",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "prepare, all at once, no count",
+   "method": "POST",
+   "path": "/v2/upgrade/prepare",
+   "body": {
+    "image_path": "http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg",
+    "auto_commit": false,
+    "do_rolling_reboot": false
+   },
+   "status": 500,
+   "response": {
+    "module": "server",
+    "error_class": "os_error_ENOENT",
+    "description": "exec([ /opt/qumulo/qinternal/install/verify.py, --path, http://203.0.113.9/qfs-0/qumulo_core_7.11.0.qimg ])",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "status after prepares",
+   "method": "GET",
+   "path": "/v3/upgrade/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "UPGRADE_STATE_IDLE",
+    "progress": null,
+    "settings": null,
+    "error_info": null
+   }
+  },
+  {
+   "what": "blocked after prepares",
+   "method": "GET",
+   "path": "/v2/upgrade/blocked",
+   "body": null,
+   "status": 200,
+   "response": {
+    "is_blocked": false,
+    "cluster_degraded": false,
+    "blocked_reason": ""
+   }
+  },
+  {
+   "what": "commit, nothing prepared",
+   "method": "POST",
+   "path": "/v2/upgrade/commit",
+   "body": null,
+   "status": 409,
+   "response": {
+    "module": "server",
+    "error_class": "upgrade_commit_when_not_prepared_error",
+    "description": "An upgrade has not yet been prepared.",
+    "user_visible": true
+   }
+  },
+  {
+   "what": "pause, no reboot in progress",
+   "method": "POST",
+   "path": "/v1/shutdown/reboot/pause",
+   "body": null,
+   "status": 500,
+   "response": {
+    "module": "server",
+    "error_class": "reboot_error",
+    "description": "Can't pause a reboot that's not in progress",
+    "user_visible": false
+   }
+  },
+  {
+   "what": "reboot status after pause",
+   "method": "GET",
+   "path": "/v1/shutdown/reboot/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "REBOOT_IDLE",
+    "rolling": false,
+    "upgrade_initiated": false,
+    "total_node_count": 0,
+    "rebooted_node_count": 0,
+    "error_message": null
+   }
+  },
+  {
+   "what": "status at the end",
+   "method": "GET",
+   "path": "/v3/upgrade/status",
+   "body": null,
+   "status": 200,
+   "response": {
+    "state": "UPGRADE_STATE_IDLE",
+    "progress": null,
+    "settings": null,
+    "error_info": null
+   }
+  }
+ ]
+}

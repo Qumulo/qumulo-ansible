@@ -1,0 +1,36 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The consents are run-level (specs/025-replication-failover, Decision 5). Role vars outrank inventory and play
+# variables, so a consent left in group_vars, host_vars, a play's vars or vars_files is ignored; anything a playbook
+# sets closer to the role or during the run outranks them: -e, the include's vars, a block's vars, role parameters,
+# set_fact and include_vars.
+replication_failover_allow_data_loss: false
+replication_failover_allow_newer_writes: []
+replication_failover_allow_partial_job: false
+
+# sync.yml's views of its last read of the target's source records.
+# {id: recovery point} of the waiting relationships on replication_failover_sync_target.
+replication_failover_sync_points: >-
+  {%- set found = namespace(points={}) -%}
+  {%- for record in (replication_failover_sync_read.replication | default({})).source_relationships | default([]) -%}
+    {%- if record.id in replication_failover_waiting | selectattr('target', 'equalto', replication_failover_sync_target)
+          | map(attribute='relationship_id') | list -%}
+      {%- set found.points = found.points | combine({record.id: record.recovery_point}) -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {{ found.points }}
+# A line for each waiting relationship whose recovery point has not moved past replication_failover_sync_past, with its
+# job state and the error of its last job.
+replication_failover_sync_lagging: >-
+  {%- set found = namespace(lines=[]) -%}
+  {%- set records = (replication_failover_sync_read.replication | default({})).source_relationships | default([]) -%}
+  {%- for wait in replication_failover_waiting | selectattr('target', 'equalto', replication_failover_sync_target) -%}
+    {%- set record = records | selectattr('id', 'equalto', wait.relationship_id) | first | default({}) -%}
+    {%- if record.recovery_point | default(none) in [none, '', replication_failover_sync_past[wait.relationship_id] | default(none)] -%}
+      {%- set found.lines = found.lines + [wait.name ~ ' at ' ~ (record.recovery_point | default('no recovery point')) ~ ', job '
+            ~ (record.job_state | default('not found'))
+            ~ ((', last error ' ~ record.error_from_last_job) if record.error_from_last_job | default(none) else '')] -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {{ found.lines }}

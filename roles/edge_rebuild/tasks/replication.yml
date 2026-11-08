@@ -1,0 +1,62 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The replication relationships the inventory declares present with the edge
+# as their source or their target, for the preflight, each with what its
+# peer's inventory host reports: one replication_info read per peer host,
+# through that host's own connection. A peer that does not answer gives no
+# records, which the preflight takes as a source it cannot read. Each entry
+# carries the peer's previous UUIDs too, since a record made before the peer
+# was rebuilt names one of them, and the peer's replication address and
+# whether it is an edge, which tell an only_copy replica's source's restore.
+- name: Gather the replication relationships the inventory declares with the edge as source or target
+  ansible.builtin.set_fact:
+    edge_rebuild_replication_wanted: >-
+      {%- set found = namespace(entries=[]) -%}
+      {%- for entry in qumulo_replication_relationships | default([])
+            if entry.state | default('present') == 'present' and entry.target | default('') in hostvars -%}
+        {%- set found.entries = found.entries + [{'side': 'source', 'peer_host': entry.target,
+              'peer_cluster_uuid': hostvars[entry.target].qumulo_cluster_uuid | default('') | string,
+              'peer_previous_cluster_uuids': hostvars[entry.target].qumulo_previous_cluster_uuids | default([]) | map('string') | list,
+              'peer_replication_address': hostvars[entry.target].qumulo_replication_address | default(none),
+              'peer_in_edges': entry.target in groups['qumulo_edges'] | default([]),
+              'source_path': entry.source_path, 'target_path': entry.target_path}] -%}
+      {%- endfor -%}
+      {%- for name in groups['all'] if name != inventory_hostname -%}
+        {%- for entry in hostvars[name].qumulo_replication_relationships | default([])
+              if entry.target | default('') == inventory_hostname and entry.state | default('present') == 'present' -%}
+          {%- set found.entries = found.entries + [{'side': 'target', 'peer_host': name,
+                'peer_cluster_uuid': hostvars[name].qumulo_cluster_uuid | default('') | string,
+                'peer_previous_cluster_uuids': hostvars[name].qumulo_previous_cluster_uuids | default([]) | map('string') | list,
+                'peer_replication_address': hostvars[name].qumulo_replication_address | default(none),
+                'peer_in_edges': name in groups['qumulo_edges'] | default([]),
+                'source_path': entry.source_path, 'target_path': entry.target_path}] -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.entries }}
+    edge_rebuild_replication_peers: {}
+
+- name: Record how to connect to each peer
+  ansible.builtin.include_role:
+    name: qumulo.cluster.cluster_baseline
+    tasks_from: connections.yml
+  vars:
+    cluster_baseline_connection_hosts: "{{ edge_rebuild_replication_wanted | map(attribute='peer_host') | unique | list }}"
+  when: edge_rebuild_replication_wanted != []
+
+- name: Read each peer's relationships
+  ansible.builtin.include_tasks: replication_peer.yml
+  loop: "{{ edge_rebuild_replication_wanted | map(attribute='peer_host') | unique | list }}"
+  loop_control:
+    loop_var: edge_rebuild_replication_peer
+
+- name: Give each declared relationship its peer's records of the other side
+  ansible.builtin.set_fact:
+    edge_rebuild_replication_declared: >-
+      {%- set found = namespace(entries=[]) -%}
+      {%- for entry in edge_rebuild_replication_wanted -%}
+        {%- set read = edge_rebuild_replication_peers[entry.peer_host] -%}
+        {%- set found.entries = found.entries + [entry | combine({'peer_relationships': none if read is none
+              else read[('target' if entry.side == 'source' else 'source') ~ '_relationships']})] -%}
+      {%- endfor -%}
+      {{ found.entries }}

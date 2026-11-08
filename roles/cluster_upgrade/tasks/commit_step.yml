@@ -1,0 +1,60 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One step of the hop's schedule, cluster_upgrade_step, on its hosts that are ready and not held. Every task of the
+# step finishes on all of them before the next task starts, so a wave commits together and a failure in it holds its
+# unit before any later wave or follower commits.
+- name: Check and commit the step's hosts
+  when:
+    - not upgrade_stop
+    - inventory_hostname in cluster_upgrade_step.hosts
+  block:
+    # A later wave runs once its component's earlier waves have committed, and a component that started the hop split
+    # is split already, so either prepares again inside the mismatch window when its PREPARED was lost (Decision 5).
+    # Any other host sends only reads, and a lost PREPARED is F17, which holds the component before any member commits.
+    - name: Check that each host of the step may commit
+      qumulo.cluster.upgrade:
+        state: prepared
+        ready_to_commit: true
+        prepare: "{{ cluster_upgrade_prepares }}"
+        commit_record: >-
+          {{ (cluster_upgrade_artifact_dir ~ '/' ~ inventory_hostname ~ '/upgrade/commit.yml') if cluster_upgrade_prepares else omit }}
+      vars:
+        cluster_upgrade_prepares: >-
+          {{ (cluster_upgrade_step.wave | default(0, true)) > 0
+             or (cluster_upgrade_hop.components[cluster_upgrade_entry.unit].split | default(false)) }}
+      register: cluster_upgrade_step_readiness
+      when:
+        - upgrade_ready
+        - inventory_hostname not in upgrade_held
+
+- name: Hold the units of the hosts whose readiness failed
+  ansible.builtin.import_tasks: mark.yml
+  vars:
+    cluster_upgrade_mark_results: [cluster_upgrade_step_readiness]
+    cluster_upgrade_mark_hosts: "{{ cluster_upgrade_step.hosts }}"
+
+- name: Commit the step's hosts
+  when:
+    - not upgrade_stop
+    - inventory_hostname in cluster_upgrade_step.hosts
+    - upgrade_ready
+    - inventory_hostname not in upgrade_held
+  block:
+    # The module writes the commit record just before its request and resolves it by the answer (FR-034).
+    - name: Commit
+      qumulo.cluster.upgrade:
+        state: committed
+        prepare: false
+        commit_record: "{{ cluster_upgrade_artifact_dir }}/{{ inventory_hostname }}/upgrade/commit.yml"
+      register: cluster_upgrade_commit
+
+    - name: Note the host committed
+      ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+        upgrade_committed: true
+
+- name: Hold the units of the hosts whose commit failed, and every unit that follows them
+  ansible.builtin.import_tasks: mark.yml
+  vars:
+    cluster_upgrade_mark_results: [cluster_upgrade_commit]
+    cluster_upgrade_mark_hosts: "{{ cluster_upgrade_step.hosts }}"

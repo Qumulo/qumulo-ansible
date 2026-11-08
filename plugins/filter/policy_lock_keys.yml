@@ -1,0 +1,74 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: policy_lock_keys
+  short_description: What the cluster_baseline role applies of the snapshot policies, given the key store
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - A policy entry of C(qumulo_snapshot_policies) may declare C(lock_key), a key in the cluster's file system key
+      store, which a rebuilt or cloned cluster does not hold until it is registered again with
+      M(qumulo.cluster.security_key).
+    - When every declared key is in the store, by name or id, the filter gives the entries unchanged.
+    - Otherwise, without O(allow_deferred), it gives a C(refusal) naming each policy, its key and the two remedies.
+    - With O(allow_deferred), it gives the entries with C(lock_key) left out of each policy whose key is missing, so the
+      policy keeps whatever key it holds, and a C(hand_offs) line for each.
+    - An entry with C(state) V(absent) sets no key and is not checked.
+  options:
+    _input:
+      description: The entries of C(qumulo_snapshot_policies), or null or an empty list when it is unset.
+      type: list
+      elements: dict
+      required: true
+    keys:
+      description:
+        - The keys, as M(qumulo.cluster.snapshot_info) returns them in C(snapshots.security_keys), or null when the key
+          store could not be read.
+      type: list
+      elements: dict
+      required: true
+    allow_deferred:
+      description:
+        - Apply each policy whose key is missing without its C(lock_key) and hand it off, in place of refusing.
+        - As C(qumulo_allow_deferred_policy_lock_keys) gives it, an Ansible boolean; the filter refuses any other value.
+      type: bool
+      default: false
+    unreadable:
+      description: Why the key store could not be read, as C(unavailable_subsets) gives it, for the refusal.
+      type: str
+      default: ""
+
+EXAMPLES: |
+  # The read task carries no connection options. Set them once for the play with module_defaults for
+  # group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.
+  - name: Read the cluster's key store
+    qumulo.cluster.snapshot_info:
+      gather_subset: [security_keys]
+    register: key_facts
+
+  - name: Plan the snapshot policies against the key store
+    ansible.builtin.set_fact:
+      plan: >-
+        {{ qumulo_snapshot_policies | default([])
+           | qumulo.cluster.policy_lock_keys(key_facts.snapshots.security_keys | default(none),
+                                             qumulo_allow_deferred_policy_lock_keys | default(false),
+                                             key_facts.unavailable_subsets.security_keys | default('')) }}
+
+RETURN:
+  _value:
+    description: The plan.
+    returned: always
+    type: dict
+    contains:
+      policies:
+        description: The entries to apply, with C(lock_key) left out of each policy whose key is deferred.
+        type: list
+        elements: dict
+      hand_offs:
+        description: A line for each deferred policy, naming the key to register.
+        type: list
+        elements: str
+      refusal:
+        description: Why step 2 refuses, or an empty string.
+        type: str

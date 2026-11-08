@@ -1,0 +1,118 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Record the areas Terraform owns
+  ansible.builtin.set_fact:
+    cluster_baseline_owned: "{{ cluster_baseline_owned_areas }}"
+
+# The terraform inventory plugin refuses these facts in an output, since on CNQ the provider applies its floating
+# addresses again whatever the list says; a hand-written inventory gets the same answer, in the plugin's words.
+- name: Fail when a provider-formed CNQ cluster's list leaves out the floating addresses
+  ansible.builtin.assert:
+    that: >-
+      not (qumulo_cluster_kind | default(none) == 'cnq' and qumulo_managed_by | default('none') == 'terraform_provider'
+           and qumulo_terraform_owned_areas is defined and 'network.floating_ips' not in qumulo_terraform_owned_areas)
+    fail_msg: >-
+      {{ inventory_hostname }}: qumulo_terraform_owned_areas must list network.floating_ips for a cnq cluster with
+      qumulo_managed_by: terraform_provider, which re-applies them; add network.floating_ips to it, or set
+      qumulo_managed_by: none
+    quiet: true
+
+# The take-over flag hands back the audit area too, which audit_destination
+# then writes with take_over_from_terraform.
+- name: Fail when a declared area belongs to Terraform
+  ansible.builtin.assert:
+    that: cluster_baseline_overlap | length == 0
+    fail_msg: >-
+      {{ inventory_hostname }}: {{ cluster_baseline_overlap_named | join(', ') }} belong to Terraform by
+      {{ 'qumulo_terraform_owned_areas; remove the variables or keys named, or the areas from that list'
+         if qumulo_terraform_owned_areas is defined
+         else 'qumulo_managed_by: terraform_provider, since the provider applies its own floating addresses; remove'
+              ~ ' the variables or keys named'
+              ~ ('; or, ' ~ cluster_baseline_kind_remedy if cluster_baseline_kind_remedy else '') }}{{
+      '; or, for ' ~ cluster_baseline_overlap_lifted | join(' and ') ~ ', set qumulo_take_over_from_terraform: true,'
+      ~ ' which hands audit, dns.fqdn and the floating addresses back to this role together'
+      if cluster_baseline_overlap_lifted else '' }}
+    quiet: true
+  vars:
+    # qumulo_take_over_from_terraform hands back audit, and the parts of an area either map lists, its dotted keys
+    # such as dns.fqdn and network.floating_ips.
+    cluster_baseline_take_over_areas: >-
+      {{ ((cluster_baseline_area_variables.keys() | list) + (cluster_baseline_item_areas.keys() | list))
+         | select('search', '[.]') | list + ['audit'] }}
+    cluster_baseline_overlap_lifted: "{{ cluster_baseline_overlap | intersect(cluster_baseline_take_over_areas) }}"
+    # Each declared variable or key of the area map, and each key the item map finds inside list items, with its area.
+    cluster_baseline_declaring: >-
+      {%- set found = namespace(pairs=[]) -%}
+      {%- set names = query('ansible.builtin.varnames', '^qumulo_') -%}
+      {%- for area, variables in cluster_baseline_area_variables.items() -%}
+        {%- for variable in ([variables] if variables is string else variables) -%}
+          {%- set parts = variable.split('.', 1) -%}
+          {%- if parts[0] in names and (parts | length == 1 or parts[1] in lookup('ansible.builtin.vars', parts[0])) -%}
+            {%- set found.pairs = found.pairs + [{'area': area, 'variable': variable}] -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.pairs + cluster_baseline_item_areas | qumulo.cluster.item_areas(qumulo_tenants=qumulo_tenants | default(none),
+         qumulo_smb_shares=qumulo_smb_shares | default(none), qumulo_nfs_exports=qumulo_nfs_exports | default(none)) }}
+    cluster_baseline_declared: "{{ cluster_baseline_declaring | map(attribute='area') | unique | list }}"
+    cluster_baseline_overlap_named: >-
+      {%- set named = namespace(areas=[]) -%}
+      {%- for area in cluster_baseline_overlap -%}
+        {%- set variables = cluster_baseline_declaring | selectattr('area', 'equalto', area) | map(attribute='variable') | join(', ') -%}
+        {%- set named.areas = named.areas + [area ~ ' (' ~ variables ~ ')'] -%}
+      {%- endfor -%}
+      {{ named.areas }}
+    # qumulo_network's floating ranges, which neither map reaches, are refused by the next task.
+    cluster_baseline_overlap: >-
+      {{ cluster_baseline_declared | intersect(cluster_baseline_owned)
+         | difference(cluster_baseline_take_over_areas if qumulo_take_over_from_terraform | default(false) | bool else []) }}
+
+# Where cluster_baseline_owned_parts leaves out floating_ips, network_config and tenancy_plan would refuse declared
+# floating ranges in terms of owned_parts, which the inventory cannot set. That is exactly while network.floating_ips is
+# owned, when the area check above already refuses a tenant's; this catches qumulo_network's, which neither map reaches.
+- name: Fail when declared floating ranges belong to Terraform
+  ansible.builtin.assert:
+    that: cluster_baseline_unowned_floating | length == 0
+    fail_msg: >-
+      {{ inventory_hostname }}: {{ cluster_baseline_unowned_floating | join(', ') }} declare floating addresses, which
+      belong to Terraform by {{ cluster_baseline_floating_owner }}; remove them{{
+      ', or network.floating_ips from qumulo_terraform_owned_areas' if qumulo_terraform_owned_areas is defined
+      else (', or, ' ~ cluster_baseline_kind_remedy if cluster_baseline_kind_remedy else '') }},
+      or set qumulo_take_over_from_terraform: true, which hands audit, dns.fqdn and the floating addresses back to this
+      role together
+    quiet: true
+  vars:
+    cluster_baseline_floating_owner: >-
+      {{ 'qumulo_terraform_owned_areas' if qumulo_terraform_owned_areas is defined
+         else 'qumulo_managed_by: terraform_provider, since the provider applies its own floating addresses' }}
+    cluster_baseline_unowned_floating: >-
+      {%- set found = namespace(places=[]) -%}
+      {%- if 'floating_ips' not in cluster_baseline_owned_parts -%}
+        {%- for network in qumulo_network.frontend_networks | default([], true) -%}
+          {%- if network.floating_ip_ranges | default(none) is not none -%}
+            {%- set found.places = found.places + ['qumulo_network.frontend_networks[' ~ loop.index0 ~ '].floating_ip_ranges'] -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endif -%}
+      {{ found.places }}
+
+# audit.cloudwatch is not a variable but the CloudWatch entries of
+# qumulo_audit_destinations, so it is checked here rather than through the area
+# map, before the earlier steps write. An entry without a type that names an
+# existing CloudWatch destination is left to audit_destination, which refuses it.
+- name: Fail when a declared CloudWatch audit destination belongs to Terraform
+  ansible.builtin.assert:
+    that: cluster_baseline_owned_cloudwatch | length == 0
+    fail_msg: >-
+      {{ inventory_hostname }}: qumulo_audit_destinations declares the CloudWatch destinations
+      {{ cluster_baseline_owned_cloudwatch | join(', ') }}, which belong to Terraform by
+      qumulo_terraform_owned_areas through audit.cloudwatch; remove them, or set qumulo_take_over_from_terraform: true,
+      which also hands the floating addresses back to this role
+    quiet: true
+  vars:
+    cluster_baseline_owned_cloudwatch: >-
+      {{ (qumulo_audit_destinations | default([]) | selectattr('type', 'defined') | selectattr('type', 'equalto', 'CLOUDWATCH')
+          | map(attribute='name') | list)
+         if 'audit.cloudwatch' in cluster_baseline_owned and not qumulo_take_over_from_terraform | default(false) | bool
+         else [] }}

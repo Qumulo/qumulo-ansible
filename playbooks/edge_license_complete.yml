@@ -1,0 +1,504 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The second pass after a rebuild, or after a first baseline that found no
+# license, in three plays over qumulo_edges.
+#
+# The license play runs the cluster_baseline role's license step, as the
+# baseline does: once Qumulo has issued the license for the edge's UUID and
+# the document is in qumulo_capacity.license_document, or once the edge holds
+# the license, it applies the document, then sets qumulo_capacity.clamp. The
+# clamp's write re-forms quorum, and that is when the license's capacity cap
+# applies (G-CLAMP-BOUNCE, G-LICENSE). No license is waited for: an edge with
+# neither an active license nor a document for its UUID fails at once, naming
+# its UUID. An edge that declares qumulo_capacity.license: none runs without
+# a license, and its clamp is written with none. Then the play declares the
+# replication relationships that other inventory hosts declare into the
+# edge, through the replication step's second entry point: the capacity gate
+# deferred them until the license and the clamp apply.
+#
+# The restore play, tagged restore, then restores each rebuilt edge's held
+# relationships from their replicas, through the replication_pair role's
+# restore.yml, once every edge's license and clamp are done. It waits for
+# each replica's full sync, which can take hours, up to
+# replication_restore_wait_timeout. --skip-tags restore runs the license play
+# alone. The report play, tagged always, says what each edge did and fails
+# naming each failure.
+#
+#   ansible-playbook qumulo.cluster.edge_license_complete -i <inventory> -l edge01
+#
+# Re-forming quorum pauses the edge, and its portal on the hub, for less than
+# 30 seconds. The step fails before the clamp's write when the license's cap is
+# below a clamp that would change, so a smaller license costs no bounce. A run
+# on an edge whose clamp is already set changes nothing, so a cap applied then
+# waits for the next quorum formation, and the step says so.
+#
+# Under serial: 1 a failed edge would end the play for the edges after it, so
+# each edge runs in a block whose rescue keeps its failure and ends only that
+# edge, and the last play fails, naming each failure.
+- name: Finish each edge's license and capacity
+  hosts: qumulo_edges
+  # One edge at a time, since each clamp write re-forms that edge's quorum.
+  serial: 1
+  gather_facts: false
+  # The edge's connection, as roles/cluster_baseline/tasks/connections.yml records it from the edge's variables
+  # before the first task that talks to it.
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[inventory_hostname] }}"
+  tasks:
+    - name: Finish the edge's license and capacity, keeping a failure for the last play
+      vars:
+        # The present relationships out of the edge, to inventory hosts.
+        edge_license_complete_out: >-
+          {{ qumulo_replication_relationships | default([]) | selectattr('target', 'defined') | selectattr('target', 'in', hostvars)
+             | selectattr('state', 'undefined') | list
+             + qumulo_replication_relationships | default([]) | selectattr('target', 'defined') | selectattr('target', 'in', hostvars)
+             | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list }}
+        edge_license_complete_targets: "{{ edge_license_complete_out | map(attribute='target') | unique | list }}"
+      block:
+        # An import of this playbook earlier in the process leaves its facts. None, not false: the capacity gate
+        # reads a cluster_baseline_license_pending that is none as no prediction.
+        - name: Forget what an earlier play of this run kept
+          ansible.builtin.set_fact:
+            edge_license_complete_failure: ""
+            edge_license_complete_clamped: null
+            edge_license_complete_hand_offs: null
+            edge_license_complete_restore_failures: null
+            edge_license_complete_restore_outcomes: null
+            edge_license_complete_restore_warnings: null
+            cluster_baseline_license_pending: null
+            replication_pair_restore_targets: null
+            replication_pair_report_claims: null
+
+        - name: Record how to connect to the edge
+          ansible.builtin.include_role:
+            name: qumulo.cluster.cluster_baseline
+            tasks_from: connections.yml
+          vars:
+            cluster_baseline_connection_hosts: ["{{ inventory_hostname }}"]
+
+        - name: Check that the edge is the inventory's, and wait until it is ready
+          qumulo.cluster.cluster_guard:
+
+        - name: Apply the license document, then set the clamp, as the baseline does
+          ansible.builtin.include_role:
+            name: qumulo.cluster.cluster_baseline
+            tasks_from: license.yml
+          vars:
+            cluster_baseline_license_hand_off_fails: true
+
+        # Whether the clamp was written or had nothing to do.
+        - name: Record that the license and the clamp are done, for the restore play
+          ansible.builtin.set_fact:
+            edge_license_complete_clamped: true
+
+        - name: Record how to connect to the target hosts of the edge's relationships
+          ansible.builtin.include_role:
+            name: qumulo.cluster.cluster_baseline
+            tasks_from: connections.yml
+          vars:
+            cluster_baseline_connection_hosts: "{{ edge_license_complete_targets }}"
+          when: edge_license_complete_targets != []
+
+        # It never fails: a target that does not answer has its error instead of its list.
+        - name: Read the target relationships of each target host of the edge's relationships
+          ansible.builtin.include_role:
+            name: qumulo.cluster.replication_pair
+            tasks_from: restore_targets.yml
+          vars:
+            replication_pair_targets_edge: "{{ inventory_hostname }}"
+            replication_pair_connections: "{{ cluster_baseline_connections }}"
+
+        - name: Read the edge's rebuild report claim and restore records
+          ansible.builtin.include_role:
+            name: qumulo.cluster.replication_pair
+            tasks_from: restore_claims.yml
+          vars:
+            replication_pair_claims_host: "{{ inventory_hostname }}"
+            replication_pair_claims_dir: "{{ replication_pair_artifact_dir }}"
+
+        # Both maps are keyed by <source host>:<target path>, the path without its trailing slash. A relationship from
+        # a rebuilt edge of this run, whose restore play will attempt it, is held until that restore, so its hold is
+        # reported rather than failed on. One whose target path is equal to or nested with the source path of a
+        # relationship out of this edge waits, when that relationship's X exists or its target did not answer, since
+        # the restore fills that path with its last replica.
+        - name: Choose which relationships into the edge wait for a restore
+          ansible.builtin.set_fact:
+            cluster_baseline_replication_on_held_entries: >-
+              {%- set found = namespace(entries={}, wanted=[]) -%}
+              {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+              {%- if 'restore' not in ansible_skip_tags and ('all' in ansible_run_tags or 'restore' in ansible_run_tags)
+                    and qumulo_replication_release is not defined -%}
+                {%- for name in ansible_play_hosts_all if hostvars[name].qumulo_previous_cluster_uuids | default([]) | length > 0 -%}
+                  {%- set names = hostvars[name].qumulo_replication_restore | default(none) -%}
+                  {%- set found.wanted = [] -%}
+                  {%- for wanted in names | default([], true) if ':' in wanted | string -%}
+                    {%- set parts = (wanted | string).split(':', 1) -%}
+                    {%- set found.wanted = found.wanted + [parts[0] ~ ':' ~ canonical(parts[1])] -%}
+                  {%- endfor -%}
+                  {%- for entry in hostvars[name].qumulo_replication_relationships | default([])
+                        if entry.target | default('') == inventory_hostname and entry.state | default('present') == 'present' -%}
+                    {%- set path = canonical(entry.target_path | default('')) -%}
+                    {%- set key = name ~ ':' ~ path -%}
+                    {%- if names is none or (inventory_hostname ~ ':' ~ path) in found.wanted -%}
+                      {%- set found.entries = found.entries | combine({key: 'report'}) -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endfor -%}
+              {%- endif -%}
+              {{ found.entries }}
+            cluster_baseline_replication_deferred_entries: >-
+              {%- set found = namespace(entries={}, holding=[], x=false) -%}
+              {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+              {%- set live = ['ESTABLISHED', 'DISCONNECTING', 'DISCONNECTED', 'RECONNECTING', 'REESTABLISHING'] -%}
+              {%- set previous = qumulo_previous_cluster_uuids | default([]) | map('lower') | list -%}
+              {%- set read = replication_pair_restore_targets | default({}, true) -%}
+              {%- for out in edge_license_complete_out if previous -%}
+                {%- set target = read[out.target] | default({'error': 'not read'}) -%}
+                {%- set found.x = false -%}
+                {%- for record in target.target_relationships | default([]) -%}
+                  {%- if canonical(record.target_path) == canonical(out.target_path) and record.state in live
+                        and record.source_cluster_uuid | lower in previous -%}
+                    {%- set found.x = true -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if found.x or target.error is defined -%}
+                  {%- set found.holding = found.holding + [{'source_path': canonical(out.source_path), 'target': out.target, 'x': found.x}] -%}
+                {%- endif -%}
+              {%- endfor -%}
+              {%- for holding in found.holding | sort(attribute='x', reverse=true) -%}
+                {%- set root = holding.source_path -%}
+                {%- for name in groups['all'] -%}
+                  {%- for entry in hostvars[name].qumulo_replication_relationships | default([])
+                        if entry.target | default('') == inventory_hostname and entry.state | default('present') == 'present' -%}
+                    {%- set path = canonical(entry.target_path | default('')) -%}
+                    {%- set key = name ~ ':' ~ path -%}
+                    {%- set relationship = name ~ ':' ~ canonical(entry.source_path) ~ ' to ' ~ inventory_hostname ~ ':' ~ path -%}
+                    {%- if key not in found.entries
+                          and (path == root or root == '/' or path.startswith(root ~ '/') or root.startswith(path ~ '/')) -%}
+                      {%- if holding.x -%}
+                        {%- set hand_off = relationship ~ ' waits for the restore of ' ~ root ~ ', which fills ' ~ path ~ ' with its last '
+                              ~ 'replica. Once that restore is done, set allow_non_empty_target: true on the entry and run ansible-playbook '
+                              ~ 'qumulo.cluster.baseline -i <inventory> -l ' ~ name ~ '.' -%}
+                      {%- else -%}
+                        {%- set hand_off = relationship ~ ' waits, since ' ~ holding.target ~ ', the target of ' ~ root ~ ', did not answer, '
+                              ~ 'so the second pass cannot tell whether ' ~ root ~ ' has a restore to do. Run the second pass again once '
+                              ~ holding.target ~ ' answers.' -%}
+                      {%- endif -%}
+                      {%- set found.entries = found.entries | combine({key: hand_off}) -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endfor -%}
+              {%- endfor -%}
+              {{ found.entries }}
+
+        # Once the license and the clamp apply, the capacity gate lets the relationships into the edge go ahead.
+        - name: Declare the replication relationships into the edge that the inventory's other hosts declare
+          block:
+            - name: Declare each relationship into the edge
+              ansible.builtin.include_role:
+                name: qumulo.cluster.cluster_baseline
+                tasks_from: replication.yml
+              vars:
+                cluster_baseline_replication_as_target: true
+          always:
+            - name: Keep the relationships' hand-offs for the last play
+              ansible.builtin.set_fact:
+                edge_license_complete_hand_offs: >-
+                  {{ cluster_baseline_replication_results | default([]) | selectattr('hand_off', 'defined') | map(attribute='hand_off') | list }}
+      rescue:
+        - name: Keep the edge's failure, named by the edge
+          ansible.builtin.set_fact:
+            edge_license_complete_failure: >-
+              {{ edge_license_complete_message if edge_license_complete_message.startswith(inventory_hostname ~ ':')
+                 else inventory_hostname ~ ': ' ~ edge_license_complete_message }}
+          vars:
+            edge_license_complete_message: "{{ ansible_failed_result.msg | default('failed') }}"
+
+        - name: Go on with the next edge
+          ansible.builtin.meta: end_host
+
+# Every edge's license play has run, so its license and clamp landed before any
+# restore waits. One edge at a time, so that the hub, usually every edge's
+# target, carries one edge's full syncs at a time.
+- name: Restore each rebuilt edge's relationships from their replicas
+  hosts: qumulo_edges
+  serial: 1
+  gather_facts: false
+  tags: [restore]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[inventory_hostname] }}"
+  tasks:
+    - name: Restore the edge's relationships, keeping a failure for the last play
+      vars:
+        edge_license_complete_out: >-
+          {{ qumulo_replication_relationships | default([]) | selectattr('target', 'defined') | selectattr('target', 'in', hostvars)
+             | selectattr('state', 'undefined') | list
+             + qumulo_replication_relationships | default([]) | selectattr('target', 'defined') | selectattr('target', 'in', hostvars)
+             | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list }}
+        edge_license_complete_release_reason: >-
+          this run carries qumulo_replication_release, which is for the baseline. Run the second pass again without it.
+        # Names compare as <target host>:<target path>, the path without its trailing slash; a name without a ':' matches
+        # nothing, as the step module's pick has it, and the report play names it.
+        edge_license_complete_named: >-
+          {%- set found = namespace(wanted=[], present=[]) -%}
+          {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+          {%- for wanted in qumulo_replication_restore | default([], true) if ':' in wanted | string -%}
+            {%- set parts = (wanted | string).split(':', 1) -%}
+            {%- set found.wanted = found.wanted + [parts[0] ~ ':' ~ canonical(parts[1])] -%}
+          {%- endfor -%}
+          {%- for out in edge_license_complete_out -%}
+            {%- set found.present = found.present + [out.target ~ ':' ~ canonical(out.target_path)] -%}
+          {%- endfor -%}
+          {{ found.present | select('in', found.wanted) | list | length > 0 }}
+        edge_license_complete_answered: >-
+          {{ (replication_pair_restore_targets | default({}, true)) | dict2items | rejectattr('value.error', 'defined')
+             | map(attribute='key') | list }}
+        edge_license_complete_unreached: >-
+          {{ edge_license_complete_out | map(attribute='target') | unique | reject('in', edge_license_complete_answered) | list }}
+      block:
+        - name: Start the edge's restore with nothing kept
+          ansible.builtin.set_fact:
+            edge_license_complete_restore_failures: []
+            edge_license_complete_restore_outcomes: []
+            edge_license_complete_restore_warnings: []
+            replication_pair_restore_outcomes: []
+            replication_pair_restore_warnings: []
+
+        # Under --tags restore the license play never runs, so it leaves no edge_license_complete_clamped at all.
+        - name: Say that a rebuilt edge whose license play did not finish, or did not run, gets no restore
+          ansible.builtin.set_fact:
+            edge_license_complete_restore_failures:
+              - >-
+                {{ inventory_hostname }}: no restore, since {{ edge_license_complete_why }}
+                {{ 'the clamp' if (qumulo_capacity | default({})).license | default('pending') == 'none' else 'the license and the clamp' }}{{
+                   edge_license_complete_skipped if edge_license_complete_clamped is not defined
+                   else '.' ~ (edge_license_complete_pending if cluster_baseline_license_pending | default(false, true) | bool else '') }}
+          vars:
+            edge_license_complete_why: >-
+              {{ 'this run did not include the license play, which finishes' if edge_license_complete_clamped is not defined
+                 else 'the license play did not finish' }}
+            edge_license_complete_skipped: >-
+              {{ ' ' }}first. Run the second pass without --tags restore, or ansible-playbook qumulo.cluster.replication_restore -i
+              <inventory> -l {{ inventory_hostname }} for the restore alone.
+            edge_license_complete_pending: >-
+              {{ ' ' }}Run the second pass again once the license applies, or supply the license document. If {{ inventory_hostname }}
+              runs without a license, add license: none to {{ inventory_hostname }}'s qumulo_capacity, keeping its other keys, such as
+              clamp and free_threshold.
+          when:
+            - not edge_license_complete_clamped | default(false, true) | bool
+            - qumulo_previous_cluster_uuids | default([]) | length > 0
+            - edge_license_complete_out != []
+
+        - name: End an edge whose license play did not finish, or that has no relationship out of it
+          ansible.builtin.meta: end_host
+          when: not edge_license_complete_clamped | default(false, true) | bool or edge_license_complete_out == []
+
+        # A later edge's license play may have honoured the release for a relationship out of this edge, deleting X
+        # and writing the restore stamp, after this edge's license play read them.
+        - name: Decide a run that carries qumulo_replication_release, which restores nothing
+          when: qumulo_replication_release is defined
+          block:
+            - name: Read the target hosts of the edge's relationships again
+              ansible.builtin.include_role:
+                name: qumulo.cluster.replication_pair
+                tasks_from: restore_targets.yml
+              vars:
+                replication_pair_targets_edge: "{{ inventory_hostname }}"
+                replication_pair_connections: "{{ cluster_baseline_connections }}"
+
+            - name: Read the edge's rebuild report claim and restore records again
+              ansible.builtin.include_role:
+                name: qumulo.cluster.replication_pair
+                tasks_from: restore_claims.yml
+              vars:
+                replication_pair_claims_host: "{{ inventory_hostname }}"
+                replication_pair_claims_dir: "{{ replication_pair_artifact_dir }}"
+
+            # The restore-to-do rule from these reads alone: a live record from a previous UUID, a restore record, or
+            # the report claim.
+            - name: Keep each relationship with a restore to do as not restored
+              ansible.builtin.set_fact:
+                edge_license_complete_restore_outcomes: >-
+                  {%- set found = namespace(outcomes=[], x=false) -%}
+                  {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+                  {%- set live = ['ESTABLISHED', 'DISCONNECTING', 'DISCONNECTED', 'RECONNECTING', 'REESTABLISHING'] -%}
+                  {%- set previous = qumulo_previous_cluster_uuids | default([]) | map('lower') | list -%}
+                  {%- set claims = replication_pair_report_claims[inventory_hostname] -%}
+                  {%- set claimed = claims.records + claims.claimed | map('qumulo.cluster.restore_key_hash') | list -%}
+                  {%- for out in edge_license_complete_out -%}
+                    {%- set key = {'source_path': canonical(out.source_path), 'target_host': out.target,
+                                   'target_cluster_uuid': hostvars[out.target].qumulo_cluster_uuid | default('') | lower,
+                                   'target_path': canonical(out.target_path)} -%}
+                    {%- set found.x = false -%}
+                    {%- for record in (replication_pair_restore_targets[out.target] | default({})).target_relationships | default([]) -%}
+                      {%- if canonical(record.target_path) == key.target_path and record.state in live
+                            and record.source_cluster_uuid | lower in previous -%}
+                        {%- set found.x = true -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+                    {%- if found.x or (key | qumulo.cluster.restore_key_hash) in claimed -%}
+                      {%- set found.outcomes = found.outcomes + [{
+                            'name': inventory_hostname ~ ':' ~ key.source_path ~ ' to ' ~ out.target ~ ':' ~ key.target_path,
+                            'outcome': 'not restored', 'fails': true, 'summary': '', 'note': '', 'sequence': [],
+                            'message': edge_license_complete_release_reason}] -%}
+                    {%- endif -%}
+                  {%- endfor -%}
+                  {{ found.outcomes }}
+
+            - name: End the edge, which a release run does not restore
+              ansible.builtin.meta: end_host
+
+        - name: End an edge that no name in qumulo_replication_restore matches
+          ansible.builtin.meta: end_host
+          when:
+            - qumulo_replication_restore is defined
+            - not edge_license_complete_named | bool
+
+        - name: Read again each target host the license play's read could not reach
+          ansible.builtin.include_role:
+            name: qumulo.cluster.replication_pair
+            tasks_from: restore_targets.yml
+          vars:
+            replication_pair_targets_edge: "{{ inventory_hostname }}"
+            replication_pair_targets_hosts: "{{ edge_license_complete_unreached }}"
+            replication_pair_connections: "{{ cluster_baseline_connections }}"
+          when: edge_license_complete_unreached != []
+
+        - name: Restore the edge's relationships
+          ansible.builtin.include_role:
+            name: qumulo.cluster.replication_pair
+            tasks_from: restore.yml
+          vars:
+            replication_restore_entry_point: second_pass
+            replication_pair_connections: "{{ cluster_baseline_connections }}"
+            replication_restore_targets: "{{ replication_pair_restore_targets }}"
+            replication_restore_report_claims: "{{ replication_pair_report_claims[inventory_hostname] }}"
+
+        - name: Keep each relationship's outcome and the restore's warnings for the last play
+          ansible.builtin.set_fact:
+            edge_license_complete_restore_outcomes: "{{ replication_pair_restore_outcomes }}"
+            edge_license_complete_restore_warnings: "{{ replication_pair_restore_warnings }}"
+      rescue:
+        - name: Keep the edge's restore failure, and the outcomes decided before it
+          ansible.builtin.set_fact:
+            edge_license_complete_restore_failures: >-
+              {{ edge_license_complete_restore_failures | default([], true)
+                 + [inventory_hostname ~ ': restore: ' ~ (edge_license_complete_error | regex_replace('\.$', ''))
+                    ~ '. Fix the cause and run ansible-playbook qumulo.cluster.edge_license_complete -i <inventory> -l '
+                    ~ inventory_hostname ~ ' again.'] }}
+            edge_license_complete_restore_outcomes: "{{ replication_pair_restore_outcomes | default([], true) }}"
+            edge_license_complete_restore_warnings: "{{ replication_pair_restore_warnings | default([], true) }}"
+          vars:
+            # A loop's failure says only that an item failed; its first failed item's message says why.
+            edge_license_complete_error: >-
+              {{ ansible_failed_result.results | default([]) | selectattr('failed', 'defined') | selectattr('failed')
+                 | map(attribute='msg', default='') | select | first | default(ansible_failed_result.msg | default('failed')) }}
+
+        - name: Go on with the next edge
+          ansible.builtin.meta: end_host
+
+- name: Report the edges that failed
+  hosts: qumulo_edges
+  gather_facts: false
+  # So that a run with --tags restore reports too.
+  tags: [always]
+  vars:
+    edge_license_complete_outcomes: >-
+      {{ ansible_play_hosts_all | map('extract', hostvars) | map(attribute='edge_license_complete_restore_outcomes', default=none)
+         | map('default', [], true) | flatten(levels=1) }}
+    # The lines the run fails on beside the edges' own: a release that restored nothing, and each name that matches no
+    # present relationship of the run. A run that carries qumulo_replication_release restores nothing, so each outcome
+    # it has is the restore play's not restored, whose message is the release's reason.
+    edge_license_complete_run_lines: >-
+      {%- set found = namespace(lines=[], present=[]) -%}
+      {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+      {%- if qumulo_replication_release is defined and edge_license_complete_outcomes -%}
+        {%- set found.lines = found.lines + ['No restore ran: ' ~ edge_license_complete_outcomes[0].message] -%}
+      {%- endif -%}
+      {%- for name in ansible_play_hosts_all -%}
+        {%- for entry in hostvars[name].qumulo_replication_relationships | default([])
+              if entry.state | default('present') == 'present' and entry.target is defined -%}
+          {%- set found.present = found.present + [entry.target ~ ':' ~ canonical(entry.target_path | default(''))] -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {%- for wanted in qumulo_replication_restore | default([], true) -%}
+        {%- set parts = (wanted | string).split(':', 1) -%}
+        {%- if parts | length < 2 -%}
+          {#- The step module's pick refuses the same name from the playbook in these words. -#}
+          {%- set found.lines = found.lines + ["qumulo_replication_restore names '" ~ wanted ~ "', which is not <target host>:<target path>; "
+                ~ 'name a relationship by its target host and target path, such as ' ~ wanted ~ ':/replicas/edge01.'] -%}
+        {%- elif (parts[0] ~ ':' ~ canonical(parts[1])) not in found.present -%}
+          {%- set found.lines = found.lines + ['qumulo_replication_restore names ' ~ wanted ~ ', which no edge in this run declares '
+                ~ 'present. Check the name against <target host>:<target path> of a relationship out of an edge.'] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.lines }}
+  tasks:
+    # The hand-offs and the warnings printed hours before, as each edge ran.
+    - name: Say what the restore did, then repeat the hand-offs and the warnings
+      ansible.builtin.debug:
+        msg: "{{ edge_license_complete_said }}"
+      run_once: true
+      when: edge_license_complete_said != []
+      vars:
+        edge_license_complete_said: >-
+          {%- set found = namespace(restored=[], skipped=[], later=[]) -%}
+          {%- for outcome in edge_license_complete_outcomes -%}
+            {%- if outcome.outcome == 'not applicable' -%}
+              {%- set found.skipped = found.skipped + [outcome.summary] -%}
+            {%- elif outcome.outcome == 'predicted' -%}
+              {%- set found.restored = found.restored + [outcome.name ~ ': predicted (steps ' ~ outcome.sequence | join(', ') ~ ')'] -%}
+            {%- elif outcome.summary | default('') -%}
+              {#- Step 9 removed the record, so this line is the only place left that names what the restore left. -#}
+              {%- set left = namespace(ids=[]) -%}
+              {%- for snapshot in outcome.snapshots_left | default([]) -%}
+                {%- set left.ids = left.ids + ['id ' ~ snapshot.id ~ ' on ' ~ snapshot.host] -%}
+              {%- endfor -%}
+              {%- set found.restored = found.restored + [outcome.summary
+                    ~ ((' The restore left replication snapshots owned by nothing, which never expire: ' ~ left.ids | join(', ')
+                        ~ '; delete them once they are no longer wanted (G-REPL-SNAPSHOT).') if left.ids else '')] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {%- for name in ansible_play_hosts_all -%}
+            {%- set found.later = found.later + hostvars[name].edge_license_complete_hand_offs | default([], true) -%}
+          {%- endfor -%}
+          {%- for name in ansible_play_hosts_all -%}
+            {%- set found.later = found.later + hostvars[name].edge_license_complete_restore_warnings | default([], true) -%}
+          {%- endfor -%}
+          {{ edge_license_complete_run_lines + found.restored + found.skipped + found.later }}
+
+    - name: Fail when an edge or the run failed, naming each failure
+      ansible.builtin.assert:
+        that: edge_license_complete_failed == [] and edge_license_complete_run_lines == []
+        fail_msg: >-
+          {{ edge_license_complete_failed | length }} of {{ ansible_play_hosts_all | length }} edges failed.
+          {{ edge_license_complete_lines | join(' ') }}
+        quiet: true
+      run_once: true
+      vars:
+        # The license play's failures, each failing relationship's outcome, each edge-level restore failure, then the
+        # run's lines.
+        edge_license_complete_lines: >-
+          {%- set found = namespace(license=[], outcomes=[], restore=[]) -%}
+          {%- for name in ansible_play_hosts_all -%}
+            {%- set found.license = found.license + ([hostvars[name].edge_license_complete_failure]
+                  if hostvars[name].edge_license_complete_failure | default('', true) else []) -%}
+            {%- set found.restore = found.restore + hostvars[name].edge_license_complete_restore_failures | default([], true) -%}
+          {%- endfor -%}
+          {%- for outcome in edge_license_complete_outcomes if outcome.fails -%}
+            {%- set found.outcomes = found.outcomes + [outcome.name ~ ': ' ~ outcome.outcome ~ ': ' ~ outcome.message] -%}
+          {%- endfor -%}
+          {{ found.license + found.outcomes + found.restore + edge_license_complete_run_lines }}
+        # An edge counts once, whatever lines it has.
+        edge_license_complete_failed: >-
+          {%- set found = namespace(edges=[]) -%}
+          {%- for name in ansible_play_hosts_all -%}
+            {%- set host = hostvars[name] -%}
+            {%- if host.edge_license_complete_failure | default('', true)
+                  or host.edge_license_complete_restore_failures | default([], true)
+                  or host.edge_license_complete_restore_outcomes | default([], true) | selectattr('fails') | list -%}
+              {%- set found.edges = found.edges + [name] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ found.edges }}

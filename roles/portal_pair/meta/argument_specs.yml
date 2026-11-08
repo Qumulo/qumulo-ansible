@@ -1,0 +1,79 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+argument_specs:
+  main:
+    short_description: Pair a spoke cluster with a hub cluster through a portal, or drain and decommission the pairing
+    version_added: 0.1.0
+    description:
+      - Reaches both clusters from one host, with one set of connection options for each, so it runs once per pairing.
+        Each set is what C(module_defaults) for C(group/qumulo.cluster.qumulo) takes, and must name its cluster's UUID
+        in C(expected_cluster_uuid). The pairing is identified by the two UUIDs.
+      - With O(portal_pair_state=present), checks that both clusters run the same Qumulo Core version, proposes the
+        portal and its roots on the spoke with M(qumulo.cluster.portal_spoke), accepts it and authorizes the roots on
+        the hub with M(qumulo.cluster.portal_hub), and waits until both sides are ACCEPTED and ACTIVE with every root
+        authorized. Roots proposed outside O(portal_pair_roots) are left as they are, and not waited for. A second run
+        changes nothing.
+      - With O(portal_pair_state=absent), drains the spoke first by setting the portal's type to read-only on the hub
+        and waiting until both sides show it, then deletes the spoke portal and waits until the hub portal is gone too.
+        A portal whose spoke is DISCONNECTED cannot be drained, and its deletion needs O(portal_pair_allow_data_loss);
+        without it, the role fails before any change when the hub sees the spoke DISCONNECTED. A PENDING portal holds
+        no spoke writes and is deleted without a drain.
+      - Removing only the hub's record of a spoke that no longer exists, such as an edge rebuilt with a new UUID, is
+        M(qumulo.cluster.portal_hub) with O(qumulo.cluster.portal_hub#module:state=absent); this role needs both
+        clusters.
+      - Under C(--check), predicts each side's change and waits for nothing.
+      - Sets the fact C(portal_pair_portals) to the portal as each side reports it, in the shape
+        M(qumulo.cluster.portal_info) uses, under C(spoke) and C(hub); after a decommission both are V(null).
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      portal_pair_spoke:
+        description:
+          - Connection options for the spoke cluster, such as C(api_host), C(api_password) and C(expected_cluster_uuid).
+        type: dict
+        required: true
+      portal_pair_hub:
+        description:
+          - Connection options for the hub cluster, as for O(portal_pair_spoke).
+        type: dict
+        required: true
+      portal_pair_state:
+        description: Whether the pairing exists.
+        type: str
+        choices: [present, absent]
+        default: present
+      portal_pair_hub_hosts:
+        description:
+          - The hub's IP addresses, as the spoke reaches them, each with C(address) and an optional C(port), 3713 by
+            default. Needed with O(portal_pair_state=present).
+          - The role takes them as given and never derives them from the cluster's network status.
+        type: list
+        elements: dict
+      portal_pair_spoke_hosts:
+        description:
+          - The spoke's IP addresses, as the hub reaches them, in the form of O(portal_pair_hub_hosts). Needed with
+            O(portal_pair_state=present).
+        type: list
+        elements: dict
+      portal_pair_type:
+        description: The portal's type, V(read_write) or V(read_only).
+        type: str
+        choices: [read_write, read_only]
+        default: read_write
+      portal_pair_roots:
+        description:
+          - The roots to propose and authorize, each with C(spoke_root), a path that must not exist on the spoke yet,
+            and C(hub_root), an existing directory on the hub.
+        type: list
+        elements: dict
+        default: []
+      portal_pair_allow_data_loss:
+        description:
+          - Allow deleting a portal whose other side is DISCONNECTED, which forces the delete and loses spoke writes the
+            hub has not received.
+        type: bool
+        default: false
+      portal_pair_wait_timeout:
+        description: Seconds each wait may take, passed to the modules as their C(wait_timeout).
+        type: int
+        default: 600

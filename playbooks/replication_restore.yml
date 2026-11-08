@@ -1,0 +1,83 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Restores a rebuilt edge's replication relationships from their replicas:
+# for each present relationship out of the edge whose old record on the
+# target, from one of the edge's qumulo_previous_cluster_uuids, still holds
+# the replica, it syncs the replica back into the edge's source directory and
+# turns the relationship around, so that it runs from the edge's new UUID
+# again (the replication_pair role's restore.yml). The second pass,
+# playbooks/edge_license_complete.yml, runs the same restore once the license
+# and the clamp apply; this playbook is for a cluster outside qumulo_edges,
+# for a restore the second pass stopped, and to restore one edge with a run of
+# its own.
+#
+#   ansible-playbook qumulo.cluster.replication_restore -i <inventory> -l edge01 --check
+#   ansible-playbook qumulo.cluster.replication_restore -i <inventory> -l edge01
+#   ansible-playbook qumulo.cluster.replication_restore -i <inventory> -l edge01 \
+#     -e '{"qumulo_replication_restore": ["hub01:/replicas/edge01"]}'
+#
+# A full sync of a large replica takes hours; the run waits for it, up to
+# replication_restore_wait_timeout. One restore runs per edge at a time on a
+# controller, under a lock in the edge's artifact directory.
+- name: Restore a rebuilt edge's relationships from their replicas
+  hosts: "{{ replication_restore_hosts | default('qumulo_clusters') }}"
+  serial: 1
+  gather_facts: false
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[inventory_hostname] }}"
+  tasks:
+    - name: Restore one edge per run
+      ansible.builtin.assert:
+        that: ansible_play_hosts_all | length == 1
+        fail_msg: >-
+          The restore runs on one edge at a time, and this run names {{ ansible_play_hosts_all | length }}:
+          {{ ansible_play_hosts_all | join(', ') }}. Limit it with -l <edge>.
+        quiet: true
+
+    - name: Record how to connect to the edge and to the targets of its relationships
+      ansible.builtin.include_role:
+        name: qumulo.cluster.cluster_baseline
+        tasks_from: connections.yml
+      vars:
+        cluster_baseline_connection_hosts: >-
+          {{ ([inventory_hostname] + qumulo_replication_relationships | default([]) | map(attribute='target', default='') | list)
+             | select('in', hostvars) | unique | list }}
+
+    - name: Restore the edge's relationships
+      ansible.builtin.include_role:
+        name: qumulo.cluster.replication_pair
+        tasks_from: restore.yml
+      vars:
+        replication_restore_entry_point: playbook
+        replication_pair_connections: "{{ cluster_baseline_connections }}"
+
+    - name: Report each relationship's outcome
+      ansible.builtin.debug:
+        msg: >-
+          {%- set outcome = replication_restore_outcome -%}
+          {%- set found = namespace(left=[]) -%}
+          {%- for snapshot in outcome.snapshots_left | default([]) -%}
+            {%- set found.left = found.left + ['id ' ~ snapshot.id ~ ' on ' ~ snapshot.host] -%}
+          {%- endfor -%}
+          {{ outcome.summary
+             or (outcome.name ~ ': ' ~ outcome.outcome ~ ((': ' ~ outcome.message) if outcome.message else '')
+                 ~ ((' (steps ' ~ outcome.sequence | join(', ') ~ ')') if outcome.sequence else '')) }}{{
+             (' The restore left replication snapshots owned by nothing, which never expire: ' ~ found.left | join(', ')
+              ~ '; delete them once they are no longer wanted (G-REPL-SNAPSHOT).') if found.left else '' }}
+      loop: "{{ replication_pair_restore_outcomes }}"
+      loop_control:
+        loop_var: replication_restore_outcome
+        label: "{{ replication_restore_outcome.name }}"
+
+    - name: Fail when a relationship's outcome fails the run, naming each
+      ansible.builtin.assert:
+        that: replication_restore_failed == []
+        fail_msg: >-
+          {{ replication_restore_failed | length }} of the {{ replication_pair_restore_outcomes | length }} relationships of
+          {{ inventory_hostname }} were not restored.
+          {{ replication_restore_failed | map(attribute='name') | zip(replication_restore_failed | map(attribute='outcome'),
+             replication_restore_failed | map(attribute='message')) | map('join', ': ') | join(' ') }}
+        quiet: true
+      vars:
+        replication_restore_failed: "{{ replication_pair_restore_outcomes | selectattr('fails') | list }}"

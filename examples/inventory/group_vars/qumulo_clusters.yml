@@ -1,0 +1,92 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# What every cluster shares: how the playbooks connect, and site-wide settings.
+# A host's own variables outrank these, and a dict such as qumulo_time is
+# replaced whole, never merged.
+
+# The hosts are REST endpoints, so the modules run on the controller.
+ansible_connection: local
+ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+# The connection. The collection's playbooks pass these to every module through
+# module_defaults for group/qumulo.cluster.qumulo; a playbook of your own copies
+# that header from playbooks/baseline.yml. You set them; nothing on the cluster
+# owns them.
+qumulo_api_port: 8000
+qumulo_api_username: admin
+# Each host holds its own encrypted password in host_vars; set exactly one of
+# this and qumulo_api_token.
+qumulo_api_password: "{{ vault_qumulo_api_password }}"
+qumulo_validate_certs: true
+# The CA that signed every cluster's certificate, kept beside the inventory
+# directory rather than inside it, where Ansible would try to read it as an
+# inventory.
+qumulo_ca_path: "{{ inventory_dir }}/../files/qumulo-ca.pem"
+
+# Time: cluster_baseline step 4, qumulo.cluster.time_settings. The collection
+# owns it unless qumulo_terraform_owned_areas lists time.
+qumulo_time:
+  source: API_TIME_SOURCE_NTP
+  ntp_servers: [ntp1.example.com, ntp2.example.com]
+  # Applied after the AD join, step 14.
+  use_ad_for_primary: true
+
+# The AD join account's password, encrypted. The qumulo_ad of each group reads
+# it, so it is encrypted once.
+vault_qumulo_ad_join_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  36373937383835343338323030363136663133616630343633393439393435626430356364303163
+  3439313833303133343531376237623861313434306166650a343666383962633461666365626664
+  65643563363165343533323930366430626433633635313333396266396531376631306464636533
+  3464363935373963330a373664626162313731376339396538383362313833326332366435376664
+  31366333396366373832313633653462643736656433653864363735373461643661
+
+# Cloud monitoring and Nexus: step 7, qumulo.cluster.monitoring_settings,
+# nexus_connection and nexus_registration. The registration is what lets Nexus
+# see a new cluster's UUID, which its license is issued for. Owned by the
+# collection unless qumulo_terraform_owned_areas lists monitoring.
+qumulo_monitoring:
+  enabled: true
+  nexus:
+    nexus_enabled: true
+    nexus_capability_remote_support: true
+  # The Nexus organization a key minted with qumulo_nexus_api_token registers the
+  # cluster to; needed only when the token's user is in more than one.
+  # nexus_account_id: 1234
+
+# A Nexus user's API token, left out here. Without it, the baseline registers a
+# cluster only when qumulo_monitoring gives a nexus_join_key. With it,
+# registration mints its own single-use join key (G-NEXUS-KEY). The license
+# step never uses it: the collection neither creates nor reads licenses in
+# Nexus, where a customer organization's users cannot see them (G-LICENSE).
+# Encrypted inline, the other way to keep a secret.
+# qumulo_nexus_api_token: !vault |
+#   $ANSIBLE_VAULT;1.1;AES256
+#   65653662316566383065666266616232633139373337656439626564396139333233376437303433
+#   6531613332633530663263383434356362323933346536620a393665306433383532616661616130
+#   35643339336539363162653633613630616638306231303435386333623338313364393665616136
+#   3138346635616661300a646439633261336365343636303339386633633233396466333665643537
+#   30303565323863653133313233656233373337396433356133356530613338313733
+
+# Upgrades: ansible-playbook qumulo.cluster.upgrade, which
+# docs/how-to/upgrade.md describes. Uncomment these to bring every cluster to
+# one release, through each quarterly release on the way; run with --check
+# first. Quote every version, since YAML reads 7.10 as a number. One images
+# list holds both kinds, and each host takes its own kind's: hub01 the cloud
+# images, edge01 the on-premises ones. Qumulo Care provides the images.
+# qumulo_upgrade_target: "7.10.3"
+# qumulo_upgrade_images:
+#   - https://mirror.example.com/qumulo/qumulo_core_7.10.0.3.qimg
+#   - https://mirror.example.com/qumulo/cloud_qumulo_core_7.10.0.3.qimg
+#   - https://mirror.example.com/qumulo/qumulo_core_7.10.3.qimg
+#   - https://mirror.example.com/qumulo/cloud_qumulo_core_7.10.3.qimg
+# A platform upgrade reboots the hosts in groups, rolling, or all at once.
+# qumulo_upgrade_reboot_set_size is best left unset, so Qumulo Core sizes the
+# groups.
+# qumulo_upgrade_reboot: rolling
+# A hop's commits begin only inside a window; its prepares run whenever the
+# playbook runs.
+# qumulo_upgrade_maintenance_windows:
+#   - {start_hour: 22, start_minute: 0, end_hour: 4, end_minute: 0, on_days: [SAT, SUN]}
+# qumulo_upgrade_window_timezone: America/Los_Angeles

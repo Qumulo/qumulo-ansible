@@ -1,0 +1,8 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Keep the cache's free capacity at the declared threshold
+  qumulo.cluster.portal_eviction_settings:
+    free_threshold: "{{ qumulo_capacity.free_threshold }}"
+  when: qumulo_capacity.free_threshold is defined
+  register: edge_cache_resize_threshold

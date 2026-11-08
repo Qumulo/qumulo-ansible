@@ -1,0 +1,18 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# How to finish a replay that stopped after the edge formed, which the replay's
+# messages give. Until the baseline's identity steps run, the new edge has one
+# user, admin, with the password it formed with, and no token; and until its
+# certificate step, it serves a factory certificate.
+edge_rebuild_finish_text: >-
+  Until the baseline's identity steps have run, the new edge has only admin, with edge_rebuild_admin_password (or
+  qumulo_api_password when that is unset), and no token: for the run that finishes it, set qumulo_api_username: admin,
+  that password as qumulo_api_password and no qumulo_api_token in the edge's host_vars, and, while the edge still
+  serves its factory certificate, qumulo_validate_certs: false there too, never with -e, which would also reach the
+  hub's connection.
+
+# A consent is given on the command line, -e qumulo_allow_deferred_policy_lock_keys=true, for the run that needs it:
+# role vars outrank group_vars and host_vars, so a value there, which would carry it over to every later run, has no
+# effect (spec 026, Decision 4). It keeps the inventory's name, so it is waived from the role prefix.
+qumulo_allow_deferred_policy_lock_keys: false  # noqa: var-naming[no-role-prefix]

@@ -1,0 +1,22 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Require each side's cluster UUID, which identifies the pairing
+  ansible.builtin.assert:
+    that:
+      - portal_pair_spoke.expected_cluster_uuid | default('') | length > 0
+      - portal_pair_hub.expected_cluster_uuid | default('') | length > 0
+      - portal_pair_spoke.expected_cluster_uuid | lower != portal_pair_hub.expected_cluster_uuid | lower
+    fail_msg: >-
+      portal_pair_spoke and portal_pair_hub must each set expected_cluster_uuid to its own cluster's UUID, and the
+      two must differ
+    quiet: true
+
+- name: Name the two clusters
+  ansible.builtin.set_fact:
+    portal_pair_spoke_uuid: "{{ portal_pair_spoke.expected_cluster_uuid | lower }}"
+    portal_pair_hub_uuid: "{{ portal_pair_hub.expected_cluster_uuid | lower }}"
+
+- name: Pair or decommission
+  ansible.builtin.include_tasks:
+    file: "{{ 'pair.yml' if portal_pair_state == 'present' else 'decommission.yml' }}"

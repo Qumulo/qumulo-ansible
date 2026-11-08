@@ -1,0 +1,31 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Raise the clamp to the target, which re-forms quorum once
+  qumulo.cluster.capacity_clamp:
+    capacity_clamp: "{{ edge_cache_resize_plan.target }}"
+    rounding_tolerance: "{{ omit if edge_cache_resize_rounding_tolerance is none else edge_cache_resize_rounding_tolerance }}"
+
+- name: Read the file system's size with the new clamp
+  qumulo.cluster.cluster_info:
+    gather_subset: [filesystem]
+  register: edge_cache_resize_after
+
+- name: Record that the platform, not the clamp, limits the cache
+  ansible.builtin.set_fact:
+    edge_cache_resize_route: platform_limited
+  when: >-
+    edge_cache_resize_after.cluster.filesystem.total_size_bytes
+    < edge_cache_resize_plan.target - edge_cache_resize_plan.margin
+
+- name: Report a platform that cannot provision the target
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }}: platform_limited: the clamp allows {{ edge_cache_resize_plan.target }} bytes, but the
+      file system holds {{ edge_cache_resize_after.cluster.filesystem.total_size_bytes }}; the platform's disks cannot
+      provision more, and cannot be resized or added after formation, so a larger edge is a rebuild; or a license cap
+      has not applied yet, since a cap applies at the next quorum formation.
+  when: edge_cache_resize_route == 'platform_limited'
+
+- name: Apply the free threshold
+  ansible.builtin.include_tasks: free_threshold.yml

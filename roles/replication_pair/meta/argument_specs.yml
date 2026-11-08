@@ -1,0 +1,306 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+argument_specs:
+  main:
+    short_description: Declare a replication relationship between two clusters, or remove it, refusing before any write
+    version_added: 0.1.0
+    description:
+      - Reaches both clusters from one host, with one set of connection options for each, so it runs once per
+        relationship. Each set is what C(module_defaults) for C(group/qumulo.cluster.qumulo) takes, and names its
+        cluster's UUID in C(expected_cluster_uuid). The relationship is identified by the two paths and the target's
+        UUID, never by a server id or the address.
+      - It asserts its own inputs only. The inventory's rules, such as a target path declared on the target host, are
+        the C(cluster_baseline) role's step 21, which calls this role for each relationship a source host declares.
+      - "With C(state=present) in O(replication_pair_relationship): 1. runs M(qumulo.cluster.replication_relationship)
+        on the source and M(qumulo.cluster.replication_target) on the target in check mode, with the options their
+        real passes take, the target check always, with C(source_creates) when the source predicts a create; 2. joins
+        both with M(qumulo.cluster.replication_pair_plan), and fails, before any write on either cluster, when a
+        condition is unmet and not lifted, or a release entry lifts nothing in this run, reporting every unmet
+        condition of both sides at once and the release entries that would lift the releasable ones; 3. for a target
+        edge whose capacity the inventory declares, when a create or an authorize is due, defers the relationship
+        unless the edge holds an active license or declares C(qumulo_capacity.license=none), and its declared clamp
+        applies (the capacity gate); 4. creates the target directory's declared ancestors, then the target directory,
+        path only, with M(qumulo.cluster.directory);
+        5. creates the relationship on the source, or PATCHes its settings, replacing a changed peer create-first;
+        6. authorizes it on the target and waits until both sides are ESTABLISHED."
+      - A relationship in a failover state, after a make-writable by hand, is left as it is; its settings are still
+        PATCHed, the wait is skipped, and both modules warn.
+      - While deferring, the role only deletes the source's records of the target's previous UUIDs that cannot be
+        replicating to an old edge kept beside the new one, and its hand-off, from either half of the gate, names
+        C(ansible-playbook qumulo.cluster.edge_license_complete). A deferral does not fail; the hand-off is in
+        C(replication_pair_result), and step 21 of the C(cluster_baseline) role prints each one after its loop.
+      - With C(state=absent), deletes on the source, then on the target, keeping the target directory and its data,
+        and reports the snapshots left. A release bound to a holder of the target path deletes it.
+      - Never prints either side's connection options.
+      - Under C(--check), predicts each side's change and waits for nothing.
+      - Sets the fact C(replication_pair_result), with C(status) V(paired), V(failover), V(deferred), V(held) or
+        V(removed), and what goes with it, such as C(hand_off) for V(deferred) and C(message), C(releases),
+        C(holders), C(key) and C(restore_form), whether the message names the restore, for V(held). C(key) is the
+        relationship's C(source_path), C(target_host), C(target_cluster_uuid) and C(target_path), the paths without
+        their trailing slash and the UUID in lower case.
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      replication_pair_source:
+        description: Connection options for the source cluster, with C(expected_cluster_uuid).
+        type: dict
+        required: true
+      replication_pair_target:
+        description:
+          - Connection options for the target cluster, with C(expected_cluster_uuid).
+          - Unused with O(replication_pair_target_gone), when it need only name the target's UUID; when the target host
+            has left the inventory, the relationship's C(target_cluster_uuid) names it instead.
+        type: dict
+      replication_pair_relationship:
+        description: The relationship, one entry of the source host's C(qumulo_replication_relationships).
+        type: dict
+        required: true
+        options:
+          source_path: {description: The source directory on the source cluster., type: str, required: true}
+          target: {description: The target's inventory host; the role takes it from O(replication_pair_target_host)., type: str}
+          target_path: {description: The target directory on the target cluster., type: str, required: true}
+          state:
+            description: Whether the relationship exists.
+            type: str
+            choices: [present, absent]
+            default: present
+          replication_enabled: {description: Whether the relationship replicates., type: bool}
+          map_local_ids_to_nfs_ids: {description: Whether local ids are mapped to NFS ids on the target., type: bool}
+          source_root_read_only: {description: Whether the source directory is read-only while the relationship exists., type: bool}
+          blackout_windows:
+            description: When replication pauses, as M(qumulo.cluster.replication_relationship) takes them.
+            type: list
+            elements: dict
+          blackout_window_timezone: {description: The timezone of the blackout windows; it cannot be cleared once set., type: str}
+          allow_non_empty_target:
+            description:
+              - Let the source's content replace a target directory that holds entries (row O1). Accepted only for a
+                target directory O(replication_pair_target_directories) declares.
+            type: bool
+            default: false
+          recreate:
+            description: With a release bound to it, replace the source's ENDED record of the relationship (row O3).
+            type: bool
+            default: false
+          strict_capacity:
+            description: Refuse, rather than warn, when the source looks larger than the space the target can reuse.
+            type: bool
+            default: false
+          target_gone:
+            description: For C(state=absent), the target is gone for good; see O(replication_pair_target_gone).
+            type: bool
+            default: false
+          target_cluster_uuid:
+            description: The target's UUID, for O(replication_pair_target_gone) once the target host has left the inventory.
+            type: str
+          previous_target_cluster_uuids:
+            description: The target's previous UUIDs, for O(replication_pair_target_gone) once the target host has left the inventory.
+            type: list
+            elements: str
+      replication_pair_source_host:
+        description:
+          - The source's inventory host. When a real pass pairs a relationship from a source with previous UUIDs while
+            that host's newest rebuild report claims it, as after a copy and release, the role writes the restore stamp
+            that retires the claim, under the host's directory in C(edge_rebuild_artifact_dir), with mode 0600, creating
+            its C(restore) directory with mode 0700 when it is missing. A claim the controller cannot read, or a stamp
+            it cannot write, warns, and the relationship still passes. Empty, the role writes no stamp.
+          - A held relationship's message names the restore when its holder allows one, by this host's
+            C(qumulo_replication_address) and C(qumulo_capacity.license) and whether it is in C(qumulo_edges); empty,
+            the message names only the copy and the release.
+        type: str
+        default: ""
+      replication_pair_artifact_dir:
+        description:
+          - Where the restore's files go, under a directory named after the edge's inventory host. Defaults to
+            C(edge_rebuild_artifact_dir), and without it to the C(edge_rebuild) role's default, an C(artifacts)
+            directory beside the inventory source that defines the host.
+        type: path
+      replication_pair_target_host:
+        description: The target's inventory host, as release entries and hand-offs name it.
+        type: str
+        required: true
+      replication_pair_target_address:
+        description:
+          - The IP address the source reaches the target's replication port at, the target host's
+            C(qumulo_replication_address). Needed with C(state=present).
+          - The role never derives it from C(api_host) or the cluster's network status.
+          - It is also the address that M(qumulo.cluster.replication_target) checks. The role refuses the relationship on
+            every run, an established one included, while the tenant that serves the address has
+            C(replication_enabled) false.
+        type: str
+      replication_pair_target_port:
+        description: The port the source reaches the target's replication port at.
+        type: int
+        default: 3712
+      replication_pair_target_directories:
+        description:
+          - The target host's C(qumulo_directories). The consent C(allow_non_empty_target) counts only for a target
+            directory declared here, and the declared ancestors of the target directory are created, as declared,
+            before it.
+        type: list
+        elements: dict
+        default: []
+      replication_pair_target_capacity:
+        description:
+          - The target's C(qumulo_capacity), set only when the target is in C(qumulo_edges); the capacity gate then
+            applies, reading the license and planning C(clamp).
+        type: dict
+      replication_pair_release:
+        description:
+          - The C(qumulo_replication_release) entries that name this relationship, each
+            C(<target host>:<target path>@<record id>:<rows>). Pass them with C(-e) for one run, never in the
+            inventory; an entry that lifts nothing in the run fails it.
+        type: list
+        elements: str
+        default: []
+      replication_pair_previous_target_uuids:
+        description: The target's previous UUIDs, from the target host's C(qumulo_previous_cluster_uuids).
+        type: list
+        elements: str
+        default: []
+      replication_pair_previous_source_uuids:
+        description:
+          - The source's previous UUIDs, from the source host's C(qumulo_previous_cluster_uuids). While any is set, a
+            relationship whose replica may be the only copy of the source's data is held.
+        type: list
+        elements: str
+        default: []
+      replication_pair_inventory_cluster_uuids:
+        description:
+          - The UUIDs of the other clusters in the inventory. A source record of the same paths to one of them is never
+            a changed peer, and at the declared address it fails, since the address reaches the wrong cluster.
+        type: list
+        elements: str
+        default: []
+      replication_pair_source_path_pending:
+        description:
+          - In a check run, the source directory is missing because an earlier step of the run creates it, so it counts
+            as empty instead of failing.
+        type: bool
+        default: false
+      replication_pair_target_gone:
+        description:
+          - For C(state=absent), the target is gone for good. Only the source's delete runs, by the key and by any
+            previous target UUID, and the role builds no connection to the target.
+        type: bool
+        default: false
+      replication_pair_strict_capacity:
+        description: Refuse, rather than warn, when the source looks larger than the space the target can reuse.
+        type: bool
+        default: false
+      replication_pair_on_held:
+        description:
+          - V(fail) fails on a held relationship. V(report) records it in C(replication_pair_result) and writes
+            nothing, as the rebuild's replay does.
+        type: str
+        choices: [fail, report]
+        default: fail
+      replication_pair_check_pass:
+        description:
+          - Whether the role runs under an C(apply) of C(check_mode), where C(ansible_check_mode) stays false, as the
+            restore's own step 21 check runs it. It then waits for nothing and writes no restore stamp, as under
+            C(--check).
+          - Set by the role's restore, not by users.
+        type: bool
+        default: false
+      replication_pair_wait_timeout:
+        description: Seconds the wait until ESTABLISHED may take.
+        type: int
+        default: 600
+  restore:
+    short_description: Restore a rebuilt edge's relationships from their replicas
+    version_added: 0.1.0
+    description:
+      - Runs from the edge's host context, as C(tasks_from=restore.yml), for each C(present) relationship out of the edge
+        whose old record on the target, from one of the edge's C(qumulo_previous_cluster_uuids), still holds the
+        replica. It syncs the replica back into the edge's source directory, turns the relationship around, and
+        reconnects it, so that it runs from the edge's current UUID, with its declared settings.
+      - M(qumulo.cluster.replication_restore_step) decides which relationships the run picks and, before every step, the
+        step that runs next, from fresh reads of both clusters; the role runs only its answer. Phase 1 takes each picked
+        relationship in turn up to the full sync's wait, before the next one's first step; phase 2 waits for the syncs
+        together, in rounds, and finishes each one as it lands.
+      - In a real run it holds the edge's lock, C(<artifact dir>/<edge>/restore/lock), with
+        M(qumulo.cluster.replication_restore_lock), so one restore runs per edge at a time on a controller, and removes
+        it however the run ends. Check mode takes no lock, changes nothing, and reports each relationship's predicted
+        steps.
+      - Sets the fact C(replication_pair_restore_outcomes), one entry per relationship with C(name), C(outcome), such as
+        V(restored), V(done), V(refused), V(stopped), V(not restored), V(not applicable) or V(failed), C(fails), whether
+        the outcome fails the run, C(message), C(summary), C(note), in check mode C(sequence), and for a V(restored) one
+        C(snapshots_left), the replication snapshots the restore left on the target, each with C(host) and C(id). A
+        failure inside one relationship is its V(failed) outcome, and the others go on; any other failure, such as a lock
+        another run holds, fails the task, and the fact keeps the outcomes decided before it.
+      - C(playbooks/replication_restore.yml) and the second pass, C(playbooks/edge_license_complete.yml), run it.
+      - Its messages and the timeouts below name the old record that holds the replica, X, the restore relationship, R,
+        and the restore's nine steps by number, which the Replication restore section of
+        C(docs/reference/playbooks-and-roles.md) lists.
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      replication_restore_entry_point:
+        description:
+          - Which entry point runs the restore, named in each way on. V(playbook), C(playbooks/replication_restore.yml),
+            refuses its whole run before any relationship on a release, an edge with no previous UUIDs, a name that
+            matches no C(present) relationship, or a nested group. V(second_pass) reports them per relationship, and
+            fails on a stranded pair only while the relationship has a restore to do.
+        type: str
+        required: true
+        choices: [playbook, second_pass]
+      replication_pair_connections:
+        description:
+          - The connection options of the edge and of each target host of its relationships, by inventory host, as the
+            C(cluster_baseline) role's C(connections.yml) records them in C(cluster_baseline_connections).
+        type: dict
+        required: true
+      replication_restore_targets:
+        description:
+          - The target read the second pass took, by target host, each with C(target_relationships) or C(error).
+            Without it, the restore reads each target host itself.
+        type: dict
+      replication_restore_report_claims:
+        description:
+          - The edge's rebuild report claim the second pass read, with C(report), C(claimed) and C(stamped). Without it,
+            the restore reads the edge's newest rebuild report under O(replication_pair_artifact_dir).
+        type: dict
+      qumulo_replication_restore:
+        description:
+          - The relationships to restore, each C(<target host>:<target path>) of a C(present) relationship out of the
+            edge, compared without the target path's trailing slash. Pass it with C(-e) for one run. Without it, the
+            restore picks every C(present) relationship. A named relationship that is not applicable is refused.
+        type: list
+        elements: str
+      replication_pair_artifact_dir:
+        description:
+          - Where the restore's files go, the restore record, the restore stamp and the lock, under
+            C(<directory>/<edge>/restore/), with mode 0700 for directories and 0600 for files. Defaults to
+            C(edge_rebuild_artifact_dir), and without it to the C(edge_rebuild) role's default. Empty, no restore can
+            start, since step 1 refuses it.
+        type: path
+      replication_pair_wait_timeout:
+        description: Seconds step 3's authorize may wait until R is ESTABLISHED on the edge.
+        type: int
+        default: 600
+      replication_restore_wait_timeout:
+        description:
+          - Seconds step 4 waits for R's first recovery point, the full sync of the replica, from the end of the
+            relationship's step 3 in this run, or from the end of phase 1 for one resumed at step 4. A full sync of a large
+            replica takes hours. A run killed before the wait ends leaves the lock.
+        type: int
+        default: 86400
+      replication_restore_poll_delay:
+        description: Seconds between phase 2's reads of the edge's target list, one read for every relationship that waits.
+        type: int
+        default: 30
+      replication_restore_reverse_timeout:
+        description: Seconds step 5 polls, after the make-writable, until R reads DISCONNECTED on the edge.
+        type: int
+        default: 300
+      replication_restore_reconnect_timeout:
+        description:
+          - Seconds step 8's two polls take together, after the reconnect, until R reads ESTABLISHED on both clusters. A
+            timeout leaves the restore record marked, so the next run only polls.
+        type: int
+        default: 1800
+      replication_restore_resume_window:
+        description:
+          - Seconds after its write time within which an unmarked restore record still resumes step 8, the reconnect.
+        type: int
+        default: 86400

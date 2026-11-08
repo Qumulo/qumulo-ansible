@@ -1,0 +1,10 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The three consents are in vars/main.yml, not here, so that an inventory or play value cannot lift them.
+replication_failover_wait_timeout: 1800
+replication_failover_sync_timeout: 86400
+replication_failover_source_timeout: 30
+# The edge_rebuild role's directory, as replication_pair takes it, where a restore keeps its record.
+replication_failover_artifact_dir: >-
+  {{ edge_rebuild_artifact_dir | default(ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default(''))) }}

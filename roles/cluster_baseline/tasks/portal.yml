@@ -1,0 +1,33 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The cluster is the spoke and qumulo_portal.hub names the hub's inventory
+# host. The portal_pair role owns the pairing; this file only says where each
+# side is.
+- name: Require the hub as an inventory host, and the addresses each side reaches the other at
+  ansible.builtin.assert:
+    that:
+      - qumulo_portal.hub in hostvars
+      - hostvars[qumulo_portal.hub].qumulo_cluster_uuid | default('') | length > 0
+      - qumulo_portal_hosts | default([]) | length > 0
+      - hostvars[qumulo_portal.hub].qumulo_portal_hosts | default([]) | length > 0
+    fail_msg: >-
+      {{ inventory_hostname }}: qumulo_portal.hub must name an inventory host with qumulo_cluster_uuid, and both the
+      spoke and the hub need qumulo_portal_hosts, the IP addresses the other side reaches them at
+    quiet: true
+
+- name: Record how to connect to both sides
+  ansible.builtin.include_tasks: connections.yml
+  vars:
+    cluster_baseline_connection_hosts: ["{{ inventory_hostname }}", "{{ qumulo_portal.hub }}"]
+
+- name: Pair the cluster with its hub
+  ansible.builtin.include_role:
+    name: qumulo.cluster.portal_pair
+  vars:
+    portal_pair_spoke: "{{ cluster_baseline_connections[inventory_hostname] }}"
+    portal_pair_hub: "{{ cluster_baseline_connections[qumulo_portal.hub] }}"
+    portal_pair_spoke_hosts: "{{ qumulo_portal_hosts }}"
+    portal_pair_hub_hosts: "{{ hostvars[qumulo_portal.hub].qumulo_portal_hosts }}"
+    portal_pair_type: "{{ qumulo_portal.type | default('read_write') }}"
+    portal_pair_roots: "{{ qumulo_portal.roots | default([]) }}"

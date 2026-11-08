@@ -1,0 +1,52 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The old edge is the one the inventory names. Only a predestroy record of
+# that UUID describes it: a record of an earlier rebuild of the same host is
+# another cluster's. Any record of it, not only the newest, can show that a
+# portal was drained, as one a failed run wrote before a rerun.
+#
+# One exception: once Terraform has formed the new edge, its output names
+# only the new UUID. A replay on its own with no typed qumulo_new_cluster_uuid,
+# whose inventory UUID no predestroy record names, takes the old edge from the
+# newest record that says it was safe to destroy, of another UUID that no
+# rebuild report has replaced already. The guard still checks the new edge,
+# and the report names the record.
+- name: Read the predestroy records of the old edge
+  ansible.builtin.set_fact:
+    edge_rebuild_previous_uuid: "{{ edge_rebuild_old_uuid }}"
+    edge_rebuild_previous_record: "{{ edge_rebuild_found.file if edge_rebuild_use_found else '' }}"
+    edge_rebuild_previous: "{{ edge_rebuild_records_of_old | last | default({}) }}"
+    edge_rebuild_drained_hubs: >-
+      {{ edge_rebuild_records_of_old | map(attribute='portals') | map('default', []) | flatten
+         | selectattr('drained') | map(attribute='hub_cluster_uuid') | unique | list }}
+  vars:
+    edge_rebuild_inventory_old: "{{ qumulo_cluster_uuid | default('') | lower }}"
+    edge_rebuild_record_files: "{{ query('ansible.builtin.fileglob', edge_rebuild_host_dir ~ '/predestroy-*.yml') | sort }}"
+    edge_rebuild_records: >-
+      {{ (lookup('ansible.builtin.file', *edge_rebuild_record_files, wantlist=true) if edge_rebuild_record_files else [])
+         | map('ansible.builtin.from_yaml') | list }}
+    edge_rebuild_report_files: "{{ query('ansible.builtin.fileglob', edge_rebuild_host_dir ~ '/rebuild-*.yml') | sort }}"
+    edge_rebuild_replaced: >-
+      {{ (lookup('ansible.builtin.file', *edge_rebuild_report_files, wantlist=true) if edge_rebuild_report_files else [])
+         | map('ansible.builtin.from_yaml') | map(attribute='previous_cluster_uuid') | map('default', '') | list }}
+    # The newest qualifying record, as {file, uuid}; empty when none qualifies.
+    edge_rebuild_found: >-
+      {%- set found = namespace(file='', uuid='') -%}
+      {%- for file, record in edge_rebuild_record_files | zip(edge_rebuild_records) -%}
+        {%- set uuid = record.cluster_uuid | default('') | lower -%}
+        {%- if record.safe_to_destroy | default(false) and uuid not in ['', edge_rebuild_inventory_old]
+              and uuid not in edge_rebuild_replaced -%}
+          {%- set found.file = file | basename -%}
+          {%- set found.uuid = uuid -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ {'file': found.file, 'uuid': found.uuid} }}
+    edge_rebuild_use_found: >-
+      {{ edge_rebuild_phase == 'replay' and qumulo_new_cluster_uuid is not defined and edge_rebuild_found.uuid != ''
+         and edge_rebuild_records | selectattr('cluster_uuid', 'defined')
+             | selectattr('cluster_uuid', 'equalto', edge_rebuild_inventory_old) | list == [] }}
+    edge_rebuild_old_uuid: "{{ edge_rebuild_found.uuid if edge_rebuild_use_found else edge_rebuild_inventory_old }}"
+    edge_rebuild_records_of_old: >-
+      {{ edge_rebuild_records | selectattr('cluster_uuid', 'defined')
+         | selectattr('cluster_uuid', 'equalto', edge_rebuild_old_uuid) | list }}

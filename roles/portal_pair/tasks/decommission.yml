@@ -1,0 +1,110 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Drain, then delete: the spoke hands its outstanding writes to the hub while
+# the portal turns read-only, and only then is the spoke portal deleted, which
+# removes the hub portal too.
+- name: Read the hub's portal for the spoke
+  qumulo.cluster.portal_info:
+    gather_subset: [hubs]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_hub }}"
+  register: portal_pair_hub_side
+
+- name: Keep the hub's portal for the spoke
+  ansible.builtin.set_fact:
+    portal_pair_hub_portal: >-
+      {{ portal_pair_hub_side.portals.hubs | selectattr('spoke_cluster_uuid', 'equalto', portal_pair_spoke_uuid) | first | default(none) }}
+
+# The spoke refuses its delete only when it sees itself DISCONNECTED, so a hub
+# that sees the spoke DISCONNECTED while the spoke sees itself ACTIVE would let
+# a read-write spoke go without a drain. A DELETING record's spoke portal is
+# already deleted, by an earlier run whose wait for the hub's record ended.
+- name: Refuse to delete without a drain a portal the hub sees DISCONNECTED
+  ansible.builtin.assert:
+    that: >-
+      portal_pair_allow_data_loss | bool or portal_pair_hub_portal is none
+      or portal_pair_hub_portal.state in ['PENDING', 'DELETING'] or portal_pair_hub_portal.status != 'DISCONNECTED'
+    fail_msg: >-
+      the hub sees spoke {{ portal_pair_spoke_uuid }} DISCONNECTED, so the role cannot drain it before the delete.
+      If the spoke is up, the status may be brief, or the hub's spoke_hosts may be wrong; run the role again later.
+      To delete the portal and lose the spoke writes the hub has not received, set portal_pair_allow_data_loss.
+    quiet: true
+
+- name: Drain the spoke by making the portal read-only on the hub
+  qumulo.cluster.portal_hub:
+    spoke_cluster_uuid: "{{ portal_pair_spoke_uuid }}"
+    type: read_only
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_hub }}"
+  throttle: 1
+  register: portal_pair_drained
+  # A PENDING portal holds no spoke writes; a DELETING one has no spoke portal left to drain, and the hub refuses a
+  # type change on it; a DISCONNECTED one cannot drain, and its delete below needs allow_data_loss.
+  when:
+    - portal_pair_hub_portal is not none
+    - portal_pair_hub_portal.state not in ['PENDING', 'DELETING']
+    - portal_pair_hub_portal.status != 'DISCONNECTED'
+
+- name: Wait until the spoke shows the portal read-only and ACCEPTED
+  qumulo.cluster.portal_info:
+    gather_subset: [spokes]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_spoke }}"
+  register: portal_pair_spoke_side
+  until: >-
+    portal_pair_spoke_side.portals.spokes | selectattr('hub_cluster_uuid', 'equalto', portal_pair_hub_uuid)
+    | rejectattr('state', 'equalto', 'ACCEPTED') | list == []
+    and portal_pair_spoke_side.portals.spokes | selectattr('hub_cluster_uuid', 'equalto', portal_pair_hub_uuid)
+    | rejectattr('type', 'equalto', 'read_only') | list == []
+  retries: "{{ (portal_pair_wait_timeout | int / 5) | round(0, 'ceil') | int }}"
+  delay: 5
+  when:
+    - portal_pair_drained is not skipped
+    - not ansible_check_mode
+
+- name: Delete the spoke portal
+  qumulo.cluster.portal_spoke:
+    hub_cluster_uuid: "{{ portal_pair_hub_uuid }}"
+    state: absent
+    allow_data_loss: "{{ portal_pair_allow_data_loss }}"
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_spoke }}"
+  register: portal_pair_spoke_deleted
+
+- name: Wait until the hub portal is gone too, or delete what is left of it
+  qumulo.cluster.portal_hub:
+    spoke_cluster_uuid: "{{ portal_pair_spoke_uuid }}"
+    state: absent
+    allow_data_loss: "{{ portal_pair_allow_data_loss }}"
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_hub }}"
+  throttle: 1
+  register: portal_pair_hub_deleted
+
+# One task per side: a loop over the connection options would print them,
+# credentials included, with each item's result.
+- name: Wait until the spoke serves requests after the delete
+  qumulo.cluster.cluster_guard:
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_spoke }}"
+  when:
+    - not ansible_check_mode
+    - portal_pair_spoke_deleted is changed or portal_pair_hub_deleted is changed
+
+- name: Wait until the hub serves requests after the delete
+  qumulo.cluster.cluster_guard:
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_hub }}"
+  when:
+    - not ansible_check_mode
+    - portal_pair_spoke_deleted is changed or portal_pair_hub_deleted is changed
+
+- name: Record that neither side has the portal
+  ansible.builtin.set_fact:
+    portal_pair_portals: {spoke: null, hub: null}

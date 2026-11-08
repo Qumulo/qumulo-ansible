@@ -1,0 +1,36 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The restore's target read: one list of target relationships per target
+# host of replication_pair_targets_edge's present relationships, or of those
+# among them replication_pair_targets_hosts names, each reached with its
+# entry of replication_pair_connections. Each host's list, or the error it
+# answered with, joins replication_pair_restore_targets, keyed by the host,
+# as {target_relationships} or {error}. It never fails, so a target that does not
+# answer never stops the play that reads it; failed_when clears a failed
+# read's failed, so only its missing list tells it.
+- name: Read the target relationships of each target host
+  qumulo.cluster.replication_info:
+    gather_subset: [target]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[item] | default({}) }}"
+  loop: >-
+    {%- set found = namespace(hosts=[]) -%}
+    {%- for entry in hostvars[replication_pair_targets_edge].qumulo_replication_relationships | default([])
+          if entry.state | default('present') == 'present' and entry.target | default('') in hostvars -%}
+      {%- set found.hosts = found.hosts + [entry.target] -%}
+    {%- endfor -%}
+    {{ found.hosts | unique | select('in', replication_pair_targets_hosts | default(found.hosts)) | list }}
+  register: replication_pair_targets_read
+  failed_when: false
+
+- name: Record each target host's list, or its error
+  ansible.builtin.set_fact:
+    replication_pair_restore_targets: >-
+      {%- set found = namespace(targets=replication_pair_restore_targets | default({}, true)) -%}
+      {%- for result in replication_pair_targets_read.results -%}
+        {%- set found.targets = found.targets | combine({result.item:
+              {'target_relationships': result.replication.target_relationships | default([])} if result.replication is defined
+              else {'error': result.msg | default('failed')}}) -%}
+      {%- endfor -%}
+      {{ found.targets }}

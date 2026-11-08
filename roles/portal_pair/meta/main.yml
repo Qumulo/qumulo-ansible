@@ -1,0 +1,10 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+galaxy_info:
+  author: Qumulo, Inc.
+  description: Pair a spoke cluster with a hub cluster through a portal, or drain and decommission the pairing
+  license: MIT
+  min_ansible_version: "2.20"
+  galaxy_tags: [qumulo, storage]
+dependencies: []

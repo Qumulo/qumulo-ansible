@@ -1,0 +1,77 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The step module's call for restore_call_body.yml's relationship, from the reads it made and those gathered into
+# replication_pair_restore_inputs. The record is read from the controller here, so each call sees the latest.
+- name: Choose the next step of {{ replication_pair_restore_name }}
+  qumulo.cluster.replication_restore_step:
+    edge: "{{ inventory_hostname }}"
+    entry_point: "{{ replication_pair_restore_entry_point }}"
+    previous_cluster_uuids: "{{ qumulo_previous_cluster_uuids | default([]) }}"
+    inventory_cluster_uuids: "{{ replication_pair_restore_uuids }}"
+    artifact_dir: "{{ replication_pair_artifact_dir }}"
+    relationship: "{{ replication_pair_restore_declared }}"
+    named: "{{ replication_pair_restore_named }}"
+    edge_cluster_uuid: "{{ qumulo_cluster_uuid }}"
+    target_cluster_uuid: "{{ replication_pair_restore_target_uuid }}"
+    edge_relationships: "{{ replication_pair_restore_edge_read.replication }}"
+    target_relationships: "{{ replication_pair_restore_target_read.replication | default(omit) }}"
+    target_error: >-
+      {{ omit if replication_pair_restore_target_read.replication is defined
+         else replication_pair_restore_target_read.msg | default(replication_pair_restore_target_host ~ ' did not answer') }}
+    record_text: >-
+      {{ lookup('ansible.builtin.file', replication_pair_restore_record) if replication_pair_restore_record and replication_pair_restore_record is file
+         else omit }}
+    report_claims: "{{ replication_pair_restore_claims }}"
+    resume_window: "{{ replication_pair_restore_timeouts.resume }}"
+    replication_address: "{{ qumulo_replication_address | default(omit) }}"
+    replication_port: "{{ qumulo_replication_port | default(3712) }}"
+    target_replication_address: "{{ hostvars[replication_pair_restore_target_host].qumulo_replication_address | default(omit) }}"
+    target_replication_port: "{{ hostvars[replication_pair_restore_target_host].qumulo_replication_port | default(3712) }}"
+    directories: "{{ qumulo_directories | default([]) }}"
+    in_edges: "{{ inventory_hostname in groups['qumulo_edges'] | default([]) }}"
+    # Only the keys the license rule reads: the module logs its options, and license_document holds the license key.
+    capacity: >-
+      {{ {'license': qumulo_capacity.license | default(omit), 'clamp': qumulo_capacity.clamp | default(omit)}
+         if qumulo_capacity is defined else omit }}
+    predicted_license_pending: >-
+      {{ cluster_baseline_license_pending if ansible_check_mode and cluster_baseline_license_pending | default(none) is not none else omit }}
+    siblings: "{{ replication_pair_restore_siblings }}"
+    wait_started: "{{ (replication_pair_restore_state[replication_pair_restore_name] | default({})).wait_started | default(none, true) or omit }}"
+    wait_timeout: "{{ replication_pair_restore_timeouts.wait }}"
+    reverse_timeout: "{{ replication_pair_restore_timeouts.reverse }}"
+    reconnect_timeout: "{{ replication_pair_restore_timeouts.reconnect }}"
+    source_directory: "{{ replication_pair_restore_inputs.source_directory | default(omit) }}"
+    record_directory_writable: "{{ replication_pair_restore_inputs.record_directory_writable | default(omit) }}"
+    relationship_check: "{{ replication_pair_restore_inputs.relationship_check | default(omit) }}"
+    target_check: "{{ replication_pair_restore_inputs.target_check | default(omit) }}"
+    license: "{{ replication_pair_restore_inputs.license | default(omit) }}"
+    clamp_plan: "{{ replication_pair_restore_inputs.clamp_plan | default(omit) }}"
+    target_spokes: "{{ replication_pair_restore_inputs.target_spokes | default(omit) }}"
+    edge_spokes: "{{ replication_pair_restore_inputs.edge_spokes | default(omit) }}"
+    step21: "{{ replication_pair_restore_inputs.step21 | default(omit) }}"
+    subdirectories: "{{ replication_pair_restore_inputs.subdirectories | default([]) }}"
+  vars:
+    replication_pair_restore_target_uuid: "{{ hostvars[replication_pair_restore_target_host].qumulo_cluster_uuid | lower }}"
+    replication_pair_restore_record: >-
+      {{ (replication_pair_artifact_dir ~ '/' ~ inventory_hostname ~ '/restore/'
+          ~ ({'source_path': replication_pair_restore_declared.source_path, 'target_cluster_uuid': replication_pair_restore_target_uuid,
+              'target_path': replication_pair_restore_declared.target_path} | qumulo.cluster.restore_key_hash) ~ '.yml')
+         if replication_pair_artifact_dir | length > 0 else '' }}
+    # The edge's other present relationships with an equal or nested source path, and whether each is done or past X's
+    # delete, as its own answer said.
+    replication_pair_restore_siblings: >-
+      {%- macro canonical(path) -%}{{ (path | string | regex_replace('/+$', '')) or '/' }}{%- endmacro -%}
+      {%- set mine = canonical(replication_pair_restore_declared.source_path) -%}
+      {%- set found = namespace(siblings=[]) -%}
+      {%- for entry in qumulo_replication_relationships | default([]) if entry.state | default('present') == 'present' -%}
+        {%- set path = canonical(entry.source_path) -%}
+        {%- set name = inventory_hostname ~ ':' ~ path ~ ' to ' ~ entry.target ~ ':' ~ canonical(entry.target_path) -%}
+        {%- if name != replication_pair_restore_name
+              and (path == mine or path == '/' or mine == '/' or path.startswith(mine ~ '/') or mine.startswith(path ~ '/')) -%}
+          {%- set found.siblings = found.siblings + [{'source_path': path, 'target_host': entry.target, 'target_path': canonical(entry.target_path),
+                'past_delete': replication_pair_restore_past_delete[name] | default(false)}] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.siblings }}
+  register: replication_pair_restore_answer

@@ -1,0 +1,58 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: item_areas
+  short_description: The keys inside list items that put a declared variable in an area
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - Finds the keys that the matchers name inside the items of list variables, and gives each with its area, as the
+      ownership check of the C(cluster_baseline) role lists what the inventory declares.
+    - A matcher such as C(qumulo_tenants[].networks[].floating_ip_ranges) starts at a variable, and each C([]) stands
+      for each item of the list before it.
+    - A key counts when an item has it with any value but null, V([]) included. An unset variable, an item that is not
+      a dict, and a value before C([]) that is not a list declare nothing.
+    - Each key is named with each item's C(id), else its C(name), C(share_name) or C(export_path), else its index, as in
+      C(qumulo_tenants[finance].networks[2].floating_ip_ranges), and is given once for each area.
+  options:
+    _input:
+      description: The matchers, a dict of each area to a list of matchers, as C(cluster_baseline_item_areas) gives them.
+      type: dict
+      required: true
+    qumulo_tenants:
+      description:
+        - The value of C(qumulo_tenants), or null when it is unset.
+        - Each other keyword names another variable the matchers start at in the same way.
+      type: list
+      elements: dict
+
+EXAMPLES: |
+  - name: List the areas a tenant's keys are in
+    ansible.builtin.debug:
+      msg: >-
+        {{ {'network': ['qumulo_tenants[].networks'], 'smb': ['qumulo_tenants[].smb_settings']}
+           | qumulo.cluster.item_areas(qumulo_tenants=qumulo_tenants | default(none)) }}
+
+  - name: Fail when a tenant declares networks in an area Terraform owns
+    ansible.builtin.assert:
+      that: >-
+        cluster_baseline_item_areas | qumulo.cluster.item_areas(qumulo_tenants=qumulo_tenants | default(none))
+        | selectattr('area', 'in', qumulo_terraform_owned_areas | default([])) | list | length == 0
+      fail_msg: A tenant declares keys in an area that Terraform owns.
+
+RETURN:
+  _value:
+    description: Each key found, in matcher order and then item order.
+    returned: always
+    type: list
+    elements: dict
+    contains:
+      area:
+        description: The area of the matcher that found the key.
+        type: str
+        sample: network.floating_ips
+      variable:
+        description: The key, named by the variable and each item it is in.
+        type: str
+        sample: qumulo_tenants[finance].networks[2].floating_ip_ranges

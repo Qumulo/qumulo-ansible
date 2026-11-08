@@ -1,0 +1,148 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Where the OpenAPI document a cluster serves disagrees with the server's
+# behaviour. The wire-field test skips what an entry lists, and
+# test_known_mismatches_still_mismatch fails once the document no longer
+# disagrees, so that the workaround is reviewed and the entry removed. Each entry:
+#   id:     a short name
+#   method, path: the operation, as the Route declares it
+#   field:  a field path (see wire_fields.yml), or a bare property name that
+#           matches at any depth of the request schema
+#   kind:   absent       the request schema has no such property
+#           type         its documented type excludes sent, the JSON type the server takes
+#           enum         its documented enum lacks values in sent, which the server takes
+#           not_required the server requires it, but the document does not list it as required
+#           omitted      the document leaves the whole route out on purpose, as it does an internal
+#                        route; such an entry names no field, and the route checks skip it
+#           no_body      the document declares no JSON request body for a write the server takes one
+#                        for; such an entry names no field, and the wire-field check skips the route's fields
+#   sent:   for type and enum, what the collection sends
+#   before: optional; the entry applies only to servers older than this release
+#   why:    what a client sees
+---
+- id: network-addresses
+  method: PUT
+  path: /v3/network
+  field: frontend_networks[].addresses
+  kind: absent
+  why: The document names the per-network address union api_v3_network_addresses; the key on the wire, as the SDK sends it, is addresses.
+- id: snapshot-policy-on-days
+  method: POST
+  path: /v3/snapshots/policies/
+  field: on_days
+  kind: enum
+  sent: [SUN, MON, TUE, WED, THU, FRI, SAT, EVERY_DAY]
+  why: The document lists on_days as SUNDAY to SATURDAY; the server accepts only SUN to SAT and EVERY_DAY.
+- id: replication-on-days
+  method: POST
+  path: /v2/replication/source-relationships/
+  field: on_days
+  kind: enum
+  sent: [SUN, MON, TUE, WED, THU, FRI, SAT, EVERY_DAY]
+  why: The document lists on_days as SUNDAY to SATURDAY; the server accepts only SUN to SAT and EVERY_DAY.
+- id: replication-patch-on-days
+  method: PATCH
+  path: /v2/replication/source-relationships/{id}
+  field: on_days
+  kind: enum
+  sent: [SUN, MON, TUE, WED, THU, FRI, SAT, EVERY_DAY]
+  why: As for replication-on-days; a PATCH takes the blackout windows the create takes.
+- id: authoritative-dns-host-restrictions
+  method: PATCH
+  path: /v1/authoritative-dns/settings
+  field: host_restrictions
+  kind: type
+  sent: array
+  why: The document types host_restrictions as a string; the server takes and returns a list of IP ranges.
+- id: capacity-clamp-type
+  method: PUT
+  path: /v1/capacity/clamp
+  field: capacity_clamp
+  kind: type
+  sent: integer
+  why: The document types the clamp as a string; the SDK sends a JSON integer, and so does the collection.
+- id: nfs-settings-v4-enabled
+  method: PUT
+  path: /v2/nfs/settings
+  field: v4_enabled
+  kind: not_required
+  why: The document lists no required fields; the server requires v4_enabled on PUT and resets omitted authentication fields.
+- id: kerberos-settings-mapping
+  method: PUT
+  path: /v1/auth/kerberos-settings
+  field: use_alt_security_identities_mapping
+  kind: not_required
+  why: The document lists no required fields; the server answers a PUT without use_alt_security_identities_mapping with 400 decode_error.
+- id: nfs-export-require-tls
+  method: POST
+  path: /v3/nfs/exports/
+  field: restrictions[].require_tls
+  kind: absent
+  before: "7.11.0"
+  why: The 7.10.3 document lacks require_tls, and a server that predates it accepts and ignores the field.
+- id: nfs-export-patch-require-tls
+  method: PATCH
+  path: /v3/nfs/exports/{id}
+  field: restrictions[].require_tls
+  kind: absent
+  before: "7.11.0"
+  why: The 7.10.3 document lacks require_tls, and a server that predates it accepts and ignores the field.
+- id: network-validate-addresses
+  method: PUT
+  path: /v3/network/validate
+  field: frontend_networks[].addresses
+  kind: absent
+  why: As for network-addresses; validation takes the document PUT /v3/network takes.
+- id: license-validate-internal
+  method: POST
+  path: /v1/debug/license/validate
+  kind: omitted
+  why: >-
+    An internal route, which a served document leaves out; it and activate are the only routes that take a license
+    document (G-LICENSE). The container serves no document, so this is still to confirm on a full cluster's.
+- id: license-activate-internal
+  method: POST
+  path: /v1/debug/license/activate
+  kind: omitted
+  why: >-
+    An internal route, which a served document leaves out; it and validate are the only routes that take a license
+    document (G-LICENSE). The container serves no document, so this is still to confirm on a full cluster's.
+- id: s3-bucket-create-fs-path
+  method: POST
+  path: /v1/s3/buckets/
+  field: create_fs_path
+  kind: not_required
+  why: >-
+    The document lists no required fields; Qumulo Core 7.10.3A refuses a create without create_fs_path, "field
+    'create_fs_path' not found", so s3_bucket always sends it.
+- id: s3-bucket-policy-body
+  method: PUT
+  path: /v1/s3/buckets/{name}/policy
+  kind: no_body
+  why: >-
+    The document declares no request body for the policy PUT; the server takes the policy document as JSON, as the
+    SDK's put_bucket_policy sends it, and reads it back from GET as application/octet-stream.
+- id: security-key-create-comment
+  method: POST
+  path: /v1/file-system/security/keys/
+  field: comment
+  kind: not_required
+  why: >-
+    The document lists no required fields; Qumulo Core 7.10.3 and 7.11.0 refuse a create without comment, "field
+    'comment' not found", so security_key always sends it.
+- id: security-key-create-signature
+  method: POST
+  path: /v1/file-system/security/keys/
+  field: verification_signature
+  kind: not_required
+  why: >-
+    The document lists no required fields; Qumulo Core 7.10.3 and 7.11.0 refuse a create without
+    verification_signature, the key's name signed with its private key.
+- id: security-key-replace-signature
+  method: POST
+  path: /v1/file-system/security/keys/{ref}/replace
+  field: replacement_key_verification_signature
+  kind: not_required
+  why: >-
+    The document lists no required fields; Qumulo Core 7.10.3 and 7.11.0 refuse a replace without the new key's
+    signature of the challenge, so a replace needs the new private key as well as the old one.

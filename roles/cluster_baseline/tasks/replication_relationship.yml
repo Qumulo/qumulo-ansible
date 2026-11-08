@@ -1,0 +1,113 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One relationship of step 21, cluster_baseline_replication_pair: its source
+# host and its entry. replication.yml loops over this file, so that each
+# relationship runs in a block whose rescue keeps its failure, whatever the
+# cause: a refusal, a target guard before the host_vars patch of a rebuild, an
+# unreachable target or a wait that timed out. An entry the second pass's
+# deferred map names does not run, and keeps that hand-off; one its on_held
+# map names runs with that on_held, and its hold by a previous UUID of its
+# source edge, whose restore play ends it, is kept with a hand-off.
+- name: Declare or remove the relationship, keeping its failure
+  vars:
+    cluster_baseline_replication_source: "{{ cluster_baseline_replication_pair.source }}"
+    cluster_baseline_replication_entry: "{{ cluster_baseline_replication_pair.entry }}"
+    cluster_baseline_replication_target: "{{ cluster_baseline_replication_entry.target }}"
+    cluster_baseline_replication_known: "{{ cluster_baseline_replication_target in hostvars }}"
+    cluster_baseline_replication_path: "{{ (cluster_baseline_replication_entry.target_path | regex_replace('/+$', '')) or '/' }}"
+    cluster_baseline_replication_name: >-
+      {{ cluster_baseline_replication_source }}:{{ cluster_baseline_replication_entry.source_path }} to
+      {{ cluster_baseline_replication_target }}:{{ cluster_baseline_replication_path }}
+    # The second pass's maps, by this key (replication.yml).
+    cluster_baseline_replication_key: "{{ cluster_baseline_replication_source }}:{{ cluster_baseline_replication_path }}"
+    cluster_baseline_replication_deferred: "{{ cluster_baseline_replication_key in cluster_baseline_replication_deferred_entries | default({}, true) }}"
+    cluster_baseline_replication_restored: "{{ cluster_baseline_replication_key in cluster_baseline_replication_on_held_entries | default({}, true) }}"
+  block:
+    - name: Run the replication_pair role
+      ansible.builtin.include_role:
+        name: qumulo.cluster.replication_pair
+      vars:
+        replication_pair_source: "{{ cluster_baseline_connections[cluster_baseline_replication_source] }}"
+        # A target gone for good gets no connection, only its UUID, which keys the source's delete.
+        replication_pair_target: >-
+          {{ {'expected_cluster_uuid': hostvars[cluster_baseline_replication_target].qumulo_cluster_uuid | default('')}
+             if cluster_baseline_replication_entry.target_gone | default(false) | bool and cluster_baseline_replication_known | bool
+             else cluster_baseline_connections[cluster_baseline_replication_target] if cluster_baseline_replication_known | bool else {} }}
+        replication_pair_relationship: "{{ cluster_baseline_replication_entry }}"
+        replication_pair_target_host: "{{ cluster_baseline_replication_target }}"
+        replication_pair_source_host: "{{ cluster_baseline_replication_source }}"
+        replication_pair_target_address: >-
+          {{ hostvars[cluster_baseline_replication_target].qumulo_replication_address | default('')
+             if cluster_baseline_replication_known | bool else '' }}
+        replication_pair_target_port: >-
+          {{ (hostvars[cluster_baseline_replication_target].qumulo_replication_port | default(3712)
+              if cluster_baseline_replication_known | bool else 3712) | int }}
+        replication_pair_target_directories: >-
+          {{ hostvars[cluster_baseline_replication_target].qumulo_directories | default([]) if cluster_baseline_replication_known | bool else [] }}
+        # The capacity gate is for an edge whose capacity the inventory declares.
+        replication_pair_target_capacity: >-
+          {{ hostvars[cluster_baseline_replication_target].qumulo_capacity | default(none)
+             if cluster_baseline_replication_target in groups['qumulo_edges'] | default([]) else none }}
+        # Passed with -e for one run; only the entries that name this relationship.
+        replication_pair_release: >-
+          {{ qumulo_replication_release | default([])
+             | select('match', (cluster_baseline_replication_target ~ ':' ~ cluster_baseline_replication_path) | regex_escape ~ '/*@') | list }}
+        replication_pair_previous_target_uuids: >-
+          {{ hostvars[cluster_baseline_replication_target].qumulo_previous_cluster_uuids | default([])
+             if cluster_baseline_replication_known | bool else cluster_baseline_replication_entry.previous_target_cluster_uuids | default([]) }}
+        replication_pair_previous_source_uuids: "{{ hostvars[cluster_baseline_replication_source].qumulo_previous_cluster_uuids | default([]) }}"
+        replication_pair_inventory_cluster_uuids: >-
+          {{ groups['all'] | map('extract', hostvars) | selectattr('qumulo_cluster_uuid', 'defined') | map(attribute='qumulo_cluster_uuid')
+             | select | list }}
+        # A check run's directory step predicts the source directory but does not create it; it runs only on the
+        # host the play runs on, the source at the first entry point.
+        replication_pair_source_path_pending: >-
+          {{ ansible_check_mode and cluster_baseline_replication_source == inventory_hostname
+             and (cluster_baseline_replication_entry.source_path | regex_replace('/+$', ''))
+                 in (qumulo_directories | default([]) | rejectattr('state', 'defined') | map(attribute='path') | map('regex_replace', '/+$', '') | list
+                     + qumulo_directories | default([]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present')
+                       | map(attribute='path') | map('regex_replace', '/+$', '') | list) }}
+        replication_pair_target_gone: "{{ cluster_baseline_replication_entry.target_gone | default(false) }}"
+        replication_pair_strict_capacity: "{{ cluster_baseline_replication_entry.strict_capacity | default(false) }}"
+        replication_pair_on_held: >-
+          {{ (cluster_baseline_replication_on_held_entries | default({}, true))[cluster_baseline_replication_key]
+             | default(cluster_baseline_replication_on_held) }}
+      when: not cluster_baseline_replication_deferred | bool
+
+    # The source edge's restore play ends a hold by its previous UUID; any other hold fails as it does without one.
+    - name: Fail on a hold that the source edge's restore does not end
+      ansible.builtin.fail:
+        msg: "{{ replication_pair_result.message }}"
+      when:
+        - not cluster_baseline_replication_deferred | bool
+        - cluster_baseline_replication_restored | bool
+        - replication_pair_result.status | default('') == 'held'
+        - not cluster_baseline_replication_held_by_previous | bool
+      vars:
+        cluster_baseline_replication_held_by_previous: >-
+          {{ replication_pair_result.holders | default([]) | map(attribute='source_cluster_uuid') | map('lower')
+             | select('in', hostvars[cluster_baseline_replication_source].qumulo_previous_cluster_uuids | default([]) | map('lower') | list)
+             | list | length > 0 }}
+
+    - name: Keep the relationship's result
+      ansible.builtin.set_fact:
+        cluster_baseline_replication_results: >-
+          {{ cluster_baseline_replication_results + [
+             {'name': cluster_baseline_replication_name, 'status': 'deferred',
+              'hand_off': cluster_baseline_replication_deferred_entries[cluster_baseline_replication_key]}
+             if cluster_baseline_replication_deferred | bool else
+             replication_pair_result | combine({'name': cluster_baseline_replication_name})
+             | combine({'hand_off': cluster_baseline_replication_name ~ ' is held by ' ~ cluster_baseline_replication_source ~ "'s previous UUID; "
+                                    ~ cluster_baseline_replication_source ~ "'s restore play restores it once " ~ cluster_baseline_replication_source
+                                    ~ "'s license play has finished."}
+                       if cluster_baseline_replication_restored | bool and replication_pair_result.status | default('') == 'held' else {})] }}
+  rescue:
+    - name: Keep the relationship's failure, named by the relationship
+      ansible.builtin.set_fact:
+        cluster_baseline_replication_results: >-
+          {{ cluster_baseline_replication_results + [{'name': cluster_baseline_replication_name, 'status': 'failed',
+             'message': cluster_baseline_replication_message if cluster_baseline_replication_message.startswith(cluster_baseline_replication_target ~ ':')
+                        else cluster_baseline_replication_name ~ ': ' ~ cluster_baseline_replication_message}] }}
+      vars:
+        cluster_baseline_replication_message: "{{ ansible_failed_result.msg | default('failed') }}"

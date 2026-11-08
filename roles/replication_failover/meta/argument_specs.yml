@@ -1,0 +1,116 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+argument_specs:
+  main:
+    short_description: Fail a replication relationship over to its target, copy the target's writes back, or fail it back
+    version_added: 0.1.0
+    description:
+      - Runs from the source host's context, for the relationships O(replication_failover_relationships) names among the
+        host's C(present) entries of C(qumulo_replication_relationships). The source and the target are the declared
+        ones, whatever direction the records run in.
+      - "V(failover) makes the target's copy writable, from its recovery point, and sends nothing to the source, so it
+        works with the source gone. V(resync) reverses the relationship on the target and reconnects it on the source,
+        so the target replicates the failover's writes to the source while clients still use the target. V(failback)
+        resyncs when the relationship has not been resynced, waits until the target's recovery point has moved twice, makes
+        the source writable, reverses the relationship on the source, reconnects it on the target, and applies the
+        declared settings."
+      - Before each step it reads both clusters with M(qumulo.cluster.replication_info) and asks
+        M(qumulo.cluster.replication_failover_plan) for the next step, then runs only that step. A run that stops
+        anywhere resumes from what the records show.
+      - It reads and plans every named relationship, and prints each one's state and every step left, before the first
+        write of any. A refusal of any relationship fails the run before any write.
+      - A real run fails before its first write without O(replication_failover_allow_data_loss). Check mode needs no
+        O(replication_failover_allow_data_loss), prints the plan and writes nothing; it is the dry run. In check mode
+        too, a failover is refused without O(replication_failover_allow_partial_job) while the source is running a job of
+        the relationship.
+      - Each reconnect is sent without M(qumulo.cluster.replication_reverse)'s C(allow_data_loss) unless
+        O(replication_failover_allow_newer_writes) names the host it is sent to. The module then compares the directory
+        with the recovery point first and refuses when anything was written there since.
+      - A failback runs each relationship up to its wait for a current recovery point, then waits for the waiting
+        relationships, those on one target host together and the target hosts one after another, then makes each
+        source writable, reverses it and reconnects the target.
+      - Sets the fact C(replication_failover_results), one entry per relationship with C(name), C(id), C(state_before),
+        C(state_after), C(steps), the names of the steps run, C(plan), the lines of the steps listed, and C(notes).
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      replication_failover_action:
+        description: The action to run, V(failover), V(resync) or V(failback).
+        type: str
+        required: true
+        choices: [failover, resync, failback]
+      replication_failover_relationships:
+        description:
+          - The relationships to act on, each C(<target host>:<target path>) of a C(present) entry of the source host's
+            C(qumulo_replication_relationships), compared without the target path's trailing slash.
+        type: list
+        elements: str
+        required: true
+      replication_failover_allow_data_loss:
+        description:
+          - The run's consent, which every real run with a step left needs. For V(failover) it accepts that the target's
+            copy starts from the recovery point, that writes on the source after it stay behind, and that a job the
+            source was running when it stopped answering is discarded. For V(resync) it accepts that the source's
+            directory becomes read-only under its clients. For V(failback) it accepts that the target's directory becomes
+            read-only under its clients and that the source's copy starts from the last recovery point.
+          - "The role sets it in its own C(vars/main.yml), so a value in C(group_vars), C(host_vars), a play's C(vars) or
+            C(vars_files) is ignored. Anything a playbook sets closer to the role or during the run lifts it: C(-e), the
+            include's C(vars), a block's C(vars), role parameters, C(set_fact) and C(include_vars)."
+        type: bool
+        default: false
+      replication_failover_allow_newer_writes:
+        description:
+          - The inventory hosts whose directory a reconnect may send back to the recovery point although the comparison
+            found writes there after it, discarding them. A reconnect is sent to the source host in a resync and to the
+            target host in a failback. Without its host here, a reconnect that finds writes fails, naming them.
+          - A host named here makes every reconnect sent to it skip the comparison, a failback's last one included.
+          - A string, as C(-e replication_failover_allow_newer_writes=edge01) gives it, is split at commas into host names,
+            and a name matches a whole host name only.
+          - "The role sets it in its own C(vars/main.yml), so a value in C(group_vars), C(host_vars), a play's C(vars) or
+            C(vars_files) is ignored. Anything a playbook sets closer to the role or during the run lifts it: C(-e), the
+            include's C(vars), a block's C(vars), role parameters, C(set_fact) and C(include_vars)."
+        type: list
+        elements: str
+        default: []
+      replication_failover_allow_partial_job:
+        description:
+          - Let a failover discard the changes of a job that the source, which answers, is running. Without it, such a
+            failover fails, saying to run again once the job ends. A source that does not answer is never refused for a
+            job.
+          - "The role sets it in its own C(vars/main.yml), so a value in C(group_vars), C(host_vars), a play's C(vars) or
+            C(vars_files) is ignored. Anything a playbook sets closer to the role or during the run lifts it: C(-e), the
+            include's C(vars), a block's C(vars), role parameters, C(set_fact) and C(include_vars)."
+        type: bool
+        default: false
+      replication_failover_wait_timeout:
+        description:
+          - Seconds the polls of one step may take, all of its records together. A verb's polls and a wait step each
+            have this long. A wait that runs out sends nothing.
+        type: int
+        default: 1800
+      replication_failover_sync_timeout:
+        description:
+          - Seconds the failback's wait for the target's recovery point to move twice may take, for every named
+            relationship together, from when the waits begin. The relationships on one target host are polled together, the
+            target hosts one after another.
+        type: int
+        default: 86400
+      replication_failover_source_timeout:
+        description:
+          - Seconds a failover's read of the source waits for an answer, as both C(retry_timeout) and C(request_timeout),
+            before it goes on without the source. A source that does not answer is not read again in the run, whatever the action.
+        type: int
+        default: 30
+      replication_failover_artifact_dir:
+        description:
+          - Where a rebuilt source's restore keeps its records, C(<dir>/<source host>/restore/). A V(resync) or V(failback)
+            of a relationship whose restore record is there is refused, naming C(playbooks/replication_restore.yml). A
+            V(failover) notes the record and goes on.
+          - Defaults to C(edge_rebuild_artifact_dir), else the C(edge_rebuild) role's default.
+        type: str
+      replication_failover_connections:
+        description:
+          - The connection options of the source host and of each target host of its relationships, by inventory host,
+            as the C(cluster_baseline) role's C(connections.yml) records them in C(cluster_baseline_connections).
+        type: dict
+        required: true

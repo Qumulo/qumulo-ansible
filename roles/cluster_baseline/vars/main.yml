@@ -1,0 +1,117 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The role's variables: which areas Terraform owns and the variables that
+# declare each area, and step 2's condition, management network and loop
+# label. playbooks/capture.yml and clone_edge.yml load this file too, for the
+# ownership variables, so that an adopted host_vars file leaves out what the
+# role would refuse. roles/edge_rebuild's predestroy loads it as well, after it
+# runs tasks/ownership.yml, for the parts of the network document the replay
+# writes. Last, the consent qumulo_allow_deferred_policy_lock_keys, set false
+# so that only the command line gives it.
+
+# A list the inventory gives, as the Terraform outputs do, is the whole of what
+# Terraform owns. Without one, the provider keeps the floating addresses of a
+# cluster it formed, since it applies them again on CNQ, and an edge or
+# bare-metal cluster gives it nothing (maintainer ruling of 2026-11-07, spec
+# FR-030). An unset kind is taken as CNQ: the default is decided before any
+# read of the cluster, and the plugin always sets the kind.
+cluster_baseline_owned_areas: >-
+  {{ qumulo_terraform_owned_areas
+     | default(['network.floating_ips'] if qumulo_managed_by | default('none') == 'terraform_provider'
+               and qumulo_cluster_kind | default(none) not in ['edge', 'baremetal'] else []) }}
+
+# What the messages about Terraform's floating addresses add when the default above gave them to Terraform only
+# because the kind is unset: on premises, declaring the kind is the fix.
+cluster_baseline_kind_remedy: >-
+  {{ 'on an edge or other on-premises cluster, set qumulo_cluster_kind: edge or baremetal, which leaves the floating'
+     ~ ' addresses to this role'
+     if qumulo_terraform_owned_areas is not defined and qumulo_managed_by | default('none') == 'terraform_provider'
+        and qumulo_cluster_kind | default(none) is none else '' }}
+
+# network.floating_ips is the floating_ip_ranges inside qumulo_network, which
+# tasks/ownership.yml refuses while cluster_baseline_owned_parts leaves them
+# out; inside a tenant's networks, the area check refuses them too. An area
+# declared by several variables lists them; a dotted name is a key of the
+# variable before the dot. dns.fqdn, the name and whether the server answers,
+# is the one part of an area listed here, so that the ownership check refuses
+# it before the first write.
+cluster_baseline_area_variables:
+  network: qumulo_network
+  dns: [qumulo_dns, qumulo_authoritative_dns]
+  dns.fqdn: [qumulo_authoritative_dns.enabled, qumulo_authoritative_dns.fqdn]
+  time: qumulo_time
+  cluster: qumulo_cluster_name
+  filesystem: qumulo_filesystem_settings
+  web_ui: qumulo_web_ui_settings
+  ssl: [qumulo_ssl, qumulo_ssl_ciphers]
+  local_groups: qumulo_local_groups
+  local_users: qumulo_local_users
+  ad: qumulo_ad
+  kerberos: qumulo_kerberos
+  saml: qumulo_saml
+  identity_mappings: [qumulo_user_defined_mappings, qumulo_identity_attributes]
+  roles: [qumulo_roles, qumulo_role_members]
+  monitoring: qumulo_monitoring
+  audit: qumulo_audit_destinations
+  capacity: qumulo_capacity
+  portal: qumulo_portal
+  directories: [qumulo_directories, qumulo_file_acls]
+  smb: [qumulo_smb_settings, qumulo_smb_shares, qumulo_factory_defaults.smb_files_share]
+  nfs: [qumulo_nfs_settings, qumulo_nfs_exports, qumulo_factory_defaults.nfs_root_export]
+  s3: [qumulo_s3_settings, qumulo_s3_buckets, qumulo_s3_bucket_policies, qumulo_s3_access_keys]
+  ftp: qumulo_ftp_settings
+  quotas: qumulo_quotas
+  snapshots: qumulo_snapshot_policies
+  replication: qumulo_replication_relationships
+  tenants: qumulo_tenants
+
+# Keys inside the items of a list variable, which the dotted names above cannot reach; a name's [] stands for each item
+# of the list before it. The qumulo.cluster.item_areas filter applies them, and the ownership check joins what it finds
+# to what the map above finds. capture reads only the map above, so these add no area. A tenant's settings, shares and
+# exports are both the tenants area's and smb's or nfs's (spec 014, decision D23): nested ones are in qumulo_tenants,
+# and a flat entry is the tenants area's when it names its tenants. A flat network's tenant is not, since capture writes
+# it when the tenants area is Terraform's.
+cluster_baseline_item_areas:
+  network: ['qumulo_tenants[].networks']
+  network.floating_ips: ['qumulo_tenants[].networks[].floating_ip_ranges']
+  smb: ['qumulo_tenants[].smb_settings', 'qumulo_tenants[].smb_shares']
+  nfs: ['qumulo_tenants[].nfs_settings', 'qumulo_tenants[].nfs_exports']
+  tenants: ['qumulo_smb_shares[].tenants', 'qumulo_smb_shares[].tenant_id', 'qumulo_nfs_exports[].tenants', 'qumulo_nfs_exports[].tenant_id']
+
+# The parts of the network document the role writes. Step 2's plan, its check of step 3's document and step 3 itself
+# take the same list, so they agree. reject keeps the list's order, which difference does not.
+cluster_baseline_owned_parts: >-
+  {{ ['interfaces', 'networks', 'floating_ips']
+     | reject('in', ['floating_ips'] if not qumulo_take_over_from_terraform | default(false) | bool
+                    and 'network.floating_ips' in cluster_baseline_owned else []) | list }}
+
+# network_config's take_over_from_terraform, which it reads only with managed_by terraform_provider and then needs
+# whenever floating_ips is owned. cluster_baseline_owned_parts holds floating_ips once the owned list leaves them out
+# or qumulo_take_over_from_terraform is set, and either way they are the role's.
+cluster_baseline_take_over_floating: >-
+  {{ qumulo_managed_by | default('none') == 'terraform_provider' and 'floating_ips' in cluster_baseline_owned_parts }}
+
+# Step 2 plans the tenants, the network document, the shares and the exports when the inventory declares a variable
+# tenancy_plan plans from; without one, steps 18 and 19 have only the global SMB settings to apply.
+cluster_baseline_plans_tenancy: >-
+  {{ qumulo_tenants is defined or qumulo_network is defined or qumulo_smb_shares is defined
+     or qumulo_nfs_exports is defined or qumulo_nfs_settings is defined or qumulo_factory_defaults is defined }}
+
+# qumulo_management_network as tenancy_plan takes it, a list of network ids, or none when unset. A single id becomes a
+# list of one. 0 is a real network id, so every test is against none, never for truth or with default(..., true).
+cluster_baseline_management_network: >-
+  {{ none if qumulo_management_network | default(none) is none
+     else qumulo_management_network if qumulo_management_network is sequence and qumulo_management_network is not string
+     else [qumulo_management_network] }}
+
+# The loop label of a share or export of steps 18 and 19: its name, then its tenant or tenants in brackets, or the name
+# alone for a flat entry with no tenant, as the first-cluster tutorial quotes a check run's output.
+cluster_baseline_entry_label: >-
+  {{ item.share_name | default(item.export_path) }}{{ ' (' ~ item.tenant ~ ')' if item.tenant is defined
+     else ' (' ~ item.tenants | join(', ') ~ ')' if item.tenants is defined else '' }}
+
+# A consent is given on the command line, -e qumulo_allow_deferred_policy_lock_keys=true, for the run that needs it:
+# role vars outrank group_vars and host_vars, so a value there, which would carry it over to every later run, has no
+# effect (spec 026, Decision 4). It keeps the inventory's name, so it is waived from the role prefix.
+qumulo_allow_deferred_policy_lock_keys: false  # noqa: var-naming[no-role-prefix]

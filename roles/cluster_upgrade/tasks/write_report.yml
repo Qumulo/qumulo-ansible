@@ -1,0 +1,25 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Writes the plan and cluster_upgrade_reports, the hops reported so far, to
+# <cluster_upgrade_artifact_dir>/upgrade-<UTC>.yml on the controller, a check run's included.
+
+- name: Create the report's directory
+  ansible.builtin.file:
+    path: "{{ cluster_upgrade_artifact_dir }}"
+    state: directory
+    mode: "0700"
+  run_once: true
+  check_mode: false
+
+- name: Write the report
+  ansible.builtin.copy:
+    dest: "{{ cluster_upgrade_artifact_dir }}/upgrade-{{ cluster_upgrade_stamp }}.yml"
+    mode: "0600"
+    content: |
+      # Written by the qumulo.cluster.cluster_upgrade role{{ ', in a check run: nothing was changed' if ansible_check_mode else '' }}.
+      {{ {'check_mode': ansible_check_mode, 'plan': cluster_upgrade_plan,
+          'hops': cluster_upgrade_reports}
+         | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}
+  run_once: true
+  check_mode: false

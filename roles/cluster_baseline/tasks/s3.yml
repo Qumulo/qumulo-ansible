@@ -1,0 +1,36 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 19's S3 part: the settings, the buckets, then their policies. The keys
+# are the last step of the role, s3_keys.yml.
+- name: Apply the S3 settings
+  qumulo.cluster.s3_settings:
+    enabled: "{{ qumulo_s3_settings.enabled | default(omit) }}"
+    secure: "{{ qumulo_s3_settings.secure | default(omit) }}"
+    base_path: "{{ qumulo_s3_settings.base_path | default(omit) }}"
+    multipart_upload_expiry_interval: "{{ qumulo_s3_settings.multipart_upload_expiry_interval | default(omit) }}"
+  when: qumulo_s3_settings is defined
+
+- name: Apply the S3 buckets
+  qumulo.cluster.s3_bucket:
+    name: "{{ item.name }}"
+    path: "{{ item.path | default(omit) }}"
+    create_fs_path: "{{ item.create_fs_path | default(omit) }}"
+    versioning: "{{ item.versioning | default(omit) }}"
+    object_lock: "{{ item.object_lock | default(omit) }}"
+    default_retention: "{{ item.default_retention | default(omit) }}"
+    allow_data_loss: "{{ item.allow_data_loss | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ qumulo_s3_buckets | default([]) }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Apply the S3 bucket policies
+  qumulo.cluster.s3_bucket_policy:
+    bucket: "{{ item.bucket }}"
+    policy: "{{ item.policy | default(omit) }}"
+    allow_remove_self: "{{ item.allow_remove_self | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ qumulo_s3_bucket_policies | default([]) }}"
+  loop_control:
+    label: "{{ item.bucket }}"

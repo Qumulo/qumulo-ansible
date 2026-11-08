@@ -1,0 +1,296 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The order follows rules the server enforces; meta/argument_specs.yml says why
+# each step comes where it does. An unset qumulo_* variable leaves its area alone.
+# Step 2, in tenants.yml, plans steps 3a to 20a once, and those steps loop over
+# its answer.
+- name: Check that the cluster is the expected one, and wait until it is ready
+  qumulo.cluster.cluster_guard:
+  when: cluster_baseline_guard | bool
+
+- name: Check that no declared area belongs to Terraform
+  ansible.builtin.include_tasks: ownership.yml
+
+- name: Check that no path declares both a mode and an ACL
+  ansible.builtin.include_tasks: mode_and_acl.yml
+  when: qumulo_file_acls is defined and qumulo_directories is defined
+
+- name: Check that no declared quota, snapshot policy or S3 bucket lies under a spoke root
+  ansible.builtin.include_tasks: spoke_paths.yml
+  when: qumulo_portal is defined
+
+- name: Check that no keytab is declared to install beside a domain join
+  ansible.builtin.assert:
+    that: >-
+      qumulo_ad is not defined or qumulo_kerberos is not defined
+      or not (qumulo_kerberos.keytab is defined or qumulo_kerberos.keytab_path is defined)
+      or qumulo_kerberos.keytab_state | default('present') == 'absent'
+    fail_msg: >-
+      qumulo_kerberos declares a keytab to install and qumulo_ad a domain to join, and the cluster takes no keytab
+      while joined (G-KRB-AD); a joined cluster's Kerberos keys are its computer account's. Remove the keytab, or set
+      qumulo_kerberos.keytab_state to absent.
+    quiet: true
+
+- name: Check that each snapshot policy's lock key is in the key store
+  ansible.builtin.include_tasks: policy_lock_keys.yml
+
+# An earlier run of this role in the play left its plan, which data.yml and tenants_absent.yml would otherwise act on.
+- name: Forget the tenancy plan of an earlier run of this role
+  ansible.builtin.set_fact:
+    cluster_baseline_tenancy: {}
+
+- name: Check the tenants, networks, shares and exports, then apply the tenants and the network document
+  ansible.builtin.include_tasks: tenants.yml
+  when: cluster_baseline_plans_tenancy | bool
+
+# The cache still holds what the old servers answered, failed lookups included,
+# which the domain join would otherwise meet, so a change of the servers clears
+# it. The lookup overrides need no clear: the cluster checks them before its
+# cache and never caches their answers.
+- name: Apply the DNS settings, clearing the DNS cache when the servers change
+  when: qumulo_dns is defined
+  block:
+    - name: Read the DNS servers the cluster asks now
+      qumulo.cluster.network_info:
+        gather_subset: [dns]
+      register: cluster_baseline_dns_before
+      when: qumulo_dns.servers is defined
+
+    - name: Apply the DNS settings
+      qumulo.cluster.dns_settings:
+        servers: "{{ qumulo_dns.servers | default(omit) }}"
+        search_domains: "{{ qumulo_dns.search_domains | default(omit) }}"
+      register: cluster_baseline_dns
+
+    - name: Clear the DNS cache after the DNS servers changed
+      qumulo.cluster.dns_cache_clear:
+      register: cluster_baseline_dns_cache_clear
+      when: >-
+        cluster_baseline_dns_before.network is defined
+        and cluster_baseline_dns_before.network.dns.servers != cluster_baseline_dns.dns_settings.servers
+  # A write that landed but failed its task, or a clear that failed, would leave
+  # a cache the next run never clears, since by then the servers match.
+  rescue:
+    - name: Clear the DNS cache after a DNS change that failed part-way
+      qumulo.cluster.dns_cache_clear:
+      register: cluster_baseline_dns_cache_rescue
+      when: cluster_baseline_dns is defined and cluster_baseline_dns is changed
+
+    - name: Fail as the DNS step did
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg | default('the DNS step failed') }}"
+
+- name: Apply the lookup overrides
+  qumulo.cluster.dns_lookup_overrides:
+    overrides: "{{ qumulo_dns.lookup_overrides }}"
+  when: qumulo_dns.lookup_overrides is defined
+
+# The ownership check refuses enabled and fqdn while Terraform owns dns.fqdn, and the module refuses them too.
+- name: Apply the authoritative DNS settings
+  qumulo.cluster.authoritative_dns:
+    enabled: "{{ qumulo_authoritative_dns.enabled | default(omit) }}"
+    fqdn: "{{ qumulo_authoritative_dns.fqdn | default(omit) }}"
+    host_restrictions: "{{ qumulo_authoritative_dns.host_restrictions | default(omit) }}"
+    record_ttl_seconds: "{{ qumulo_authoritative_dns.record_ttl_seconds | default(omit) }}"
+    terraform_owned_areas: "{{ cluster_baseline_owned }}"
+    take_over_from_terraform: "{{ qumulo_take_over_from_terraform | default(false) }}"
+  when: qumulo_authoritative_dns is defined
+
+# use_ad_for_primary: false is safe before the join, and the hypervisor source
+# needs it; true waits for the join below.
+- name: Apply the time source and NTP servers
+  qumulo.cluster.time_settings:
+    source: "{{ qumulo_time.source | default(omit) }}"
+    ntp_servers: "{{ qumulo_time.ntp_servers | default(omit) }}"
+    use_ad_for_primary: "{{ omit if qumulo_time.use_ad_for_primary | default(true) | bool else false }}"
+  when: >-
+    qumulo_time is defined and (qumulo_time.source is defined or qumulo_time.ntp_servers is defined
+    or not qumulo_time.use_ad_for_primary | default(true) | bool)
+
+- name: Name the cluster before it joins a domain
+  qumulo.cluster.cluster_settings:
+    cluster_name: "{{ qumulo_cluster_name }}"
+  when: qumulo_cluster_name is defined
+
+- name: Apply the file system settings
+  qumulo.cluster.filesystem_settings:
+    permissions_mode: "{{ qumulo_filesystem_settings.permissions_mode | default(omit) }}"
+    atime_enabled: "{{ qumulo_filesystem_settings.atime_enabled | default(omit) }}"
+    atime_granularity: "{{ qumulo_filesystem_settings.atime_granularity | default(omit) }}"
+    notify_recursive_mode: "{{ qumulo_filesystem_settings.notify_recursive_mode | default(omit) }}"
+  when: qumulo_filesystem_settings is defined
+
+- name: Apply the Web UI's login banner and inactivity timeout
+  qumulo.cluster.web_ui_settings:
+    login_banner: "{{ qumulo_web_ui_settings.login_banner | default(omit) }}"
+    inactivity_timeout: "{{ qumulo_web_ui_settings.inactivity_timeout | default(omit) }}"
+  when: qumulo_web_ui_settings is defined
+
+- name: Install the certificate
+  ansible.builtin.include_tasks: certificate.yml
+  when: qumulo_ssl is defined
+
+- name: Apply the TLS cipher suites
+  qumulo.cluster.ssl_ciphers:
+    tls_1_2: "{{ qumulo_ssl_ciphers.tls_1_2 | default(omit) }}"
+    tls_1_3: "{{ qumulo_ssl_ciphers.tls_1_3 | default(omit) }}"
+  when: qumulo_ssl_ciphers is defined
+
+- name: Apply cloud monitoring, the Nexus connection and the registration
+  ansible.builtin.include_tasks: monitoring.yml
+  when: qumulo_monitoring is defined
+
+# Terraform may own the CloudWatch destination (audit.cloudwatch), which the
+# module then refuses unless qumulo_take_over_from_terraform is set.
+- name: Apply the audit log destinations
+  qumulo.cluster.audit_destination:
+    name: "{{ item.name }}"
+    type: "{{ item.type | default(omit) }}"
+    enabled: "{{ item.enabled | default(omit) }}"
+    server_address: "{{ item.server_address | default(omit) }}"
+    server_port: "{{ item.server_port | default(omit) }}"
+    log_format: "{{ item.log_format | default(omit) }}"
+    log_group_name: "{{ item.log_group_name | default(omit) }}"
+    region: "{{ item.region | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+    terraform_owned_areas: "{{ cluster_baseline_owned }}"
+    take_over_from_terraform: "{{ qumulo_take_over_from_terraform | default(false) }}"
+  loop: "{{ qumulo_audit_destinations | default([]) }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Check the license, then set the clamp and the eviction threshold
+  ansible.builtin.include_tasks: capacity.yml
+  when: qumulo_capacity is defined
+
+- name: Apply the local groups and users
+  ansible.builtin.include_tasks: local.yml
+  when: qumulo_local_groups is defined or qumulo_local_users is defined
+
+# The keytab is a standalone KDC's, and the cluster refuses a join while it
+# holds one and a keytab once joined (G-KRB-AD), so the keytab goes before the
+# join: a keytab declared absent beside qumulo_ad is deleted first.
+- name: Install or delete the Kerberos keytab
+  qumulo.cluster.kerberos_keytab:
+    keytab: "{{ qumulo_kerberos.keytab | default(omit) }}"
+    keytab_path: "{{ qumulo_kerberos.keytab_path | default(omit) }}"
+    state: "{{ qumulo_kerberos.keytab_state | default('present') }}"
+  when: >-
+    qumulo_kerberos.keytab is defined or qumulo_kerberos.keytab_path is defined
+    or qumulo_kerberos.keytab_state is defined
+
+- name: Join the domain
+  qumulo.cluster.ad_domain:
+    domain: "{{ qumulo_ad.domain }}"
+    domain_netbios: "{{ qumulo_ad.domain_netbios | default(omit) }}"
+    ou: "{{ qumulo_ad.ou | default(omit) }}"
+    join_user: "{{ qumulo_ad.join_user | default(omit) }}"
+    join_password: "{{ qumulo_ad.join_password | default(omit) }}"
+    search_trusted_domains: "{{ qumulo_ad.search_trusted_domains | default(omit) }}"
+    use_ad_posix_attributes: "{{ qumulo_ad.use_ad_posix_attributes | default(omit) }}"
+    base_dn: "{{ qumulo_ad.base_dn | default(omit) }}"
+    domain_controllers: "{{ qumulo_ad.domain_controllers | default(omit) }}"
+  when: qumulo_ad is defined
+
+- name: Prefer the domain controller's time, once joined
+  qumulo.cluster.time_settings:
+    use_ad_for_primary: true
+  when: qumulo_time.use_ad_for_primary | default(false) | bool
+
+# The settings take either way, joined or not. They come after the keytab,
+# whose DELETE turns the mapping off (QUIRK-161), and after the join.
+- name: Apply the Kerberos settings
+  qumulo.cluster.kerberos_settings:
+    use_alt_security_identities_mapping: "{{ qumulo_kerberos.use_alt_security_identities_mapping }}"
+  when: qumulo_kerberos.use_alt_security_identities_mapping is defined
+
+# The cluster takes mappings only once joined, and ad: trustees resolve only then.
+# It caches identities, so a user it has seen keeps the old mapping or home
+# directory until the cache is cleared; the clear runs in always, so a failure
+# after a change still clears.
+- name: Apply the user-defined mappings and identity attributes
+  block:
+    - name: Apply the user-defined mappings
+      qumulo.cluster.user_defined_mappings:
+        mappings: "{{ qumulo_user_defined_mappings }}"
+      register: cluster_baseline_mappings
+      when: qumulo_user_defined_mappings is defined
+
+    - name: Apply the identity attributes
+      qumulo.cluster.identity_attributes:
+        trustee: "{{ item.trustee }}"
+        home_directory: "{{ item.home_directory | default(omit) }}"
+        state: "{{ item.state | default('present') }}"
+      loop: "{{ qumulo_identity_attributes | default([]) }}"
+      loop_control:
+        label: "{{ item.trustee }}"
+      register: cluster_baseline_identity_attributes
+  always:
+    - name: Clear the authentication cache after a mapping or home directory changed
+      qumulo.cluster.auth_cache_clear:
+      register: cluster_baseline_cache_clear
+      when: >-
+        cluster_baseline_mappings | default({}) is changed
+        or cluster_baseline_identity_attributes | default({}) is changed
+
+# Only users of the joined domain sign in through the IdP.
+- name: Apply the SAML sign-in settings
+  qumulo.cluster.saml_settings:
+    enabled: "{{ qumulo_saml.enabled | default(omit) }}"
+    idp_sso_url: "{{ qumulo_saml.idp_sso_url | default(omit) }}"
+    idp_certificate: "{{ qumulo_saml.idp_certificate | default(omit) }}"
+    idp_entity_id: "{{ qumulo_saml.idp_entity_id | default(omit) }}"
+    cluster_dns_name: "{{ qumulo_saml.cluster_dns_name | default(omit) }}"
+    require_sso: "{{ qumulo_saml.require_sso | default(omit) }}"
+  when: qumulo_saml is defined
+
+# A role must exist before its members, and the cluster deletes only a role without them.
+- name: Create and change the custom roles
+  qumulo.cluster.role:
+    name: "{{ item.name }}"
+    description: "{{ item.description | default(omit) }}"
+    privileges: "{{ item.privileges | default(omit) }}"
+  loop: "{{ qumulo_roles | default([]) | rejectattr('state', 'defined') | list
+            + qumulo_roles | default([]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'present') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Assign role members
+  qumulo.cluster.role_member:
+    role: "{{ item.role }}"
+    members: "{{ item.members }}"
+    purge: "{{ item.purge | default(false) }}"
+    state: "{{ item.state | default('present') }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+  loop: "{{ qumulo_role_members | default([]) }}"
+  loop_control:
+    label: "{{ item.role }}"
+
+- name: Delete the custom roles declared absent, once their members are removed
+  qumulo.cluster.role:
+    name: "{{ item.name }}"
+    state: absent
+  loop: "{{ qumulo_roles | default([]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent') | list }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Pair the cluster with its hub
+  ansible.builtin.include_tasks: portal.yml
+  when: qumulo_portal is defined
+
+- name: Apply directories, shares, exports, S3, FTP, quotas and snapshot policies
+  ansible.builtin.include_tasks: data.yml
+
+- name: Delete the tenants declared absent, once their content is gone
+  ansible.builtin.include_tasks: tenants_absent.yml
+  when: cluster_baseline_tenancy.step_20a | default([]) | length > 0
+
+- name: Declare the replication relationships this cluster is the source of
+  ansible.builtin.include_tasks: replication.yml
+  when: qumulo_replication_relationships is defined
+
+# Last, so that no later step's failure can stop it once a key is made.
+- name: Keep or make the S3 access keys, writing each new secret to a file
+  ansible.builtin.include_tasks: s3_keys.yml
+  when: qumulo_s3_access_keys is defined

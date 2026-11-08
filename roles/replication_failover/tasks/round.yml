@@ -1,0 +1,42 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One round: fresh reads, the plan's answer from them, and the one step it returns. include_tasks queues every round
+# of relationship.yml's loop before running any, so each round checks here whether an earlier one finished; a block's
+# when is evaluated again before each of its tasks.
+- name: Run the round unless an earlier one finished, {{ replication_failover_item.name }}
+  when: not replication_failover_done | bool
+  block:
+    - name: Read both clusters for {{ replication_failover_item.name }}
+      ansible.builtin.include_tasks: read.yml
+
+    - name: Plan {{ replication_failover_item.name }}
+      ansible.builtin.include_tasks: ask.yml
+
+    - name: Stop on the plan's refusal of {{ replication_failover_item.name }}
+      ansible.builtin.fail:
+        msg: "{{ replication_failover_item.name }}: {{ replication_failover_answer.msg }}"
+      when: replication_failover_answer.state is not defined
+
+    - name: Note where the relationship started, and whether it is done or at its stop, {{ replication_failover_item.name }}
+      ansible.builtin.set_fact:
+        replication_failover_first: "{{ replication_failover_first or replication_failover_answer }}"
+        replication_failover_done: >-
+          {{ replication_failover_answer.done
+             or (replication_failover_stop_at != '' and replication_failover_answer.step.name == replication_failover_stop_at) }}
+
+    - name: Run the step of {{ replication_failover_item.name }}
+      ansible.builtin.include_tasks: "{{ replication_failover_answer.step.kind }}.yml"
+      vars:
+        replication_failover_step: "{{ replication_failover_answer.step }}"
+      when: not replication_failover_done | bool
+
+    - name: Remember the step of {{ replication_failover_item.name }}
+      ansible.builtin.set_fact:
+        # A finished wait for the source's record to read DISCONNECTED ends a make-writable on the source, whichever run sent it.
+        replication_failover_last_verb: >-
+          {{ replication_failover_answer.step.name if replication_failover_answer.step.kind == 'verb'
+             else 'make_writable_source' if replication_failover_answer.step.name == 'wait_source_writable'
+             else replication_failover_last_verb }}
+        replication_failover_steps_run: "{{ replication_failover_steps_run + [replication_failover_answer.step.name] }}"
+      when: not replication_failover_done | bool

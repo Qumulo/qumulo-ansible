@@ -1,0 +1,883 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The gap register: operations the collection cannot make idempotent, or cannot
+# perform, because of how the Qumulo REST API behaves. Each entry:
+#   id:          G- and upper-case words joined by hyphens; modules cite it in their notes
+#   title:       a short name
+#   operation:   what a user asks the collection to do
+#   why:         one or two sentences on the server behaviour, as a client sees it
+#   handling:    what the collection does about it
+#   closes_with: the Qumulo change that would close the gap, or None
+#   status:      open or closed
+#   modules:     the modules whose notes cite the id, sorted; the unit contract test checks it
+# Run `python tools/render_registers.py` after editing; docs/reference/gaps.md is generated.
+---
+- id: G-UUID
+  title: Cluster UUID on re-formation
+  operation: Re-forming an edge
+  why: Creating an unprotected edge accepts no UUID, so a rebuilt edge always gets a new one.
+  handling: Identity guard, a rebuild declaration, and a report with a `host_vars` patch
+  closes_with: Accept `cluster_uuid` on unprotected-edge create, as object-backed create does
+  status: open
+  modules: [edge_cache_route, unprotected_edge_create]
+- id: G-LICENSE
+  title: License after a rebuild
+  operation: Licensing an edge after a rebuild
+  why: >-
+    A license is bound to the cluster UUID, and only Nexus issues one, for a UUID it sees once the cluster is registered.
+    A customer organization's users, its administrators included, can neither create nor see licenses in Nexus, which
+    answers them 403. The cluster takes a license document through the API only at `/v1/debug/license/validate` and
+    `/v1/debug/license/activate`, which need `PRIVILEGE_DEBUG`; a document applied there is active at once. How Qumulo
+    delivers a license document to a customer is not yet defined.
+  handling: >-
+    The collection never creates a license, never reads one from Nexus, and never waits for one. The operator gives the
+    document Qumulo issued for the UUID to the collection in `qumulo_capacity.license_document`;
+    `qumulo.cluster.license` applies it through the debug routes, unless the cluster holds it already (by its key), and
+    otherwise reports the license and the UUID one must be issued for. A new UUID takes two passes: the first baseline
+    hands the license off and leaves the clamp for the license, and the second, the baseline again or
+    `edge_license_complete.yml`, which run the same step, applies the document, or finds the license the cluster holds,
+    and then sets the clamp. An edge that declares `qumulo_capacity.license: none` runs without a license: nothing is
+    handed off, and its clamp is written with no license, by the first pass and the second. A raised cap applies at the
+    next quorum formation, which `qumulo.cluster.license` reports as `needs_quorum_bounce` in the run that applied the
+    document, and as `cap_waits_for_formation` in a later run while the file system is still the size an edge formed
+    without a license has. The integration lane
+    mints a test license that expires a day later with raw Nexus calls and a token whose user may create licenses
+  closes_with: A release route on the cluster that installs a license document
+  status: open
+  modules: [capture_info, clone_host_vars, edge_cache_route, license]
+- id: G-EDGE-FLOOR
+  title: Edge cache floor
+  operation: A cache smaller than min(platform, 1 TB)
+  why: Formation provisions that much capacity before any clamp can be set.
+  handling: >-
+    `edge_cache_route` reports `below_floor`, and the role keeps the cache free with `free_threshold` instead; on an
+    unprotected edge without a license cap it holds the target to 1 TB (`blocked_license`)
+  closes_with: A formation-time clamp parameter
+  status: open
+  modules: [capacity_clamp, edge_cache_route]
+- id: G-CLAMP-SHRINK
+  title: Shrinking a cache
+  operation: Lowering the capacity clamp below what is provisioned
+  why: Provisioning never shrinks, so a lower clamp does not return capacity.
+  handling: "`edge_cache_route` chooses `rebuild`; `capacity_clamp` refuses a decrease without `allow_decrease` and warns with it"
+  closes_with: None expected
+  status: open
+  modules: [capacity_clamp, edge_cache_route]
+- id: G-CLAMP-BOUNCE
+  title: Clamp PUT abandons quorum
+  operation: Setting the capacity clamp
+  why: Every PUT of the clamp abandons quorum to reprovision, even when provisioning does not change.
+  handling: >-
+    PUT only on a difference, and never resent; after it, or after a lost connection, wait for the bounce and for
+    readiness, then read the clamp back; the `edge_cache_resize` role writes no clamp on `platform_limited`
+  closes_with: Treat a PUT that leaves provisioning unchanged as a no-op
+  status: open
+  modules: [capacity_clamp, edge_cache_route]
+- id: G-CLAMP-TOL
+  title: Clamp comparison tolerance
+  operation: Comparing the stored clamp with the request
+  why: The server rounds the clamp up to whole provisioning units, and the unit size is not published.
+  handling: >-
+    A stored clamp from the request D up to D + `rounding_tolerance` (default the larger of 1% of D and 8 GiB, the unit
+    seen on a 7.10.3A docker edge) is unchanged; a larger one is a decrease, which needs `allow_decrease`; an unset
+    clamp is measured against the file system's size
+  closes_with: Expose the provisioning-unit size or the provisioned DATA capacity
+  status: open
+  modules: [capacity_clamp, edge_cache_route]
+- id: G-NET-PLACEMENT
+  title: Static per-node IP placement
+  operation: STATIC per-node IPs
+  why: Placement of addresses on nodes cannot be pinned, and an identical network PUT reallocates them.
+  handling: No PUT without a difference; the management-plane continuity rule; a lab job
+  closes_with: A no-op on an identical document; per-node pinning
+  status: open
+  modules: [network_config]
+- id: G-NET-APPLY
+  title: Network apply status
+  operation: Verifying that a network change has applied
+  why: >-
+    `GET /v3/network/status` answers HTTP 500 on the Qumulo Core container. The VM edge, a package install on a virtual
+    machine whose network its host manages, answers it; host-managed CNQ has not been observed.
+  handling: >-
+    `network_config` verifies the stored document, on every cluster. The continuity rule reads a 500 from the status as unavailable. With
+    two or more tenants after a judged write, a declared management network (`management_network`) is trusted without the
+    check that a HOST network shows on a device, and an undeclared one is refused with a message that names the option
+    when an address of `api_host` is on no network's ranges or on a HOST network; an address that the ranges place on a
+    STATIC or DHCP network needs no status, and the write is judged as usual. `network_config` reads the status only for
+    such a write, and never with one tenant. `network_info` lists its `status` and `api_host_network` subsets in
+    `unavailable_subsets` with the reason, from one read of the status, and gathers the other subsets. `tenancy_plan`
+    takes the status, or the reason it is unavailable, as options, and judges the run's writes on it as `tenant` and
+    `network_config` do: with the status unavailable it trusts a declared management network and refuses an undeclared
+    one that needs the status
+  closes_with: A working status read on the container
+  status: open
+  modules: [network_config, network_info, tenancy_plan, tenant]
+- id: G-NET-DHCP
+  title: A DHCP network in a managed document
+  operation: Adding a network, such as a second tenant's VLAN network, to a managed network document that holds a DHCP network
+  why: >-
+    The cluster allows one DHCP network in a managed network document and, when it is used, no other network. The rule
+    is on the document, not on the order of changes, so one write may replace the DHCP network with a STATIC one and add
+    a VLAN network together.
+  handling: >-
+    `network_config` sends the document as declared, and a check run validates it with the cluster, which refuses it. A
+    second tenant's VLAN needs STATIC addressing, so a cluster whose untagged network is DHCP moves it to STATIC first,
+    in a run of its own, with `allow_management_disruption` and `api_host_after`, since the move drops the address the
+    play connects to; `docs/how-to/tenants.md` gives the order
+  closes_with: None
+  status: open
+  modules: [network_config]
+- id: G-TENANT-CASCADE
+  title: Tenant delete cascade
+  operation: Deleting a tenant
+  why: >-
+    Deleting a tenant also deletes its shares, its exports and its SMB and NFS overrides, and leaves stale export-tree
+    entries that can abort a node in a later NFSv4.1 check. The tenant's If-Match does not change when a share is added.
+  handling: >-
+    `tenant` refuses a delete, before any write, while the tenant holds a network, an SMB share or an NFS export, and
+    lists them; its result names any override the delete removed. `tenancy_plan` refuses, at step 2, a tenant declared
+    absent that holds a share or export that no entry declares or claims for it, and lists each
+  closes_with: A delete that refuses a tenant holding shares or exports, and cleans the export tree
+  status: open
+  modules: [tenancy_plan, tenant]
+- id: G-TENANT-CLOUD
+  title: Tenant writes on cloud platforms
+  operation: Creating, changing or deleting a tenant on AWS, Azure, GCP or OCI
+  why: Qumulo Core refuses every tenant write on a cloud platform, so a cloud cluster always has one tenant.
+  handling: >-
+    `tenant` maps the refusal to a message that says so. Reads work, and check mode predicts the change and warns when
+    the cluster's protection type is object-backed. `tenancy_plan` refuses, at step 2, every tenant write of a run on a
+    cluster that `qumulo_cluster_kind: cnq` or an object-backed protection type marks as cloud, and lists them; the
+    refusal holds with `qumulo_allow_management_disruption`. `capture_info` writes the tenant of a cluster whose protection
+    type is object-backed without its six services, with a note
+  closes_with: Tenant writes on cloud platforms
+  status: open
+  modules: [capture_info, tenancy_plan, tenant]
+- id: G-TENANT-LISTEN
+  title: Listener rebind between one tenant and two
+  operation: Creating the second tenant or deleting down to one, and changing the networks of a cluster with two or more tenants
+  why: >-
+    The first create of a second tenant and the delete that leaves one tenant rebind every listener on every node and end
+    every NFS and replication connection. With more than one tenant, each service listens only on the networks of the
+    tenants that enable it, so REST answers only on the networks of tenants with REST enabled.
+  handling: >-
+    The continuity rule refuses a write that would leave the play's own connection on no tenant with REST enabled.
+    `tenant` applies it to its judged writes and warns of the rebind in the run and in a check run that predicts it.
+    `network_config` applies it to every write that changes the network document, on the tenants and networks as the
+    write leaves them, and gives no rebind warning, since a network write never changes the number of tenants.
+    `tenancy_plan` applies it at step 2 to each judged write of the run, on the management network and the bindings as
+    that write leaves them, so a run that would cut the play off is refused before any write
+  closes_with: Listeners that do not depend on the tenant count
+  status: open
+  modules: [network_config, tenancy_plan, tenant]
+- id: G-TENANT-ROUTES
+  title: Static routes removed by a tenant create or a network binding
+  operation: Creating a tenant, or binding a network to a tenant
+  why: Creating a tenant and assigning a network removes the static routes of every node (Qumulo Core documentation).
+  handling: >-
+    `tenant` warns at every create, and `network_config` warns at every write that names a tenant for a new network or a
+    different tenant for an existing one, in the run and in a check run that predicts it. The collection does not manage
+    static routes
+  closes_with: Routes that survive
+  status: open
+  modules: [network_config, tenant]
+- id: G-TENANT-BACKEND
+  title: Backend networks in a tenant
+  operation: Adding a second tenant while a backend network is in a tenant, or declaring a tenant on a backend network
+  why: >-
+    The network PUT accepts a tenant on a backend network. With one tenant it puts every network sent without a tenant,
+    backend networks included, in that tenant. Once there are two tenants, such a network aborts every node.
+    `qq network_mod_network --clear-tenant-id` puts the network back in the only tenant.
+  handling: >-
+    `network_config` never sends a tenant for a network on the backend bond. It refuses a declared `tenant` there, and
+    drops a `tenant_id` with a warning for the release that still accepts it. `tenant` refuses a create that would make a
+    second tenant while any tenant holds a network that is not on the frontend bond, a frontend VLAN or a HOST network,
+    and names the network. The operator unbinds it first with a tenant PATCH of `networks` that leaves it out
+    (`qq multitenancy_modify_tenant --network-id`), just before the run that adds the tenant, with no network change
+    between. `tenancy_plan` refuses, at step 2, a tenant on a network of the backend bond, and a create that would make
+    the second tenant while a tenant holds a network that is not on the frontend bond, a frontend VLAN or a HOST network.
+    `capture_info` writes a backend network in `qumulo_network`, and notes one a tenant holds on a cluster with two or
+    more tenants
+  closes_with: The network PUT refusing backend networks, as the tenant API does
+  status: open
+  modules: [capture_info, network_config, tenancy_plan, tenant]
+- id: G-SSL-READBACK
+  title: Server certificate readback
+  operation: Installing the server certificate
+  why: No GET returns the installed certificate, and the private key can never be read back.
+  handling: A TLS probe of every node on ports 8000 and 443
+  closes_with: A GET returning the certificate chain
+  status: open
+  modules: [capture_info, clone_host_vars, ssl_certificate]
+- id: G-FACTORY-TLS
+  title: Factory certificate
+  operation: Verifying a new edge's certificate
+  why: A new edge serves a bare self-signed leaf, which Python 3.13 and later refuse as a trust anchor.
+  handling: >-
+    The certificate is installed in a run of its own with `qumulo_validate_certs: false`
+    (docs/how-to/manage-certificates.md); a rebuild's replay starts that way, and `qumulo_ssl.ca_path_after` turns
+    verification on after the certificate step
+  closes_with: A factory certificate shaped like a certificate authority
+  status: open
+  modules: []
+- id: G-PASSWORD
+  title: Write-only passwords
+  operation: Local user, LDAP bind and KMS passwords
+  why: These passwords are write-only, so the collection cannot tell whether the stored one matches.
+  handling: "`update_password: on_create|always`"
+  closes_with: None needed
+  status: open
+  modules: [local_user]
+- id: G-ADMIN-OS
+  title: Admin password reaches the node OS
+  operation: Changing the admin password
+  why: The server applies the admin password to the node operating system too.
+  handling: "`allow_admin_password_change`; `playbooks/admin_password_rotate.yml`"
+  closes_with: Document it, or decouple the two passwords
+  status: open
+  modules: [local_user]
+- id: G-AD-JOIN
+  title: Active Directory join and leave
+  operation: Joining or leaving AD
+  why: >-
+    The join credentials are write-only, and whether a machine account can be reused depends on AD policy
+    (Microsoft KB5020276).
+  handling: Leave with credentials before destroying; a side-by-side guard; a clear mapping of JOIN_FAILED
+  closes_with: Return the machine account's state before a join
+  status: open
+  modules: [ad_domain]
+- id: G-AD-DCS
+  title: Configured domain controllers
+  operation: Comparing the configured DCs
+  why: No public API reads the configured domain controllers back.
+  handling: Compare `monitor.configured_dcs` when `monitor.domain` matches; otherwise treat the list as write-only
+  closes_with: A public read of the configured DCs
+  status: open
+  modules: [ad_domain, capture_info, identity_info]
+- id: G-ID-ATTRIBUTES
+  title: Listing identity attributes
+  operation: Capturing the attributes of identities the cluster does not own
+  why: >-
+    The cluster reads and writes the attributes of one identity at a time, by its id, and lists no identity that has
+    them, so which identities have attributes cannot be found.
+  handling: >-
+    `identity_attributes` manages the identities the inventory names in `qumulo_identity_attributes`; `capture_info`
+    reads none back
+  closes_with: A list of the identities that have attributes
+  status: open
+  modules: [capture_info, identity_attributes]
+- id: G-ID-SAML
+  title: SAML sign-in
+  operation: Checking that SAML sign-in works
+  why: >-
+    The cluster stores the SAML settings without reaching the identity provider, and sign-in is an interactive browser
+    flow, so no API call shows that the settings work. The tier 1 lane has no identity provider.
+  handling: >-
+    `saml_settings` writes the settings and reads them back; the lane pins what the cluster stores, with
+    self-signed certificates and no identity provider. Whether users can sign in is checked by hand
+  closes_with: An API call that checks the identity provider, or an identity provider on a lane
+  status: open
+  modules: [saml_settings]
+- id: G-ID-SAML-CERT
+  title: Removing the SAML certificate
+  operation: Removing the identity provider's certificate
+  why: Once a certificate is set, the cluster refuses an empty one as an invalid certificate.
+  handling: >-
+    `saml_settings` refuses `idp_certificate: ""` before any write when one is set, and `enabled: false` turns sign-in
+    off; turning sign-in on with a certificate the task did not give warns, since that one stays whoever set it
+  closes_with: Accept an empty certificate to remove it
+  status: open
+  modules: [saml_settings]
+- id: G-KRB-AD
+  title: A keytab and a domain join
+  operation: Installing a Kerberos keytab on a cluster joined to Active Directory, or joining one that holds a keytab
+  why: >-
+    The keytab is a standalone KDC's. A cluster joined to Active Directory answers a keytab PUT with 409
+    `auth_joined_to_ad_error`, and a cluster that holds a keytab answers a join with 409
+    `ad_domain_standalone_kdc_error`; a joined cluster takes its Kerberos keys from its computer account and shows none.
+  handling: >-
+    `kerberos_keytab` reads the domain status before any keytab write, in check mode too, and refuses on a joined
+    cluster. The baseline refuses a keytab to install beside `qumulo_ad`, and runs the keytab step before the join, so
+    that a keytab declared absent is deleted before a join
+  closes_with: None
+  status: open
+  modules: [kerberos_keytab]
+- id: G-KRB-KEYTAB
+  title: Whether a keytab works
+  operation: Installing a Kerberos keytab
+  why: >-
+    The cluster stores any well-formed keytab without checking its principals against its own names or asking a KDC,
+    so a keytab for another host, or one whose keys the KDC has since changed, installs and NFS with Kerberos then
+    fails.
+  handling: >-
+    `kerberos_keytab` compares the cluster's keytab with the declared one and returns its principals, versions and
+    types; it cannot tell whether a client can authenticate with it. Capture names the principals in the keytab's
+    supply line
+  closes_with: A route that validates the keytab against the cluster's names and the KDC
+  status: open
+  modules: [kerberos_keytab]
+- id: G-TOKEN
+  title: Access tokens
+  operation: Creating access tokens
+  why: >-
+    The secret is shown once, a user can hold two tokens and expired ones count, and every token is dead after a
+    rebuild.
+  handling: >-
+    `access_token` keys a token by its user, since the cluster takes no name for one. `present` makes a token when the
+    user holds none, and otherwise sets `enabled` and `expiration_time` on each token the user holds. `rotated` always
+    changes: it makes a new token, writes its bearer to a file, confirms the token in a listing, and then deletes the
+    old ones, and it is refused before any write for a user who holds two tokens, expired ones counted. The bearer goes
+    to the result once and at once to a file of its own, readable only by its owner, in `secret_destination`; a task
+    without `no_log` or the destination is refused before any write. A rotation whose later step fails can leave the user
+    with two tokens, and no option of the module deletes only the old one; the failure names the old token's id, which
+    `qq auth_delete_access_token` or `DELETE /v1/auth/access-tokens/{id}` deletes outside the collection, and a user
+    refused at two tokens is told the same. A create whose connection is lost is not sent again: the
+    module lists the user's tokens and deletes any it did not hold before, whose bearer is lost, and with them any
+    token another client made in the same moment; when that listing fails too, the task fails with `maybe_applied`,
+    saying a token whose bearer is lost may be left and how to replace it. The rebuild preflight counts the tokens a cluster holds.
+  closes_with: Do not count expired tokens; name tokens
+  status: open
+  modules: [access_token, edge_rebuild_preflight]
+- id: G-S3-KEY
+  title: S3 access keys
+  operation: Creating S3 access keys
+  why: >-
+    The cluster makes both the key's id and its secret, returns the secret only in its response to the request that
+    makes the key, and holds at most two keys per user; no route imports a known key, so a rebuilt cluster has none of
+    the old keys.
+  handling: >-
+    `s3_access_key` keeps a key by its id, or makes sure the user holds one, and makes a key only when none meets the
+    declaration, and for a declared id only while the user holds fewer keys than the inventory declares for it, so a
+    rebuild restores each declared key. It writes the new secret at once to a file of its own, readable only
+    by its owner, in `secret_destination`, returns it in that run only, and refuses to make a key without `no_log` or a
+    destination. The baseline makes keys last, writing the secrets under the host's artifact
+    directory; the rebuild preflight counts the keys a cluster holds. Not handled yet: an entry without an id declares
+    no key, so a user with such an entry beside entries with ids is not restored by a rebuild, and which key the
+    id-less entry keeps depends on the order of the entries; a user's entries are matched by how they spell the user,
+    so `local:svc` and `LOCAL:svc` count as two users; and check mode does not look at `secret_destination`, so a
+    file there passes check mode and fails the real run before any key is made
+  closes_with: An import route for a known key, or a description on each key to find it by
+  status: open
+  modules: [capture_info, clone_host_vars, edge_rebuild_preflight, s3_access_key]
+- id: G-S3-ROTATE
+  title: S3 key rotation without downtime
+  operation: Replacing an S3 access key while its consumers keep working
+  why: >-
+    The cluster chooses a key's id when it makes the key and takes no name for it, so a declaration can name only a key
+    that exists, never a second key to hand out before the first goes.
+  handling: >-
+    `s3_access_key` replaces a key by removing it, then making the new one, so its consumers lose access until they hold
+    the new secret; two keys for one user are made only by hand
+  closes_with: A key made with a name or description the declaration can give in advance
+  status: open
+  modules: [s3_access_key]
+- id: G-S3-PATH
+  title: S3 bucket directory
+  operation: Moving an S3 bucket to another directory
+  why: A bucket's directory is set when the bucket is created, and no route changes it.
+  handling: >-
+    `s3_bucket` refuses a different `path` for an existing bucket before any write; removing the bucket keeps its
+    directory and objects, so it can be created again at the new path, after which its policy must be applied again
+  closes_with: A PATCH of a bucket's path
+  status: open
+  modules: [s3_bucket]
+- id: G-S3-LOCK
+  title: S3 versioning and object lock
+  operation: Turning versioning or object lock off on an S3 bucket
+  why: >-
+    Versioning never returns to `Unversioned` once set, a lock can never be removed, and a locked bucket keeps
+    versioning `Enabled`, as in S3.
+  handling: "`s3_bucket` refuses those changes before any write, in check mode too"
+  closes_with: None expected
+  status: open
+  modules: [s3_bucket]
+- id: G-NEXUS-KEY
+  title: Nexus registration key
+  operation: Registering with Nexus
+  why: The join key is single-use, and a failed registration looks like a permanent PENDING.
+  handling: >-
+    Act on NONE, or on PENDING with a new key (PUT, rotate). With `nexus_api_token`, `nexus_registration` mints the key
+    and `nexus_cluster` retires the old UUID; otherwise the old UUID is reported for Qumulo Care
+  closes_with: Report ERROR_REGISTERING; expose the organization
+  status: open
+  modules: [capture_info, clone_host_vars, nexus_registration]
+- id: G-NEXUS-RETIRE
+  title: Retiring a cluster in Nexus
+  operation: Retiring a cluster UUID in Nexus
+  why: >-
+    `nexus_cluster` is in the action group, and its guard checks the cluster at `api_host`, so retiring a UUID needs a
+    reachable cluster's credentials even when the cluster that had the UUID no longer exists.
+  handling: Run it against the new edge in the rebuild's replay
+  closes_with: A Nexus-only action group for `nexus_cluster`, which would need no cluster
+  status: open
+  modules: [nexus_cluster]
+- id: G-VPN-KEYS
+  title: Support VPN keys
+  operation: Installing support VPN keys
+  why: The keys need a CSR signed by Qumulo Care, and the private key is returned in cleartext.
+  handling: >-
+    Out of scope: Qumulo's support tooling installs the keys, and the feature is being deprecated, so no module manages
+    them, and none reads them
+  closes_with: Do not return the private key on GET or PUT
+  status: open
+  modules: []
+- id: G-KMS
+  title: KMIP key store
+  operation: Configuring the KMIP key store
+  why: Every PUT of the key store rotates the key, even when the configuration is unchanged.
+  handling: No PUT without a difference; `update_password` for credentials; predestroy fails fast until T9
+  closes_with: Treat an identical PUT as a no-op
+  status: open
+  modules: [edge_rebuild_preflight]
+- id: G-MON-KMS-ROTATE
+  title: Rotating a KMS key by age
+  operation: Rotating the at-rest encryption key of a cluster whose key store is a KMS
+  why: >-
+    With a KMS key store, `POST /v2/encryption/rotate-keys` rotates only to another key the KMS holds, named by its id;
+    without an id, or with the id in use, it is refused. Nothing in the cluster's API makes that key.
+  handling: >-
+    `encryption_key_rotation` rotates to a given `key_id` that differs from the key in use, and leaves the key in use
+    alone; without `key_id` it fails when the key is older than `max_age_days`, and with one the age is not checked
+  closes_with: Rotate a KMS-held key to a new key the cluster creates in the KMS, as the cluster's own key store does
+  status: open
+  modules: [encryption_key_rotation]
+- id: G-MON-AUDIT-INFO
+  title: Audit destinations in monitoring_info
+  operation: Reading the audit log destinations with `monitoring_info`
+  why: >-
+    The v1 audit routes `monitoring_info` reads are views over only the destinations named `syslog`, `cloudwatch` and
+    `local`, so a destination of any other name, which `audit_destination` manages, is not shown.
+  handling: >-
+    A follow-up in the collection: `monitoring_info` gains a subset over `/v2/audit/destinations/` in
+    `audit_destination`'s shape; until then `capture_info`'s `audit` area reads every destination
+  closes_with: None; the collection's own change
+  status: open
+  modules: [monitoring_info]
+- id: G-MON-AUDIT-RETYPE
+  title: Changing an audit destination's type
+  operation: Changing an audit destination from one type to another in place
+  why: >-
+    Whether the cluster changes a destination's type in place is not pinned on a running cluster: the lane's container
+    refuses CloudWatch destinations, and a LOCAL destination must be named `local`, so no live test reaches a change of
+    type.
+  handling: >-
+    A follow-up: `audit_destination` PUTs the new type with the old type's options cleared, pinned by unit tests only,
+    until a lane in AWS (tier 2) can pin the cluster's answer
+  closes_with: None; a live pin in the collection's tier 2 lane
+  status: open
+  modules: [audit_destination]
+- id: G-PORTAL-ONESHOT
+  title: One-shot portal operations
+  operation: Spoke create, root propose, hub accept
+  why: These calls fail when retried, and a failed propose leaves an orphaned root on the hub.
+  handling: >-
+    List and match first; check that the root is absent and its parent present before proposing; accept only when
+    PENDING; clean up orphans
+  closes_with: Make propose idempotent and atomic
+  status: open
+  modules: [portal_hub, portal_spoke]
+- id: G-PORTAL-STALE
+  title: Hub record of a destroyed spoke
+  operation: Deleting the hub record of a spoke that no longer exists
+  why: The hub has no stale marker, and a non-force delete never finishes.
+  handling: Keyed on the old UUID; force only with `allow_data_loss`
+  closes_with: Fail a non-force delete fast when the spoke is unreachable
+  status: open
+  modules: [portal_hub]
+- id: G-PORTAL-HOSTS
+  title: Each side of a portal records only the other's addresses
+  operation: Capturing the addresses each side of a portal is reached at
+  why: >-
+    A spoke records the hub's addresses (`hub_hosts`) but not its own, and a hub records the spoke's (`spoke_hosts`)
+    but not its own, so no cluster reports the addresses it is reached at.
+  handling: >-
+    `capture_info` returns each side's record of its peer, and `playbooks/capture.yml` writes those addresses as the
+    peer host's `qumulo_portal_hosts` when the peers are captured in the same run and every record agrees and comes from
+    an ACCEPTED, ACTIVE portal; otherwise the host's file names `qumulo_portal_hosts` as a value to supply. A replication
+    target's `qumulo_replication_address` is taken the same way from its sources' ESTABLISHED records. A hub host holds
+    one address list for all its spokes, so spokes that reach the hub at different addresses cannot all be declared
+  closes_with: Each portal record reporting the local cluster's own addresses too
+  status: open
+  modules: [capture_info]
+- id: G-PORTAL-ETAG
+  title: Portal writes without ETags
+  operation: Hub and spoke writes
+  why: GET carries no ETag; PATCH checks If-Match and returns one.
+  handling: >-
+    Diff before writing; `throttle: 1`, which protects only within one play; `portal_eviction_settings` sends If-Match
+    only when its GET returned an ETag
+  closes_with: ETags on hubs and spokes
+  status: open
+  modules: [portal_eviction_settings, portal_hub, portal_spoke]
+- id: G-REPL-PEER
+  title: Replication after a peer rebuild
+  operation: Keeping a replication relationship across a peer rebuild
+  why: >-
+    Relationship ids are generated, a relationship pinned to the old peer certificate never reaches ENDED, and the
+    delete notification is sent only once.
+  handling: >-
+    The target cluster's UUID is part of the source's key, and the address a setting. A changed peer is found at the
+    declared address, or by a previous UUID of the target host at any address, and is recreated create-first once the
+    target check has passed: the new relationship's target UUID is read back before the old record is deleted. While
+    the role defers a relationship into an edge, a delete-only pass removes previous-UUID records at the declared
+    address or with the secure-connection error. A rebuilt source's stale target record is held until a copy back and
+    a release. An edge that is a target is recreated only in its second pass. The rebuild preflight reads each peer's
+    record of a declared relationship, matches a peer by its current or a previous UUID, and fails fast on a
+    relationship the inventory does not declare, or on a declared source whose record is ENDED or pending
+  closes_with: A peer-UUID-mismatch state
+  status: open
+  modules: [edge_rebuild_preflight, replication_info, replication_pair_plan, replication_relationship, replication_restore_step, replication_target]
+- id: G-REPL-ONESHOT
+  title: One-shot replication operations
+  operation: Creating and authorizing a replication relationship, and a make-writable, reverse or reconnect by relationship id
+  why: >-
+    Create and authorize are one-shot, and so are `replication_reverse`'s verbs. A repeated create makes a second
+    relationship, and a create that fails halfway leaves a pending record on the target. A repeated authorize fails.
+    A create to an address that reaches another cluster leaves an ENDED record there after the source's delete.
+  handling: >-
+    Match by key before any create, and reconcile a lost create or authorize by listing, never by sending again. The
+    target prunes stale pending records of the key, and a misdirected create is deleted at once. Pending records stay
+    on both sides when a declaration is abandoned before its authorize. `replication_reverse` sends each verb only from
+    the state it starts from, the make-writable from ESTABLISHED with a recovery point and the reverse and reconnect
+    from DISCONNECTED, and reconciles a lost answer by reading the record. A restore abandoned before its make-writable
+    leaves its relationship on both sides until its abandon exit deletes it
+  closes_with: A create that takes a client token, and an authorize that succeeds when repeated
+  status: open
+  modules: [replication_relationship, replication_restore_step, replication_reverse, replication_target]
+- id: G-REPL-OVERWRITE
+  title: Authorizing into a non-empty directory
+  operation: Authorizing a replication target directory that holds data
+  why: >-
+    With `allow-non-empty-directory`, the first job replaces the target directory's content with the source's,
+    deleting what the source lacks. A directory holding only directories counts as non-empty.
+  handling: >-
+    The overwrite table (docs/explanation/replication.md) decides every case, with a consent on the relationship or a
+    release bound to a record. `state: absent` keeps the target's data only while the entry stays absent
+  closes_with: An authorize that refuses an empty source, or reports what it would delete
+  status: open
+  modules: [replication_pair_plan, replication_target]
+- id: G-REPL-NOTIFY
+  title: Delete notification sent once
+  operation: Removing a replication relationship
+  why: >-
+    The source tells the target of a delete once, from memory, so a target that is unreachable then, or a source that is
+    gone, leaves the target's record live and its directory read-only.
+  handling: >-
+    Removal deletes on the source, then on the target. For a source gone for good, `replication_target` with `state:
+    absent` on the target host; for a target gone for good, `target_gone` deletes on the source only
+  closes_with: A target that learns of a delete, or of a source that is gone, by itself
+  status: open
+  modules: [replication_relationship, replication_target]
+- id: G-REPL-SNAPSHOT
+  title: Snapshots a removal leaves
+  operation: Removing or pruning a replication relationship, and making its target writable or reversing it
+  why: >-
+    Removal leaves the target's last recovery-point snapshot, and a make-writable a revert snapshot, each owned by
+    nothing and never expiring; a reversal leaves them on both sides. They can read back with an empty path.
+  handling: >-
+    The modules name the snapshots they leave in their results, and leave them, since each is the last consistent copy;
+    the operator deletes them once the copy is no longer wanted. `replication_reverse` says in its notes that a
+    make-writable and a reverse leave them, which `snapshot_info` lists. The restore names in its result X's
+    recovery-point snapshots on the target, the only ids its record held; the make-writable's and the reverse's on both
+    clusters it leaves to `snapshot_info`. A rebuild preflight counts them as snapshots
+  closes_with: An option to delete a relationship's snapshots with it
+  status: open
+  modules: [replication_relationship, replication_restore_step, replication_reverse, replication_target]
+- id: G-REPL-TZ
+  title: Blackout timezone cannot be cleared
+  operation: Removing a relationship's blackout timezone
+  why: A PATCH of an empty `blackout_window_timezone` leaves the stored timezone in place (QUIRK-019).
+  handling: An empty timezone where one is set, and blackout windows without a timezone, fail before any write
+  closes_with: A PATCH that clears the timezone
+  status: open
+  modules: [replication_relationship]
+- id: G-REPL-IDMAP
+  title: File ownership through replication
+  operation: Restoring a rebuilt source's files from its replica with their owners
+  why: >-
+    Replication carries a file's owner and group as NFS ids when they are local users and groups other than the
+    built-in ones. A source with `map_local_ids_to_nfs_ids` off fails every job on such a file, and with it on, it needs
+    an NFS uid on every such user and a gid on every such group. The target then holds the file owned by `NFS_UID
+    <uid>`, and a restore writes it back to the edge the same way, whatever the restore relationship's own mapping. The
+    built-in admin user and Users group come back as themselves, `LOCAL_USER` and `LOCAL_GROUP`. A file reaches the
+    same user or group only through a matching uid or gid.
+  handling: >-
+    The restore relationship is created with the server's defaults, and the restore's last step applies the declared
+    mapping. The edge's baseline recreates its local users and groups with their declared uids and gids, which
+    `/v1/identity/expand` maps the NFS ids to, so a restored file reaches its owner again. A uid set on the old edge
+    outside the inventory was replicated too, and its files come back owned by an NFS uid no local user has
+  closes_with: A relationship that carries local users and groups as themselves
+  status: open
+  modules: [replication_relationship, replication_restore_step]
+- id: G-FACTORY
+  title: Factory export and share
+  operation: The factory `/` export and `Files` share
+  why: Every formation creates them again.
+  handling: An explicit `qumulo_factory_defaults` for a rebuild
+  closes_with: A formation option to skip them
+  status: open
+  modules: []
+- id: G-SPOKE-PATHS
+  title: Paths inside spoke roots
+  operation: Quotas, snapshot policies and snapshots inside spoke roots
+  why: The server refuses them.
+  handling: A preflight check and a clear error
+  closes_with: None
+  status: open
+  modules: [directory_quota, snapshot, snapshot_policy]
+- id: G-MAPTO
+  title: NFS export mapped to a deleted user
+  operation: Changing an NFS export after its mapped user is deleted
+  why: The export's `map_to_user` reads back empty, and every later PATCH of the export fails.
+  handling: Detect the case and fail, naming the user
+  closes_with: Refuse to delete a user an export references
+  status: open
+  modules: [capture_info, nfs_export]
+- id: G-FTP-GREETING
+  title: The factory FTP greeting
+  operation: Setting the FTP greeting back to the one a new cluster has
+  why: >-
+    The cluster refuses an empty FTP greeting and has no way to reset it, so once the greeting is changed, the factory
+    text comes back only when a client sends that text again.
+  handling: >-
+    An empty greeting fails before any request. A capture taken before the change holds the greeting, which is the
+    text to send back.
+  closes_with: Take an empty or null greeting as the factory greeting
+  status: open
+  modules: [ftp_settings]
+- id: G-FS-ACL-MODE
+  title: A path's mode and its ACL
+  operation: Declaring both a POSIX mode and an ACL for one path
+  why: >-
+    They are two views of one fact: setting a mode rewrites the ACL, and writing an ACL changes the mode the cluster
+    reports, so a mode and an ACL that disagree would each undo the other on every run.
+  handling: >-
+    file_acl declares the ACL and directory the mode; the cluster_baseline role refuses a path that has a `mode` in
+    `qumulo_directories` and an ACL in `qumulo_file_acls`, and capture declares an ACL in place of the mode only when
+    setting the mode would leave another ACL
+  closes_with: None
+  status: open
+  modules: [directory, file_acl]
+- id: G-SNAP-TTL
+  title: Snapshot policy expiry and delete
+  operation: Changing a snapshot policy's TTL; deleting a policy
+  why: A TTL change does not apply to existing snapshots, and replication owners block a policy delete.
+  handling: Documented; a clear error
+  closes_with: None
+  status: open
+  modules: [snapshot_policy]
+- id: G-SNAP-LOCK
+  title: Snapshot locks
+  operation: Locking and unlocking a snapshot
+  why: >-
+    The cluster refuses to lock a locked snapshot, even with its own key, and to unlock an unlocked one. Unlocking
+    takes a signature, with the lock key's private key, of a challenge the cluster issues once, and the cluster keeps
+    only the public key.
+  handling: >-
+    snapshot_lock reads the lock first and sends neither when the snapshot has the state asked for; it signs the
+    challenge with the openssl command on the controller, since the collection's modules import nothing beyond
+    ansible-core, and checks the private key against the key store before it asks for a challenge. A snapshot that
+    never expires cannot be given an expiration once locked, so it is locked only when the task gives a private key that
+    matches, a design decision rather than a gap
+  closes_with: A lock that succeeds when repeated with the same key, and an unlock that succeeds on an unlocked snapshot
+  status: open
+  modules: [snapshot_lock]
+- id: G-COLD
+  title: State lost in a rebuild
+  operation: Snapshots, cache contents and analytics after a rebuild
+  why: A rebuild loses them.
+  handling: Documented in the rebuild report
+  closes_with: None
+  status: open
+  modules: []
+- id: G-DNS
+  title: DNS records
+  operation: A and PTR records for the cluster
+  why: Qumulo does not register them.
+  handling: A customer step in the rebuild report
+  closes_with: None
+  status: open
+  modules: []
+- id: G-DNS-FQDN-CLEAR
+  title: Clearing the authoritative DNS name
+  operation: Returning the cluster's authoritative DNS name to unset
+  why: >-
+    A cluster starts with no name, but once one is set, `PATCH /v1/authoritative-dns/settings` refuses `fqdn: ""` with
+    `dns_name_parse_error`.
+  handling: >-
+    `authoritative_dns` refuses an empty `fqdn` before the write on a cluster that has a name, naming that name and
+    saying to leave `fqdn` out or declare the name, and to list `dns.fqdn` where Terraform set it; on a cluster that has
+    never had one, an empty `fqdn` changes nothing. The
+    `authoritative_dns` target fails once the cluster accepts the empty name
+  closes_with: Accept an empty name, at least while the server is off
+  status: open
+  modules: [authoritative_dns]
+- id: G-TF-STALE
+  title: Terraform state after a rebuild
+  operation: Terraform's state of a rebuilt edge
+  why: The state keeps the old cluster UUID when the collection forms the new edge.
+  handling: >-
+    A rebuild whose reinstall tasks replace the edge's resource lets Terraform form the new edge, and the replay reads
+    the new UUID from the inventory plugin; otherwise replace the resource or override the UUID
+  closes_with: A provider refresh from `/v1/node/state`
+  status: open
+  modules: []
+- id: G-TF-NLB-ADDRESS
+  title: Load balancer addresses of a multi-AZ AWS cluster
+  operation: Publishing portal and replication addresses for a multi-AZ cluster in AWS
+  why: >-
+    Such a cluster has no floating IPs, and its targets are its network load balancer's IPs. The provider forms no
+    load balancer; the root's own `aws_lb` exports `dns_name` and no IP address, and the legacy CNQ modules publish
+    only that name, as `qumulo_nlb_dns`. The portal modules and replication's `target_address` take IP addresses
+    only.
+  handling: >-
+    The root reads the load balancer's IPs from its network interfaces, `aws_network_interface` filtered on the
+    description `ELB <arn_suffix>` in each subnet, and publishes them as `portal_hosts` and `replication_address`. A
+    root with only the name publishes it as `load_balancer_name`, and the plugin resolves it at each read; with
+    cross-zone load balancing off the name leaves out a zone with no healthy target, so with the inventory cache a
+    shorter answer than last time fails the source. The load balancer must listen on 3713 for portals and 3712 for
+    replication
+  closes_with: None needed
+  status: closed
+  modules: []
+- id: G-PRODUCT
+  title: Product type
+  operation: Reading the product type
+  why: No public endpoint returns it; it is read from metric labels.
+  handling: "`cluster_info`"
+  closes_with: A public field
+  status: open
+  modules: []
+- id: G-ACTIONS
+  title: Imperative operations
+  operation: Cache clears, snapshot create, replication job, encryption rotation
+  why: These operations are imperative, so running them again repeats them.
+  handling: >-
+    Action modules with plan guards (no running job, key age, path absent); clear-cache actions always report changed.
+    Declined: tree delete, which is one-shot and destructive and which nothing in the collection needs; use `qq
+    tree_delete_create`. It comes back only with a flow that needs it
+  closes_with: None
+  status: open
+  modules: [auth_cache_clear, dns_cache_clear, encryption_key_rotation, snapshot, upgrade]
+- id: G-CONTAINER
+  title: Operations a container cannot run
+  operation: Upgrade, node operations, floating IPs, managed network, VLAN-bound tenants, service isolation, KMIP, RDMA, authoritative DNS answers
+  why: >-
+    The tier 1 single-node container cannot run them. Its network is managed by its host, which never puts a floating
+    address on the container, and its image runs no authoritative DNS server, so nothing answers on port 53 of the
+    container's address or of a floating address the cluster is given. It has one interface and no VLAN, so a network
+    bound to a second tenant serves no client there, and which services answer on which network cannot be shown.
+  handling: >-
+    Alias `unsupported` in tier 1; covered by the tier 2 (CNQ) and tier 3 (lab) jobs, except that tier 2 reads the
+    floating IPs the Terraform provider owns but never changes them, so writes to them stay with tier 3. The
+    `authoritative_dns` target checks the stored settings only; a query answered on a floating address needs a cluster
+    with floating addresses that runs the server
+  closes_with: None
+  status: open
+  modules: []
+- id: G-CONTAINER-OPENAPI
+  title: OpenAPI document on the container
+  operation: Checking the collection's routes and request fields against the cluster's OpenAPI document
+  why: >-
+    The Qumulo Core 7.10.3 docker image serves every other route, but answers 500 on `/openapi.json` and 404 on
+    `/v1/openapi.json`.
+  handling: >-
+    The live contract tests skip with "the cluster serves no OpenAPI document"; they need a full cluster or a
+    `--spec-file`, and `QUMULO_CONTRACT_REQUIRE_DOCUMENT=1` fails them instead for a lane that runs one
+  closes_with: Serve the OpenAPI document from the container image
+  status: open
+  modules: []
+- id: G-UPGRADE-ONESHOT
+  title: An upgrade's commit cannot be cancelled
+  operation: Upgrading a cluster
+  why: >-
+    A commit cannot be cancelled, and a prepared upgrade is abandoned only by not committing it or by preparing
+    another.
+  handling: >-
+    Verify, prepare and commit are never sent again after a lost answer; a lost answer is read back from the build and
+    the status, and only a commit found still PREPARED, with the REST API answering throughout, is sent once more
+  closes_with: An idempotent commit keyed by the prepared image
+  status: open
+  modules: [upgrade]
+- id: G-UPGRADE-RECORD
+  title: No record of a commit in progress
+  operation: Upgrading a cluster
+  why: >-
+    Nothing on the cluster records a commit in progress: after a quorum change the status reads IDLE, as after
+    success, and some nodes may be armed to start the new build at their next restart.
+  handling: >-
+    The outcome comes from the running build. The `upgrade` module, given `commit_record`, writes a pending record on
+    the controller immediately before each commit request and marks it unfinished when the commit did not finish; the
+    next plan refuses the host while a record it cannot retire stands
+  closes_with: A persisted upgrade record, readable after the restart
+  status: open
+  modules: [upgrade, upgrade_plan]
+- id: G-UPGRADE-LETTER
+  title: A letter release as an upgrade source
+  operation: Upgrading a cluster that runs a limited release, such as 7.10.3A
+  why: Qumulo Core refuses a letter release as an upgrade source unless the rule is waived.
+  handling: >-
+    Refused by default; `allow_upgrade_from_limited_release`, a support-directed option, sends the waiver in the
+    source's form on the first hop; no letter release is an intermediate hop
+  closes_with: None
+  status: open
+  modules: [upgrade, upgrade_plan]
+- id: G-UPGRADE-PATH
+  title: An upgrade path cannot be read ahead
+  operation: Planning an upgrade across several releases
+  why: >-
+    A later hop's acceptance cannot be read before the cluster reaches the hop before it, and no build's upgrade window
+    is published beside its image.
+  handling: >-
+    The plan checks the documented quarterly rule; each prepare's verify is the server's check, and the module compares
+    the release verify reads with the images list's
+  closes_with: The upgrade window published beside each image
+  status: open
+  modules: [upgrade, upgrade_plan]
+- id: G-UPGRADE-REBOOT
+  title: No reboot that starts each set at a full quorum
+  operation: Rebooting a platform upgrade's nodes faster than the rolling reboot
+  why: >-
+    The rolling reboot always waits for reprotect between groups, and no public route names the nodes still to
+    reboot.
+  handling: >-
+    Aggressive reboots pause the server's reboot and reboot the remaining nodes in sets, on a platform hop of an
+    erasure-coded cluster whose configured node tolerance is at least 2; held until they have run live, and refused
+    until then
+  closes_with: A server option to start each set at a full quorum, sized by the current tolerance
+  status: open
+  modules: []
+- id: G-UPGRADE-COUNT
+  title: A reboot count is checked after the downloads and after arming
+  operation: Declaring how many nodes reboot at once in a rolling platform upgrade
+  why: >-
+    A declared count is checked only after the prepare's downloads, and again after every node is armed, and a refusal
+    then leaves every node armed and nothing restarted.
+  handling: >-
+    A count above the configured tolerance is refused at plan time on a rolling host; one above the current tolerance
+    is waited out before any prepare that sends it and at each readiness check, and read once at the commit. A drop in
+    the tolerance after that last check still leaves the stuck state, so leave the count unset
+  closes_with: The check moved before verify and before the commit's first arm
+  status: open
+  modules: [upgrade, upgrade_plan]
+- id: G-UPGRADE-BLOCKED
+  title: The upgrade preflight does not show a reboot
+  operation: Deciding whether a cluster can start an upgrade
+  why: >-
+    `/v2/upgrade/blocked` holds only the preflight: it reads degraded while a reboot group is down and never shows
+    REBOOTING.
+  handling: >-
+    The upgrade status and the reboot status are waited on first, and offline nodes are the reboot meanwhile
+  closes_with: REBOOTING and the reboot state in the blocked answer
+  status: open
+  modules: [upgrade]
+- id: G-UPGRADE-LICENSE
+  title: An unlicensed edge cannot be upgraded after 30 days
+  operation: Upgrading an unprotected edge without a license
+  why: >-
+    Qumulo Core refuses to upgrade a generic host whose license has expired, or that has none and was formed more than
+    30 days ago, and only Qumulo Care can waive it.
+  handling: The plan warns for an edge without a license, naming licensing, and the module passes the server's message on
+  closes_with: None
+  status: open
+  modules: [upgrade, upgrade_plan]

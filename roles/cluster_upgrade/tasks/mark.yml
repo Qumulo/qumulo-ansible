@@ -1,0 +1,28 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The mark task. A run_once set_fact reaches every host of the play, so every host reads one upgrade_held: the plan's
+# holds of each host the hop moves that has left the play and, when cluster_upgrade_mark_window is set, the hosts the
+# window holds, and before that what upgrade_held already held. It also keeps, in cluster_upgrade_results, each
+# host's results of the registers cluster_upgrade_mark_results names, for the hosts cluster_upgrade_mark_hosts names,
+# a failed host's among them, whose registers stay in hostvars.
+- name: Hold the units of the hosts that left the play, and keep the step's results
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    upgrade_held: >-
+      {{ (upgrade_held
+          + cluster_upgrade_hop.moves | reject('in', ansible_play_hosts) | map('extract', cluster_upgrade_hop.hosts, 'holds') | flatten
+          + ((cluster_upgrade_window.window.held | default([])) if cluster_upgrade_mark_window | default(false) else []))
+         | unique | sort }}
+    cluster_upgrade_results: >-
+      {%- set found = namespace(results=cluster_upgrade_results) -%}
+      {%- for host in cluster_upgrade_mark_hosts | default(cluster_upgrade_hop.hosts | list) -%}
+        {%- for name in cluster_upgrade_mark_results | default([]) -%}
+          {%- set result = hostvars[host][name] | default(none) -%}
+          {%- if result is mapping and result is not skipped -%}
+            {%- set found.results = found.results | combine({host: found.results[host] | default([]) + [result]}) -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ found.results }}
+  run_once: true
+  when: not upgrade_stop

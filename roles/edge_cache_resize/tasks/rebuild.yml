@@ -1,0 +1,39 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Stop with the plan to rebuild the edge
+  ansible.builtin.fail:
+    msg: >-
+      {{ inventory_hostname }}: rebuild: {{ edge_cache_resize_plan.reason }}. Only a rebuild makes the cache that
+      small, and the rebuilt edge forms at the smaller of its platform and 1 TB, under a new UUID that needs a new
+      license from Nexus before any target above 1 TB (G-EDGE-FLOOR, G-UUID, G-LICENSE). Run
+      playbooks/edge_predestroy.yml, reinstall the edge, then run playbooks/edge_rebuild.yml with -e qumulo_rebuild=true,
+      each limited to {{ inventory_hostname }}; or set edge_cache_resize_allow_rebuild: true and
+      edge_rebuild_reinstall_tasks to have this role run all three.
+  when: not edge_cache_resize_allow_rebuild | bool
+
+- name: Require the reinstall tasks for an automatic rebuild
+  ansible.builtin.assert:
+    that: edge_rebuild_reinstall_tasks is defined
+    fail_msg: >-
+      {{ inventory_hostname }}: rebuild: edge_cache_resize_allow_rebuild needs edge_rebuild_reinstall_tasks, the
+      tasks file that reinstalls the edge between predestroy and replay.
+    quiet: true
+
+# A rebuild that fails must stop the edges after it, or the same failure
+# drains and destroys each of them. any_errors_fatal does that in a play that
+# runs several edges at once. playbooks/edge_cache_resize.yml rescues each
+# edge's failure, which the hand-off routes need, so its rescue reads
+# edge_cache_resize_rebuilding and fails again.
+- name: Record that the rebuild has started
+  ansible.builtin.set_fact:
+    edge_cache_resize_rebuilding: true
+
+- name: Rebuild the edge, ending the play for every edge after it if the rebuild fails
+  any_errors_fatal: true
+  block:
+    - name: Rebuild the edge
+      ansible.builtin.include_role:
+        name: qumulo.cluster.edge_rebuild
+      vars:
+        edge_rebuild_phase: all

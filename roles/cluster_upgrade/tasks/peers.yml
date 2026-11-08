@@ -1,0 +1,147 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Steps 6 and 8: the report's two readings of the hop's peers, kept in cluster_upgrade_peers[cluster_upgrade_peer_reading].
+# Each moved component's portals are waited on from its hub's own host, every hub at once, or from its spokes' hosts
+# when the hub is outside the play; each present replication relationship that touches a moved host is read once, on
+# its source, with no wait, since its last job's error clears only when a later job ends. Neither fails the hop. A
+# component is left on two releases only when a moving member committed, or sent a commit that may have applied, and
+# another did not; one none of whose members sent a commit is still on one release.
+- name: Find which host reads each moved component's portals, and the components not waited on
+  ansible.builtin.set_fact:
+    cluster_upgrade_portal_reads: >-
+      {%- set found = namespace(reads=[]) -%}
+      {%- set committed = namespace(hosts=[]) -%}
+      {%- for host in cluster_upgrade_hop.moves if hostvars[host].upgrade_committed | default(false) -%}
+        {%- set committed.hosts = committed.hosts + [host] -%}
+      {%- endfor -%}
+      {%- for root, marks in cluster_upgrade_hop.components.items() -%}
+        {%- set uncommitted = marks.moving | reject('in', committed.hosts) | list -%}
+        {%- set sent = namespace(hosts=[]) -%}
+        {%- for member in marks.moving if member in committed.hosts
+              or cluster_upgrade_results[member] | default([]) | selectattr('commit_sent', 'defined') | selectattr('commit_sent') | list -%}
+          {%- set sent.hosts = sent.hosts + [member] -%}
+        {%- endfor -%}
+        {%- set rolling = namespace(hosts=[]) -%}
+        {%- for member in marks.moving if member in committed.hosts -%}
+          {%- for result in cluster_upgrade_results[member] | default([])
+                if result.commit_sent | default(false) and result.upgrade_type | default('') == 'SOFTWARE_AND_PLATFORM'
+                and (result.reboot | default({})).mode | default('') == 'rolling' -%}
+            {%- set rolling.hosts = rolling.hosts + [member] -%}
+          {%- endfor -%}
+        {%- endfor -%}
+        {%- if uncommitted and sent.hosts -%}
+          {%- set found.reads = found.reads + [{'component': root, 'host': none, 'side': none, 'line':
+                root ~ "'s portal component is left on two releases by the hop to " ~ cluster_upgrade_hop.release ~ ', since '
+                ~ uncommitted | join(', ') ~ ' did not commit, so its portals are not waited on.'}] -%}
+        {%- elif marks.split and not marks.closes -%}
+          {%- set found.reads = found.reads + [{'component': root, 'host': none, 'side': none, 'line':
+                root ~ "'s portal component stays split after the hop to " ~ cluster_upgrade_hop.release
+                ~ ', so its portals are not waited on.'}] -%}
+        {%- elif rolling.hosts -%}
+          {%- set found.reads = found.reads + [{'component': root, 'host': none, 'side': none, 'line':
+                root ~ "'s portal component took a rolling platform reboot on " ~ rolling.hosts | unique | join(', ')
+                ~ ', whose groups make its portals drop, so they are not waited on.'}] -%}
+        {%- elif root in ansible_play_hosts -%}
+          {%- set found.reads = found.reads + [{'component': root, 'host': root, 'side': 'hubs', 'line': none}] -%}
+        {%- else -%}
+          {%- for member in marks.members if member in ansible_play_hosts
+                and (hostvars[member].qumulo_portal | default({})).hub | default(none) == root -%}
+            {%- set found.reads = found.reads + [{'component': root, 'host': member, 'side': 'spokes', 'line': none}] -%}
+          {%- endfor -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.reads }}
+    cluster_upgrade_peer_started: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%S') }}"
+  run_once: true
+  when: not upgrade_stop
+
+- name: Wait for the portals to read ACTIVE
+  qumulo.cluster.portal_info:
+    gather_subset: ["{{ cluster_upgrade_portal_side }}"]
+  vars:
+    cluster_upgrade_portal_side: >-
+      {{ (cluster_upgrade_portal_reads | selectattr('host', 'equalto', inventory_hostname) | first).side }}
+  register: cluster_upgrade_portal_read
+  until: >-
+    cluster_upgrade_portal_read.portals[cluster_upgrade_portal_side] | default([])
+    | rejectattr('status', 'equalto', 'ACTIVE') | list | length == 0
+  retries: "{{ (cluster_upgrade_peer_timeout | int / [cluster_upgrade_poll_delay | int, 1] | max) | round(0, 'ceil') | int }}"
+  delay: "{{ cluster_upgrade_poll_delay | int }}"
+  ignore_errors: true
+  when:
+    - not upgrade_stop
+    - cluster_upgrade_portal_reads | selectattr('host', 'equalto', inventory_hostname) | list | length > 0
+
+- name: Read the last job of each replication relationship that touches a moved host
+  qumulo.cluster.replication_info:
+    gather_subset: [source]
+  register: cluster_upgrade_replication_read
+  ignore_errors: true
+  when:
+    - not upgrade_stop
+    - cluster_upgrade_touching | length > 0
+  vars:
+    cluster_upgrade_touching: >-
+      {%- set found = namespace(entries=[]) -%}
+      {%- for entry in qumulo_replication_relationships | default([]) if entry.state | default('present') == 'present'
+            and (inventory_hostname in cluster_upgrade_hop.moves or entry.target | default('') in cluster_upgrade_hop.moves) -%}
+        {%- set found.entries = found.entries + [entry] -%}
+      {%- endfor -%}
+      {{ found.entries }}
+
+- name: Keep the reading for the report
+  ansible.builtin.set_fact:
+    cluster_upgrade_peers: >-
+      {%- set found = namespace(entries=[]) -%}
+      {%- set started = cluster_upgrade_peer_started | to_datetime('%Y-%m-%dT%H:%M:%S') -%}
+      {%- for read in cluster_upgrade_portal_reads -%}
+        {%- if read.host is none -%}
+          {%- set found.entries = found.entries + [{'component': read.component, 'host': none, 'active': none, 'seconds': none, 'line': read.line}] -%}
+        {%- else -%}
+          {%- set result = hostvars[read.host].cluster_upgrade_portal_read | default({}) -%}
+          {%- set ended = namespace(times=[]) -%}
+          {%- for member in cluster_upgrade_hop.components[read.component].moving -%}
+            {%- for result in cluster_upgrade_results[member] | default([])
+                  if ((result.phases | default({})).commit | default({})).ended | default(none) -%}
+              {%- set ended.times = ended.times + [result.phases.commit.ended] -%}
+            {%- endfor -%}
+          {%- endfor -%}
+          {%- set active = result is succeeded and result is not skipped -%}
+          {%- set seconds = (((started - (ended.times | max)[:19] | to_datetime('%Y-%m-%dT%H:%M:%S')).total_seconds()
+                + ((result.attempts | default(1)) - 1) * cluster_upgrade_poll_delay | int) | int) if active and ended.times else none -%}
+          {%- set states = (result.portals | default({}))[read.side] | default([]) | map(attribute='status') | unique | join(', ') -%}
+          {%- set found.entries = found.entries + [{'component': read.component, 'host': read.host, 'active': active, 'seconds': seconds,
+                'line': read.component ~ "'s portals read ACTIVE on " ~ read.host ~ '.' if active else
+                        (read.component ~ "'s portals on " ~ read.host ~ ' did not read ACTIVE within ' ~ cluster_upgrade_peer_timeout
+                         ~ ' seconds' ~ (': they read ' ~ states if states else '') ~ '.') if result.portals is defined else
+                        (read.component ~ "'s portals could not be read on " ~ read.host ~ ': ' ~ result.msg | default('no message'))}] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for source in ansible_play_hosts if hostvars[source].cluster_upgrade_replication_read is defined
+            and hostvars[source].cluster_upgrade_replication_read is not skipped -%}
+        {%- set result = hostvars[source].cluster_upgrade_replication_read -%}
+        {%- for entry in hostvars[source].qumulo_replication_relationships | default([])
+              if entry.state | default('present') == 'present'
+              and (source in cluster_upgrade_hop.moves or entry.target | default('') in cluster_upgrade_hop.moves) -%}
+          {%- set name = source ~ ':' ~ entry.source_path ~ ' to ' ~ entry.target ~ ':' ~ entry.target_path -%}
+          {%- set read = (result.replication | default({})).source_relationships | default([])
+                | selectattr('source_path', 'equalto', (entry.source_path | regex_replace('(.)/+$', '\\1')))
+                | selectattr('target_path', 'match', '^' ~ (entry.target_path | regex_replace('(.)/+$', '\\1') | regex_escape) ~ '/?$')
+                | list -%}
+          {%- if result is failed -%}
+            {%- set found.entries = found.entries + [{'source': source, 'target': entry.target, 'error': none,
+                  'line': name ~ ': its source could not be read: ' ~ result.msg | default('no message')}] -%}
+          {%- elif not read -%}
+            {%- set found.entries = found.entries + [{'source': source, 'target': entry.target, 'error': none,
+                  'line': name ~ ': ' ~ source ~ ' lists no such relationship.'}] -%}
+          {%- else -%}
+            {%- set error = read[0].error_from_last_job | default(none) -%}
+            {%- set found.entries = found.entries + [{'source': source, 'target': entry.target, 'error': error,
+                  'line': name ~ (': its last job ended with: ' ~ error if error else ': its last job reported no error.')}] -%}
+          {%- endif -%}
+        {%- endfor -%}
+      {%- endfor -%}
+      {{ cluster_upgrade_peers | combine({cluster_upgrade_peer_reading: found.entries}) }}
+  run_once: true
+  when: not upgrade_stop

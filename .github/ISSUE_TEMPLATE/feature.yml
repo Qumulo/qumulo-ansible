@@ -1,0 +1,53 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+name: Request
+description: A module, an option or a platform the collection does not cover.
+labels: [community]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This issue is public. Do not paste passwords, tokens or keys, your clusters' addresses or host names, or anything
+        else you would not publish. Replace such values with placeholders such as `cluster.example.com`.
+  - type: input
+    id: collection-version
+    attributes:
+      label: Collection version
+      description: "`ansible-galaxy collection list qumulo.cluster` shows it."
+    validations:
+      required: true
+  - type: input
+    id: core-version
+    attributes:
+      label: Qumulo Core version
+      description: The version of the cluster you want to manage, for example 7.10.3.
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: What the cluster runs on.
+      options:
+        - Hardware cluster
+        - Cloud Native Qumulo (CNQ)
+        - Virtual edge
+        - Hardware edge
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: request
+    attributes:
+      label: What you want to manage
+      description: The module, the option or the platform, and the task you could not do without it.
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What you do today
+      description: How you manage it now, if you do, with each address, host name and secret redacted.
+    validations:
+      required: false

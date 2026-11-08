@@ -1,0 +1,10 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One round of phase 2, from restore.yml's loop. That loop has no when, since a looped include's when is read for
+# every round before the first runs; this include's when is read as the round starts, so a round with nothing left
+# waiting returns at once, and is not inherited by the tasks it includes, so a round's own retirements never cut it
+# short (plan, Phases).
+- name: Run a round while a relationship waits for its full sync
+  ansible.builtin.include_tasks: restore_round_body.yml
+  when: replication_pair_restore_state.values() | selectattr('status', 'equalto', 'waiting') | list | length > 0

@@ -1,0 +1,9 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# meta/argument_specs.yml documents each variable.
+edge_cache_resize_margin_bytes: null
+edge_cache_resize_rounding_tolerance: null
+edge_cache_resize_floor_bytes: 1000000000000
+edge_cache_resize_allow_rebuild: false
+edge_cache_resize_plan_only: "{{ ansible_check_mode }}"

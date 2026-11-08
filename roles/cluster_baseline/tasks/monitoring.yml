@@ -1,0 +1,44 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Monitoring first, since turning it off also turns the Nexus connection off;
+# then the connection, then the registration, with no other monitoring write
+# between the registration and its status REGISTERED, since the cluster
+# rotates its Nexus secret in the background meanwhile.
+- name: Apply the cloud monitoring settings
+  qumulo.cluster.monitoring_settings:
+    enabled: "{{ qumulo_monitoring.enabled | default(omit) }}"
+    mq_host: "{{ qumulo_monitoring.mq_host | default(omit) }}"
+    mq_port: "{{ qumulo_monitoring.mq_port | default(omit) }}"
+    mq_proxy_host: "{{ qumulo_monitoring.mq_proxy_host | default(omit) }}"
+    mq_proxy_port: "{{ qumulo_monitoring.mq_proxy_port | default(omit) }}"
+    s3_proxy_host: "{{ qumulo_monitoring.s3_proxy_host | default(omit) }}"
+    s3_proxy_port: "{{ qumulo_monitoring.s3_proxy_port | default(omit) }}"
+    s3_proxy_disable_https: "{{ qumulo_monitoring.s3_proxy_disable_https | default(omit) }}"
+    vpn_enabled: "{{ qumulo_monitoring.vpn_enabled | default(omit) }}"
+    vpn_host: "{{ qumulo_monitoring.vpn_host | default(omit) }}"
+    period: "{{ qumulo_monitoring.period | default(omit) }}"
+  when: qumulo_monitoring.keys() | difference(['nexus', 'nexus_join_key', 'nexus_account_id']) | length > 0
+
+- name: Apply the Nexus connection
+  qumulo.cluster.nexus_connection:
+    nexus_enabled: "{{ qumulo_monitoring.nexus.nexus_enabled | default(omit) }}"
+    nexus_host: "{{ qumulo_monitoring.nexus.nexus_host | default(omit) }}"
+    nexus_port: "{{ qumulo_monitoring.nexus.nexus_port | default(omit) }}"
+    nexus_interval: "{{ qumulo_monitoring.nexus.nexus_interval | default(omit) }}"
+    nexus_capability_remote_support: "{{ qumulo_monitoring.nexus.nexus_capability_remote_support | default(omit) }}"
+    nexus_capability_sso: "{{ qumulo_monitoring.nexus.nexus_capability_sso | default(omit) }}"
+  when: qumulo_monitoring.nexus is defined
+
+# The key is single-use: a registered cluster is never sent one, and without a
+# key or a token to mint one there is nothing to register with.
+- name: Register the cluster with Nexus
+  qumulo.cluster.nexus_registration:
+    join_key: "{{ qumulo_monitoring.nexus_join_key | default(omit, true) }}"
+    nexus_account_id: "{{ qumulo_monitoring.nexus_account_id | default(omit) }}"
+    nexus_api_token: "{{ qumulo_nexus_api_token | default(omit) }}"
+    nexus_api_url: "{{ qumulo_nexus_api_url | default(omit) }}"
+  register: cluster_baseline_registration
+  when:
+    - qumulo_monitoring.nexus.nexus_enabled | default(false) | bool
+    - qumulo_monitoring.nexus_join_key | default('') | length > 0 or qumulo_nexus_api_token | default('') | length > 0

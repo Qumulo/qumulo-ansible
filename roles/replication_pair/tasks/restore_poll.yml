@@ -1,0 +1,49 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# A poll action of restore_action.yml: each of its polls reads one record by id, every 5 seconds, until it is in one of
+# the poll's states, and all of them together take at most the action's timeout. A read-only poll sends no verb, so a
+# timeout leaves the relationship where it is, stopped with the action's timeout message.
+- name: Note when the poll starts
+  ansible.builtin.set_fact:
+    replication_pair_restore_poll_started: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ') }}"
+
+- name: Poll each record by id until it reads one of its states
+  qumulo.cluster.replication_info:
+    relationship_id: "{{ replication_pair_restore_poll.relationship_id }}"
+    side: "{{ replication_pair_restore_poll.side }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: >-
+      {{ replication_pair_connections[inventory_hostname if replication_pair_restore_poll.cluster == 'edge' else replication_pair_restore_target_host] }}
+  loop: "{{ replication_pair_restore_action.polls }}"
+  loop_control:
+    loop_var: replication_pair_restore_poll
+    label: "{{ replication_pair_restore_poll.cluster }} {{ replication_pair_restore_poll.side }} {{ replication_pair_restore_poll.relationship_id }}"
+  register: replication_pair_restore_polled
+  until: >-
+    ((replication_pair_restore_polled.replication | default({})).relationship | default(none, true) or {}).state | default('')
+    in replication_pair_restore_poll.until
+  retries: >-
+    {{ [((replication_pair_restore_action.timeout | int
+          - (now(utc=true) - (replication_pair_restore_poll_started | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).total_seconds()) / 5)
+        | round(0, 'ceil') | int, 0] | max }}
+  delay: 5
+  failed_when: false
+
+- name: Stop when a record did not reach its state in time
+  ansible.builtin.set_fact:
+    replication_pair_restore_halt:
+      outcome: stopped
+      fails: true
+      message: "{{ replication_pair_restore_action.timeout_message }}"
+  when: replication_pair_restore_missed | bool
+  vars:
+    replication_pair_restore_missed: >-
+      {%- set missed = namespace(any=false) -%}
+      {%- for result in replication_pair_restore_polled.results -%}
+        {%- set record = (result.replication | default({})).relationship | default(none, true) or {} -%}
+        {%- if record.state | default('') not in result.replication_pair_restore_poll.until -%}
+          {%- set missed.any = true -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ missed.any }}

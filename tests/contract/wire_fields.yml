@@ -1,0 +1,697 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The request fields each write route sends, for the contract tests to compare
+# with the request schema in /openapi.json. Every POST, PUT and PATCH of a Route
+# in plugins/module_utils/ needs an entry:
+#   route:  the Route as file.NAME, such as client.LOGIN
+#   method: POST, PUT or PATCH
+#   fields: {field path: the JSON type sent}. A path is dotted from the body,
+#           with [] for an array's items (restrictions[].require_tls); $body is a
+#           body that is a bare value. Types: string, integer, number, boolean,
+#           array, object. List every field any request on the route can send.
+---
+- route: client.LOGIN
+  method: POST
+  fields:
+    username: string
+    password: string
+- route: identity.FIND
+  method: POST
+  fields:
+    domain: string
+    name: string
+    sid: string
+    uid: integer
+    gid: integer
+    auth_id: string
+- route: identity.EXPAND
+  method: POST
+  fields:
+    id.domain: string
+    id.name: string
+    id.sid: string
+    id.uid: integer
+    id.gid: integer
+    id.auth_id: string
+- route: portal.EVICTION
+  method: PATCH
+  fields:
+    free_threshold: number
+- route: cluster.CAPACITY_CLAMP
+  method: PUT
+  fields:
+    capacity_clamp: integer
+- route: cluster.SPOKES
+  method: POST
+  fields:
+    type: string
+    hub_hosts: array
+    hub_hosts[].address: string
+    hub_hosts[].port: integer
+- route: portal.SPOKE
+  method: PATCH
+  fields:
+    hub_hosts: array
+    hub_hosts[].address: string
+    hub_hosts[].port: integer
+- route: portal.SPOKE_ROOTS
+  method: POST
+  fields:
+    spoke_root_path: string
+    hub_root_path: string
+- route: portal.HUB
+  method: PATCH
+  fields:
+    type: string
+    spoke_hosts: array
+    spoke_hosts[].address: string
+    spoke_hosts[].port: integer
+- route: portal.HUB_ACCEPT
+  method: POST
+  fields:
+    spoke_hosts: array
+    spoke_hosts[].address: string
+    spoke_hosts[].port: integer
+    authorized_roots: array
+- route: portal.HUB_ROOT
+  method: POST
+  fields: {}
+- route: monitoring.SUPPORT_SETTINGS
+  method: PATCH
+  fields:
+    enabled: boolean
+    mq_host: string
+    mq_port: integer
+    mq_proxy_host: string
+    mq_proxy_port: integer
+    s3_proxy_host: string
+    s3_proxy_port: integer
+    s3_proxy_disable_https: boolean
+    vpn_enabled: boolean
+    vpn_host: string
+    period: integer
+    nexus_registration_key: string
+- route: monitoring.NEXUS_CONNECTION
+  method: PATCH
+  fields:
+    nexus_enabled: boolean
+    nexus_host: string
+    nexus_port: integer
+    nexus_interval: integer
+    nexus_capability_remote_support: boolean
+    nexus_capability_sso: boolean
+- route: monitoring.NEXUS_REGISTRATION
+  method: PUT
+  fields:
+    join_key: string
+- route: monitoring.NEXUS_ROTATE
+  method: POST
+  fields: {}
+- route: monitoring.AUDIT_DESTINATIONS
+  method: POST
+  fields:
+    config.type: string
+    config.name: string
+    config.enabled: boolean
+    config.server_address: string
+    config.server_port: integer
+    config.log_format: string
+    config.log_group_name: string
+    config.region: string
+- route: monitoring.AUDIT_DESTINATION
+  method: PUT
+  fields:
+    type: string
+    name: string
+    enabled: boolean
+    server_address: string
+    server_port: integer
+    log_format: string
+    log_group_name: string
+    region: string
+- route: monitoring.ROTATE_KEYS
+  method: POST
+  fields:
+    key_id: string
+- route: licensing.LICENSE_VALIDATE
+  method: POST
+  fields:
+    $body: object
+- route: licensing.LICENSE_ACTIVATE
+  method: POST
+  fields:
+    $body: object
+- route: files.ATTRIBUTES
+  method: PATCH
+  fields:
+    mode: string
+    owner: string
+    group: string
+- route: files.ENTRIES
+  method: POST
+  fields:
+    name: string
+    action: string
+- route: quotas.QUOTAS
+  method: POST
+  fields:
+    id: string
+    limit: string
+- route: quotas.QUOTA
+  method: PUT
+  fields:
+    id: string
+    limit: string
+- route: smb.SETTINGS
+  method: PATCH
+  fields:
+    session_encryption: string
+    supported_dialects: array
+    hide_shares_from_unauthorized_users: boolean
+    hide_shares_from_unauthorized_hosts: boolean
+    snapshot_directory_mode: string
+    bypass_traverse_checking: boolean
+    signing_required: boolean
+- route: smb.SHARES
+  method: POST
+  fields:
+    share_name: string
+    tenant_id: integer
+    fs_path: string
+    description: string
+    permissions: array
+    permissions[].type: string
+    permissions[].trustee.auth_id: string
+    permissions[].rights: array
+    network_permissions: array
+    network_permissions[].type: string
+    network_permissions[].address_ranges: array
+    network_permissions[].rights: array
+    access_based_enumeration_enabled: boolean
+    require_encryption: boolean
+    default_file_create_mode: string
+    default_directory_create_mode: string
+    expand_fs_path_variables: boolean
+    offline_files_caching_mode: string
+    allow_fs_path_create: boolean
+- route: smb.SHARE
+  method: PATCH
+  fields:
+    fs_path: string
+    description: string
+    permissions: array
+    permissions[].type: string
+    permissions[].trustee.auth_id: string
+    permissions[].rights: array
+    network_permissions: array
+    network_permissions[].type: string
+    network_permissions[].address_ranges: array
+    network_permissions[].rights: array
+    access_based_enumeration_enabled: boolean
+    require_encryption: boolean
+    default_file_create_mode: string
+    default_directory_create_mode: string
+    expand_fs_path_variables: boolean
+    offline_files_caching_mode: string
+    allow_fs_path_create: boolean
+- route: nfs.SETTINGS
+  method: PATCH
+  fields:
+    v4_enabled: boolean
+    krb5_enabled: boolean
+    krb5i_enabled: boolean
+    krb5p_enabled: boolean
+    auth_sys_enabled: boolean
+    idmap_domain: string
+- route: nfs.EXPORTS
+  method: POST
+  fields:
+    export_path: string
+    tenant_id: integer
+    fs_path: string
+    description: string
+    fields_to_present_as_32_bit: array
+    restrictions: array
+    restrictions[].host_restrictions: array
+    restrictions[].read_only: boolean
+    restrictions[].require_privileged_port: boolean
+    restrictions[].require_tls: boolean
+    restrictions[].required_authentication_mode: string
+    restrictions[].user_mapping: string
+    restrictions[].map_to_user.id_type: string
+    restrictions[].map_to_user.id_value: string
+    restrictions[].map_to_group.id_type: string
+    restrictions[].map_to_group.id_value: string
+- route: nfs.EXPORT
+  method: PATCH
+  fields:
+    fs_path: string
+    description: string
+    fields_to_present_as_32_bit: array
+    restrictions: array
+    restrictions[].host_restrictions: array
+    restrictions[].read_only: boolean
+    restrictions[].require_privileged_port: boolean
+    restrictions[].require_tls: boolean
+    restrictions[].required_authentication_mode: string
+    restrictions[].user_mapping: string
+    restrictions[].map_to_user.id_type: string
+    restrictions[].map_to_user.id_value: string
+    restrictions[].map_to_group.id_type: string
+    restrictions[].map_to_group.id_value: string
+- route: snapshots.POLICIES
+  method: POST
+  fields:
+    policy_name: string
+    enabled: boolean
+    source_file_id: string
+    snapshot_name_template: string
+    schedule.creation_schedule: object
+    schedule.expiration_time_to_live: string
+- route: snapshots.POLICY
+  method: PATCH
+  fields:
+    enabled: boolean
+    snapshot_name_template: string
+    schedule.creation_schedule: object
+    schedule.expiration_time_to_live: string
+- route: network.DNS
+  method: PATCH
+  fields:
+    dns_servers: array
+    dns_search_domains: array
+- route: network.TIME
+  method: PATCH
+  fields:
+    source: string
+    ntp_servers: array
+    use_ad_for_primary: boolean
+- route: network.LOOKUP_OVERRIDES
+  method: PUT
+  fields:
+    lookup_overrides: array
+    lookup_overrides[].ip_address: string
+    lookup_overrides[].aliases: array
+- route: network.CLEAR_DNS_CACHE
+  method: POST
+  fields:
+    skip_forward_cache: boolean
+    skip_reverse_cache: boolean
+- route: network.RESOLVE_NAMES
+  method: POST
+  fields:
+    $body: array
+- route: network.RESOLVE_ADDRESSES
+  method: POST
+  fields:
+    $body: array
+- route: network.AUTHORITATIVE_DNS
+  method: PATCH
+  fields:
+    enabled: boolean
+    fqdn: string
+    host_restrictions: array
+    record_ttl_seconds: integer
+- route: cluster.SETTINGS
+  method: PUT
+  fields:
+    cluster_name: string
+- route: auth.USERS
+  method: POST
+  fields:
+    name: string
+    primary_group: string
+    uid: string
+    home_directory: string
+    password: string
+- route: auth.USER
+  method: PUT
+  fields:
+    id: string
+    name: string
+    primary_group: string
+    uid: string
+    home_directory: string
+    password: string
+- route: auth.GROUPS
+  method: POST
+  fields:
+    name: string
+    gid: string
+- route: auth.GROUP
+  method: PUT
+  fields:
+    id: string
+    name: string
+    gid: string
+- route: auth.GROUP_MEMBERS
+  method: POST
+  fields:
+    member_id: string
+- route: auth.ROLE_MEMBERS
+  method: POST
+  fields:
+    auth_id: string
+# The keytab file itself, as application/octet-stream; the request schema is the binary body, with no JSON fields.
+- route: kerberos.KEYTAB
+  method: PUT
+  fields: {}
+- route: kerberos.SETTINGS
+  method: PUT
+  fields:
+    use_alt_security_identities_mapping: boolean
+- route: saml.SAML_SETTINGS
+  method: PATCH
+  fields:
+    enabled: boolean
+    idp_sso_url: string
+    idp_certificate: string
+    idp_entity_id: string
+    cluster_dns_name: string
+    require_sso: boolean
+- route: auth.USER_DEFINED_MAPPINGS
+  method: PUT
+  fields:
+    $body: array
+- route: auth.IDENTITY_ATTRIBUTES
+  method: PUT
+  fields:
+    home_directory: string
+- route: auth.ROLES
+  method: POST
+  fields:
+    name: string
+    description: string
+    privileges: array
+- route: auth.ROLE
+  method: PATCH
+  fields:
+    description: string
+    privileges: array
+- route: auth.CLEAR_CACHE
+  method: POST
+  fields: {}
+- route: cluster.SSL_CERTIFICATE
+  method: PUT
+  fields:
+    certificate: string
+    private_key: string
+- route: cluster.SSL_CIPHERS
+  method: PUT
+  fields:
+    tls_1_2: array
+    tls_1_3: array
+- route: network.NETWORK
+  method: PUT
+  fields:
+    frontend_networks: array
+    frontend_networks[].id: integer
+    frontend_networks[].name: string
+    frontend_networks[].tenant_id: integer
+    frontend_networks[].addresses: object
+    managed_interfaces: object
+- route: network.NETWORK_VALIDATE
+  method: PUT
+  fields:
+    frontend_networks: array
+    frontend_networks[].id: integer
+    frontend_networks[].name: string
+    frontend_networks[].tenant_id: integer
+    frontend_networks[].addresses: object
+    managed_interfaces: object
+- route: cluster.EDGE_CREATE
+  method: POST
+  fields:
+    eula_accepted: boolean
+    name: string
+    admin_password: string
+- route: dirsvc.AD_JOIN
+  method: POST
+  fields:
+    domain: string
+    domain_netbios: string
+    user: string
+    password: string
+    ou: string
+    use_ad_posix_attributes: boolean
+    base_dn: string
+    search_trusted_domains: boolean
+    domain_controllers: string
+- route: dirsvc.AD_RECONFIGURE
+  method: POST
+  fields:
+    search_trusted_domains: boolean
+    use_ad_posix_attributes: boolean
+    base_dn: string
+    domain_controllers: string
+- route: dirsvc.AD_LEAVE
+  method: POST
+  fields:
+    domain: string
+    user: string
+    password: string
+- route: replication.SOURCES
+  method: POST
+  fields:
+    source_root_path: string
+    target_root_path: string
+    target_address: string
+    target_port: integer
+    replication_enabled: boolean
+    map_local_ids_to_nfs_ids: boolean
+    source_root_read_only: boolean
+    blackout_windows: array
+    blackout_windows[].start_hour: integer
+    blackout_windows[].start_minute: integer
+    blackout_windows[].end_hour: integer
+    blackout_windows[].end_minute: integer
+    blackout_windows[].on_days: array
+    blackout_window_timezone: string
+- route: replication.SOURCE
+  method: PATCH
+  fields:
+    target_address: string
+    target_port: integer
+    replication_enabled: boolean
+    map_local_ids_to_nfs_ids: boolean
+    source_root_read_only: boolean
+    blackout_windows: array
+    blackout_windows[].start_hour: integer
+    blackout_windows[].start_minute: integer
+    blackout_windows[].end_hour: integer
+    blackout_windows[].end_minute: integer
+    blackout_windows[].on_days: array
+    blackout_window_timezone: string
+- route: replication.TARGET_AUTHORIZE
+  method: POST
+  fields: {}
+- route: replication.TARGET_DELETE
+  method: POST
+  fields: {}
+- route: replication.TARGET_MAKE_WRITABLE
+  method: POST
+  fields: {}
+- route: replication.TARGET_RECONNECT
+  method: POST
+  fields: {}
+- route: replication.SOURCE_REVERSE
+  method: POST
+  fields:
+    target_relationship_id: string
+    source_address: string
+    source_port: integer
+- route: s3.SETTINGS
+  method: PATCH
+  fields:
+    enabled: boolean
+    secure: boolean
+    base_path: string
+    multipart_upload_expiry_interval: string
+- route: ftp.SETTINGS
+  method: PATCH
+  fields:
+    enabled: boolean
+    check_remote_host: boolean
+    log_operations: boolean
+    chroot_users: boolean
+    allow_unencrypted_connections: boolean
+    expand_wildcards: boolean
+    anonymous_user.id_type: string
+    anonymous_user.id_value: string
+    greeting: string
+- route: s3.BUCKETS
+  method: POST
+  fields:
+    name: string
+    path: string
+    create_fs_path: boolean
+    object_lock_enabled: boolean
+- route: s3.BUCKET
+  method: PATCH
+  fields:
+    versioning: string
+    lock_config.enabled: boolean
+    lock_config.default_retention.value: integer
+    lock_config.default_retention.units: string
+- route: s3.POLICY
+  method: PUT
+  fields:
+    Version: string
+    Id: string
+    Statement: array
+    Statement[].Sid: string
+    Statement[].Effect: string
+    Statement[].Principal.Qumulo: array
+    Statement[].Action: array
+- route: s3.ACCESS_KEYS
+  method: POST
+  fields:
+    user.auth_id: string
+- route: access_tokens.ACCESS_TOKENS
+  method: POST
+  fields:
+    user.auth_id: string
+    expiration_time: string
+- route: access_tokens.ACCESS_TOKEN
+  method: PATCH
+  fields:
+    enabled: boolean
+    expiration_time: string
+- route: filesystem.PERMISSIONS
+  method: PUT
+  fields:
+    mode: string
+- route: filesystem.ATIME
+  method: PATCH
+  fields:
+    enabled: boolean
+    granularity: string
+- route: filesystem.NOTIFY
+  method: PUT
+  fields:
+    recursive_mode: string
+- route: cluster.WEB_UI
+  method: PUT
+  fields:
+    login_banner: string
+    inactivity_timeout.nanoseconds: string
+- route: files.ACL
+  method: PUT
+  fields:
+    control: array
+    posix_special_permissions: array
+    aces: array
+    aces[].type: string
+    aces[].flags: array
+    aces[].trustee.auth_id: string
+    aces[].rights: array
+- route: files.EXPLAIN_SET_MODE
+  method: POST
+  fields:
+    mode: string
+- route: snapshots.SNAPSHOTS
+  method: POST
+  fields:
+    name_suffix: string
+    expiration: string
+    source_file_id: string
+- route: snapshots.LOCK
+  method: POST
+  fields:
+    lock_key_ref: string
+- route: snapshots.UNLOCK
+  method: POST
+  fields:
+    signature: string
+- route: security_keys.KEYS
+  method: POST
+  fields:
+    name: string
+    public_key: string
+    comment: string
+    verification_signature: string
+- route: security_keys.KEY
+  method: PATCH
+  fields:
+    comment: string
+    disabled: boolean
+- route: security_keys.REPLACE
+  method: POST
+  fields:
+    replacement_key: string
+    old_key_verification_signature: string
+    replacement_key_verification_signature: string
+- route: upgrade.VERIFY
+  method: POST
+  fields:
+    image_path: string
+- route: upgrade.PREPARE
+  method: POST
+  fields:
+    image_path: string
+    auto_commit: boolean
+    do_rolling_reboot: boolean
+    num_nodes_to_reboot: integer
+- route: upgrade.COMMIT
+  method: POST
+  fields: {}
+- route: tenancy.TENANTS
+  method: POST
+  fields:
+    name: string
+    web_ui_enabled: boolean
+    rest_api_enabled: boolean
+    ssh_enabled: boolean
+    replication_enabled: boolean
+    nfs_enabled: boolean
+    smb_enabled: boolean
+    networks: array
+    identity_config_id: integer
+- route: tenancy.TENANT
+  method: PATCH
+  fields:
+    name: string
+    web_ui_enabled: boolean
+    rest_api_enabled: boolean
+    ssh_enabled: boolean
+    replication_enabled: boolean
+    nfs_enabled: boolean
+    smb_enabled: boolean
+- route: overrides.SMB_OVERRIDE
+  method: PUT
+  fields:
+    session_encryption: string
+    supported_dialects: array
+    hide_shares_from_unauthorized_users: boolean
+    hide_shares_from_unauthorized_hosts: boolean
+    snapshot_directory_mode: string
+    bypass_traverse_checking: boolean
+    signing_required: boolean
+- route: overrides.SMB_OVERRIDE
+  method: PATCH
+  fields:
+    session_encryption: string
+    supported_dialects: array
+    hide_shares_from_unauthorized_users: boolean
+    hide_shares_from_unauthorized_hosts: boolean
+    snapshot_directory_mode: string
+    bypass_traverse_checking: boolean
+    signing_required: boolean
+- route: overrides.NFS_OVERRIDE
+  method: PUT
+  fields:
+    v4_enabled: boolean
+    krb5_enabled: boolean
+    krb5i_enabled: boolean
+    krb5p_enabled: boolean
+    auth_sys_enabled: boolean
+    idmap_domain: string
+- route: overrides.NFS_OVERRIDE
+  method: PATCH
+  fields:
+    v4_enabled: boolean
+    krb5_enabled: boolean
+    krb5i_enabled: boolean
+    krb5p_enabled: boolean
+    auth_sys_enabled: boolean
+    idmap_domain: string

@@ -1,0 +1,277 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Upgrades the fleet to each host's qumulo_upgrade_target, hop by hop, with
+# the qumulo.cluster.cluster_upgrade role. The plan, from every inventory
+# host's reads and variables, refuses before anything is sent; then the run
+# takes each moved host's restore lock, and each source's that replicates to
+# one, and each hop prepares every host it moves before any commits. Run it
+# with --check first: it then predicts each host's first hop and the locks,
+# and changes nothing on the clusters.
+#
+#   ansible-playbook playbooks/upgrade.yml --check
+#   ansible-playbook playbooks/upgrade.yml
+#
+# qumulo_upgrade_api_host, when set, is the host this playbook connects to in
+# place of qumulo_api_host. A prepare holds one request open for up to 45
+# minutes, which a load balancer or NAT gateway that closes idle connections
+# cuts; give such a cluster a node's address here.
+- name: Upgrade each cluster to its target
+  hosts: qumulo_clusters
+  gather_facts: false
+  strategy: linear
+  any_errors_fatal: false
+  timeout: 0
+  module_defaults:
+    group/qumulo.cluster.qumulo:
+      api_host: "{{ qumulo_upgrade_api_host | default(qumulo_api_host) }}"
+      api_port: "{{ qumulo_api_port | default(8000) }}"
+      api_username: "{{ qumulo_api_username | default('admin') }}"
+      api_password: "{{ qumulo_api_password | default('') }}"
+      api_token: "{{ qumulo_api_token | default('') }}"
+      validate_certs: "{{ qumulo_validate_certs | default(true) }}"
+      ca_path: "{{ qumulo_ca_path | default(omit) }}"
+      expected_cluster_uuid: "{{ qumulo_cluster_uuid | default('') }}"
+  vars:
+    # The edge_rebuild role's expression, so the lock is the file a restore takes whatever cluster_upgrade_artifact_dir
+    # says; the role's own default for cluster_upgrade_artifact_dir is the same expression.
+    upgrade_lock_dir: "{{ edge_rebuild_artifact_dir | default(ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default(''))) }}"
+    upgrade_record_dir: "{{ cluster_upgrade_artifact_dir | default(ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default(''))) }}"
+    upgrade_lock: "{{ upgrade_lock_dir }}/{{ inventory_hostname }}/restore/lock"
+    upgrade_records: >-
+      {{ (upgrade_plan_result.plan.records.retire + upgrade_plan_result.plan.records.drop)
+         | selectattr('host', 'equalto', inventory_hostname) | list }}
+  tasks:
+    - name: Read each cluster's release, upgrade state, license, product and portals
+      qumulo.cluster.cluster_info:
+        gather_subset: [node, version, license, product, upgrade, portals]
+      register: upgrade_read
+
+    - name: Refuse an empty artifact directory
+      ansible.builtin.assert:
+        that:
+          - upgrade_lock_dir | length > 0
+          - upgrade_record_dir | length > 0
+        fail_msg: >-
+          {{ inventory_hostname }} has no artifact directory, as for a host given with -i as a list. Run from an
+          inventory file or directory, or set edge_rebuild_artifact_dir, where the restore locks are, and
+          cluster_upgrade_artifact_dir, where the commit records and the reports are.
+        quiet: true
+
+    # Each host's record is under its own cluster_upgrade_artifact_dir, which follows the inventory source that
+    # defines the host, so two sources give two directories.
+    - name: Read every inventory host's commit record
+      ansible.builtin.set_fact:
+        upgrade_commit_records: >-
+          {%- set found = namespace(records={}) -%}
+          {%- for name in groups['qumulo_clusters'] -%}
+            {%- set directory = hostvars[name].cluster_upgrade_artifact_dir
+                  | default(ansible_inventory_sources | qumulo.cluster.artifact_dir(hostvars[name].inventory_file | default(''))) -%}
+            {%- set path = directory ~ '/' ~ name ~ '/upgrade/commit.yml' -%}
+            {%- if directory | length > 0 and path is file -%}
+              {%- set found.records = found.records
+                    | combine({name: {'path': path, 'text': lookup('ansible.builtin.file', path, rstrip=false)}}) -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ found.records }}
+      run_once: true
+
+    # FR-016: every host's restore files are under its own edge_rebuild_artifact_dir, by the edge_rebuild role's
+    # expression, so two inventory sources give two directories. Check mode scans too, since the scan only reads.
+    - name: List the restore records and restore locks under each artifact directory
+      qumulo.cluster.replication_restore_info:
+        path: "{{ item }}"
+      loop: "{{ upgrade_restore_dirs }}"
+      register: upgrade_restore_scans
+      run_once: true
+      vars:
+        upgrade_restore_dirs: >-
+          {%- set found = namespace(dirs=[]) -%}
+          {%- for name in groups['qumulo_clusters'] -%}
+            {%- set found.dirs = found.dirs + [hostvars[name].edge_rebuild_artifact_dir
+                  | default(ansible_inventory_sources | qumulo.cluster.artifact_dir(hostvars[name].inventory_file | default('')))] -%}
+          {%- endfor -%}
+          {{ found.dirs | select | unique | sort }}
+
+    - name: Plan the run from every inventory host
+      qumulo.cluster.upgrade_plan:
+        hosts: "{{ upgrade_plan_hosts }}"
+        limit: "{{ ansible_play_hosts_all if ansible_limit is defined else omit }}"
+        aggressive: "{{ qumulo_upgrade_aggressive | default(false) | bool }}"
+        timeouts:
+          wait: "{{ cluster_upgrade_wait_timeout | default(none) }}"
+          reboot: "{{ cluster_upgrade_reboot_timeout | default(none) }}"
+          unblock: "{{ cluster_upgrade_unblock_timeout | default(none) }}"
+          peer: "{{ cluster_upgrade_peer_timeout | default(none) }}"
+        forks: "{{ ansible_forks }}"
+        throttle: "{{ cluster_upgrade_prepare_throttle | default(omit) }}"
+        restore_files:
+          records: "{{ upgrade_restore_scans.results | map(attribute='records') | flatten }}"
+          locks: "{{ upgrade_restore_scans.results | map(attribute='locks') | flatten }}"
+      vars:
+        upgrade_plan_hosts: >-
+          {%- set found = namespace(hosts=[]) -%}
+          {%- for name in groups['qumulo_clusters'] -%}
+            {%- set host = hostvars[name] -%}
+            {%- set entry = {
+                  'name': name,
+                  'in_play': name in ansible_play_hosts,
+                  'target': host.qumulo_upgrade_target | default(none),
+                  'images': host.qumulo_upgrade_images | default([]) | qumulo.cluster.redact_images,
+                  'reboot': host.qumulo_upgrade_reboot | default(none),
+                  'reboot_set_size': host.qumulo_upgrade_reboot_set_size | default(none),
+                  'maintenance_windows': host.qumulo_upgrade_maintenance_windows | default(none),
+                  'window_timezone': host.qumulo_upgrade_window_timezone | default(none),
+                  'after': host.qumulo_upgrade_after | default(none),
+                  'allow_limited_release': host.qumulo_upgrade_allow_limited_release | default(false) | bool,
+                  'cluster_kind': host.qumulo_cluster_kind | default(none),
+                  'portal_hub': (host.qumulo_portal | default({})).hub | default(none),
+                  'relationships': host.qumulo_replication_relationships | default([]),
+                } -%}
+            {%- if name in upgrade_commit_records -%}
+              {%- set entry = entry | combine({'commit_record': upgrade_commit_records[name]}) -%}
+            {%- endif -%}
+            {%- if name in ansible_play_hosts and host.upgrade_read.cluster is defined -%}
+              {%- set read = host.upgrade_read.cluster -%}
+              {%- set entry = entry | combine({
+                    'cluster_uuid': read.cluster_id | default(none),
+                    'version': read.version | default(none),
+                    'build': read.build_id | default(none),
+                    'status': (read.upgrade | default({})).status | default(none),
+                    'protection': (read.upgrade | default({})).protection | default(none),
+                    'license_state': (read.license | default({})).state | default(none),
+                    'unprotected_edge': (read.product | default({})).unprotected_edge | default(none),
+                    'live_hub_portals': (read.portals | default({})).hubs | default(none),
+                    'live_spoke_portals': (read.portals | default({})).spokes | default(none),
+                    'unavailable_subsets': host.upgrade_read.unavailable_subsets | default({}),
+                  }) -%}
+            {%- endif -%}
+            {%- set found.hosts = found.hosts + [entry] -%}
+          {%- endfor -%}
+          {{ found.hosts }}
+      register: upgrade_plan_result
+      run_once: true
+
+    # The block opens at the take, so its always: releases the lock of a host that fails at any later task.
+    - name: Hold the restore locks from their take to the end of the hops
+      block:
+        # The restore lock a replication restore takes, holder upgrade, leased to the first hop's bound; the role renews
+        # it at each hop. Check mode judges the lock without writing it.
+        - name: Take each lock host's restore lock for the first hop, or fail the host with the refusal (F22)
+          when: inventory_hostname in upgrade_plan_result.plan.lock_hosts
+          block:
+            - name: Take this host's restore lock
+              qumulo.cluster.replication_restore_lock:
+                path: "{{ upgrade_lock }}"
+                state: present
+                holder: upgrade
+                lease: "{{ upgrade_plan_result.plan.hops[0].lease | int }}"
+              register: upgrade_lock_taken
+
+            - name: Keep the lock's token, which each renewal and the release pass back
+              ansible.builtin.set_fact:
+                upgrade_lock_token: "{{ upgrade_lock_taken.token }}"
+              when: not ansible_check_mode
+
+            # The lock plugin warns of a takeover only when it writes, so check mode reports it here.
+            - name: Predict the takeover of a lock whose run is gone
+              ansible.builtin.debug:
+                msg: >-
+                  {{ inventory_hostname }}: the run would take over {{ upgrade_lock }}, whose ansible-playbook process
+                  is gone or whose lease has run out.
+              when:
+                - ansible_check_mode
+                - upgrade_lock_taken.took_over
+          rescue:
+            - name: Keep that another run holds this host's lock
+              ansible.builtin.set_fact:
+                upgrade_lock_refused: true
+
+            # Only a lock another run holds is F22; a lock that cannot be read, or a guard that stays locked, is not.
+            - name: Predict the lock's refusal
+              ansible.builtin.debug:
+                msg: >-
+                  {{ 'F22, predicted' if ' under way since ' in ansible_failed_result.msg else 'Predicted' }}:
+                  {{ ansible_failed_result.msg }} The run would hold
+                  {{ upgrade_plan_result.plan.lock_hosts[inventory_hostname] | join(', ') }}.
+              when: ansible_check_mode
+
+            - name: Fail this host with the lock's refusal (F22)
+              ansible.builtin.fail:
+                msg: "{{ ansible_failed_result.msg }}"
+              when: not ansible_check_mode
+
+        - name: Hold, for the whole run, what each refused lock protects
+          ansible.builtin.set_fact:
+            upgrade_lock_held: >-
+              {%- set found = namespace(held=[]) -%}
+              {%- for name, protected in upgrade_plan_result.plan.lock_hosts.items()
+                    if hostvars[name].upgrade_lock_refused | default(false) -%}
+                {%- set found.held = found.held + protected -%}
+              {%- endfor -%}
+              {{ found.held | unique | sort }}
+          run_once: true
+
+        # Only on a host still in the play, so a host whose lock was refused keeps its record; and only a record no
+        # other run has written since the plan read it.
+        - name: Remove each commit record the plan retires or drops
+          ansible.builtin.file:
+            path: "{{ item.path }}"
+            state: absent
+          loop: "{{ upgrade_records }}"
+          loop_control:
+            label: "{{ item.line }}"
+          when:
+            - not ansible_check_mode
+            - item.path is file
+            - ('sha256:' ~ lookup('ansible.builtin.file', item.path, rstrip=false) | hash('sha256')) == item.digest
+
+        - name: Report the commit records the run would retire or drop
+          ansible.builtin.debug:
+            msg: "{{ item.line }}"
+          loop: "{{ upgrade_records }}"
+          loop_control:
+            label: "{{ item.path }}"
+          when:
+            - ansible_check_mode
+            - not upgrade_lock_refused | default(false)
+
+        - name: Upgrade the fleet hop by hop
+          ansible.builtin.include_role:
+            name: qumulo.cluster.cluster_upgrade
+          vars:
+            cluster_upgrade_plan: "{{ upgrade_plan_result.plan }}"
+            upgrade_lock_hosts: "{{ upgrade_plan_result.plan.lock_hosts | list }}"
+      always:
+        # Only a take that succeeded keeps a token, so a host whose take failed, or a check run, releases nothing.
+        - name: Release this host's restore lock, if this run holds it
+          qumulo.cluster.replication_restore_lock:
+            path: "{{ upgrade_lock }}"
+            state: absent
+            token: "{{ upgrade_lock_token }}"
+          when: upgrade_lock_token is defined
+
+    # Not meta: end_play, which would skip the always: above and leave the locks. The role stops the run after a hop
+    # that failed or held a host it moves, or that was outside the maintenance window, and before a hop whose lock
+    # renewal failed, with upgrade_stop_reason, which names that hop and so stands alone in the message.
+    - name: Fail the run when a hop stopped it
+      ansible.builtin.fail:
+        msg: >-
+          {{ upgrade_stop_reason.rstrip('.') if upgrade_stop_reason is defined else upgrade_stopped_in_hop }}. The
+          report under {{ upgrade_record_dir }} gives each host's outcome.
+      run_once: true
+      when: upgrade_stop | default(false)
+      vars:
+        upgrade_stopped: >-
+          {{ upgrade_plan_result.plan.hops | selectattr('number', 'equalto', cluster_upgrade_stopped_in | int) | first }}
+        upgrade_stopped_in_hop: >-
+          The upgrade stopped in hop {{ upgrade_stopped.number }}, to {{ upgrade_stopped.release }}{{ ''
+          if upgrade_stopped.number == (upgrade_plan_result.plan.hops | last).number else ', and ran no later hop' }}:
+          {{ upgrade_reasons | join('; ') }}
+        upgrade_failed: "{{ upgrade_stopped.hosts | reject('in', ansible_play_hosts) | sort }}"
+        upgrade_held_only: "{{ upgrade_held | default([]) | reject('in', upgrade_failed) | list }}"
+        upgrade_reasons: >-
+          {{ ([upgrade_failed | join(', ') ~ ' failed'] if upgrade_failed else [])
+             + ([upgrade_held_only | join(', ') ~ ' held'] if upgrade_held_only else [])
+             + (['the hop was outside the maintenance window']
+                if not upgrade_failed and not upgrade_held_only and upgrade_stop_reason is not defined else []) }}

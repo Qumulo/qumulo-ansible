@@ -1,0 +1,202 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One action of a step, replication_pair_restore_action, as the step module lists it, run in the module's order. A
+# stop the action reports, such as a poll that times out, a record directory that cannot be written, or a create or
+# reverse that cannot reach its peer, sets replication_pair_restore_halt, which skips the step's remaining actions and
+# decides the relationship; any other failure fails the relationship.
+- name: Run the action
+  when: not replication_pair_restore_halt
+  vars:
+    replication_pair_restore_options: "{{ replication_pair_restore_action.options | default({}) }}"
+    replication_pair_restore_cluster: >-
+      {{ inventory_hostname if replication_pair_restore_action.cluster | default('edge') == 'edge' else replication_pair_restore_target_host }}
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[replication_pair_restore_cluster] }}"
+  block:
+    # Path only: R's first job sets the directory's attributes from the replica.
+    - name: Create the directory on the edge, path only
+      qumulo.cluster.directory:
+        path: "{{ replication_pair_restore_action.path }}"
+      when: replication_pair_restore_action.action == 'create_directory'
+
+    # Never with a mode for an existing directory, which it would change (decision 16).
+    - name: Create the record directory on the controller, only when it is missing
+      when: replication_pair_restore_action.action == 'ensure_record_directory'
+      block:
+        - name: Create the record directory
+          ansible.builtin.file:
+            path: "{{ replication_pair_restore_action.path }}"
+            state: directory
+            mode: "{{ replication_pair_restore_action.mode | default('0700') }}"
+          delegate_to: localhost
+          changed_when: false
+          when: replication_pair_restore_action.path is not directory
+
+        - name: Read whether the record directory can be written
+          ansible.builtin.stat:
+            path: "{{ replication_pair_restore_action.path }}"
+          delegate_to: localhost
+          register: replication_pair_restore_record_dir
+
+        - name: Fail on a record directory that cannot be written
+          ansible.builtin.fail:
+            msg: "the record directory {{ replication_pair_restore_action.path }} is not writable"
+          when: not replication_pair_restore_record_dir.stat.writeable | default(false)
+      rescue:
+        - name: Stop before anything is deleted, when step 7 says how
+          ansible.builtin.set_fact:
+            replication_pair_restore_halt:
+              outcome: stopped
+              fails: true
+              message: "{{ replication_pair_restore_action.stop_message }}"
+          when: replication_pair_restore_action.stop_message is defined
+
+        - name: Fail the relationship otherwise
+          ansible.builtin.fail:
+            msg: "{{ ansible_failed_result.msg | default('the record directory cannot be created') }}"
+          when: replication_pair_restore_action.stop_message is not defined
+
+    # A create or a reverse whose peer address cannot be reached changes nothing; the step module says what to do then.
+    - name: Send R's create, authorize, make-writable or reverse
+      when: replication_pair_restore_action.action in ['create_relationship', 'authorize', 'make_writable', 'reverse']
+      vars:
+        # Read only in the rescue, where ansible_failed_result is the failed task's result.
+        replication_pair_restore_stops: >-
+          {{ replication_pair_restore_action.stop_on is defined
+             and ansible_failed_result.error_class | default('') == replication_pair_restore_action.stop_on }}
+      block:
+        - name: Create R on the target, enabled and with no blackout window
+          qumulo.cluster.replication_relationship:
+            source_path: "{{ replication_pair_restore_options.source_path }}"
+            target_cluster_uuid: "{{ replication_pair_restore_options.target_cluster_uuid }}"
+            target_path: "{{ replication_pair_restore_options.target_path }}"
+            target_address: "{{ replication_pair_restore_options.target_address }}"
+            target_port: "{{ replication_pair_restore_options.target_port }}"
+            replication_enabled: "{{ replication_pair_restore_options.replication_enabled }}"
+            blackout_windows: "{{ replication_pair_restore_options.blackout_windows }}"
+          when: replication_pair_restore_action.action == 'create_relationship'
+
+        - name: Authorize R on the edge by id, and wait until it is ESTABLISHED
+          qumulo.cluster.replication_target:
+            source_cluster_uuid: "{{ replication_pair_restore_options.source_cluster_uuid }}"
+            source_path: "{{ replication_pair_restore_options.source_path }}"
+            target_path: "{{ replication_pair_restore_options.target_path }}"
+            relationship_id: "{{ replication_pair_restore_options.relationship_id }}"
+            allow_directories_only: "{{ replication_pair_restore_options.allow_directories_only }}"
+            wait: "{{ replication_pair_restore_options.wait }}"
+            wait_timeout: "{{ replication_pair_restore_timeouts.authorize }}"
+          when: replication_pair_restore_action.action == 'authorize'
+
+        - name: Make R writable on the edge
+          qumulo.cluster.replication_reverse:
+            relationship_id: "{{ replication_pair_restore_action.relationship_id }}"
+            verb: make_writable
+            allow_data_loss: "{{ replication_pair_restore_action.allow_data_loss }}"
+          when: replication_pair_restore_action.action == 'make_writable'
+
+        - name: Reverse R on the edge, toward the target's replication address
+          qumulo.cluster.replication_reverse:
+            relationship_id: "{{ replication_pair_restore_options.relationship_id }}"
+            verb: reverse
+            source_address: "{{ replication_pair_restore_options.address }}"
+            source_port: "{{ replication_pair_restore_options.port }}"
+          when: replication_pair_restore_action.action == 'reverse'
+      rescue:
+        - name: Stop with the step module's message on the failure it names
+          ansible.builtin.set_fact:
+            replication_pair_restore_halt:
+              outcome: stopped
+              fails: true
+              message: "{{ replication_pair_restore_action.stop_message }}"
+          when: replication_pair_restore_stops
+
+        - name: Fail the relationship otherwise
+          ansible.builtin.fail:
+            msg: "{{ ansible_failed_result.msg | default('failed') }}"
+          when: not replication_pair_restore_stops
+
+    - name: Poll R by id until it reads the step's state, within the step's timeout
+      ansible.builtin.include_tasks: restore_poll.yml
+      when: replication_pair_restore_action.action == 'poll'
+
+    # By X's own key, never the declared key, which is now R's.
+    - name: Delete X on the target
+      qumulo.cluster.replication_target:
+        source_cluster_uuid: "{{ replication_pair_restore_options.source_cluster_uuid }}"
+        source_path: "{{ replication_pair_restore_options.source_path }}"
+        target_path: "{{ replication_pair_restore_options.target_path }}"
+        state: absent
+      when: replication_pair_restore_action.action == 'delete_x'
+
+    # A failed read keeps the first recovery point the record already holds, which only makes the guard stricter.
+    - name: Read R on the target after X's delete
+      qumulo.cluster.replication_info:
+        relationship_id: "{{ replication_pair_restore_action.relationship_id }}"
+        side: "{{ replication_pair_restore_action.side }}"
+      failed_when: false
+      register: replication_pair_restore_after_delete
+      when: replication_pair_restore_action.action == 'read_after_delete'
+
+    - name: Compose the restore record from the read after X's delete
+      qumulo.cluster.replication_restore_step:
+        edge: "{{ inventory_hostname }}"
+        entry_point: "{{ replication_pair_restore_entry_point }}"
+        after_delete:
+          record: "{{ replication_pair_restore_action.record }}"
+          relationship: "{{ replication_pair_restore_after_delete.replication.relationship | default(none) }}"
+      register: replication_pair_restore_composed
+      when: replication_pair_restore_action.action == 'write_record'
+
+    - name: Write the restore record
+      ansible.builtin.copy:
+        dest: "{{ replication_pair_restore_action.path }}"
+        mode: "0600"
+        content: "{{ replication_pair_restore_composed.record | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}"
+      delegate_to: localhost
+      when: replication_pair_restore_action.action == 'write_record'
+
+    # Before the reconnect is sent, so a crash between them leaves a marked record, which sends none.
+    - name: Mark the restore record reconnected
+      ansible.builtin.copy:
+        dest: "{{ replication_pair_restore_action.path }}"
+        mode: "0600"
+        content: "{{ replication_pair_restore_action.record | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}"
+      delegate_to: localhost
+      when: replication_pair_restore_action.action == 'mark_record'
+
+    - name: Reconnect R on the target
+      ansible.builtin.include_tasks: restore_reconnect.yml
+      when: replication_pair_restore_action.action == 'reconnect'
+
+    # By R's id, so a missing record fails rather than creating one.
+    - name: Apply the declared settings to R on the edge
+      qumulo.cluster.replication_relationship:
+        source_path: "{{ replication_pair_restore_options.source_path }}"
+        target_cluster_uuid: "{{ replication_pair_restore_options.target_cluster_uuid }}"
+        target_path: "{{ replication_pair_restore_options.target_path }}"
+        target_address: "{{ replication_pair_restore_options.target_address }}"
+        target_port: "{{ replication_pair_restore_options.target_port }}"
+        relationship_id: "{{ replication_pair_restore_options.relationship_id }}"
+        replication_enabled: "{{ replication_pair_restore_options.replication_enabled | default(omit) }}"
+        map_local_ids_to_nfs_ids: "{{ replication_pair_restore_options.map_local_ids_to_nfs_ids | default(omit) }}"
+        source_root_read_only: "{{ replication_pair_restore_options.source_root_read_only | default(omit) }}"
+        blackout_windows: "{{ replication_pair_restore_options.blackout_windows | default(omit) }}"
+        blackout_window_timezone: "{{ replication_pair_restore_options.blackout_window_timezone | default(omit) }}"
+      when: replication_pair_restore_action.action == 'apply_settings'
+
+    - name: Write the restore stamp, which retires the rebuild report's claim
+      ansible.builtin.copy:
+        dest: "{{ replication_pair_restore_action.path }}"
+        mode: "0600"
+        content: "{{ replication_pair_restore_action.stamp | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}"
+      delegate_to: localhost
+      changed_when: false
+      when: replication_pair_restore_action.action == 'write_stamp'
+
+    - name: Remove the restore record
+      ansible.builtin.file:
+        path: "{{ replication_pair_restore_action.path }}"
+        state: absent
+      delegate_to: localhost
+      when: replication_pair_restore_action.action == 'remove_record'

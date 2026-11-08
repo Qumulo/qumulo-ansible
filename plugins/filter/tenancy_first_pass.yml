@@ -1,0 +1,81 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: tenancy_first_pass
+  short_description: What the edge_rebuild replay declares in its tenant 1 pass, before the baseline
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - On a cluster whose network document has no managed interfaces and no frontend network, as a newly formed edge on
+      host-managed networking has, the C(cluster_baseline) role's step 2 refuses a second tenant's create, because the
+      creates at step 3a come before the network document at step 3.
+    - When the inventory's tenants create a tenant on such a cluster, the filter gives what the C(edge_rebuild) role's
+      replay passes the baseline's tenancy step first. That is C(tenants), tenant 1 alone, found by its name after the
+      entries' renames, with its entry's C(name) and C(previous_name) and nothing else, or its name alone when no
+      present entry declares it, as when it is declared V(absent), where it is the C(Default) the edge forms with. It is
+      also C(network), the given C(qumulo_network) with C(frontend_networks) replaced by tenant 1's own networks, which are the
+      C(networks) under its entry, which go without C(vlan_id) or C(mtu), and each network in C(frontend_networks)
+      that the baseline's step 2 resolves to tenant 1 or to no tenant, as a C(tenant_id) the newly formed edge lacks
+      does. Each is sent with no C(tenant) or C(tenant_id), which in a run of one tenant is tenant 1. The baseline's
+      step 3 then adds the other tenants' networks, and, where the newly formed edge answers its network status, its step
+      2 places the play's address on the one HOST network the pass leaves, which is not the play's when it reaches
+      the edge on another tenant's network.
+    - Only when tenant 1 holds no network, as when it is declared V(absent), left undeclared or given
+      C(networks) V([]), does C(network) hold every network the inventory lists for a tenant that stays, that is, each
+      network in C(frontend_networks) whose tenant is not an absent one, and each present tenant's own C(networks). So every
+      network exists before any create and the baseline's step 3 only binds them.
+    - It gives an empty dict when the document has a frontend network or managed interfaces, when the entries create no
+      tenant, when the cluster has no tenant 1, or when the inventory lists no network for a tenant that stays, since that
+      pass would write nothing. The
+      C(edge_rebuild_preflight) module calls the same rule on the newly formed edge it models, and refuses an inventory
+      that gets no pass while it creates a tenant.
+    - Each entry and each cluster tenant needs a C(name), and each cluster tenant an C(id); one without fails the
+      filter, naming C(qumulo_tenants). A listed network without an C(id) fails it too, naming the networks.
+    - The tenants are defined by Qumulo's multitenancy REST API, which Qumulo marks as preview; a later Qumulo Core
+      release may change it.
+  options:
+    _input:
+      description: The entries of C(qumulo_tenants), or null or an empty list when it is unset.
+      type: list
+      elements: dict
+      required: true
+    cluster_tenants:
+      description: The cluster's tenants, as M(qumulo.cluster.tenant_info) returns them in C(tenants).
+      type: list
+      elements: dict
+      required: true
+    document:
+      description: The cluster's network document, as M(qumulo.cluster.network_info) returns it in C(network.document).
+      type: dict
+      required: true
+    network:
+      description: C(qumulo_network), or null when it is unset.
+      type: dict
+
+EXAMPLES: |
+  # The read tasks carry no connection options. Set them once for the play with module_defaults for
+  # group/qumulo.cluster.qumulo, or in the QUMULO_* environment variables.
+  - name: Read the cluster's tenants
+    qumulo.cluster.tenant_info:
+    register: tenants_read
+
+  - name: Read the cluster's network document
+    qumulo.cluster.network_info:
+      gather_subset: [document]
+    register: network_read
+
+  - name: Plan the tenant 1 pass
+    ansible.builtin.set_fact:
+      first_pass: >-
+        {{ qumulo_tenants | default([]) | qumulo.cluster.tenancy_first_pass(tenants_read.tenants, network_read.network.document,
+                                                                            qumulo_network | default(none)) }}
+
+RETURN:
+  _value:
+    description: The pass's C(tenants) and C(network), or an empty dict when there is no pass.
+    returned: always
+    type: dict
+    sample:
+      tenants: [{name: accounts, previous_name: Default}]
+      network: {frontend_networks: [{id: 0, name: Default, type: HOST}]}

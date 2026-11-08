@@ -1,0 +1,115 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The hub. Bring it to its baseline before the edge's first run: the edge's
+# portal step needs each hub_root to exist here already.
+
+# The admin password, encrypted. group_vars/qumulo_clusters.yml passes it to
+# the modules as qumulo_api_password.
+vault_qumulo_api_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  66303564323364373233623230656630666662306263623339303332663464343033343565363931
+  3236386661373535613934663237393463363836396635610a356438636531333838326237353435
+  35313132613538313863653834616234326330323535636631373433623036623235356339626435
+  3339386131393135660a383664363463306236393265643330316662646533323330616636333263
+  66393338396438363064306566663732353565633730303635376662643536346465346630396336
+  6463313939643134383566376439623564376231396261663132
+
+# The cluster's name: step 5, qumulo.cluster.cluster_settings. Give the name
+# the provider formed the hub with, or the baseline renames it. The server
+# refuses a rename while the cluster is joined to a domain.
+qumulo_cluster_name: hub01
+
+# The upgrade gives a Cloud Native Qumulo cluster the cloud images. The
+# Terraform inventory plugin sets the kind; hub01 is listed by hand, so the
+# upgrade otherwise takes it from the cluster's object-backed protection.
+# qumulo_cluster_kind: cnq
+
+# The network document: step 3, qumulo.cluster.network_config. Every network
+# of a host-managed cloud cluster has type HOST, and only its name, tenant,
+# netmask and floating ranges can change. floating_ip_ranges is left out:
+# group_vars/qumulo_hubs.yml gives network.floating_ips to Terraform, the
+# module keeps the cluster's floating addresses, and declaring them here fails.
+# The list is every network the cluster has, by the id the cluster gives it;
+# one not listed is removed. A hub formed otherwise gives its network's real
+# type, or leaves qumulo_network out.
+qumulo_network:
+  frontend_networks:
+    - id: 1
+      name: Default
+      type: HOST
+
+# DNS for the hub's site: step 4, qumulo.cluster.dns_settings.
+qumulo_dns:
+  servers: [10.0.0.2]
+  search_domains: [corp.example.com]
+
+# The addresses the edge's portal reaches the hub at: the hub's floating IPs,
+# the recommended addresses, never qumulo_api_host. Behind NAT, making them
+# reachable is yours to do. They are declared, never read from the cluster's
+# network status; with Terraform, the qumulo.cluster.terraform inventory
+# plugin sets them from the output's portal_hosts. cluster_baseline's portal
+# step reads them from here when an edge pairs with this hub, and so does a
+# rebuild.
+qumulo_portal_hosts:
+  - address: 10.0.0.10
+  - address: 10.0.0.11
+  - address: 10.0.0.12
+
+# The address a replication source reaches the hub at: a floating IP, never
+# qumulo_api_host, declared as qumulo_portal_hosts are. edge01's replication
+# step reads it from here; with Terraform, the qumulo.cluster.terraform
+# inventory plugin sets it from the output's replication_address.
+qumulo_replication_address: 10.0.0.11
+
+# Directories: step 17, qumulo.cluster.directory. /projects is the hub_root
+# of edge01's portal, so it must exist before the edge pairs. mode is a quoted
+# octal string; owner and group are trustees.
+qumulo_directories:
+  - path: /projects
+    mode: '0775'
+    owner: 'ad:CORP\svc-projects'
+    group: 'ad:CORP\Engineering'
+  - path: /replicas
+    mode: '0755'
+  # edge01's replication target: path only, since replication sets its
+  # attributes from the source, and nothing declared inside it.
+  - path: /replicas/edge01-scratch
+
+# SMB shares and NFS exports: steps 18 and 19, qumulo.cluster.smb_share and
+# nfs_export. Each list adds to what the cluster has: a share or export not
+# listed stays; declare one with state: absent to remove it.
+qumulo_smb_shares:
+  - share_name: projects
+    fs_path: /projects
+    description: Project data, cached at the edges
+    permissions:
+      - trustee: 'ad:CORP\Engineering'
+        rights: [READ, WRITE]
+      - trustee: Everyone
+        rights: [READ]
+qumulo_nfs_exports:
+  - export_path: /projects
+    fs_path: /projects
+    restrictions:
+      - host_restrictions: [10.0.0.0/16]
+        user_mapping: NFS_MAP_ROOT
+        map_to_user: uid:65534
+        map_to_group: gid:65534
+
+# Quotas and snapshot policies: step 20, qumulo.cluster.directory_quota and
+# snapshot_policy. A hub's portal roots may carry both; a spoke's may not
+# (G-SPOKE-PATHS).
+qumulo_quotas:
+  - path: /projects
+    limit: 20TiB
+qumulo_snapshot_policies:
+  - policy_name: projects-nightly
+    path: /projects
+    expiration_time_to_live: 30days
+    schedule:
+      frequency: SCHEDULE_DAILY_OR_WEEKLY
+      on_days: [EVERY_DAY]
+      hour: 1
+      minute: 0
+      timezone: UTC

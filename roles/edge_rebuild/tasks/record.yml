@@ -1,0 +1,55 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Writes predestroy-<UTC>.yml from what has happened so far: after each
+# portal, so that a run that fails later still leaves a record of a drain
+# that finished, with safe_to_destroy false, and at the end with
+# edge_rebuild_record_safe true. A check run writes nothing.
+- name: Record the predestroy result so far
+  ansible.builtin.set_fact:
+    edge_rebuild_predestroy:
+      cluster_uuid: "{{ qumulo_cluster_uuid | lower }}"
+      hub: >-
+        {{ {'host': qumulo_portal.hub, 'cluster_uuid': hostvars[qumulo_portal.hub].qumulo_cluster_uuid | lower}
+           if qumulo_portal is defined else none }}
+      portals: "{{ edge_rebuild_drains }}"
+      # Only a leave with credentials deletes the computer account.
+      ad_left: "{{ edge_rebuild_ad is not skipped and qumulo_ad.join_user is defined and qumulo_ad.join_password is defined }}"
+      nexus_deregistered: "{{ edge_rebuild_nexus_registration is not skipped }}"
+      nexus_retired: "{{ edge_rebuild_nexus_retired is not skipped }}"
+      drift: "{{ edge_rebuild_preflight.drift }}"
+      acknowledged: "{{ edge_rebuild_preflight.unreplayable | selectattr('area', 'in', edge_rebuild_preflight.acknowledged) | list }}"
+      # Each relationship the edge holds, and what the rebuild does with it.
+      replication: "{{ edge_rebuild_preflight.replication }}"
+      # The network the replay's tenant 1 pass and baseline take as qumulo_management_network when the inventory sets
+      # none: the one the play reaches this edge on, which the preflight infers when the pass writes two or more.
+      management_network: "{{ edge_rebuild_preflight.management_network | default(none) }}"
+      # The address the preflight found it by; the replay takes the network only while the inventory keeps it.
+      management_api_host: "{{ qumulo_api_host | default(none) }}"
+      # The names of the lock keys the edge held, which the replay's report names to register again; null when the
+      # key store could not be read. A key with an empty name (QUIRK-120) is named by its id.
+      security_keys: >-
+        {{ none if 'security_keys' in edge_rebuild_capture_snapshots.unavailable_subsets | default({})
+           else edge_rebuild_capture_snapshots.snapshots.security_keys | default([])
+                | map(attribute='name') | zip(edge_rebuild_capture_snapshots.snapshots.security_keys | default([]) | map(attribute='id'))
+                | map('select') | map('first') | list }}
+      safe_to_destroy: "{{ edge_rebuild_record_safe | bool and not ansible_check_mode }}"
+
+- name: Write the predestroy record
+  ansible.builtin.copy:
+    dest: "{{ edge_rebuild_host_dir }}/predestroy-{{ edge_rebuild_stamp }}.yml"
+    mode: "0600"
+    content: |
+      # Written by the qumulo.cluster.edge_rebuild role's predestroy phase. safe_to_destroy says that every portal
+      # the edge held is drained into its hub, or deleted as portals records, and that the drift list holds what the
+      # rebuild loses, plus a tenant it gains, or a network a tenant gains that the edge holds in no tenant, marked
+      # added: true, and the acknowledged list the rest of what it loses: data outside the portal roots among it, as
+      # local_data. Until the phase ends it is false, and portals lists the portals finished so far. replication lists
+      # each replication relationship the edge held and what the rebuild does with it, and security_keys the names of
+      # the lock keys it held. management_network is the network the replay gives its tenant 1 pass and baseline when
+      # the inventory sets no qumulo_management_network, while qumulo_api_host is still management_api_host, the
+      # address it was found by. The replay reads the newest of these files for the same cluster_uuid, and any of them
+      # for a drained portal.
+      {{ edge_rebuild_predestroy | ansible.builtin.to_nice_yaml(indent=2, sort_keys=false) }}
+  delegate_to: localhost
+  when: not ansible_check_mode

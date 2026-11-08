@@ -1,0 +1,24 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The failback's wait for a recovery point taken after the writes stopped (spec Decision 10), for every waiting
+# relationship on the target host replication_failover_sync_target at once: each one's recovery point, on the target's
+# source record, must move twice past the value read here. The first move may come from a job that began before this
+# read, the second comes from one that began after it. Every wait of the run together takes at most
+# replication_failover_sync_timeout from when the waits began.
+- name: Read the recovery points of the waiting relationships on {{ replication_failover_sync_target }}
+  qumulo.cluster.replication_info:
+    gather_subset: [source]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_failover_connections[replication_failover_sync_target] }}"
+  register: replication_failover_sync_read
+
+- name: Wait for the first move of each recovery point
+  ansible.builtin.include_tasks: sync_move.yml
+  vars:
+    replication_failover_moved_past: "{{ replication_failover_sync_points }}"
+
+- name: Wait for the second move of each recovery point
+  ansible.builtin.include_tasks: sync_move.yml
+  vars:
+    replication_failover_moved_past: "{{ replication_failover_sync_points }}"

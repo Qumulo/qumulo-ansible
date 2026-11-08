@@ -1,0 +1,2209 @@
+---
+ancestor: null
+releases:
+  0.1.0:
+    changes:
+      deprecated_features:
+        - 'network_config - the ``tenant_id`` suboption of ``frontend_networks`` is
+          deprecated and will be removed in 0.3.0. It is still accepted beside ``tenant``
+          when both name one tenant, so a document read with ``network_info`` can
+          be given back, and refused when they differ. An id that no tenant has is
+          dropped with a warning, and the network keeps the tenant the cluster reports.
+          Remedy: name the tenant with ``tenant``.'
+        - 'smb_share, nfs_export - the ``tenant_id`` option is deprecated and will
+          be removed in 0.3.0. It is still accepted beside ``tenant`` when both name
+          one tenant, so a share or export read with ``smb_info`` or ``nfs_info``
+          can be given back, and refused when they differ, naming both. Alone, it
+          is used as given, and refused when the tenant list can be read and no tenant
+          holds it, except with ``state: absent``, which then changes nothing. Remedy:
+          name the tenant with ``tenant``, or with ``tenants`` for several.'
+      minor_changes:
+        - Documentation - docs/how-to/nfs-kerberos.md serves NFS with Kerberos from
+          a standalone KDC.
+        - 'Documentation - the pages under docs/ are split by what the reader wants:
+          docs/tutorials/ for learning on a cluster you already run, docs/how-to/
+          for one task each, docs/reference/ for facts to look up, and docs/explanation/
+          for why the collection works the way it does. docs/README.md lists every
+          page. The gap and quirk registers and the troubleshooting page are in docs/reference/.'
+        - The Nexus modules take an optional Nexus user's API token (``nexus_api_token``)
+          to mint join keys and retire clusters.
+        - 'The collection is MIT apart from these GPL-3.0-or-later files: the inventory
+          plugin ``qumulo.cluster.terraform``, the action plugin of ``qumulo.cluster.replication_restore_lock``
+          and the filter plugins in ``plugins/filter/``, with the unit tests of the
+          inventory and action plugins; ``LICENSES/GPL-3.0-or-later.txt`` holds the
+          license text.'
+        - The tenant and tenant_info modules, and the tenant options of the existing
+          modules, use the multitenancy REST API, which Qumulo marks as preview in
+          Qumulo Core 7.10.3 and 7.11.0; a later release may change it.
+        - access_token - new module that makes sure a user holds an access token,
+          rotates the user's tokens, making the new one before it deletes the old,
+          or revokes them, and sets ``enabled`` and ``expiration_time``. The cluster
+          stores no name for a token, so a user's tokens are managed as one set. It
+          writes a new token's bearer at once to a file of its own in ``secret_destination``,
+          readable only by its owner, returns it in that run only, and refuses
+          to make a token unless the task sets ``no_log`` and a destination. It refuses to delete,
+          disable or expire the token the task connects with unless ``allow_management_disruption``
+          is set.
+        - artifact_dir - new filter that gives the cluster_baseline and edge_rebuild
+          roles their artifact directory, beside the inventory source on disk that
+          defines the host, and none for a host list such as ``-i edge01,``.
+        - audit_destination - new module that creates, changes or deletes an audit
+          log destination by name, writing its whole configuration with PUT. It refuses
+          any write while its terraform_owned_areas option lists audit, and a write
+          to a CloudWatch destination while it lists audit.cloudwatch, unless take_over_from_terraform
+          is true.
+        - auth_cache_clear - new action module that clears the cluster's cache of
+          identities and group memberships, always reporting a change (G-ACTIONS)
+          and in check mode clearing nothing. The ``cluster_baseline`` role runs it
+          after a user-defined mapping or an identity's home directory changed, even
+          when a later step of the two fails.
+        - authoritative_dns - new module that turns the cluster's authoritative DNS
+          server on or off and sets its name, the clients that may query it and how
+          long answers may be cached, comparing client ranges as sets of addresses
+          and refusing enabled and fqdn where Terraform owns them.
+        - capacity_clamp - the default ``rounding_tolerance`` is the larger of 1%
+          of the request and 8 GiB. On a small edge the server rounds the clamp up
+          to a whole 8 GiB unit, so a smaller tolerance would refuse a second run
+          of the same request as a decrease.
+        - capacity_clamp, portal_eviction_settings and edge_cache_route - new modules,
+          and the edge_cache_resize role and playbooks, to resize an unprotected edge's
+          cache without a rebuild where the server allows it.
+        - capture.yml - ``qumulo_capture_dir`` defaults to a ``captures`` directory
+          beside the inventory source, so Ansible does not read the capture files
+          as inventories.
+        - 'capture.yml - adoption leaves out of the host_vars file each SMB share or
+          NFS export entry that the inventory already declares with the same values,
+          compared as the modules compare them, or removes, with a comment naming
+          the inventory''s entry and any key the cluster keeps that no entry declares.
+          Before it writes the host_vars file, it refuses a network the inventory
+          declares too and an entry the inventory declares with other values. Leaving
+          out only the variables the inventory defines would not be enough: a
+          flat ``qumulo_smb_shares``, ``qumulo_nfs_exports`` or
+          ``qumulo_network``, or a ``qumulo_factory_defaults`` removal, in
+          group_vars stays in force beside the ``qumulo_tenants`` that adoption
+          writes, and the baseline would refuse what is declared twice. The
+          ``host_vars_duplicates`` filter makes the per-entry comparison.'
+        - 'capture.yml - captures everything the collection configures through ``capture_info``:
+          identity, DNS, time, local users and groups and role members, the network
+          document, cloud monitoring and the Nexus connection, the eviction threshold
+          and an active license, the AD membership, the spoke portal, directories,
+          the SMB and NFS settings, shares and exports and whether the factory share
+          and export are present, quotas, snapshot policies and the replication relationships
+          the cluster is the source of, and ``qumulo_portal_hosts`` and ``qumulo_replication_address``
+          from the peers captured in the same run when their records agree. The file
+          is sorted, so a second capture of an unchanged cluster writes the same file,
+          and ends with comments naming each secret to supply and what was left out.
+          Areas Terraform owns are not written to the capture file. With ``qumulo_adopt=true``
+          it writes the host''s host_vars beside the inventory source that defines
+          it, with what the inventory does not already define, never rewriting an
+          existing file.'
+        - capture.yml - the capture and adopted host_vars files tag each string they
+          are written with ``!unsafe``, and only those strings, so a template added
+          to the file by hand is still evaluated. Ansible templates the strings it
+          reads from an inventory file, so without the tag a share description or
+          other value holding a Jinja expression would run on the controller at the
+          next play that read the file. The comments that end the files wrap every
+          line, so a newline in a captured path cannot end a comment.
+        - 'capture.yml - when the inventory defines ``qumulo_tenants``, adoption keeps
+          what the capture holds under each tenant, entry by entry. Each share and
+          export of a captured tenant that the inventory does not declare is written
+          in the flat ``qumulo_smb_shares`` or ``qumulo_nfs_exports`` with ``tenants``
+          naming its tenant, one the inventory declares the same way is left out with
+          a comment, and a captured tenant the inventory does not declare or removes
+          gets a comment. Adoption refuses, and writes no host_vars file, when the
+          inventory declares a captured share or export with other values, declares
+          a captured tenant''s switches or settings otherwise, or does not list a
+          captured tenant network for that tenant, or lists it with other values,
+          since the baseline''s network document would leave it out or rewrite it.
+          A captured ``tenants: all`` entry is written as the list of the captured
+          tenants when the inventory declares other tenants, a tenant the inventory
+          renames is matched by its ``previous_name``, and the capture''s ``Default``
+          with ``state: absent`` is not written and gets a comment.'
+        - capture_info - ``qumulo_factory_defaults`` reports the factory ``Files``
+          share and ``/`` export of tenant 1 only; a share or export of that name
+          in another tenant does not count.
+        - 'capture_info - a capture with the ``tenants`` area, as the default ``gather_subset:
+          [all]`` reads, writes ``qumulo_tenants`` and puts each share and export,
+          and each network a tenant holds off the backend bond, under its tenant''s
+          entry. ``qumulo_smb_shares`` and ``qumulo_nfs_exports`` hold only the shares
+          and exports identical in two or more tenants, with ``tenants``, and no network,
+          share or export carries ``tenant_id``. On a cluster with one tenant, leaving
+          the ``tenants`` area out keeps the shares, exports and networks in the flat
+          lists.'
+        - 'capture_info - a cluster without tenant 1 is captured with ``{name: Default,
+          state: absent}`` in ``qumulo_tenants``, and with the factory share and export
+          ``absent`` in ``qumulo_factory_defaults``, so a rebuild from the inventory
+          drops the ``Default`` tenant, ``Files`` share and ``/`` export that a newly
+          formed edge has and the old one lacked. No such entry is written when another
+          tenant is named ``Default``, or when a replay of the capture could not delete
+          ``Default``: a network on the backend bond stays in ``qumulo_network.frontend_networks``,
+          or ``leave_out`` names ``network``, ``smb`` or ``nfs``. A network no tenant
+          holds always gets the entry. The ``tenant 1`` note in ``left_out`` says
+          which case applies and what to do. Qumulo marks the multitenancy REST API,
+          which capture reads the tenants through, as preview; a later Qumulo Core
+          release may change it.'
+        - 'capture_info - a cluster without tenant 1 whose networking the host manages
+          (no managed interfaces, only HOST networks) is captured with ``previous_name:
+          Default`` on the one tenant that holds a network, and no ``Default`` entry,
+          when every network has a tenant, the ``network``, ``smb`` and ``nfs`` areas
+          are read and no tenant is named ``Default``. A rebuild from the capture
+          renames the ``Default`` the new edge forms with to that tenant, which keeps
+          the HOST network, the one the play reaches REST on, in tenant 1 throughout.
+          ``smb_files_share`` is ``present`` when the capture writes a share named
+          ``Files``, in any letter case, for that tenant, and ``nfs_root_export``
+          when it writes that tenant''s export at ``/``, since the rebuilt edge''s
+          tenant 1 is that tenant. A ``/`` export of that tenant''s that the capture
+          leaves out, as for a deleted mapped user, keeps ``Default`` absent, since
+          a rebuild that waives the export''s drift would otherwise leave the factory
+          ``/`` export in its place. In the other cases the capture writes ``Default``
+          absent. The ``tenant 1`` note in ``left_out`` says which. ``clone_host_vars``
+          keeps the ``previous_name``, so a fresh target''s ``Default`` is renamed
+          to that tenant.'
+        - capture_info - also returns ``spoke_roots``, the directories of the cluster's
+          spoke portals' roots, and ``replication_targets``, the directories it receives
+          replication into, which a clone of it leaves out.
+        - 'capture_info - an NFS export restriction whose ``require_tls`` is false
+          is captured without it, which declares the same restriction, since Qumulo
+          Core stores false when it is unset, and ``nfs_export`` refuses ``require_tls:
+          false`` on a release before 7.11.0. A restriction that requires TLS is captured
+          with ``require_tls: true``.'
+        - 'capture_info - new area ``tenants`` in ``gather_subset`` and ``leave_out``,
+          which writes ``qumulo_tenants``, sorted by name. Each entry holds the tenant''s
+          six services, its networks (``[]`` for none), its SMB and NFS settings (``inherit``
+          without settings of its own, else the full record), and its shares and exports,
+          each list left out when it has none. Tenant 1 renamed is written with ``previous_name:
+          Default``. Qumulo marks the multitenancy REST API, which the area reads,
+          as preview; a later Qumulo Core release may change it.'
+        - capture_info - new audit area, which captures the audit log destinations
+          as qumulo_audit_destinations, and leave_out takes audit.cloudwatch, which
+          leaves out the CloudWatch destinations.
+        - capture_info - new module that reads every setting the collection's modules
+          write and the cluster reads back, and returns it as the cluster_baseline
+          role's variables in the shape the role passes to those modules, with the
+          secrets to supply and what it left out named apart.
+        - capture_info - on a cluster with two or more tenants, the ``smb`` and ``nfs``
+          areas without the ``tenants`` area write ``qumulo_smb_shares`` and ``qumulo_nfs_exports``
+          empty and note each tenant's shares, exports and SMB and NFS settings in
+          ``left_out``. To write them, add ``tenants`` to ``gather_subset``, which
+          puts them under their tenants.
+        - 'capture_info - reading the ``network``, ``smb``, ``nfs`` or ``tenants``
+          area reads the tenant list, and the ``smb`` and ``nfs`` areas each tenant''s
+          SMB or NFS settings, so the user the play connects as needs ``PRIVILEGE_TENANT_READ``,
+          without which the capture fails. The ``tenants`` area also reads the protection
+          type. Remedy: give the user read access to the tenants.'
+        - capture_info - reads the FTP server settings back as the new ``ftp`` area,
+          which writes ``qumulo_ftp_settings``. An anonymous user that names a deleted
+          local user, or is anything but a local user, is left out with a note. A
+          capture of every area reads the FTP settings, which needs ``PRIVILEGE_FTP_READ``.
+        - capture_info - the ``s3`` area captures each S3 access key by its owner
+          and id as ``qumulo_s3_access_keys``, and names each key's secret, which
+          the cluster never returns, under ``supply``.
+        - capture_info - the ``s3`` area captures each bucket's policy as ``qumulo_s3_bucket_policies``,
+          each principal as a trustee, leaving out, with the reason, a policy with
+          a principal /v1/identity/find cannot resolve.
+        - capture_info - the ``s3`` area captures the buckets outside the spoke roots
+          as ``qumulo_s3_buckets``, and the ``directories`` area declares each bucket's
+          directory.
+        - capture_info - the ``snapshots`` area lists each key of the file system
+          key store in ``left_out`` by name and id, since a key is registered only
+          with its private key or a signature of its name.
+        - capture_info - the dns area also reads the authoritative DNS settings, as
+          qumulo_authoritative_dns, and leave_out takes dns.fqdn, which leaves out
+          enabled and fqdn.
+        - capture_info - the dns area also reads the lookup overrides, as qumulo_dns.lookup_overrides.
+        - 'capture_info - the following are noted in ``left_out``: a cloud cluster''s
+          tenant services, which are not written since no cloud cluster accepts a
+          tenant write (G-TENANT-CLOUD); a missing tenant 1; a tenant on its own identity
+          configuration, written in full except its identity; with the ``tenants``
+          area, or on a cluster with two or more tenants, a VLAN that carries two
+          tenants'' networks, or a tenant''s and an unbound one; and, on a cluster
+          with two or more tenants, a backend network a tenant holds (G-TENANT-BACKEND),
+          and an unbound network.'
+        - capture_info - the new ``kerberos`` area writes ``qumulo_kerberos`` on every
+          capture, and names a held keytab's principals in a supply line, without
+          the keytab. Naming them reads the keytab, which needs ``PRIVILEGE_KERBEROS_KEYTAB_READ``;
+          a user without it, such as a member of the built-in Observers role, gets the setting and
+          a ``left_out`` entry in place of the supply line, and the capture goes on.
+        - capture_info - the new ``s3`` area captures the S3 server settings as ``qumulo_s3_settings``,
+          and the ``directories`` area declares the base path's directory, which ``s3_settings``
+          requires to exist.
+        - capture_info - the ssl area also captures the cipher suites, as qumulo_ssl_ciphers.
+        - capture_info - with the ``tenants`` area, a VLAN that carries a tenant's
+          network and a network no tenant holds stays in ``managed_interfaces``, and
+          the tenant network carries its ``vlan_id`` too, so the baseline's step 2
+          refuses it as declared in two places rather than take the other network
+          off the VLAN. The refusal says to list that network under the VLAN's tenant
+          with its ``vlan_id`` and remove the VLAN from ``frontend_vlans``, or to
+          give each network a VLAN of its own.
+        - capture_info - with the ``tenants`` area, a tenant network's VLAN is written
+          on the network as ``vlan_id``, with ``mtu`` when the VLAN sets one. ``managed_interfaces``
+          then lists neither the VLANs that carry only tenant networks nor tenant
+          networks on the frontend bond. A backend-bond network and a network no tenant
+          holds stay in ``qumulo_network.frontend_networks``.
+        - capture_info - without the ``tenants`` area (left out of ``gather_subset``,
+          named in ``leave_out``, or not offered by the cluster), every network is
+          written in ``qumulo_network.frontend_networks``. On a single-tenant cluster
+          no ``tenant`` is written, the shares and exports are written flat, and the
+          tenant's own SMB and NFS settings are noted in ``left_out``. On a multi-tenant
+          cluster each network a tenant holds off the backend bond carries ``tenant``
+          by name.
+        - 'capture_info - writes ``qumulo_capacity.license: none`` for an unprotected
+          edge that holds no license.'
+        - capture_info - writes each snapshot policy's ``lock_key`` by the key's name,
+          so a replay sets it again; when the key store cannot be read, or when the
+          key has no name (QUIRK-120), it leaves the key out with a ``left_out`` note.
+        - client - an error that quotes a URL, from the server's description or a
+          redirect's location, quotes it without its query string or user information.
+        - 'clone_edge.yml - new playbook that gives a fresh cluster another cluster''s
+          configuration: it captures the source, changing nothing on it, writes the
+          target''s host_vars file with clone_host_vars, and runs the baseline on
+          the target, the first pass, with the secrets ``clone_edge_supply`` gives
+          for that run only. Configuration only, no data. A second run writes the
+          same file and changes nothing, and a run that would write a different file
+          refuses.'
+        - clone_edge.yml - the clone leaves out of the target's host_vars file each
+          share or export entry that the target's inventory already declares or removes,
+          with a note, for the same reason as adoption. Since the target creates the
+          share or export from the inventory's entry alone, the clone refuses, before
+          it writes anything, an entry the inventory declares with other values or
+          without a key the source's entry sets to other than what a create gives.
+        - 'clone_host_vars - a ``qumulo_tenants`` entry with ``state: absent`` is
+          left out of the clone with a note, since the target''s ``Default`` holds
+          the target''s own networks; declare it absent on the target once its networks
+          are under a tenant that stays. A target whose capture notes a missing tenant
+          1 has no tenant from formation, so the fresh-target check counts each tenant
+          it holds, and a clone onto such a target fails unless ``allow_configured_target``
+          is set. The rule copies tenants that Qumulo''s multitenancy REST API, marked
+          as preview, defines; a later Qumulo Core release may change them.'
+        - 'clone_host_vars - a target whose capture holds a tenant beyond the one
+          formation creates, or a share or export in any tenant other than the factory
+          ``Files`` and ``/`` in the tenant formation creates, is refused as not fresh
+          unless ``allow_configured_target`` is set. The clone_edge playbook''s target
+          capture reads the ``tenants`` area, so its fresh-target check sees them.
+          Remedy: clone onto a newly formed cluster, or set ``allow_configured_target``
+          (``clone_edge_allow_configured_target``) for a second run of the same clone.'
+        - clone_host_vars - copies ``qumulo_ftp_settings``.
+        - clone_host_vars - copies the S3 settings, buckets and bucket policies, leaving
+          out a bucket, its policy and the base path in the source's spoke roots or
+          on what it receives replication into, and the source's access keys, each
+          with a note; a target that holds an S3 bucket or access key is not fresh.
+        - clone_host_vars - copies the TLS cipher suites and the audit log destinations,
+          except the CloudWatch destinations, whose log group and region are the source's,
+          which it leaves out with a note.
+        - 'clone_host_vars - new module that derives a fresh cluster''s host_vars
+          from another cluster''s capture, with a rule for every variable a capture
+          holds: the clone''s own UUID and a new name; AD settings copied for a fresh
+          join, with supply lines for the join credentials, the clone''s own Nexus
+          join key and a license for its UUID; and no portal, replication relationship,
+          network document, or share, export or directory in the source''s spoke roots
+          or receiving its replication, each left out with a note. It refuses a target
+          that is the source or holds configuration of its own, and a name another
+          cluster has.'
+        - 'clone_host_vars - new rule for ``qumulo_tenants``. Each tenant keeps its
+          name, ``previous_name``, services and SMB and NFS settings, and its networks
+          are dropped with a note per tenant, since they hold the source''s addresses.
+          Its shares and exports are filtered as the flat lists are: one in a spoke
+          root of the source''s portal, or in a directory the source receives replication
+          into, is left out with a note that names its tenant.'
+        - cluster_baseline - ``cluster_baseline_replication_on_held`` set to ``report``
+          keeps a held relationship as a result instead of failing step 21, as the
+          rebuild's replay does.
+        - 'cluster_baseline - ``qumulo_capacity.license: none`` declares an edge that
+          runs without a license, within the capacity its formation gives it. The
+          license step hands nothing off for it and writes its clamp with no license,
+          in the first pass and the second; a ``pending`` or ``required`` edge''s
+          clamp still waits for its license. The step refuses ``none`` beside a license
+          document, before anything applies the document. While a clamp waits, the
+          step reads the stored one, and the hand-off says when the license''s cap
+          will apply at the next quorum formation without a clamp write. On an edge
+          with a declared clamp, it warns when a held license''s cap still waits for
+          a quorum formation, and on a ``none`` edge that holds a license after all,
+          that ``none`` is stale.'
+        - 'cluster_baseline - ``tenant_id`` on an entry of ``qumulo_smb_shares`` or
+          ``qumulo_nfs_exports`` is deprecated; the plan translates it to ``tenants``
+          with a warning, and skips an entry whose id no tenant has, with a warning.
+          A flat entry of ``qumulo_network.frontend_networks`` names its tenant with
+          ``tenant``, and its ``tenant_id`` is translated with a warning too. Remedy:
+          write ``tenants`` on a share or export, and ``tenant`` on a network.'
+        - 'cluster_baseline - a ``qumulo_terraform_owned_areas`` the inventory gives
+          is all that Terraform owns, an empty list included, so a list that leaves
+          out ``network.floating_ips`` gives the floating addresses to the role. A
+          host with ``qumulo_cluster_kind: cnq`` and ``qumulo_managed_by: terraform_provider``
+          whose list leaves the area out is refused before any write, as the Terraform
+          inventory plugin refuses such an output. Add ``network.floating_ips`` to
+          the list when Terraform sets the floating addresses, or set ``qumulo_managed_by:
+          none`` when the provider did not form the cluster.'
+        - cluster_baseline - applies the keytab of ``qumulo_kerberos`` with ``kerberos_keytab``
+          before the domain join, and its setting with ``kerberos_settings`` after
+          it, and refuses a keytab to install beside ``qumulo_ad`` before its first
+          write.
+        - 'cluster_baseline - before its first write, the role reads the cluster''s
+          tenants, network document, SMB shares, NFS exports, NFS settings and each
+          tenant''s NFS settings whenever the inventory declares any of ``qumulo_tenants``,
+          ``qumulo_network``, ``qumulo_smb_shares``, ``qumulo_nfs_exports``, ``qumulo_nfs_settings``
+          and ``qumulo_factory_defaults``, so the user the play connects as needs
+          read access to each, ``PRIVILEGE_TENANT_READ`` for the tenant list included.
+          Remedy: give the user read access to the tenants, the network, the SMB shares
+          and the NFS exports and settings.'
+        - 'cluster_baseline - floating ranges in ``qumulo_network.frontend_networks``
+          that Terraform owns are refused before step 2 reads the cluster, in the
+          role''s words, with where each is declared and the owner: ``qumulo_terraform_owned_areas``
+          when the inventory gives the list, or ``qumulo_managed_by: terraform_provider``,
+          since the provider applies its own floating addresses, when it does not.
+          A tenant''s floating ranges are refused by the area refusal, which says
+          the same of the provider. With no list and no ``qumulo_cluster_kind``, both
+          messages also offer declaring an edge or bare-metal cluster''s kind. Remedy:
+          remove the ranges, or ``network.floating_ips`` from ``qumulo_terraform_owned_areas``
+          when there is one, or set ``qumulo_take_over_from_terraform: true``, which
+          hands the role the audit destinations, ``dns.fqdn`` and the floating addresses
+          together.'
+        - cluster_baseline - new area ``tenants`` in ``qumulo_terraform_owned_areas``.
+          It covers ``qumulo_tenants`` and the entries of ``qumulo_smb_shares`` and
+          ``qumulo_nfs_exports`` that name their tenants with ``tenants`` or ``tenant_id``.
+        - cluster_baseline - new role, with playbooks/baseline.yml, that brings a
+          cluster's system and identity settings to the baseline its inventory declares,
+          in the order the server's rules need; a second run changes nothing.
+        - cluster_baseline - new variables ``qumulo_tenants``, the tenants by name
+          with their services, networks, SMB and NFS settings, shares and exports,
+          and ``qumulo_management_network``, ``qumulo_cluster_port`` and ``qumulo_cluster_kind``,
+          which tell the continuity rule which network the play reaches the cluster
+          on, which port the cluster listens on for it and whether the cluster is
+          a cloud cluster. A null ``qumulo_cluster_kind`` counts as unset. Step 2
+          reads the tenants, the network document, its status only when the cluster
+          has two or more tenants or the run creates one, the shares, the exports,
+          the NFS settings, each tenant's NFS settings and, with ``qumulo_tenants``
+          declared and no kind, the protection type, and plans steps 3a to 20a with
+          ``tenancy_plan``.
+        - 'cluster_baseline - on a cluster whose ``qumulo_cluster_kind`` is ``edge``
+          or ``baremetal`` and that the Terraform provider formed, with ``qumulo_managed_by:
+          terraform_provider`` and no ``qumulo_terraform_owned_areas``, the role manages
+          the floating addresses, and capture and adoption read its floating ranges.
+          ``qumulo_terraform_owned_areas`` defaults to ``[network.floating_ips]``
+          for a provider-formed cluster only when ``qumulo_cluster_kind`` is ``cnq``
+          or unset, since the provider applies its floating addresses again only on
+          CNQ, and to nothing for ``edge`` or ``baremetal``. Where Terraform sets
+          the floating addresses of an ``edge`` or ``baremetal`` cluster, list ``network.floating_ips``
+          in ``qumulo_terraform_owned_areas``, or in the output''s ``owned_areas``.'
+        - cluster_baseline - refuses, before the role's first task, a key that a variable's
+          options do not list, such as a misspelt ``session_encryption`` in ``qumulo_smb_settings``,
+          since an ignored key leaves the option it meant unapplied and nothing says
+          so. The check covers a key of the dict, or of an entry, of ``qumulo_filesystem_settings``,
+          ``qumulo_web_ui_settings``, ``qumulo_directories``, ``qumulo_file_acls``,
+          ``qumulo_smb_settings``, ``qumulo_smb_shares``, ``qumulo_nfs_settings``,
+          ``qumulo_nfs_exports``, the four ``qumulo_s3_*`` variables, ``qumulo_quotas``,
+          ``qumulo_snapshot_policies`` and a tenant's ``smb_shares`` and ``nfs_exports``;
+          a connection option such as ``request_timeout`` in an entry is refused the
+          same way. A key inside a list or dict the role hands to a module whole,
+          such as ``qumulo_portal_hosts``, a relationship's ``blackout_windows``,
+          a share's ``permissions``, an export's ``restrictions``, an ACL's ``aces``,
+          a snapshot policy's ``schedule`` or a bucket's ``default_retention``, is
+          refused before step 1 too, so no step has written when it is found; the
+          module refuses it as well, at its step. ``qumulo_network.managed_interfaces``,
+          the policy of an S3 bucket policy and ``qumulo_capacity.license_document``
+          take any key, and step 2 refuses ``qumulo_tenants[].identity``.
+        - cluster_baseline - step 19 applies ``qumulo_s3_settings``, ``qumulo_s3_buckets``
+          and ``qumulo_s3_bucket_policies`` after the NFS exports, and a new last
+          step, 22, applies ``qumulo_s3_access_keys``, the removals first, writing
+          each new key's secret to a file under the new ``cluster_baseline_artifact_dir``
+          and naming the key and the file; it fails after the last entry, naming each
+          that failed. Step 2 refuses a declared bucket under a spoke root before
+          anything is written.
+        - cluster_baseline - step 19 ends by applying ``qumulo_ftp_settings`` with
+          ``ftp_settings``, after the directories and ACLs of step 17 and the local
+          users of step 13, and ``qumulo_terraform_owned_areas`` takes the new area
+          ``ftp``.
+        - 'cluster_baseline - step 2 refuses a tenant write or network change after
+          which the network the play reaches the cluster on would belong to a tenant
+          with REST off, or for which the management network cannot be determined
+          while it is needed, as when the cluster''s network status is unavailable,
+          with the message of the continuity rule. Remedy: keep REST on for that tenant,
+          or set ``qumulo_management_network`` or ``qumulo_cluster_port`` as the message
+          says.'
+        - 'cluster_baseline - step 2 refuses every tenant write to a cloud cluster,
+          one with ``qumulo_cluster_kind: cnq`` or, with the kind unset, an object-backed
+          protection type. Remedy: remove the tenant writes, or declare ``qumulo_cluster_kind:
+          baremetal`` for a cluster on premises whose storage is object-backed.'
+        - 'cluster_baseline - step 2 refuses, before any write, what ``tenancy_plan``
+          finds wrong in the tenants, networks, shares and exports, with a message
+          that names the entries: two entries of one tenant, a rename still to be
+          done onto a name the cluster holds, ``identity`` on a tenant, a tenant declared
+          absent that holds a share, export or network that nothing declares or claims
+          for it, a run that would leave no tenant, and NFSv4.1 on for a tenant whose
+          export paths nest. Remedy: change the entry the message names.'
+        - cluster_baseline - step 20 sets each policy's ``lock_key``; step 2 refuses
+          the run, before anything is written, when a declared key is not in the key
+          store, as on a rebuilt or cloned cluster before its keys are registered
+          again; ``-e qumulo_allow_deferred_policy_lock_keys=true`` lets step 20 apply
+          such a policy without its key and hand it off in ``cluster_baseline_policy_lock_key_hand_offs``.
+          The consent is set false in the role's vars, so only the command line gives
+          it.
+        - cluster_baseline - step 21 declares ``qumulo_replication_relationships``
+          through the ``replication_pair`` role, after checking the inventory's declarations
+          once, such as a target path declared on the target host, path only, and
+          replication addresses unique across hosts. ``qumulo_replication_address``,
+          ``qumulo_replication_port`` and ``qumulo_previous_cluster_uuids`` are new
+          inventory variables, and ``replication`` a new area of the ownership check.
+        - cluster_baseline - step 4 also applies qumulo_dns.lookup_overrides with
+          dns_lookup_overrides and the new qumulo_authoritative_dns with authoritative_dns,
+          and clears the DNS cache when dns_settings changed the servers. The dns
+          area covers both variables, and the new part dns.fqdn covers qumulo_authoritative_dns's
+          enabled and fqdn, which the ownership check refuses while qumulo_terraform_owned_areas
+          lists it.
+        - 'cluster_baseline - steps 18 and 19 apply the plan: the removals come first
+          for every inventory, the shares and exports declared ``state: absent``,
+          a deleted tenant''s and the factory ``Files`` share and ``/`` export included,
+          then the global settings, then each tenant''s settings, then the shares
+          and exports. NFSv4.1 can be turned on in the run that removes the nested
+          exports.'
+        - 'cluster_baseline - steps 3a, 3 and 3b apply the tenants and the network
+          document from the plan, so every service turned off comes after every network
+          is bound, and step 20a deletes each tenant declared ``state: absent`` after
+          its SMB and NFS settings. A tenant''s networks are in the area ``network``
+          and their floating ranges in ``network.floating_ips``, and a tenant''s ``smb_settings``,
+          ``smb_shares``, ``nfs_settings`` and ``nfs_exports`` in ``smb`` and ``nfs``,
+          so the ownership check refuses them while Terraform owns the area. ``qumulo_take_over_from_terraform``
+          keeps its scope: it hands back a tenant''s floating ranges, not a tenant''s
+          ``networks`` while ``network`` is Terraform''s. Remedy: remove the area
+          from ``qumulo_terraform_owned_areas``, or the tenant''s key from the inventory.'
+        - 'cluster_baseline - the license step never waits: ``qumulo_capacity.license:
+          required`` never fails the run; it sets ``cluster_baseline_license_missing``
+          while the cluster has no license. ``qumulo_capacity.license_document`` holds
+          the license document issued for the cluster''s UUID, which the step applies
+          before the clamp, and the step fails before the clamp''s write when the
+          license''s cap is below the clamp. Without a license the clamp is skipped
+          and the role hands the license off, naming the UUID, in ``cluster_baseline_license_hand_off``.'
+        - 'cluster_baseline - warns, after step 2, when Terraform owns ``network``
+          or ``network.floating_ips`` and the cluster has two or more tenants once
+          the run is done: a Terraform apply that sends the networks without their
+          tenants unbinds them, which cuts off every tenant''s clients. Remedy: before
+          the next apply, give each network its tenant in the Terraform configuration,
+          if the provider can send it, or stop Terraform from writing the network
+          document. With no list and no ``qumulo_cluster_kind``, the warning also
+          offers declaring an edge or bare-metal cluster''s kind.'
+        - 'cluster_baseline - when step 3a will write and step 3''s network document
+          differs from the cluster''s, step 2 checks the document with the cluster
+          first, with ``network_config`` in check mode, and refuses before any write
+          when the cluster refuses it. Remedy: correct the networks the message names.'
+        - 'cluster_baseline - when the cluster, with the tenants the run creates,
+          holds two or more tenants, an entry of ``qumulo_smb_shares`` or ``qumulo_nfs_exports``
+          with neither ``tenants`` nor ``tenant_id`` is refused, and so is a new network
+          of ``qumulo_network.frontend_networks``, not on the backend bond, with no
+          ``tenant``, at step 2, before any write. Remedy: write ``tenants``, a list
+          of tenant names or ``all``, on the share or export, and ``tenant: <name>``
+          on the network.'
+        - cluster_baseline and portal_pair roles, portal_hub and portal_spoke modules
+          - the documentation recommends floating IPs as portal addresses, the load
+          balancer's IPs for a multi-AZ cluster in AWS, and node IPs for a bare-metal
+          cluster without floating IPs; the addresses are always declared, never derived
+          from the cluster's network status, and behind NAT making them reachable
+          is the operator's.
+        - cluster_baseline and tenancy_plan - a frontend VLAN on the cluster that
+          carries a tenant's network beside a network no tenant lists is refused at
+          step 2, naming the VLAN and that network, when the run would keep the network
+          but take it off the VLAN and put it on no interface, as the plan's network
+          write does with ``managed_interfaces.frontend_vlans`` unset or empty, or
+          with the tenant's network moved to another ``vlan_id``. The remedy, which
+          the refusal of such a VLAN listed in ``frontend_vlans`` gives too, is to
+          list the other network under the VLAN's tenant with its ``vlan_id``, or
+          to give each network a VLAN of its own; a ``tenant`` on its ``qumulo_network.frontend_networks``
+          entry does not clear either refusal. A cluster VLAN that carries no tenant
+          network of the run, as when the run retires the tenant network beside it
+          or removes the other of two flat networks on it, is refused too when the
+          network it keeps would land on no interface, with the remedy to keep the
+          VLAN with that network in ``frontend_vlans`` or list it under a tenant with
+          the VLAN's ``vlan_id``.
+        - cluster_baseline role - also applies cloud monitoring, the Nexus connection
+          and registration, the license check, the capacity clamp, the eviction threshold,
+          the portal to a hub, directories, SMB and NFS settings, shares and exports,
+          quotas and snapshot policies. It refuses a quota or snapshot policy under
+          a spoke root before it writes anything, and, without a license for the cluster's
+          UUID, skips the clamp and hands the license off.
+        - 'cluster_baseline, capture_info - the default list that capture and the
+          example of ``leave_out`` use follows ``qumulo_cluster_kind`` as the baseline''s
+          does: ``[network.floating_ips]`` for a provider-formed cluster of kind ``cnq``
+          or unset, and none for ``edge`` or ``baremetal``.'
+        - cluster_baseline, edge_cache_resize and edge_rebuild roles - the license
+          hand-off names the playbook to run as ``ansible-playbook qumulo.cluster.edge_license_complete
+          -i <inventory> -l <host>``, or ``qumulo.cluster.baseline`` for a cluster
+          that is not an edge.
+        - 'cluster_baseline, replication_pair - step 21, and the second pass of ``playbooks/edge_license_complete.yml``,
+          read the target cluster''s tenants before each relationship with ``state:
+          present``, and with two or more tenants its network document, so the user
+          the play connects to the target as needs ``PRIVILEGE_TENANT_READ``, and
+          with two or more tenants ``PRIVILEGE_NETWORK_READ``. Before any write on
+          either cluster, and on every run, the role refuses a relationship whose
+          target address, the target host''s ``qumulo_replication_address``, is served
+          by a tenant with ``replication_enabled`` false, an established relationship
+          included: with one tenant that tenant, and with two or more the tenant that
+          holds the network whose ranges hold the address. With two or more tenants,
+          an address that no network''s ranges hold, and a network that no tenant
+          holds, are warned of and not checked. Remedy: give the target''s user those
+          privileges; set ``replication_enabled: true`` in that tenant''s entry of
+          the target host''s ``qumulo_tenants``, or set the target host''s ``qumulo_replication_address``
+          to an address on a network of a tenant that has it on.'
+        - 'cluster_info - the new ``upgrade_blocked`` subset reads only the upgrade
+          preflight, and ``gather_subset: all`` includes it.'
+        - 'cluster_info - the new ``upgrade`` subset reads the upgrade status, the
+          preflight, the reboot status and the node fault tolerances, and ``gather_subset:
+          all`` includes it. Its reboot status read asks every node for its boot identity.'
+        - cluster_info and cluster_guard - new modules that read a cluster's identity,
+          version, capacity, license, product and file system facts and refuse to
+          run against the wrong cluster.
+        - 'cluster_upgrade - new role that runs an upgrade plan''s hops across a fleet
+          in lock-step: each hop waits out a reboot and the upgrade preflight, prepares
+          every cluster it moves, checks that each may commit, asks the maintenance
+          window, commits each step of the schedule in portal order, waits on the
+          portals and reads the replication relationships, waits for the reboots and
+          writes the hop''s report. A failure holds the cluster''s unit and every
+          unit that follows it, and the run stops before the next hop. It runs only
+          in a linear play without ``serial``.'
+        - connection options - a bare IPv6 ``api_host`` such as ``fd00::5``, and ``network_config``'s
+          ``api_host_after``, are put in brackets in the URL.
+        - directory, directory_quota, smb_settings, smb_share, smb_info, nfs_settings,
+          nfs_export, nfs_info, snapshot_policy, snapshot_info and filesystem_info
+          - new modules that manage directories, quotas, SMB shares, NFS exports and
+          snapshot policies by path or name, and read them back in the shape the modules
+          take.
+        - dns_cache_clear - new action module that clears the cluster's forward or
+          reverse DNS cache, or both, reporting a change on every run and predicting
+          it in check mode.
+        - dns_lookup_overrides - new module that declares the cluster's whole lookup
+          override table, its equivalent of /etc/hosts, comparing entries by canonical
+          address in any order and each entry's names in order.
+        - docs - a new how-to, "Fail over to a replica, and fail back", is the runbook
+          for a failover, the copy back of its writes and the failback.
+        - 'edge_cache_resize - accepts ``qumulo_capacity.license: none``, and its
+          ``blocked_license`` hand-off tells such an edge to set ``pending`` or ``required``
+          before supplying a license document.'
+        - edge_cache_resize playbook - an edge that fails on the ``blocked_license``
+          or ``rebuild`` route does not end the run for the edges after it. The playbook
+          runs one edge at a time and rescues each edge's failure, and the run fails
+          at the end, naming each edge that failed. A failed automatic rebuild ends
+          the run, so the same failure cannot drain and destroy the edges after it.
+        - edge_cache_resize role - ``edge_cache_resize_rounding_tolerance`` defaults
+          to ``capacity_clamp``'s own default, the larger of 1% of the target and
+          8 GiB, the unit the server rounds a small edge's clamp to.
+        - edge_cache_resize role - with ``edge_cache_resize_allow_rebuild`` and ``edge_rebuild_reinstall_tasks``,
+          the ``rebuild`` route rebuilds the edge with the edge_rebuild role.
+        - edge_cache_route - returns ``rounding_tolerance``, the larger of 1% of the
+          target and 8 GiB.
+        - edge_cache_route - the ``platform_limited`` reason says that an edge's disks
+          cannot be resized or added after formation, so a larger edge is a rebuild;
+          the edge_cache_resize role's report says the same, and the docs describe
+          sizing an edge with a large thin-provisioned disk, a clamp set before any
+          license cap can apply, and a clamp raised over time.
+        - 'edge_license_complete - on an edge with ``qumulo_previous_cluster_uuids``,
+          or one whose declared target path holds a live record from a UUID the inventory
+          does not name, the second pass fails a ``present`` relationship out of the
+          edge as follows. A relationship with a restore to do fails on the restore''s
+          refusal before any write (the source directory holds a file written since
+          the rebuild; a portal spoke root on either side; another relationship on
+          the edge equal to or nested with the source path, out of it or into it;
+          a ``qumulo_replication_address`` that is not an IP literal; a replica made
+          writable or without a recovery point; the restore''s own leftover records;
+          or a license the edge expects and does not hold, whose way on is to run
+          the second pass again once it applies, or to declare ``license: none``);
+          on a stop at a later step, such as a full sync that did not land within
+          ``replication_restore_wait_timeout``, which a later run resumes; on a target
+          that does not answer, whose way on is a run once it does; on a pair left
+          DISCONNECTED on both sides with no restore record, whose message says to
+          move the record from the controller that wrote it, never to copy it, or
+          how to reconnect by hand; and on a run that carries ``qumulo_replication_release``,
+          which restores nothing, reports each such relationship not restored, and
+          says to run the second pass again without it. With or without a restore
+          to do, a relationship fails as the baseline does when it is held with no
+          replica left to restore from, or when a record from a foreign UUID lies
+          at its declared target path, whose message names the ``host_vars`` patch
+          to apply; on an edge with no previous UUIDs that record only warns. The
+          edge fails when another run holds its restore lock, or when ``edge_rebuild_artifact_dir``
+          is empty. An edge restored or released long ago passes, in a release run
+          too, and only warns on a target that does not answer or a failover by hand.
+          A renewal that must not restore runs with ``--skip-tags restore``.'
+        - edge_license_complete.yml - once the edge's license and clamp apply, declares
+          the replication relationships the inventory's other hosts declare into the
+          edge, which the capacity gate deferred.
+        - 'edge_license_complete.yml - the edge rebuild''s second pass restores a rebuilt edge''s held
+          relationships from their replicas, after every edge''s license and clamp:
+          for each ``present`` relationship out of the edge whose old record on the
+          target still holds the replica, it syncs the replica back into the edge''s
+          source directory and turns the relationship around, so that it runs from
+          the new UUID again. It contacts the target hosts of the edge''s relationships,
+          through their inventory connections, and can wait up to ``replication_restore_wait_timeout``,
+          86400 seconds by default, for the full syncs; a later run resumes a restore
+          that stopped. ``--skip-tags restore`` runs the second pass without the restore.'
+        - edge_rebuild - a rebuild keeps every replica the inventory declares. The
+          predestroy phase reads each replication peer's record of the relationships
+          declared with the edge as their source or target, through the peer's inventory
+          host. A relationship into the edge is replayable while the edge's record
+          is ESTABLISHED and read-only and the source holds it ESTABLISHED, so its
+          target directory and replication snapshots are not local data; in any other
+          state its directory is local data, named with both records' states. A record
+          matches a peer by its current UUID or one of its previous ones; a replica
+          whose source was rebuilt since is the only copy, needing local_data and
+          replication acknowledged, since rebuilding the edge ends the hold on the
+          source's side. A relationship out of the edge is held while its record is
+          live, its replication snapshots exempt only while the target holds a live
+          replica. ``replication`` needs acknowledging only for the relationships
+          the inventory does not declare, each listed by its id, its peer's UUID and
+          both paths, and for a declared source whose record is ENDED or pending.
+          The predestroy record lists each relationship and what the rebuild does
+          with it.
+        - edge_rebuild - checks the inventory against the argument specification of
+          ``cluster_baseline`` first, in every phase, so that a rebuild refuses a
+          key a variable does not take before it drains the edge, not at the replay's
+          baseline after the destroy.
+        - 'edge_rebuild - new role, with playbooks/edge_predestroy.yml and playbooks/edge_rebuild.yml,
+          that drains and retires an edge, forms it again after its reinstall, deletes
+          the hub''s record of the old UUID, replays the baseline, pairs the edge
+          with its hub again and writes a report of what is left to do by hand. playbooks/edge_license_complete.yml
+          is the second pass: it applies the license document issued for the new UUID,
+          then sets the clamp.'
+        - edge_rebuild - refuses an inventory whose snapshot policies declare a ``lock_key``
+          unless ``-e qumulo_allow_deferred_policy_lock_keys=true`` is given, since
+          the new edge's key store is empty, before the predestroy phase changes anything;
+          the report hands off each lock key the old edge held, or says its key store
+          could not be read, and each policy the baseline applied without its key.
+        - 'edge_rebuild - refuses, before the drain in a rebuild in one run and before
+          the formation in the replay phase of one in two runs, a declared clamp more
+          than its rounding tolerance below min(1 TB, ``edge_cache_resize_floor_bytes``),
+          which the rebuilt edge could never be clamped to, and ``qumulo_capacity.license:
+          none`` beside a license document. Its report says an edge that declares
+          ``none`` runs without a license, with no license hand-off.'
+        - edge_rebuild - the rebuild report lists a held relationship that names the
+          restore without the baseline run that would release it, and gives a relationship
+          into the edge whose target path is equal to or nested with a held source
+          path the second pass's deferral text, since the restore fills that path
+          first. The replay's refusal of ``qumulo_replication_release`` and ``qumulo_replication_restore``
+          names the second pass's restore as the way out.
+        - edge_rebuild - the replay gives the baseline its artifact directory, and
+          writes its report however the baseline ends, naming each S3 key the replay
+          made, with the file of its secret, and each key entry that failed.
+        - edge_rebuild - the replay holds a relationship the edge is the source of,
+          writing nothing on either cluster, since the replica may be the only copy
+          of the destroyed data, and reports the holder's state, recovery point and
+          last error with the copy back and the release that are the way out; ``edge_rebuild_allow_data_loss``
+          never lifts it. A relationship into the edge is a hand-off of the second
+          pass, ``edge_license_complete.yml``, which creates it again once the license
+          and the clamp apply. The replay refuses ``qumulo_replication_release`` and
+          ``qumulo_replication_restore`` at its first step.
+        - edge_rebuild - the report's ``host_vars_patch`` holds the whole ``qumulo_previous_cluster_uuids``
+          list with the old UUID added, also when the inventory already names the
+          new UUID, as a Terraform-formed edge's does; that patch holds the list alone,
+          leaving the UUID and the replication address to the inventory plugin. Applying
+          the patch is the report's first hand-off on both paths.
+        - 'edge_rebuild role - on a newly formed edge with no frontend network, the
+          replay''s tenant 1 pass writes tenant 1''s own networks before the baseline
+          creates the other tenants, and, when tenant 1 holds none, as when the inventory
+          declares it ``state: absent``, every network the inventory lists for a tenant
+          that stays, which the new edge''s ``Default`` holds until the baseline binds
+          them and, when declared absent, deletes it. An inventory that
+          declares ``Default`` absent rebuilds with no tenant taking
+          ``previous_name: Default``; one that gives a tenant ``previous_name:
+          Default`` rebuilds too.'
+        - edge_rebuild role - predestroy runs the baseline's ownership check before
+          the preflight, so an inventory that declares an area Terraform owns, such
+          as tenant networks while Terraform owns ``network``, is refused with the
+          baseline's message before anything is drained.
+        - edge_rebuild role - the replay takes a new UUID from the inventory when
+          the inventory names one other than the old edge's, so a Terraform-formed
+          edge needs no typed ``qumulo_new_cluster_uuid``. In a rebuild in one run
+          it reads the inventory again after the reinstall tasks. In a replay on its
+          own whose inventory UUID no predestroy record names, it takes the old edge
+          from the newest predestroy record that is safe to destroy and that no rebuild
+          report has used, and the report names that record. The rebuilt guard checks
+          the new UUID as it checks a typed one, a typed one still wins, and the report's
+          ``host_vars_patch`` is empty when the inventory names the new UUID.
+        - edge_rebuild role - when the replay creates a tenant on a newly formed edge
+          with no frontend network and no managed interfaces, as an edge on host-managed
+          networking forms, it first runs the baseline's ownership check and tenancy
+          step with tenant 1 alone and the networks the tenant 1 pass declares, then
+          the baseline, which creates the other tenants and binds each network to
+          its tenant, since the baseline creates tenants before it writes the network
+          document. A check run stops after that pass.
+        - 'edge_rebuild_preflight - ``replication_declared`` entries take ``peer_replication_address``
+          and ``peer_in_edges``. An ``only_copy`` replica whose record allows the
+          source''s restore names that restore first: the source''s second pass, or
+          ``playbooks/replication_restore.yml`` for a source outside ``qumulo_edges``.'
+        - 'edge_rebuild_preflight - ``tenants``, ``smb_shares`` and ``nfs_exports``
+          take the inventory''s ``qumulo_tenants``, ``qumulo_smb_shares`` and ``qumulo_nfs_exports``
+          as they are, and ``factory_defaults`` takes ``qumulo_factory_defaults``;
+          the preflight reads them as the baseline''s tenancy step reads them on a
+          newly formed edge. The edge_rebuild role passes the four variables as they
+          are, so shares and exports declared nested under a ``qumulo_tenants`` entry
+          count as declared. ``declared_absent`` has suboptions for ``quotas``, ``snapshot_policies``,
+          ``local_users`` and ``local_groups`` only, so Ansible''s argument validation
+          refuses an unknown key or an entry of the wrong type; a tenant, share or
+          export says ``state: absent`` in its own entry. The preflight has the drift
+          area ``tenants``: a tenant the inventory declares absent that the edge holds
+          is drift, and so is a tenant the replay does not build again as the edge
+          holds it, so an edge with an undeclared tenant fails. Tenant 1 is replayed
+          only under the name the replay gives it, ``Default`` or the name of the
+          entry whose ``previous_name`` is ``Default``; tenant 1 renamed by hand is
+          drift unless the inventory says so. The preflight fails before it reads
+          the edge when the inventory rules of the baseline''s tenancy step would
+          refuse the inventory, for example a flat share with neither ``tenants``
+          nor ``tenant_id`` once the replay has a second tenant, two ``qumulo_tenants``
+          entries of one name, or an inventory that leaves no tenant, and ``ignore_drift``
+          does not waive that; the step''s NFS checks and the network document''s
+          own checks run only at the replay. A flat entry''s deprecated ``tenant_id``
+          is read only for tenant 1, because a rebuilt edge numbers its tenants again;
+          any other id is skipped with a warning. The preflight needs ``PRIVILEGE_TENANT_READ``
+          to read the tenant list. Each ``drift`` entry for a share or export has
+          ``tenant``.'
+        - 'edge_rebuild_preflight - a network bound to a tenant other than the
+          one the replay gives it is drift. A network
+          the edge binds to a tenant the replay builds again, that the replay would
+          not bind to that tenant, is drift in the ``tenant_networks`` area. The replay
+          binds a network listed under a ``qumulo_tenants`` entry''s ``networks``
+          to that tenant and one in ``qumulo_network.frontend_networks`` to its ``tenant``
+          (tenant 1 for ``tenant_id: 1``); a listed network sent with no tenant stays
+          in tenant 1. When neither ``qumulo_network.frontend_networks`` nor any present
+          tenant''s ``networks`` is set, it keeps the newly formed edge''s networks,
+          all tenant 1''s. Once any network is listed, it keeps only the listed ones,
+          so list each network the edge holds and give every present tenant ``networks``.
+          An edge without tenant 1 is also drift, since a newly formed edge has tenant
+          1, ``Default``, with the ``Files`` share and ``/`` export, and the replay
+          keeps it unless the inventory declares it ``state: absent``; the rebuilt
+          edge would gain a tenant, a share and an export that the old edge lacked.
+          To clear it, declare ``Default`` with ``state: absent`` in ``qumulo_tenants``
+          and claim the factory share and export for removal, with ``smb_files_share``
+          and ``nfs_root_export`` of ``qumulo_factory_defaults`` set to ``absent``
+          or by declaring them under that entry, and list each network under a tenant
+          that stays, or set ``ignore_drift``. Before it reads the edge, the preflight
+          also refuses an inventory that breaks a network rule needing no read: a
+          present tenant with ``networks`` while another has none, a network listed
+          twice, an absent tenant''s network kept flat or named by a flat ``tenant_id``,
+          tenant 1 declared absent while no network is listed, a network listed with
+          no tenant while tenant 1 is declared absent, a listed network with no integer
+          ``id``, and a flat network whose ``tenant`` names a tenant that ``qumulo_tenants``
+          does not declare and the replay does not hold.'
+        - edge_rebuild_preflight - a network in ``qumulo_network.frontend_networks``
+          with no tenant, which the newly formed edge lacks, is refused when the replay
+          has more than one tenant, with the message the baseline's step 2 gives,
+          so the rebuild stops before the old edge is destroyed. The newly formed
+          edge holds network 1 on managed networking; on host-managed networking it
+          holds the networks the replay's tenant 1 pass writes. A network on the backend
+          bond the inventory declares is not refused when ``cluster_baseline_owned_parts``
+          holds ``interfaces``.
+        - 'edge_rebuild_preflight - a network the edge holds in no tenant that the
+          rebuilt edge would put in tenant 1 is reported as ``tenant_networks`` drift
+          with ``added: true``, naming the network and tenant 1. Such a network is
+          one the inventory lists in ``qumulo_network.frontend_networks`` with no
+          tenant, when it is network 1 on managed networking, which the newly formed
+          edge holds, when the edge is host-managed, where the replay''s tenant 1
+          pass writes it into tenant 1, or when the replay has one tenant; or network
+          1 on managed networking when the inventory lists no network, since the replay
+          then keeps the formed edge''s networks. ``ignore_drift`` waives it.'
+        - edge_rebuild_preflight - new module that fails before an edge rebuild drains
+          anything when the edge holds state its inventory does not declare or declares
+          absent, or state the replay cannot create again, data outside the portal's
+          spoke roots among it.
+        - edge_rebuild_preflight - on an edge that forms host-managed again, a tenant
+          network with ``vlan_id`` or of type ``STATIC`` fails the preflight before
+          the drain, with the baseline's own message after "the replay onto the rebuilt
+          edge would refuse the inventory"; an inventory whose ``qumulo_network``
+          declares ``managed_interfaces`` and whose replay runs the tenant 1 pass,
+          which writes them first, is left to the replay.
+        - 'edge_rebuild_preflight - on an edge whose network document has no managed
+          interfaces and only HOST networks, an inventory that creates a tenant in
+          the replay but lists no network for a tenant that stays fails, after any
+          drift, and ``ignore_drift`` does not waive it, since such an edge forms
+          again with no frontend network and the baseline creates tenants before it
+          writes the network document, so the replay would fail at step 2 after the
+          destroy. Remedy: list the edge''s HOST network under a tenant in ``qumulo_tenants``,
+          or in ``qumulo_network.frontend_networks``.'
+        - 'edge_rebuild_preflight - option ``management_network``, which the edge_rebuild
+          role passes from ``qumulo_management_network``, and return value ``management_network``,
+          the network the replay uses. Where the tenant 1 pass writes two or more
+          networks (tenant 1 holds two or more, or holds none while the inventory
+          lists two or more) and the replay creates a tenant, the preflight infers
+          the network the play reaches the edge on from the old edge, which works
+          for an old edge with one HOST network whose network status answers, and
+          the replay gives it to the pass, the baseline and the report''s ``host_vars_patch``;
+          the variable overrides it, with a warning when the two disagree. Without
+          either, the preflight fails before the drain, with a message that starts
+          "the replay''s tenant 1 pass would write networks": set ``qumulo_management_network``
+          to the id of the network ``qumulo_api_host`` is on. Whenever the pass runs
+          and the replay creates a tenant, the preflight also fails a ``qumulo_management_network``
+          that is empty or that names a network the pass does not write, since the
+          baseline''s step 2 judges the first create against the document the pass
+          leaves.'
+        - edge_rebuild_preflight - option ``terraform_owned_areas``, which the edge_rebuild
+          role passes. With ``network`` in it, the refusal of an inventory that lists
+          no network on a host-managed edge says to take ``network`` out of ``qumulo_terraform_owned_areas``
+          for the rebuild, since the baseline's ownership check refuses ``qumulo_network``
+          and a tenant's ``networks``, and to take that listing out in the same change
+          that puts ``network`` back.
+        - 'edge_rebuild_preflight - the new option ``network`` takes the inventory''s
+          ``qumulo_network``, which the edge_rebuild role passes as it is. A ``drift``
+          entry for a tenant the rebuilt edge would gain, which the edge lacks, has
+          ``added: true``, and a ``tenant_networks`` entry has ``tenant`` and a ``name``
+          of the network''s id and name.'
+        - edge_rebuild_preflight - the option ``owned_parts`` (``interfaces``, ``networks``
+          and ``floating_ips``, all three by default) takes the parts of the network
+          document the replay's baseline writes. The edge_rebuild role passes ``cluster_baseline_owned_parts``,
+          the list the baseline gives ``tenancy_plan``. A ``qumulo_tenants`` entry
+          that declares ``networks`` while ``owned_parts`` leaves out ``networks``,
+          and a listed network with ``floating_ip_ranges`` while it leaves out ``floating_ips``,
+          are refused before the edge is read, as ``tenancy_plan`` refuses them. Through
+          the role, the list always holds ``networks``, and leaves out ``floating_ips``
+          only while Terraform owns ``network.floating_ips``, when the baseline's
+          ownership check, which predestroy runs first, refuses declared floating
+          ranges; so only a direct caller of the module meets these refusals.
+        - edge_rebuild_preflight - the preflight matches shares by name and exports
+          by path within their tenant, so two tenants' shares of one name stay apart,
+          and one tenant's undeclared share or export is drift whatever another tenant
+          declares. Only tenant 1's ``Files`` share and ``/`` export are the factory
+          ones, which are never drift; a share or export of that name in another tenant
+          is drift like any other.
+        - encryption_key_rotation - new module that rotates the at-rest encryption
+          key when it was last rotated more than max_age_days ago, and with a KMS
+          key store rotates to a given key_id that differs from the key in use; check
+          mode predicts the rotation.
+        - examples/inventory - new example inventory for one hub and one edge, with
+          a comment on every variable, covering each area the cluster_baseline role
+          takes; docs/reference/variables.md describes each variable.
+        - 'file_acl - new module that declares the ACL of a path: entries in order,
+          rights and flags compared as sets after the cluster''s aliases, trustees
+          by the identity they resolve to. Drift reads as a change, with the cluster''s
+          ACL in the diff, and the whole ACL is replaced with If-Match. A path inside
+          a portal spoke root is refused unless ``allow_data_loss``, since its ACL
+          is the hub''s. cluster_baseline applies ``qumulo_file_acls`` after the directories
+          and refuses a path that also declares a mode (G-FS-ACL-MODE); capture_info
+          declares a directory''s ACL in place of its mode when the mode cannot express
+          it, and clone_host_vars copies every ACL except those in the source''s spoke
+          roots or on a directory it receives replication into.'
+        - file_acl, smb_share and directory - an entry the cluster reads back is compared
+          by the identity the cluster gives with it, not by looking its trustee up
+          again, and a declared SID matches it in any spelling the trustee grammar
+          takes. So an ACL, share or owner holding a SID the node refuses to look
+          up, such as an account of a domain the node has not seen or of an untrusted
+          domain, can be left as it is or replaced. An entry no trustee form can name
+          is reported by the name the cluster gives, or failing that its domain; it
+          cannot be declared, so file_acl over its path replaces it.
+        - 'filesystem_info - new option ``find_files``, a lookup that turns absolute
+          paths into file ids and file ids back into paths, one entry per term under
+          the term as given, with ``found: false`` for a path or an id that names
+          nothing.'
+        - filesystem_settings - new module that sets the file system's permissions
+          mode, access time updates and change notification, writing only the documents
+          whose settings differ, each with If-Match where the cluster offers an ETag.
+          cluster_baseline applies ``qumulo_filesystem_settings`` after the cluster's
+          name, and capture_info reads it back as the new ``filesystem`` area, which
+          clone_host_vars copies.
+        - host_vars_text - new module that renders variables read from a cluster as
+          a host_vars file whose strings Ansible never templates, with the comments
+          naming each secret to supply and what was left out.
+        - identity_attributes - new module that sets or removes the home directory
+          the cluster keeps for an Active Directory, LDAP or POSIX identity, named
+          by trustee and resolved on every run. A local identity is refused, since
+          ``local_user`` owns its home directory. With ``state=absent``, a trustee
+          that does not exist has nothing to remove, so the task reports no change,
+          with a note. The ``cluster_baseline`` role applies ``qumulo_identity_attributes``
+          after the domain join; ``capture_info`` cannot read them back, since the
+          cluster lists no identity that has them (G-ID-ATTRIBUTES).
+        - identity_info - new ``access_tokens`` subset, included in ``all``, that
+          lists every access token with its user, creator, id, creation time, expiration
+          time and ``enabled``, and never a bearer. Gathering every subset needs the
+          privilege to list access tokens too.
+        - identity_info - new options ``find_trustees``, ``expand_trustees`` and ``find_ad_objects``,
+          lookups that find trustees and name each by its trustee string, SID, uid
+          and gid, expand an identity into its NFS and SMB identities and its groups,
+          and read the Active Directory record behind a name, a DN or a SID, one entry
+          per term under the term as given.
+        - 'identity_info - new subsets ``roles``, ``user_defined_mappings`` and ``saml``,
+          each in the shape of the module that writes it: the custom roles without
+          the built-in ones, the mappings from AD users to LDAP users, and the SAML
+          settings with the IdP certificate as canonical PEM.'
+        - identity_info, role_member - the member a cluster registered with Nexus
+          has in the ``Qumulo-Support`` role, ``qumulosupport:everyone``, is the trustee
+          ``qumulo_support:qumulosupport:everyone``, which identity_info lists and
+          role_member matches.
+        - kerberos_keytab - new module that installs, replaces and deletes the keytab
+          of a standalone KDC on a cluster outside Active Directory, given as base64
+          (``no_log``) or as a file on the controller. It compares the cluster's keytab
+          entry by entry, by principal, key version and encryption type, and the keys
+          through one digest, and never returns a key, shows one in a diff or puts
+          one in a message. It refuses, in check mode too, a keytab the cluster would
+          refuse and a keytab on a cluster joined to a domain, before sending it;
+          warns about a key version above 255, of which the cluster keeps the low
+          8 bits; and turns ``use_alt_security_identities_mapping`` back on after
+          a delete turns it off.
+        - kerberos_settings - new module that sets ``use_alt_security_identities_mapping``.
+        - license - ``document`` takes the license document Nexus issued for the cluster's
+          UUID, with the alias ``license``. The module validates the document and
+          applies it to the cluster; ``activated`` reports whether it applied one,
+          and ``license_status`` is ``active`` or ``absent``.
+        - license - new option ``check_waiting_cap`` and returns ``cap_waits_for_formation``
+          and ``file_system_size_bytes``, which tell whether a license the cluster
+          already held has a cap that still waits for a quorum formation on an edge
+          formed without a license. ``needs_quorum_bounce`` compares through a margin
+          of 10^11 bytes, since the server rounds sizes to units the collection cannot
+          read, so a document with a 1 TB cap applied to an edge formed at just under
+          1 TB reports no bounce.
+        - 'license - the module never waits for a license: a license applied through
+          the cluster API is active at once, so nothing relies on cloud monitoring
+          to deliver one. It returns ``cluster_uuid``, the UUID a license must be
+          issued for. Without a document it reports the license and changes nothing.'
+        - license - the module talks only to the cluster and reads no license from
+          Nexus, since a customer organization's users, its administrators included,
+          cannot see them there. Apply the license file Nexus issued with ``document``.
+        - modules - a 403 ``fs_access_denied_error``, which the calls under ``/v1/files/``
+          answer when the file system's permissions deny the API user the access,
+          ends with the hint that those permissions deny it, not with the RBAC hint
+          that every other 403 carries.
+        - 'modules - a failure because a cluster or Nexus did not answer before the
+          retry deadline returns ``cluster_unanswered: true``, and an identity guard
+          failure whose node-state read answered with a 5xx status keeps that ``status``
+          and ``error_class``.'
+        - monitoring_settings, nexus_connection, nexus_registration, nexus_cluster,
+          license and monitoring_info - new modules that restore cloud monitoring
+          and the Nexus connection, register a cluster with Nexus, apply the license
+          issued for its UUID, and retire an old UUID.
+        - 'network_config - a play on port 443 with no ``cluster_port`` fails closed:
+          it refuses a write that changes the document, on a cluster with one tenant
+          too, while either ``rest_api_enabled`` or ``web_ui_enabled`` is off on the
+          tenant that holds the management network, or on the only tenant. Remedy:
+          set ``cluster_port``; 443 means ``web_ui_enabled``, any other port ``rest_api_enabled``.
+          Or turn both switches on for that tenant with the ``tenant`` module.'
+        - 'network_config - new options ``management_network``, ``cluster_port`` and
+          the role-only ``planned_tenants``, with the meaning they have on ``tenant``.
+          The module applies the continuity rule to each write that changes the document,
+          unless ``allow_management_disruption`` is set: with one tenant, that tenant
+          must have REST enabled; with two or more, the management network must stay
+          in tenants with REST enabled, judged on the document the write leaves. In
+          check mode, ``planned_tenants`` gives the tenants after the write. A cluster
+          tenant it leaves out that a network is bound to is judged by its current
+          switches, and a name that neither it nor the cluster has is a tenant an
+          earlier task creates, which the check notes and does not judge.'
+        - 'network_config - new suboption ``tenant`` on each of ``frontend_networks``,
+          the name of the tenant the network belongs to. Outside check mode a name
+          the cluster lacks fails and lists the tenants; in check mode it is taken
+          as a tenant an earlier task creates, so the task reports a change with a
+          note and validates the network without a tenant. Every PUT sends each frontend
+          network''s tenant, the declared one or the one the cluster reports, except
+          for a network on the backend bond. The results and the diff carry ``tenant``,
+          the tenant''s name, beside ``tenant_id`` on each network; ``tenant`` is
+          ``null`` on a network of the backend bond, which takes no tenant, whatever
+          ``tenant_id`` shows, and on every network in a run that read no tenant list,
+          which is a run that changes nothing and names no tenant. Remedy for an unknown
+          name: create the tenant first with the ``tenant`` module, or correct the
+          name.'
+        - 'network_config - on a cluster with two or more tenants refuses a write
+          that would leave the management network in a tenant without REST enabled,
+          or in no tenant, and a write that removes the network the play connects
+          on. Remedy: keep REST on for the tenant that holds the network or move the
+          network to a tenant that has it, give a network that belongs to no tenant
+          its ``tenant``, and keep the network the play connects on in the document
+          you pass.'
+        - 'network_config - on a cluster with two or more tenants whose management
+          network it cannot determine, as behind NAT, refuses the write. Remedy: set
+          ``management_network`` to the id of the network the play reaches the cluster
+          on.'
+        - 'network_config - on the Qumulo Core container, where ``GET /v3/network/status``
+          answers HTTP 500 (G-NET-APPLY), the continuity rule reads the status as
+          unavailable. With two or more tenants after the write, the module trusts
+          a declared ``management_network`` without checking that a HOST network among
+          its ids shows on a device, and refuses the write without one when an address
+          of ``api_host`` is on no network''s ranges or on a HOST network. Remedy:
+          set ``management_network``. It reads the status only for such a write, and
+          never with one tenant.'
+        - 'network_config - reads the tenant list, ``GET /v1/multitenancy/tenants/``,
+          whenever the network document differs, in check mode and with ``allow_management_disruption``
+          too, or an entry names a tenant with ``tenant`` or ``tenant_id``. The read
+          needs ``PRIVILEGE_TENANT_READ``, so such a run fails for a user without
+          it. A run that changes nothing and names no tenant reads no tenant
+          list, and needs no such privilege. Remedy:
+          give the user ``PRIVILEGE_TENANT_READ``.'
+        - 'network_config - refuses ``tenant`` on a network of the backend bond (G-TENANT-BACKEND),
+          which takes no tenant, and drops a ``tenant_id`` there with a warning. The
+          module never sends a tenant for a backend network. Remedy: leave ``tenant``
+          out of backend networks.'
+        - 'network_config - refuses a document that gives the networks of two tenants
+          to one interface or VLAN when the write changes what that interface or VLAN
+          holds, and names the interface or VLAN, because the cluster''s own write
+          does not check it. A conflict already on the cluster, as another writer
+          left it, is warned of and does not block a write that leaves that interface
+          or VLAN alone. Remedy: put each tenant''s networks on an interface or VLAN
+          of their own.'
+        - 'network_config - refuses a new network that names no tenant when the cluster
+          will hold more than one tenant after the write, unless the network is on
+          the backend bond, because the cluster would hold it in no tenant and it
+          would serve no client. In check mode with ``planned_tenants``, the tenants
+          after the write are the ones it names. Remedy: give the network a ``tenant``.'
+        - network_config - warns, in the run and in a check run that predicts it,
+          when a write names a tenant for a new network or a different tenant for
+          an existing one, because that removes the static routes of every node (G-TENANT-ROUTES).
+          The warning names each network and its tenant, as in "binds network 2 (eng)
+          to tenant 'finance'", and comes after the write, or in a check run after
+          the validation, so a write the module refuses warns of nothing.
+        - network_config, tenancy_plan - refuse, on every cluster, a network document
+          in which two or more STATIC networks carry a default gateway of one IP version,
+          before any write and in check mode too, naming the networks and the remedy.
+          A chassis cluster takes one IPv4 and one IPv6 default gateway and refuses
+          a second only when it validates or writes the document; the module cannot
+          tell a chassis cluster from a virtual or cloud one, so it refuses the second
+          gateway on those too. When the cluster already gives each of those networks
+          a gateway of that version, the module warns and the write goes on.
+        - network_info - new module that reads the network document, the frontend
+          interfaces and their networks, the single-network settings, the DNS settings,
+          the lookup overrides and the authoritative DNS settings, each in its module's
+          shape where one writes it, and looks names and addresses up through the
+          cluster's own resolver.
+        - network_info - new subsets ``status``, the cluster's answer to ``GET /v3/network/status``
+          as the cluster gives it, and ``api_host_network``, the id in the network
+          document of the network that carries ``api_host``, which the status shows
+          on a frontend device. ``api_host_network`` is unavailable when ``api_host``
+          is a name or no network carries its address, as behind NAT or a load balancer.
+          On the Qumulo Core container, where the cluster answers the status with
+          HTTP 500 (G-NET-APPLY), both are listed in ``unavailable_subsets`` with
+          the reason, and the other subsets are still gathered.
+        - 'network_info - the networks of the ``document`` subset carry ``tenant``,
+          the tenant''s name, beside ``tenant_id``, which is deprecated and
+          will be removed in 0.3.0, with the ``tenant_id`` suboption of
+          ``network_config``. The subset also reads the tenant list, which
+          needs ``PRIVILEGE_TENANT_READ``. ``tenant`` is ``null`` on a cluster that
+          does not offer the list, and for a user without the privilege, with a warning;
+          any other error reading the list fails the module. ``tenant`` is also ``null``
+          on a network of the backend bond, which takes no tenant, so the document
+          can be given to ``network_config`` as it is. Remedy: give the user ``PRIVILEGE_TENANT_READ``.'
+        - nexus_registration - a join-key mint that the gateway in front of Nexus
+          answers with HTTP 502, 503 or 504, or whose connection is lost, is sent
+          again until ``retry_timeout`` runs out, since nothing has been stored on
+          the cluster yet. A mint whose answer was lost may leave a spare join key
+          in the Nexus organization, which nothing uses.
+        - 'nexus_registration - a rotate that fails because the gateway in front of
+          Nexus answered the cluster with a 5xx error page, which the cluster reports
+          as HTTP 400 ``decode_error``, is retried: the module reads the registration
+          status, and sends rotate again while the join key is still pending, backing
+          off, until ``retry_timeout`` runs out (QUIRK-022).'
+        - nfs_settings - the documentation of ``v4_enabled`` says that the cluster
+          compares export paths, the paths clients mount, not the directories the
+          exports serve, when it refuses NFSv4.1 over nested exports, and that while
+          NFSv4.1 is on it refuses a new export whose path nests with another's.
+        - nfs_settings - turning NFSv4.1 on in the global settings refuses export
+          paths that nest within one tenant, as the cluster does, and not paths that
+          nest only across tenants, so tenant A's export at ``/`` and tenant B's at
+          ``/home`` do not block it. The check looks at every tenant, one with an
+          override that keeps NFSv4.1 off included.
+        - 'nfs_settings - with ``tenant``, turning ``v4_enabled`` on in the override,
+          and ``inherit`` while the global settings have NFSv4.1 on and the override
+          has it off, first look at the tenant''s own exports, in check mode too,
+          and refuse when two of their paths nest, naming the pair; the cluster''s
+          own delete of an override does not check it (QUIRK-114). Remedy: remove
+          or move one of the two exports first.'
+        - playbooks/admin_password_rotate.yml - new playbook that changes each cluster's
+          ``admin`` password to ``qumulo_api_password_after`` and connects the rest
+          of the run with it. It changes nothing when ``admin`` already logs in with
+          the new password, honours check mode, and shows neither password.
+        - 'playbooks/edge_license_complete.yml - runs the baseline''s license step:
+          it applies ``qumulo_capacity.license_document``, then sets the clamp, and
+          fails at once when the edge has neither a license nor a document for its
+          UUID; it never waits for a license, and it fails before the clamp''s write
+          when the license''s cap is below the clamp. An edge that fails does not
+          end the run for the edges after it; the run fails at the end, naming each.'
+        - 'playbooks/replication_failover.yml - new playbook that runs the ``replication_failover``
+          role for the named relationships of one source host: ``failover`` makes
+          each target''s copy writable, with the source gone or not; ``resync`` turns
+          each relationship around so the target''s writes reach the source; ``failback``
+          makes the source the writable copy again once it holds them. A real run
+          needs ``-e replication_failover_allow_data_loss=true``; ``--check`` lists
+          each relationship''s state and every step left, and writes nothing.'
+        - 'playbooks/replication_restore.yml - new playbook that runs the restore,
+          one edge at a time, on ``replication_restore_hosts``, ``qumulo_clusters``
+          by default: for a cluster outside ``qumulo_edges``, to resume a restore
+          that stopped, and to name relationships with ``qumulo_replication_restore``.
+          ``--check`` reports each relationship''s predicted steps.'
+        - portal_pair role - a decommission that finds the hub's record of the spoke
+          already DELETING, as one left by an earlier run whose wait for the record
+          timed out, waits for the record to go and sends the hub no type change,
+          which the hub refuses.
+        - portal_spoke, portal_hub and portal_info - new modules, and the portal_pair
+          role, to pair a spoke cluster with a hub cluster by their UUIDs and to decommission
+          the pairing by draining the spoke to read-only before either side is deleted.
+        - replication_info - new module that reads a cluster's replication relationships
+          as source and as target in one shape, so the two sides of a relationship
+          compare key by key, and its object relationships without their credentials.
+        - replication_info - new options ``relationship_id`` and ``side``, which read
+          one relationship from this cluster's record of it on that side, returned
+          as ``replication.relationship``; and new fields ``job_start_time`` and ``recovery_point_snapshot_id``
+          on every relationship, source and target.
+        - replication_pair - new role that declares a replication relationship between
+          two clusters, or removes it. It runs ``replication_relationship`` and ``replication_target``
+          in check mode first, and refuses before any write on either cluster, reporting
+          every unmet condition of both sides at once with the release entries that
+          would lift the releasable ones. A relationship whose replica may be the
+          only copy of a rebuilt source's data is held. Into an edge whose license
+          and clamp do not apply yet, it creates nothing and hands off to the edge's
+          second pass. Then it creates the target directory, path only, creates the
+          relationship on the source, authorizes it on the target and waits until
+          both sides are ESTABLISHED; a removal deletes on the source, then on the
+          target, keeping the target directory's data.
+        - 'replication_pair - the capacity gate''s license half passes an edge that
+          declares ``qumulo_capacity.license: none`` and holds no license; its clamp
+          half applies to every edge, and its hand-off names the edge''s second pass,
+          which writes the clamp, as ``ansible-playbook qumulo.cluster.edge_license_complete
+          -i <inventory> -l <edge>``.'
+        - 'replication_pair role - new entry point ``restore``, ``tasks_from: restore.yml``,
+          that restores a rebuilt edge''s relationships from their replicas, with
+          the variables ``replication_restore_entry_point``, ``replication_restore_targets``,
+          ``replication_restore_report_claims``, ``replication_restore_wait_timeout``,
+          ``replication_restore_poll_delay``, ``replication_restore_reverse_timeout``,
+          ``replication_restore_reconnect_timeout`` and ``replication_restore_resume_window``,
+          and the extra variable ``qumulo_replication_restore``, which picks the relationships
+          to restore.'
+        - 'replication_pair_plan - new module, run on the controller, that joins the
+          two replication modules'' check passes into one decision for the ``replication_pair``
+          role: held, refused or go, with the releases to print joined per record.'
+        - 'replication_pair_plan - new options ``source_host``, ``source_path``, ``source_cluster_uuid``,
+          ``source_license_rule`` and ``source_replication_address``, and return ``restore_form``.
+          A held relationship whose holder is a live record from a previous UUID of
+          the source, ESTABLISHED, read-only and with a recovery point, over an empty
+          source directory and from a source with an IP-literal address, names the
+          restore in place of the copy back: the source edge''s second pass, in its
+          form for an edge that expects a license or one that declares ``license:
+          none``, or ``playbooks/replication_restore.yml`` for a host outside ``qumulo_edges``.
+          The release still prints, for keeping the replica as plain data. The ``replication_pair``
+          role passes the options from the source host''s inventory, so the baseline''s
+          held refusal names the restore too.'
+        - replication_relationship - new module that declares a replication relationship
+          on its source cluster, keyed by the source path, the target cluster's UUID
+          and the target path. It creates the relationship once, reconciling a lost
+          create by listing, and PATCHes the address, the port and the settings with
+          If-Match, so a relationship made by hand at another address of the target
+          is adopted with one PATCH. A create that reaches a cluster other than the
+          declared one is deleted at once. A changed peer, and an ENDED relationship
+          given ``recreate`` and a release bound to it, are replaced create first.
+          A reversed relationship and a blackout timezone that cannot be cleared are
+          refused before any write, and ``state=absent`` deletes the source's records,
+          those of the target's previous UUIDs included.
+        - replication_relationship, replication_target, replication_restore_step -
+          the messages for a relationship that runs reversed after a failover name
+          the ``replication_failover`` role's failback as the way back.
+        - replication_restore_info - new module that lists the restore records, restore
+          locks and unreadable files under an artifact directory, each record and
+          lock with its age, and each lock with whether its run is ``live``, ``gone``
+          or ``expired``. It reads files on the controller, sends no request to a
+          cluster and changes nothing.
+        - replication_restore_lock - new action plugin, with its module documentation,
+          that takes or removes the controller's lock on an edge's restore, ``<artifact
+          dir>/<edge>/restore/lock``, so one restore runs per edge at a time. It takes
+          over a lock whose process is gone on this controller, or whose lease ran
+          out, with a warning, and refuses any other.
+        - replication_restore_step - new module, a pure computation on the controller,
+          that chooses the next step of a rebuilt source's restore from its replica,
+          or its outcome, from fresh reads of both clusters and the restore record.
+          The ``replication_pair`` role's restore calls it before every step.
+        - replication_reverse - a ``reconnect`` without ``allow_data_loss`` compares
+          the target directory with the relationship's recovery point, through a snapshot
+          it takes and deletes, and sends the reconnect only when nothing was written
+          there since; otherwise it fails naming the changes, in ``changes`` and ``change_count``.
+          With ``allow_data_loss`` it reconnects without comparing.
+        - 'replication_reverse - new module that sends one failover verb for a replication
+          relationship by its id, on the cluster the verb goes to: ``make_writable``
+          on the target, ``reverse`` on the current target, to the current source
+          at ``source_address`` and ``source_port``, or ``reconnect``. Each verb is
+          sent only from its own state and never resent; a lost answer is reconciled
+          by reading the record. ``make_writable`` needs ``allow_data_loss``. A ``reconnect``
+          takes the target directory back to the relationship''s recovery point, and
+          without ``allow_data_loss`` sends only when nothing was written there since.
+          It never waits.'
+        - 'replication_target - new module that authorizes a replication relationship
+          on its target cluster, by the id the source''s create returned, once the
+          overwrite table''s target rows allow it: a holder, an ENDED record, a live
+          record of the key the source does not hold, a nested or reversed relationship,
+          an empty source over files, and a directory that holds any entry. It reports
+          every unmet row at once, with the release that would lift each, prunes stale
+          records that hold nothing, and with ``state=absent`` deletes the target''s
+          records while keeping the directory and its data, naming the snapshots left.'
+        - replication_target - new option ``allow_directories_only``, for the restore
+          of a rebuilt source, which lets the source's content replace a target directory
+          that holds only directories, and refuses one that holds a file, link or
+          other object, as row O1 does.
+        - 'replication_target - new options ``replication_address``, the IP address
+          the source connects to, and ``planned_tenant_writes``, which the ``replication_pair``
+          role passes. With ``state: present`` and the address, the module refuses,
+          before it reads the record or writes anything, when the tenant that serves
+          the address has ``replication_enabled`` false; with two or more tenants,
+          an address that no network''s ranges hold and a network that no tenant holds
+          are warned of and not checked. A check run takes a tenant''s switch from
+          ``planned_tenant_writes``, the target host''s own tenant writes earlier
+          in the play, so a check run that turns replication on for the tenant passes
+          as the real run does. The module reads ``GET /v1/multitenancy/tenants/``,
+          which needs ``PRIVILEGE_TENANT_READ``, and with two or more tenants ``GET
+          /v3/network``, which needs ``PRIVILEGE_NETWORK_READ``.'
+        - restore_key_hash - new filter, the SHA-256 digest of a relationship's normalized
+          key, which names its restore record and restore stamp under ``<artifact
+          dir>/<host>/restore/``.
+        - role - new module that creates, changes or deletes a custom role and the
+          privileges it grants, finding it by name in any case in the list of roles,
+          since a missing role answers as a missing route does (QUIRK-030). It PATCHes
+          the changed keys with the role's ETag, checks privileges against the cluster's
+          list before they change, reports no change for a built-in role it matches
+          and refuses to change or delete one, and refuses to delete a role with members.
+          The ``cluster_baseline`` role creates ``qumulo_roles`` before the role members
+          and deletes those declared absent after them, and ``capture_info`` reads
+          custom roles back.
+        - role_member - a role that does not exist is reported as such, naming ``qumulo.cluster.role``,
+          and not as a route that does not exist on the Qumulo Core version, although
+          the cluster answers both with ``http_not_found_error`` (QUIRK-030); in check
+          mode such a role has no members yet, with a note, and a task that only removes
+          members finds none to remove, says so in a note and looks up no member.
+          With ``state=absent``, a trustee that does not exist is no member, with
+          a note, so retiring a user and its role together changes nothing on later
+          runs.
+        - 'role_member and identity_attributes - with ``state: absent`` and no Active
+          Directory domain controller in reach, the cluster cannot say whether a trustee
+          it has not cached exists, so the task fails rather than report the trustee
+          gone and leave it in place; a check run fails too, rather than report such
+          a trustee as pending (QUIRK-102).'
+        - s3_access_key - new module that keeps a user's S3 access key by its id,
+          or makes sure the user holds one, and makes a new key only when none meets
+          the declaration, and for a declared id only while the user holds fewer keys
+          than the inventory declares for it, in ``declared_access_key_ids``, so a
+          rebuild restores each declared key. It writes the new key's secret at once
+          to a file of its own in ``secret_destination``, readable only by its owner,
+          returns it in that run only, and refuses to make a key unless the
+          task sets ``no_log`` and a destination. It removes one key or all of a user's, and removes a key
+          it made whose secret it could not store or confirm.
+        - s3_bucket - new module that creates, changes and removes an S3 bucket by
+          name, on a directory fixed at creation, with its versioning, object lock
+          and default retention. It refuses a bucket in a portal's spoke root, a move
+          to another directory and a change the cluster never allows, such as removing
+          a lock, before any write; removing a bucket keeps its directory and objects,
+          and ``allow_data_loss`` aborts its unfinished uploads, without which the
+          cluster refuses to remove it.
+        - s3_bucket_policy - new module that sets or removes the whole policy of an
+          S3 bucket. It compares the document as the cluster reads it back, statement
+          by statement in order, with each statement's actions as a set and its principals
+          by the identities they resolve to, those it reads back outside the trustee
+          grammar included, and sends each principal as its identity.
+        - s3_bucket_policy and capture_info - a bucket policy principal of Authenticated
+          Users, which Qumulo Core reads back as ``ad:Authenticated Users``, is found
+          and captured as ``ad:NT AUTHORITY\Authenticated Users``, since no identity
+          answers to the name Core reads back.
+        - s3_info - new module that reads a cluster's S3 settings, buckets, bucket
+          policies and access keys in the option shapes of the S3 modules, never with
+          a key's secret.
+        - s3_settings - new module that turns a cluster's S3 server on or off and
+          sets HTTPS-only access, the base path for new buckets and the multipart
+          upload expiry interval, which it compares in the form the cluster reads
+          it back (QUIRK-050), refusing a value that would read back shorter.
+        - saml_settings - new module that sets SAML single sign-on through an identity
+          provider with PATCH and If-Match, comparing the IdP certificate by its DER,
+          so the text the cluster drops around it is no change, and refusing an empty
+          certificate once one is set (G-ID-SAML-CERT). It refuses to turn sign-in
+          on with no certificate, which the cluster would accept, and warns when sign-in
+          turns on with a certificate the task did not give, when ``require_sso``
+          takes effect, and when sign-in turns on outside a domain. The ``cluster_baseline``
+          role applies ``qumulo_saml`` after the domain join, and ``capture_info``
+          reads it back once SAML is set up.
+        - smb_info, nfs_info - each share or export carries ``tenant``, the tenant's
+          name, before ``tenant_id``, which is deprecated and will be removed
+          in 0.3.0, with the ``tenant_id`` option of ``smb_share`` and
+          ``nfs_export``. ``tenant``
+          is ``null`` on a cluster that does not offer the tenant list, and for a
+          user without ``PRIVILEGE_TENANT_READ`` (HTTP 403), where the module warns
+          once per run that the tenant names are null and that reading the list needs
+          ``PRIVILEGE_TENANT_READ``; a list that is not offered gives no warning,
+          and any other error reading the list fails the module.
+        - smb_info, nfs_info - new subset ``tenant_settings``, each tenant's override
+          of the SMB or NFS settings by tenant name, in the option shape of ``smb_settings``
+          or ``nfs_settings``; a tenant without an override is left out. The subset
+          reads ``GET /v1/multitenancy/smb/settings/`` or ``/v1/multitenancy/nfs/settings/``
+          and, for the names, the tenant list. The subset is empty, and the override
+          list is not read, where the tenant list is not offered or not readable,
+          with the same warning on HTTP 403, and it is empty where the cluster does
+          not offer the override list. ``all``, the default, gathers it too.
+        - 'smb_settings, nfs_settings - new options ``tenant``, the name of a tenant,
+          and ``state``, ``present``, the default, or ``inherit``. Without ``tenant``
+          the modules manage the global settings. With ``tenant`` they manage that
+          tenant''s override of the global settings. ``present`` creates a missing
+          override with one PUT without ``If-Match``, whose body is the global settings
+          document as the cluster returns it with the declared options over it, so
+          a setting the module does not model keeps its global value (QUIRK-113, QUIRK-115),
+          and changes an existing one with one PATCH with ``If-Match`` of the options
+          that differ. ``inherit``, which needs ``tenant``, deletes the override with
+          ``If-Match``, so the tenant uses the global settings. Only the cluster''s
+          "does not exist" error for the override reads as no override; a missing
+          tenant fails outside check mode and lists the tenants, is pending in check
+          mode, with the note ``tenant ''name'' does not exist yet; an earlier task
+          is expected to create it``, and satisfies ``inherit``. The diff shows the
+          override''s full record, ``{}`` for a side with no override, with the headers
+          ``tenant <name>``; in check mode the after side of a create is seeded from
+          the global settings the cluster holds now. The result key stays ``smb_settings``
+          or ``nfs_settings``, ``{}`` after ``inherit``. Remedy for an unknown name:
+          create the tenant first with the ``tenant`` module, or correct the name.'
+        - 'smb_share - the documentation says how the cluster applies ``permissions``
+          and ``network_permissions``: right by right, the first matching entry that
+          names a right decides it, so a ``DENIED`` entry overrides only the entries
+          after it; a right no matching entry allows is denied, an address no entry
+          allows cannot connect, and a user needs both lists to allow a right.'
+        - 'smb_share, nfs_export - new option ``tenant``, the name of the tenant the
+          share or export belongs to, compared exactly, and new option ``tenants``,
+          a list of names. The module matches within each tenant only and never changes
+          the tenant of a share or export. With ``tenants`` it runs once for each
+          name, in the order given, reads the list of shares or exports once until
+          a write, and writes only to a tenant whose copy differs; the result and
+          the diff are keyed by tenant name, with ``{}`` for a side where the share
+          or export is missing. Every name is looked up before the first write, so
+          a name the cluster lacks fails before any tenant is written, and, in check
+          mode too, so does a tenant that lacks the share or export while ``fs_path``
+          or ``permissions`` (``restrictions``) is unset. Remedy: set those options,
+          or leave that tenant out of ``tenants``. A failure for one tenant starts
+          with the tenant''s name in quotes, as in ``tenant ''eng'':``; a failure
+          in a later tenant''s run, outside check mode, also names the tenants the
+          task had already changed, with ``changed`` true. ``tenants`` takes names
+          only: ``all``, an empty list and a name given twice are refused. Remedy:
+          name each tenant once, or leave ``tenants`` out. ``tenant`` and ``tenants``
+          are mutually exclusive, and so are ``tenant_id`` and ``tenants``. Outside
+          check mode a name the cluster lacks fails and lists the tenants; in check
+          mode it is taken as a tenant an earlier task creates, so a create reports
+          a change with the note ``tenant ''name'' does not exist yet; an earlier
+          task is expected to create it``, prefixed with the tenant''s name and
+          a colon under ``tenants``,
+          and the result shows the name with a ``null`` ``tenant_id``; with ``state:
+          absent`` it is satisfied. Remedy for an unknown name: create the tenant
+          first with the ``tenant`` module, or correct the name. A share name or export
+          path that exists in two tenants fails with a message that names the tenants
+          and says to set ``tenant``.'
+        - smb_share, nfs_export - the results and the diff carry ``tenant``, the tenant's
+          name, before ``tenant_id``, which is deprecated and will be removed
+          in 0.3.0, with the ``tenant_id`` option.
+          ``tenant`` is ``null`` where the tenant list cannot be read.
+        - 'smb_share, nfs_export - with ``tenant`` or ``tenants``, read the tenant
+          list, ``GET /v1/multitenancy/tenants/``, which needs ``PRIVILEGE_TENANT_READ``;
+          a failure to read it fails the module. Remedy: give the user ``PRIVILEGE_TENANT_READ``.
+          Without either option the modules read it only to name the tenants in the
+          results, and where the cluster does not offer the list, or the user may
+          not read it (HTTP 403), the run goes on with a ``null`` ``tenant``.'
+        - smb_share, nfs_export, smb_info, nfs_info and capture_info - the documentation
+          notes that Qumulo marks the /v3/smb/shares/ and /v3/nfs/exports/ routes
+          as preview in Qumulo Core 7.10.3 and 7.11.0, and that a later release may
+          change them.
+        - snapshot - new module that takes an on-demand snapshot of a directory, with
+          an optional name and a time to live in the forms snapshot_policy takes.
+          With ``reuse_existing`` and a name, a rerun returns the snapshot the first
+          run took and takes none. A directory on or under a portal spoke root is
+          refused before the cluster refuses it.
+        - snapshot_info - each policy carries ``lock_key``, the key's name, or its
+          id with a warning when the API user may not read the key store, or when
+          the key has no name (QUIRK-120).
+        - snapshot_info - the new ``security_keys`` subset lists every key in the
+          file system key store with what uses it, each snapshot, snapshot policy
+          and replication target by type and id. ``all`` gathers it; an API user who
+          may not read the key store gets it in ``unavailable_subsets`` and still
+          gets the other subsets.
+        - snapshot_lock - new module that locks a snapshot with a key from the file
+          system key store, or unlocks it by signing the cluster's challenge with
+          the key's private key through the ``openssl`` command on the controller.
+          It reads the lock first, since the cluster refuses a repeated lock or unlock,
+          and locks a snapshot that never expires only with a ``private_key`` that
+          matches the key store, so the lock can be undone.
+        - snapshot_lock - refuses an empty ``lock_key`` before any request, since
+          an empty key reference is the key list's route.
+        - snapshot_lock - refuses to lock a snapshot with a disabled key, in check
+          mode too, before it sends the lock the cluster would refuse, and says to
+          enable the key with ``qumulo.cluster.security_key``; a key the key store
+          does not hold is refused with a message that says to register it with ``qumulo.cluster.security_key``.
+          Unlocking with a disabled key works.
+        - snapshot_lock, security_key - a ``private_key`` in encrypted PKCS#8 form
+          whose PEM header does not say so fails with a message that says the key
+          is encrypted.
+        - snapshot_policy - the new ``lock_key`` option locks each snapshot the policy
+          takes with a key from the file system key store, by its name or id, compared
+          and returned by name; ``""`` takes the key off. A key that is not in the
+          key store, or that is disabled, is refused before any write. ``recreate``
+          keeps the policy's key; a ``recreate`` that would carry a disabled key,
+          or one the API user may not read, is refused before the delete.
+        - ssl_ciphers - new module that sets the TLS 1.2 and TLS 1.3 cipher suites
+          the cluster accepts, compared in order with the suite the cluster adds to
+          a list that leaves it out, and refuses an empty list.
+        - 'tenancy_plan - plans the run''s tenant writes in the order of the baseline''s
+          steps and judges each write the continuity rule judges: a tenant create,
+          a delete, a change of ``rest_api_enabled`` or ``web_ui_enabled`` and the
+          network PUT. It returns ``step_3a``, ``step_3b`` and ``step_20a``, the ``tenant``
+          items of steps 3a, 3b and 20a with each judged write''s ``management_network``,
+          ``planned_networks`` and ``planned_tenants`` and a delete''s ``content_removed``,
+          as they will be immediately after that write, and ``verdicts``, the rule''s
+          verdict on each judged write. A run is refused before any write, with the
+          rule''s message and its remedy, when a judged write would leave the play''s
+          connection in a tenant without REST enabled, on a network that no tenant
+          holds or that status shows on no device, or when the management network
+          cannot be determined with two or more tenants after the write. Remedy: follow
+          the message, such as setting ``qumulo_management_network`` or ``qumulo_cluster_port``,
+          or keeping REST on for the tenant that holds the play''s network.'
+        - 'tenancy_plan - refuses a network that qumulo_network or a tenant lists
+          and that the cluster lacks when ``networks`` is not in ``owned_parts``,
+          since such a run sets only floating addresses and adds no network. Remedy:
+          add ``networks`` to ``owned_parts``, or add the network in a run that owns
+          networks first.'
+        - 'tenancy_plan - refuses every tenant write that the run would send to a
+          cloud cluster, a rename, a create, a switch change and a delete, in one
+          message that lists them. A cluster is cloud when ``cluster_kind`` is ``cnq``,
+          or, with it unset, when ``cluster.protection_type`` is object-backed. ``allow_management_disruption``
+          does not skip this refusal. The plan ends there, before every rule after
+          the renames, and returns only the refusal. Remedy: remove the tenant writes
+          from ``qumulo_tenants``, or declare ``qumulo_cluster_kind: baremetal`` for
+          an on-premises cluster whose storage is object-backed.'
+        - 'tenancy_plan - refuses, at step 2, a network document that drops the IP
+          address in ``api_host`` from the current document''s ranges, as ``network_config``
+          does at step 3, unless ``allow_management_disruption`` is set and ``api_host_after``
+          names the address that later tasks connect to. ``allow_management_disruption``
+          without ``api_host_after`` is refused too, when the document drops that
+          address. Remedy: set ``qumulo_api_host_after``, and ``qumulo_allow_management_disruption``
+          if the change is meant.'
+        - tenancy_plan - returns ``validate``, true when step 3's document differs
+          from the cluster's and step 3a writes first, so that a caller can run ``network_config``
+          in check mode with the document, ``network.management_network`` and ``network.planned_tenants``
+          before any write.
+        - tenancy_plan - takes ``api_host``, ``api_port``, ``management_network``,
+          ``cluster_port``, ``allow_management_disruption`` and ``cluster.status``
+          or ``cluster.status_unavailable``. It resolves ``api_host`` on the controller
+          and finds the management network from ``management_network`` or the document's
+          ranges, and from the status for an address no range holds. REST enabled
+          means ``web_ui_enabled`` at cluster port 443 and ``rest_api_enabled`` at
+          another port, and both when ``cluster_port`` is unset and ``api_port`` is
+          443. A caller passes the status when the cluster holds two or more tenants
+          or the run creates one. With ``allow_management_disruption`` no write is
+          judged.
+        - tenancy_plan, cluster_baseline - the failure of a refused tenancy plan holds
+          the refusals' messages in ``msg`` and ``refusals``, and the computed plan,
+          with the network document and every address range of the cluster, under
+          ``plan`` only at verbosity 3 or more (``-vvv``).
+        - tenancy_plan, edge_rebuild_preflight - refuse a key in a tenant's ``smb_settings``
+          or ``nfs_settings`` that the global settings do not take, naming the nearest
+          key when there is one, and saying to write ``inherit`` for ``state`` and
+          to leave ``tenant`` out, since ``tenant`` or ``state`` there would replace
+          the override's own.
+        - 'tenant - a play on port 443 with no ``cluster_port`` fails closed: it refuses
+          a judged write while either ``rest_api_enabled`` or ``web_ui_enabled`` is
+          off on the tenant that holds the management network, or on the only tenant.
+          Remedy: set ``cluster_port``; 443 means ``web_ui_enabled``, any other port
+          ``rest_api_enabled``.'
+        - 'tenant - in check mode with ``planned_networks``, a ``management_network``
+          id that ``planned_networks`` binds is accepted as a network on the cluster,
+          though the cluster lacks it, so a check run before step 3 adds the network
+          is not refused for naming it. ``planned_networks`` also tells the check
+          run which networks the document will hold. Without ``planned_networks``
+          an id the cluster lacks is refused. Remedy: add the network first, or pass
+          its binding in ``planned_networks``.'
+        - 'tenant - on a cloud cluster, where Qumulo Core refuses every tenant write,
+          maps the refusal to a message that says so. In check mode it predicts the
+          change and warns when the cluster''s protection type is object-backed. Remedy:
+          remove the tenant change from that cluster''s tasks.'
+        - 'tenant - refuses a create that would make a second tenant while a tenant
+          holds a network that is not on the frontend bond, a frontend VLAN or a HOST
+          network, such as a backend-bond network. Remedy: unbind the network first
+          with a tenant PATCH of ``networks`` that leaves it out (``qq multitenancy_modify_tenant
+          --network-id``), since ``qq network_mod_network --clear-tenant-id`` puts
+          it back in the only tenant.'
+        - 'tenant - refuses a create, a change of ``rest_api_enabled`` or ``web_ui_enabled``,
+          or a delete that would leave the play''s own connection in a tenant without
+          REST enabled. Remedy: set the switch named in the message to ``true`` on
+          that tenant, or move the network to a tenant that has it on. A rename and
+          a change of any other switch are not judged.'
+        - 'tenant - refuses a delete of the last tenant, and of a tenant that holds
+          a network, an SMB share or an NFS export, and lists them. Remedy: move the
+          networks to another tenant with ``network_config``, and delete the shares
+          and exports, first.'
+        - 'tenant - refuses a judged write that leaves two or more tenants when it
+          cannot determine the management network, as behind NAT, or on the Qumulo
+          Core container, where the network status answers HTTP 500 (G-NET-APPLY).
+          Remedy: set ``management_network`` to the id of the network the play reaches
+          the cluster on.'
+        - tenant - warns, in the run and in a check run that predicts it, that every
+          create removes the static routes of every node, that the first create of
+          a second tenant also rebinds every listener on every node and ends every
+          NFS and replication connection, and that the delete that leaves one tenant
+          does the same rebind.
+        - tenant_info - each tenant carries ``identity_config_id``, the id of the
+          identity configuration it uses, a read-only key that ``tenant`` never takes,
+          beside ``id`` and ``networks``.
+        - terraform inventory plugin - an entry may give ``load_balancer_name``, the
+          fully qualified DNS name of the load balancer in front of a multi-AZ cluster
+          in AWS. The plugin resolves it on the controller at each read, a cached
+          one included, and sets ``qumulo_portal_hosts`` to its IPv4 and IPv6 addresses,
+          canonical, without repeats and sorted, and ``qumulo_replication_address``
+          to the first, wherever the entry's ``portal_hosts`` or ``replication_address``
+          is null. Addresses the entry gives win, the name is never published as an
+          address, and a name that resolves to nothing, or to a loopback, unspecified,
+          multicast or zoned address, fails the source, naming it. With the inventory
+          cache, a name that resolves to fewer addresses than the cache recorded fails
+          the source, naming the missing ones. docs/how-to/terraform.md shows how
+          a root reads the load balancer's IPs from its network interfaces instead.
+        - terraform inventory plugin - an entry of ``qumulo_ansible_inventory`` may
+          give ``portal_hosts``, a list of IP addresses, and ``replication_address``,
+          one IP address, which become ``qumulo_portal_hosts`` and ``qumulo_replication_address``,
+          each in canonical form. These are the addresses Terraform outputs, the floating
+          IPs or, for a multi-AZ cluster in AWS, the load balancer's IPs, and the
+          plugin never derives or translates one; a host name, a port, brackets, a
+          zone id, a URL, an unspecified, loopback or multicast address, an empty
+          list and an address given twice are refused.
+        - terraform inventory plugin - new plugin that reads the ``qumulo_ansible_inventory``
+          output of a Terraform root, from ``terraform output -json`` or a saved file,
+          into hosts with their UUID and ownership; docs/reference/terraform-inventory.md
+          describes the output.
+        - 'terraform inventory plugin - the rule that ``owned_areas`` must list ``network.floating_ips``
+          with ``managed_by: terraform_provider`` holds only for ``cluster_kind: cnq``.
+          An ``edge`` or ``baremetal`` entry may leave the area out, which hands the
+          cluster''s floating addresses to the baseline.'
+        - terraform inventory plugin - two entries of ``qumulo_ansible_inventory``
+          with the same ``cluster_uuid`` fail the source, naming both entries.
+        - trustees - Authenticated Users is named ``ad:NT AUTHORITY\Authenticated
+          Users`` by every module that reads a trustee back, ``capture_info`` and
+          ``identity_info`` among them, and ``sid:S-1-5-11`` is looked up by that
+          name, since a node refuses the find of ``S-1-5-11`` until it has looked
+          up a name in ``S-1-5`` since it started. A file ACL, SMB share, directory
+          or role membership that names the group by its SID works on a freshly started
+          node too.
+        - trustees - File Owner and File Group Owner, which Qumulo Core returns with
+          a name and no SID, uid or gid, are the trustees ``internal:File Owner``
+          and ``internal:File Group Owner``, accepted in any letter case. ``file_acl``
+          accepts an ACL that holds either, and ``capture_info`` captures a directory
+          or bucket policy whose ACL or principals hold either.
+        - unprotected_edge_create, network_config, cluster_settings, dns_settings,
+          time_settings, ssl_certificate, local_group, local_user, role_member, ad_domain
+          and identity_info - new modules for a cluster's system and identity baseline.
+        - 'upgrade - new module that upgrades one cluster by one hop through Qumulo
+          Core''s own upgrade routes, as far as ``state`` asks: verify, prepare, commit
+          or the commit''s reboots. Each phase reads back before it writes, so a rerun
+          picks up where the cluster is, and a lost answer is read back rather than
+          sent again. It refuses a downgrade, a limited-release source without ``allow_upgrade_from_limited_release``,
+          a degraded cluster and an upgrade started outside the run before any write,
+          decides the commit from the running build, and with ``commit_record`` keeps
+          a record on the controller of a commit that did not finish. A secret part
+          of the image''s URL goes in ``image_secret`` and never shows in the result.'
+        - upgrade and cluster_upgrade - the message for a reboot that another run
+          paused says to follow "Resume a paused reboot" in the collection's docs/how-to/resume-an-upgrade.md,
+          then run the upgrade again.
+        - upgrade.yml - new playbook that upgrades each cluster in ``qumulo_clusters``
+          to its ``qumulo_upgrade_target``, hop by hop through every quarterly release
+          on the way, with the ``cluster_upgrade`` role. It plans the whole fleet
+          from every inventory host's reads and ``qumulo_upgrade_*`` variables before
+          it sends anything but reads, and fails with every refusal at once; before
+          the plan, lists the restore records and locks under each ``edge_rebuild_artifact_dir``
+          and warns (W1) of each open record, and each live lock on a host it does
+          not lock, that names a host it moves or reboots, and goes on; takes each
+          moved host's restore lock, and each source's that replicates to one, for
+          the whole run and releases them at every end the run reaches, a run stopped
+          with Ctrl-C or killed excepted; and fails at its end when a hop stopped
+          the run. ``qumulo_upgrade_api_host`` gives the address it connects to in
+          place of ``qumulo_api_host``, for a cluster behind a load balancer that
+          closes idle connections. In check mode it predicts each host's first hop
+          and each lock, and changes nothing on the clusters. It refuses
+          ``qumulo_upgrade_aggressive=true``.
+        - 'upgrade_plan - new module that plans a fleet''s Qumulo Core upgrade from
+          every inventory host''s reads and upgrade variables before anything is sent:
+          the hops, one release at a time in lock-step, each host''s image and reboot
+          mode, the order of each hop''s commits, a portal component''s spokes before
+          their hub and a replication target before its source, the hosts a failure
+          holds, the restore locks the run takes, and from ``restore_files`` the W1
+          warnings for the open restore records and live restore locks that name a
+          host it moves. Any refusal stops the whole plan. With ``window``, it answers
+          only whether a hop''s commits may begin now by the hosts'' maintenance windows.'
+        - 'upgrade_report - new module that turns one hop of the plan and each host''s
+          registered upgrade results into the hop''s report: each host''s releases,
+          phase times, outage, reboot and outcome, the host whose failure held a held
+          one, each portal component''s mismatch window and whether the hop left it
+          on two releases, and the peer readings. It reads only the results'' return
+          fields, and redacts every URL''s query string and user information.'
+        - user_defined_mappings - new module that sets the cluster's whole list of
+          mappings from Active Directory users to LDAP users with PUT and If-Match,
+          compared without regard to order. It refuses a list the cluster would refuse
+          before any request, and outside a domain refuses a list that is not empty
+          before the PUT, which the cluster would answer with 500 (QUIRK-031). The
+          ``cluster_baseline`` role applies ``qumulo_user_defined_mappings`` after
+          the domain join, and ``capture_info`` reads it back in the new ``identity_mappings``
+          area.
+        - version - a version gate on a cluster that serves no OpenAPI document is
+          decided by the cluster's release, with a warning.
+        - version parsing - a respin letter in the version a cluster reports, such
+          as ``Qumulo Core 7.10.3A``, is accepted by every version fact, gate and
+          floor check.
+        - web_ui_settings - new module that sets the Web UI's login banner and inactivity
+          timeout, in minutes, with If-Match. An empty banner removes it and a timeout
+          of 0 turns it off. cluster_baseline applies ``qumulo_web_ui_settings`` after
+          the file system settings, and capture_info reads it back as the new ``web_ui``
+          area, which clone_host_vars copies.
+      release_summary: '0.1.0 is the first release of qumulo.cluster, an Ansible collection
+        for day-2 configuration of Qumulo Core clusters. You declare shares, exports,
+        identity, portals, quotas, snapshot policies, licensing and monitoring in
+        an inventory, and the collection applies them through the Qumulo REST API.
+        Its roles also rebuild an unprotected edge, upgrade a fleet hop by hop,
+        and pair, fail over and fail back replication. Every module supports check mode, and every module that changes a cluster
+        supports diff mode, so you see each change before you make it. 0.1.0 was tested
+        on Qumulo Core 7.10.3 build 385145.1.82, on single-node Qumulo Core containers,
+        a single-node Cloud Native Qumulo (CNQ) cluster in AWS, and a four-node cluster
+        on lab hardware. The collection needs Qumulo Core 7.10.3 or later and ansible-core
+        2.20 or later. It is a pre-release: interfaces may change before 1.0.0, and
+        it is not supported for production use yet. The documentation index is ``docs/README.md``
+        in the installed collection and in the public repository Qumulo/qumulo-ansible
+        on GitHub.'
+    fragments:
+      - access-token.yml
+      - actions-policy.yml
+      - ad-domain-reconfigure-check.yml
+      - admin-password-rotate.yml
+      - adopt-clone-flat-duplicates.yml
+      - adopt-inventory-tenants.yml
+      - api-drift-change-families.yml
+      - api-drift-queue.yml
+      - argspec-refusal-output.yml
+      - artifacts-four-part-release-branch.yml
+      - audit-destination.yml
+      - auth-cache-clear.yml
+      - authenticated-users-trustee.yml
+      - authoritative-dns.yml
+      - backfill-cnq.yml
+      - baseline-dns.yml
+      - baseline-s3.yml
+      - baseline.yml
+      - blackout-window-flake.yml
+      - capture-absent-tenant1.yml
+      - capture-info.yml
+      - capture-nfs-require-tls.yml
+      - capture-widen.yml
+      - ci-small-cleanups.yml
+      - clamp-tolerance.yml
+      - clone-audit-destinations.yml
+      - clone-edge.yml
+      - cluster-upgrade-role.yml
+      - cnq-build-after-skipped-stage.yml
+      - cnq-fixes.yml
+      - cnq-package-url.yml
+      - cnq-secrets.yml
+      - cnq-ships-targets.yml
+      - cnq-soft-capacity.yml
+      - cnq.yml
+      - companion-github-app.yml
+      - companion-repo.yml
+      - contributor-pages-not-shipped.yml
+      - dns-cache-clear.yml
+      - dns-lookup-overrides.yml
+      - docker-edge-column.yml
+      - docs-diataxis.yml
+      - docs-release-review.yml
+      - docs-remove-run-pointer.yml
+      - docs-share-export-preview.yml
+      - docs-standard.yml
+      - docsite-inventory-cache.yml
+      - edge-cache-resize-serial.yml
+      - edge-cache-sizing.yml
+      - edge-instances.yml
+      - edge-rebuild-first-pass-followups.yml
+      - edge-rebuild-owned-parts.yml
+      - edge-rebuild-preflight-followups.yml
+      - edge-rebuild-replay-tenant-one.yml
+      - edge-rebuild-tenant-shares.yml
+      - edge-rebuild-tenants-scenario.yml
+      - edge-rebuild.yml
+      - encryption-key-rotation.yml
+      - file-acl.yml
+      - file-owner-trustee.yml
+      - filesystem-settings.yml
+      - ftp-settings.yml
+      - gate-handoff-name.yml
+      - harvester-controller-followup.yml
+      - harvester-lab-lease-pool.yml
+      - harvester-lab-pool.yml
+      - harvester-openssh-client.yml
+      - harvester-runner-images-one-replica.yml
+      - harvester-runners.yml
+      - host-vars-unsafe.yml
+      - identity-attributes.yml
+      - identity-info-roles-saml.yml
+      - identity.yml
+      - inventory-handoff.yml
+      - ipv6-api-host.yml
+      - kerberos.yml
+      - lab-deb-on-prem-nodes.yml
+      - lab-form-by-uuid.yml
+      - lab-infoblox-addresses.yml
+      - lab-lease-family.yml
+      - lab-listing-timeout.yml
+      - lab-node-reset.yml
+      - lab-pool-continuous.yml
+      - lab-pool-other-tags.yml
+      - lab-pool-tags-variable.yml
+      - lab-sweep-settings-guard.yml
+      - lane-verdict.yml
+      - lane.yml
+      - license-cluster-only.yml
+      - license-hand-off-names.yml
+      - license-no-wait.yml
+      - license-none.yml
+      - license-wait.yml
+      - lookups-identity.yml
+      - lookups-paths.yml
+      - matrix-secrets.yml
+      - matrix.yml
+      - modules.yml
+      - molecule-durations.yml
+      - molecule-ephemeral-per-instance.yml
+      - monitoring-nexus.yml
+      - multitenancy-baseline.yml
+      - multitenancy-capture.yml
+      - multitenancy-docs.yml
+      - multitenancy-networks.yml
+      - multitenancy-plan-continuity.yml
+      - multitenancy-plan.yml
+      - multitenancy-replication.yml
+      - multitenancy-shares.yml
+      - multitenancy.yml
+      - network-config-empty-gateway.yml
+      - network-info.yml
+      - network-status-container-only.yml
+      - network-status-shape.yml
+      - nexus-gateway-retries.yml
+      - nexus-registration-gateway-page.yml
+      - nfs-settings-export-paths.yml
+      - no-scheduled-test-runs.yml
+      - one-default-gateway.yml
+      - pair-and-edge-split.yml
+      - paused-reboot-message.yml
+      - policy-lock-key.yml
+      - portal-pair-deleting.yml
+      - portal-pairing.yml
+      - protocols-local-data.yml
+      - quirk-062-fixed-in-7-11.yml
+      - qumulo-support-trustee.yml
+      - rc-tier1-image.yml
+      - read-back-trustee-auth-id.yml
+      - readme-scrub.yml
+      - reap-console-capture.yml
+      - rebuild-scenario-matrix.yml
+      - rebuild-verify-security-keys.yml
+      - record-by-lane-attempt.yml
+      - records-ci.yml
+      - records-container-equivalence.yml
+      - records-line-length-and-vm-edge-tests.yml
+      - registers.yml
+      - release-matrix-retest.yml
+      - release-matrix-token-retry.yml
+      - release-prep.yml
+      - release-summary.yml
+      - release-watcher.yml
+      - release-workflow.yml
+      - replay-unbound-network.yml
+      - replication-failover.yml
+      - replication-info.yml
+      - replication-pair.yml
+      - replication-rebuild.yml
+      - replication-relationship.yml
+      - replication-restore-info.yml
+      - replication-restore.yml
+      - replication-target.yml
+      - return-notes.yml
+      - role-member-missing-role.yml
+      - role.yml
+      - s3-access-key.yml
+      - s3-bucket-policy.yml
+      - s3-bucket.yml
+      - s3-docs.yml
+      - s3-info.yml
+      - s3-settings.yml
+      - saml-settings.yml
+      - security-keys.yml
+      - smb-share-permission-order.yml
+      - snapshot-lock-encrypted-key-message.yml
+      - snapshot-lock.yml
+      - snapshot.yml
+      - split-tools-tests.yml
+      - ssl-ciphers.yml
+      - strict-dict-keys.yml
+      - sweep-pvc-409.yml
+      - tenancy-refusal-output.yml
+      - tenancy-tier3-baseline-capture.yml
+      - tenancy-tier3-target.yml
+      - terraform-formed.yml
+      - terraform-load-balancer-name.yml
+      - terraform-ownership-kind.yml
+      - tier3-lab-call.yml
+      - tier3-lease-job.yml
+      - tier3-probes-and-scripts.yml
+      - tier3-rc-kinds.yml
+      - tier3-records.yml
+      - tier3-row-semantics.yml
+      - tools-tests-records-and-archives.yml
+      - unbound-network-drift.yml
+      - upgrade-deferred-checks-ci.yml
+      - upgrade-module.yml
+      - upgrade-plan-report.yml
+      - upgrade-run.yml
+      - upgrade-target-non-letter-release.yml
+      - upgrade-utils.yml
+      - user-defined-mappings.yml
+      - user-guide.yml
+      - version-respin.yml
+      - vlan-undeclared-network.yml
+      - vm-edge-harvester.yml
+      - vm-edge-matrix.yml
+      - vm-edge-workflow.yml
+      - web-ui-settings.yml
+    modules:
+      - description: Manage the access tokens of a user on a Qumulo cluster.
+        name: access_token
+        namespace: ''
+      - description: Join a Qumulo cluster to an Active Directory domain, or leave
+          it.
+        name: ad_domain
+        namespace: ''
+      - description: Manage a Qumulo cluster's audit log destination.
+        name: audit_destination
+        namespace: ''
+      - description: Clear a Qumulo cluster's cache of identities and group memberships.
+        name: auth_cache_clear
+        namespace: ''
+      - description: Manage the DNS server a Qumulo cluster runs for its own name.
+        name: authoritative_dns
+        namespace: ''
+      - description: Set a Qumulo cluster's capacity clamp, writing only when it must
+          change.
+        name: capacity_clamp
+        namespace: ''
+      - description: Read a Qumulo cluster's configuration as the inventory variables
+          that declare it.
+        name: capture_info
+        namespace: ''
+      - description: Derive a fresh Qumulo cluster's host\_vars from another cluster's
+          capture.
+        name: clone_host_vars
+        namespace: ''
+      - description: Check that a Qumulo cluster is the one a play expects, and wait
+          until it is ready.
+        name: cluster_guard
+        namespace: ''
+      - description: Read a Qumulo cluster's identity, version, license, capacity
+          and product type.
+        name: cluster_info
+        namespace: ''
+      - description: Manage a Qumulo cluster's name.
+        name: cluster_settings
+        namespace: ''
+      - description: Make sure a directory exists on a Qumulo cluster, with its mode,
+          owner and group.
+        name: directory
+        namespace: ''
+      - description: Manage the hard capacity quota of a directory on a Qumulo cluster.
+        name: directory_quota
+        namespace: ''
+      - description: Clear a Qumulo cluster's DNS cache.
+        name: dns_cache_clear
+        namespace: ''
+      - description: Manage the names a Qumulo cluster resolves without asking DNS.
+        name: dns_lookup_overrides
+        namespace: ''
+      - description: Manage the DNS servers and search domains a Qumulo cluster resolves
+          names with.
+        name: dns_settings
+        namespace: ''
+      - description: Choose how to bring a Qumulo edge's cache to a target size.
+        name: edge_cache_route
+        namespace: ''
+      - description: Check that a Qumulo edge's live state can be replayed from its
+          inventory before a rebuild destroys it.
+        name: edge_rebuild_preflight
+        namespace: ''
+      - description: Rotate a Qumulo cluster's at\-rest encryption key once it is
+          older than a given age.
+        name: encryption_key_rotation
+        namespace: ''
+      - description: Declare the access control list of a file or directory on a Qumulo
+          cluster.
+        name: file_acl
+        namespace: ''
+      - description: Read a Qumulo cluster's file system capacity, root directory
+          and quotas.
+        name: filesystem_info
+        namespace: ''
+      - description: Manage a Qumulo cluster's file system settings.
+        name: filesystem_settings
+        namespace: ''
+      - description: Read a Qumulo cluster's FTP settings and each node's FTP server
+          status.
+        name: ftp_info
+        namespace: ''
+      - description: Manage a Qumulo cluster's FTP server settings.
+        name: ftp_settings
+        namespace: ''
+      - description: Write variables read from a Qumulo cluster as a host\_vars file
+          Ansible never templates.
+        name: host_vars_text
+        namespace: ''
+      - description: Manage the home directory a Qumulo cluster gives an Active Directory,
+          LDAP or POSIX identity.
+        name: identity_attributes
+        namespace: ''
+      - description: Read a Qumulo cluster's local users and groups, roles, directory
+          services and sign\-in settings.
+        name: identity_info
+        namespace: ''
+      - description: Install, replace or delete a Qumulo cluster's Kerberos keytab.
+        name: kerberos_keytab
+        namespace: ''
+      - description: Manage a Qumulo cluster's Kerberos settings.
+        name: kerberos_settings
+        namespace: ''
+      - description: Make sure a Qumulo cluster holds a license for its current UUID.
+        name: license
+        namespace: ''
+      - description: Manage a Qumulo cluster's local group and its members.
+        name: local_group
+        namespace: ''
+      - description: Manage a Qumulo cluster's local user.
+        name: local_user
+        namespace: ''
+      - description: Read a Qumulo cluster's monitoring, Nexus, audit and encryption
+          settings and status.
+        name: monitoring_info
+        namespace: ''
+      - description: Manage a Qumulo cluster's cloud monitoring settings.
+        name: monitoring_settings
+        namespace: ''
+      - description: Manage a Qumulo cluster's network document.
+        name: network_config
+        namespace: ''
+      - description: Read a Qumulo cluster's network and name resolution settings.
+        name: network_info
+        namespace: ''
+      - description: Retire a cluster in Qumulo's Nexus service.
+        name: nexus_cluster
+        namespace: ''
+      - description: Manage a Qumulo cluster's connection to Qumulo's Nexus service.
+        name: nexus_connection
+        namespace: ''
+      - description: Register a Qumulo cluster with Qumulo's Nexus service.
+        name: nexus_registration
+        namespace: ''
+      - description: Manage an NFS export on a Qumulo cluster.
+        name: nfs_export
+        namespace: ''
+      - description: Read a Qumulo cluster's NFS exports and NFS server settings.
+        name: nfs_info
+        namespace: ''
+      - description: Manage a Qumulo cluster's NFS server settings.
+        name: nfs_settings
+        namespace: ''
+      - description: Manage the free\-capacity threshold at which a cluster evicts
+          cached spoke data.
+        name: portal_eviction_settings
+        namespace: ''
+      - description: Accept a spoke's portal proposal on the hub, set its type and
+          roots, or delete it.
+        name: portal_hub
+        namespace: ''
+      - description: Read a Qumulo cluster's spoke and hub portals, its eviction threshold
+          and its cache size.
+        name: portal_info
+        namespace: ''
+      - description: Propose a spoke portal to a hub cluster, or delete it.
+        name: portal_spoke
+        namespace: ''
+      - description: Choose the next step of a replication failover, resync or failback,
+          from fresh reads of both clusters.
+        name: replication_failover_plan
+        namespace: ''
+      - description: Read a Qumulo cluster's replication relationships, as source,
+          as target and to object storage.
+        name: replication_info
+        namespace: ''
+      - description: Join the source's and the target's check passes of a replication
+          relationship into one decision.
+        name: replication_pair_plan
+        namespace: ''
+      - description: Declare a replication relationship on its source cluster, or
+          delete the source's records of it.
+        name: replication_relationship
+        namespace: ''
+      - description: List the restore records and restore locks left on the controller,
+          with their age.
+        name: replication_restore_info
+        namespace: ''
+      - description: Hold the controller's lock on an edge's restore, so one restore
+          runs per edge at a time.
+        name: replication_restore_lock
+        namespace: ''
+      - description: Choose the next step of a rebuilt source's restore from its replica,
+          from fresh reads of both clusters.
+        name: replication_restore_step
+        namespace: ''
+      - description: Make a replication target writable, reverse a relationship, or
+          reconnect it, by its id.
+        name: replication_reverse
+        namespace: ''
+      - description: Authorize a replication relationship on its target cluster, or
+          delete the target's records of it.
+        name: replication_target
+        namespace: ''
+      - description: Manage a custom Qumulo role and its privileges.
+        name: role
+        namespace: ''
+      - description: Manage the members of a Qumulo role.
+        name: role_member
+        namespace: ''
+      - description: Manage the S3 access keys of a user on a Qumulo cluster.
+        name: s3_access_key
+        namespace: ''
+      - description: Manage an S3 bucket on a Qumulo cluster.
+        name: s3_bucket
+        namespace: ''
+      - description: Manage the policy of an S3 bucket on a Qumulo cluster.
+        name: s3_bucket_policy
+        namespace: ''
+      - description: Read a Qumulo cluster's S3 settings, buckets, bucket policies
+          and access keys.
+        name: s3_info
+        namespace: ''
+      - description: Manage a Qumulo cluster's S3 server settings.
+        name: s3_settings
+        namespace: ''
+      - description: Manage a Qumulo cluster's SAML single sign\-on settings.
+        name: saml_settings
+        namespace: ''
+      - description: Manage a key that locks snapshots in a Qumulo cluster's file
+          system key store.
+        name: security_key
+        namespace: ''
+      - description: Read a Qumulo cluster's SMB shares, SMB server settings and open
+          SMB sessions.
+        name: smb_info
+        namespace: ''
+      - description: Manage a Qumulo cluster's SMB server settings.
+        name: smb_settings
+        namespace: ''
+      - description: Manage an SMB share on a Qumulo cluster.
+        name: smb_share
+        namespace: ''
+      - description: Take a snapshot of a directory on a Qumulo cluster.
+        name: snapshot
+        namespace: ''
+      - description: Read a Qumulo cluster's snapshots, snapshot policies, snapshot
+          capacity and lock keys.
+        name: snapshot_info
+        namespace: ''
+      - description: Lock or unlock a snapshot on a Qumulo cluster with a key from
+          its key store.
+        name: snapshot_lock
+        namespace: ''
+      - description: Manage a snapshot policy on a Qumulo cluster.
+        name: snapshot_policy
+        namespace: ''
+      - description: Install the TLS certificate a Qumulo cluster serves.
+        name: ssl_certificate
+        namespace: ''
+      - description: Manage the TLS cipher suites a Qumulo cluster accepts.
+        name: ssl_ciphers
+        namespace: ''
+      - description: Check a cluster's tenants, networks, shares and exports before
+          the baseline writes any of them.
+        name: tenancy_plan
+        namespace: ''
+      - description: Manage a Qumulo cluster's network tenant.
+        name: tenant
+        namespace: ''
+      - description: Read a Qumulo cluster's network tenants.
+        name: tenant_info
+        namespace: ''
+      - description: Manage where a Qumulo cluster gets its time.
+        name: time_settings
+        namespace: ''
+      - description: Form a single\-node unprotected edge from an unconfigured Qumulo
+          node.
+        name: unprotected_edge_create
+        namespace: ''
+      - description: Upgrade a Qumulo cluster by one hop, from verify to its reboots.
+        name: upgrade
+        namespace: ''
+      - description: Plan a fleet's Qumulo Core upgrade, hop by hop, before anything
+          is sent.
+        name: upgrade_plan
+        namespace: ''
+      - description: Turn one hop's upgrade results into the hop's report.
+        name: upgrade_report
+        namespace: ''
+      - description: Manage which Active Directory users a Qumulo cluster maps to
+          which LDAP users.
+        name: user_defined_mappings
+        namespace: ''
+      - description: Manage a Qumulo cluster's Web UI login banner and inactivity
+          timeout.
+        name: web_ui_settings
+        namespace: ''
+    objects:
+      role:
+        - description: Bring a Qumulo cluster to the baseline its inventory declares.
+          name: cluster_baseline
+          namespace: null
+        - description: Upgrade a fleet of Qumulo clusters hop by hop, in the order
+            the upgrade plan gives.
+          name: cluster_upgrade
+          namespace: null
+        - description: Bring a Qumulo edge's cache to a target size, by the least
+            disruptive route.
+          name: edge_cache_resize
+          namespace: null
+        - description: Rebuild a Qumulo unprotected edge, draining it first, and bring
+            the new edge back to its baseline.
+          name: edge_rebuild
+          namespace: null
+        - description: Pair a spoke cluster with a hub cluster through a portal, or
+            drain and decommission the pairing.
+          name: portal_pair
+          namespace: null
+        - description: Fail a replication relationship over to its target, copy the
+            target's writes back, or fail it back.
+          name: replication_failover
+          namespace: null
+        - description: Declare a replication relationship between two clusters, or
+            remove it, refusing before any write.
+          name: replication_pair
+          namespace: null
+    plugins:
+      filter:
+        - description: Where the collection's roles keep a host's records and secrets.
+          name: artifact_dir
+          namespace: null
+        - description: A host\_vars file's variables without the shares and exports
+            the inventory already declares.
+          name: host_vars_duplicates
+          namespace: null
+        - description: The keys inside list items that put a declared variable in
+            an area.
+          name: item_areas
+          namespace: null
+        - description: What the cluster\_baseline role applies of the snapshot policies,
+            given the key store.
+          name: policy_lock_keys
+          namespace: null
+        - description: An upgrade images list without the secret parts of its URLs.
+          name: redact_images
+          namespace: null
+        - description: The digest that names a relationship's restore record and restore
+            stamp.
+          name: restore_key_hash
+          namespace: null
+        - description: The rebuild report's claim on a host's relationships, read
+            on the controller.
+          name: restore_report_claims
+          namespace: null
+        - description: What the edge\_rebuild replay declares in its tenant 1 pass,
+            before the baseline.
+          name: tenancy_first_pass
+          namespace: null
+        - description: Whether the cluster\_baseline role's step 2 reads the cluster's
+            network status.
+          name: tenancy_status_due
+          namespace: null
+        - description: The secret parts of an upgrade image's URL.
+          name: url_secret
+          namespace: null
+        - description: Show a text as a warning of the task that renders it.
+          name: warn
+          namespace: null
+      inventory:
+        - description: Qumulo clusters from a Terraform root's qumulo\_ansible\_inventory
+            output.
+          name: terraform
+          namespace: null
+    release_date: '2026-11-08'

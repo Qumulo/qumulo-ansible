@@ -1,0 +1,85 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The capacity gate, for a target edge whose capacity the inventory declares,
+# before a create or an authorize: a full sync must not start into an edge
+# whose license and clamp do not apply yet, such as one at the 1 TB a first
+# pass leaves (design section 1.1 row 10). Its license half passes an edge
+# that declares qumulo_capacity.license: none, which runs without a license;
+# its clamp half applies to every edge. A check run takes the edge's own
+# license step's prediction when the edge is in the play, since that step
+# would apply the license and write the clamp before this one. The second
+# pass sets that fact to none before its license step, and an edge outside
+# the play has none, so either is no prediction.
+- name: Name what the gate reads
+  ansible.builtin.set_fact:
+    replication_pair_edge_predicted: >-
+      {{ ansible_check_mode
+         and (hostvars[replication_pair_target_host] | default({})).cluster_baseline_license_pending is defined
+         and hostvars[replication_pair_target_host].cluster_baseline_license_pending is not none }}
+    replication_pair_runs_unlicensed: "{{ replication_pair_target_capacity.license | default('pending') == 'none' }}"
+
+- name: Read the edge's license
+  qumulo.cluster.license:
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_target }}"
+  check_mode: true
+  register: replication_pair_license
+  when: not replication_pair_edge_predicted
+
+- name: Plan the edge's declared clamp, which reads it and writes nothing
+  qumulo.cluster.capacity_clamp:
+    capacity_clamp: "{{ replication_pair_target_capacity.clamp }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_target }}"
+  check_mode: true
+  register: replication_pair_clamp
+  when:
+    - not replication_pair_edge_predicted
+    - replication_pair_license.license_status == 'active' or replication_pair_runs_unlicensed
+    - replication_pair_target_capacity.clamp is defined
+
+- name: Decide whether the relationship waits for the edge
+  ansible.builtin.set_fact:
+    replication_pair_license_half_passes: "{{ replication_pair_active or replication_pair_runs_unlicensed }}"
+    replication_pair_deferred: "{{ not (replication_pair_active or replication_pair_runs_unlicensed) or replication_pair_clamp is changed }}"
+  vars:
+    replication_pair_active: >-
+      {{ not hostvars[replication_pair_target_host].cluster_baseline_license_pending | bool if replication_pair_edge_predicted
+         else replication_pair_license.license_status == 'active' }}
+
+- name: Defer the relationship to the edge's second pass
+  when: replication_pair_deferred | bool
+  block:
+    # Only the records of the target's previous UUIDs that cannot be replicating to an old edge kept beside the new one.
+    - name: Delete only what the source may delete while the relationship waits
+      qumulo.cluster.replication_relationship:
+        source_path: "{{ replication_pair_relationship.source_path }}"
+        target_cluster_uuid: "{{ replication_pair_target_uuid }}"
+        target_path: "{{ replication_pair_relationship.target_path }}"
+        target_address: "{{ replication_pair_target_address }}"
+        target_port: "{{ replication_pair_target_port }}"
+        previous_target_cluster_uuids: "{{ replication_pair_previous_target_uuids }}"
+        inventory_cluster_uuids: "{{ replication_pair_inventory_cluster_uuids }}"
+        create: false
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_pair_source }}"
+      register: replication_pair_deleted
+
+    - name: Record the hand-off
+      ansible.builtin.set_fact:
+        replication_pair_result:
+          status: deferred
+          deleted: "{{ replication_pair_deleted.deleted }}"
+          # The half that deferred chooses the opening; either way the edge's second pass writes the clamp.
+          hand_off: >-
+            {{ (replication_pair_name ~ ' waits for ' ~ replication_pair_target_host ~ "'s capacity clamp, which differs "
+                ~ 'from the one declared, since a full sync must not start before its clamp applies; nothing was created '
+                ~ 'or authorized. Run ansible-playbook qumulo.cluster.edge_license_complete -i <inventory> -l '
+                ~ replication_pair_target_host ~ ', which sets its clamp, then creates it.')
+               if replication_pair_license_half_passes | bool
+               else (replication_pair_name ~ ' waits for ' ~ replication_pair_target_host ~ "'s license, which is not "
+                     ~ 'active, since a full sync must not start before its license and clamp apply; nothing was created '
+                     ~ 'or authorized. Run ansible-playbook qumulo.cluster.edge_license_complete -i <inventory> -l '
+                     ~ replication_pair_target_host ~ ' once the license document issued for its UUID is in its inventory; that run applies the license '
+                     ~ 'and the clamp, then creates it.') }}

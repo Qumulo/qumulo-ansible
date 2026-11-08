@@ -1,0 +1,75 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: restore_report_claims
+  short_description: The rebuild report's claim on a host's relationships, read on the controller
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - Reads the host's directory under the artifact directory, C(<artifact dir>/<host>), on the controller.
+    - The newest C(rebuild-*.yml) there by name claims each key of its C(held) list that no restore stamp naming that
+      report retires. A stamp is C(restore/done-<digest>.yml), named by the digest of P(qumulo.cluster.restore_key_hash#filter),
+      of format 1, whose C(report) is the newest report's file name.
+    - A report with no C(held) list, as one written before the restore, claims nothing, and so do no report, a report
+      that cannot be read as YAML, a C(held) entry without a key of the restore record's shape, and an empty or
+      missing directory.
+    - A directory that cannot be listed fails the filter, naming it.
+  options:
+    _input:
+      description: The host's directory under the artifact directory, or an empty string for a host with none.
+      type: str
+      required: true
+
+EXAMPLES: |
+  - name: Show the rebuild report's claim on edge01's relationships
+    vars:
+      artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+    ansible.builtin.debug:
+      msg: "{{ (artifact_dir ~ '/edge01') | qumulo.cluster.restore_report_claims }}"
+
+  - name: List the relationships the newest rebuild report still holds for edge01
+    vars:
+      artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+      edge01_claims: "{{ (artifact_dir ~ '/edge01') | qumulo.cluster.restore_report_claims }}"
+    ansible.builtin.debug:
+      msg: "{{ edge01_claims.claimed | map(attribute='source_path') | list }}"
+    when: edge01_claims.report is not none
+
+  - name: Fail when the newest rebuild report of this host still holds a relationship
+    vars:
+      artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+      claims: "{{ (artifact_dir ~ '/' ~ inventory_hostname) | qumulo.cluster.restore_report_claims }}"
+    ansible.builtin.assert:
+      that: claims.claimed | length == 0
+      fail_msg: A relationship of {{ inventory_hostname }} is still held by its rebuild report.
+
+RETURN:
+  _value:
+    description: The claim.
+    returned: always
+    type: dict
+    contains:
+      report:
+        description: The newest report's file name, or null when there is none.
+        type: str
+        sample: rebuild-20261102T100000Z.yml
+      claimed:
+        description: >-
+          The claimed keys, each with C(source_path), C(target_host), C(target_cluster_uuid) and C(target_path),
+          normalized: each path without its trailing slash, and the target cluster UUID in lower case.
+        type: list
+        elements: dict
+        sample:
+          - source_path: /projects
+            target_host: hub01
+            target_cluster_uuid: 7d4a2e10-3c8b-4f5a-9b6e-1a2b3c4d5e6f
+            target_path: /replicas/edge01
+      stamped:
+        description: >-
+          The key hashes of the restore stamps of format 1 that name the newest report, each relationship restored or
+          paired since that rebuild; empty when there is no report.
+        type: list
+        elements: str
+        sample:
+          - c6f21a2d2f429154980c601dcefa44cce45d276f639aff197d40598dc1ef34dc

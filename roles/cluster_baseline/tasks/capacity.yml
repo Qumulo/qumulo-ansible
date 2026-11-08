@@ -1,0 +1,10 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Apply the license, then set the clamp
+  ansible.builtin.include_tasks: license.yml
+
+- name: Apply the free space the edge keeps by evicting cached spoke data
+  qumulo.cluster.portal_eviction_settings:
+    free_threshold: "{{ qumulo_capacity.free_threshold }}"
+  when: qumulo_capacity.free_threshold is defined

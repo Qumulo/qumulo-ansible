@@ -1,0 +1,93 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Require the hosts each side reaches the other at
+  ansible.builtin.assert:
+    that:
+      - portal_pair_hub_hosts | default([]) | length > 0
+      - portal_pair_spoke_hosts | default([]) | length > 0
+    fail_msg: pairing needs portal_pair_hub_hosts and portal_pair_spoke_hosts, the IP addresses each side reaches the other at
+    quiet: true
+
+- name: Name the spoke roots as the modules report them, without a trailing slash
+  ansible.builtin.set_fact:
+    portal_pair_spoke_roots: "{{ portal_pair_roots | map(attribute='spoke_root') | map('regex_replace', '/+$', '') | list }}"
+
+- name: Read the spoke's version
+  qumulo.cluster.cluster_info:
+    gather_subset: [version]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_spoke }}"
+  register: portal_pair_spoke_version
+
+- name: Read the hub's version
+  qumulo.cluster.cluster_info:
+    gather_subset: [version]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_hub }}"
+  register: portal_pair_hub_version
+
+- name: Require one Qumulo Core version on both sides, as portals do
+  ansible.builtin.assert:
+    that: portal_pair_spoke_version.cluster.version == portal_pair_hub_version.cluster.version
+    fail_msg: >-
+      the spoke runs Qumulo Core {{ portal_pair_spoke_version.cluster.version }} and the hub
+      {{ portal_pair_hub_version.cluster.version }}; a portal needs both on the same version
+    quiet: true
+
+- name: Propose the portal and its roots on the spoke
+  qumulo.cluster.portal_spoke:
+    hub_cluster_uuid: "{{ portal_pair_hub_uuid }}"
+    hub_hosts: "{{ portal_pair_hub_hosts }}"
+    type: "{{ portal_pair_type }}"
+    roots: "{{ portal_pair_roots }}"
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_spoke }}"
+  register: portal_pair_proposed
+
+- name: Accept the portal and authorize its roots on the hub
+  qumulo.cluster.portal_hub:
+    spoke_cluster_uuid: "{{ portal_pair_spoke_uuid }}"
+    spoke_hosts: "{{ portal_pair_spoke_hosts }}"
+    type: "{{ portal_pair_type }}"
+    authorized_roots: "{{ portal_pair_roots | map(attribute='hub_root') | list }}"
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_hub }}"
+  # Hub portals carry no ETag, so pairings that share a hub take turns (G-PORTAL-ETAG).
+  throttle: 1
+  register: portal_pair_accepted
+
+- name: Wait until the spoke serves requests after the accept
+  qumulo.cluster.cluster_guard:
+    wait_timeout: "{{ portal_pair_wait_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_spoke }}"
+  when: not ansible_check_mode
+
+- name: Wait until the spoke shows the portal ACCEPTED and ACTIVE with the role's roots authorized
+  qumulo.cluster.portal_info:
+    gather_subset: [spokes]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ portal_pair_spoke }}"
+  register: portal_pair_spoke_side
+  # Roots proposed outside portal_pair_roots are not the role's to wait for.
+  until: >-
+    portal_pair_spoke_side.portals.spokes
+    | selectattr('hub_cluster_uuid', 'equalto', portal_pair_hub_uuid)
+    | selectattr('state', 'equalto', 'ACCEPTED') | selectattr('status', 'equalto', 'ACTIVE')
+    | selectattr('type', 'equalto', portal_pair_type)
+    | map(attribute='roots') | map('selectattr', 'spoke_root', 'in', portal_pair_spoke_roots)
+    | map('rejectattr', 'authorized') | map('list') | select('equalto', []) | list | length == 1
+  retries: "{{ (portal_pair_wait_timeout | int / 5) | round(0, 'ceil') | int }}"
+  delay: 5
+  when: not ansible_check_mode
+
+- name: Record the portal as each side reports it
+  ansible.builtin.set_fact:
+    portal_pair_portals:
+      spoke: >-
+        {{ (portal_pair_spoke_side.portals.spokes | selectattr('hub_cluster_uuid', 'equalto', portal_pair_hub_uuid) | first)
+           if portal_pair_spoke_side.portals is defined else portal_pair_proposed.portal }}
+      hub: "{{ portal_pair_accepted.portal }}"

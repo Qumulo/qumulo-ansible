@@ -1,0 +1,31 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 20's snapshot policies, as step 2's lock key plan (policy_lock_keys.yml)
+# gives them: each with its lock_key, or, under the consent, without a key the
+# store does not hold yet, which is handed off. A run that includes this file
+# without step 2, as a test of the data steps does, has no plan: it applies
+# the policies as declared, and the module refuses a key the store lacks.
+- name: Keep the hand-off of each policy applied without its lock key
+  ansible.builtin.set_fact:
+    cluster_baseline_policy_lock_key_hand_offs: "{{ cluster_baseline_policy_plan.hand_offs | default([]) }}"
+
+- name: Apply the snapshot policies
+  qumulo.cluster.snapshot_policy:
+    policy_name: "{{ item.policy_name }}"
+    path: "{{ item.path | default(omit) }}"
+    enabled: "{{ item.enabled | default(omit) }}"
+    schedule: "{{ item.schedule | default(omit) }}"
+    expiration_time_to_live: "{{ item.expiration_time_to_live | default(omit) }}"
+    snapshot_name_template: "{{ item.snapshot_name_template | default(omit) }}"
+    lock_key: "{{ item.lock_key | default(omit) }}"
+    recreate: "{{ item.recreate | default(omit) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ cluster_baseline_policy_plan.policies | default(qumulo_snapshot_policies | default([])) }}"
+  loop_control:
+    label: "{{ item.policy_name }}"
+
+- name: Show each policy applied without its lock key
+  ansible.builtin.debug:
+    msg: "{{ item }}"
+  loop: "{{ cluster_baseline_policy_lock_key_hand_offs }}"

@@ -1,0 +1,79 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Fresh reads for one relationship: both clusters' records, and for a resync or a failback each new target's tenants,
+# and with more than one tenant its network document, for spec 014's FR-029, read once per host in the run. The source
+# may not answer: a failover then goes on without it, so its read gives up after replication_failover_source_timeout
+# seconds; once it has not answered it is not read again in this run, whatever the action, nor are its tenants, and the
+# plan refuses a resync or a failback without it at once. Not answering is the client giving up unreachable, or a 502, 503 or 504 after its retries,
+# as from a gateway in front of a lost cluster or a node still starting; any other failure of the read, such as a
+# refused login or the identity guard's mismatch, fails the run.
+- name: Read the source's relationships, {{ inventory_hostname }}
+  qumulo.cluster.replication_info:
+    gather_subset: [source, target]
+  module_defaults:
+    group/qumulo.cluster.qumulo: >-
+      {{ replication_failover_connections[inventory_hostname]
+         | combine({'retry_timeout': replication_failover_source_timeout | int, 'request_timeout': replication_failover_source_timeout | int}
+                   if replication_failover_action == 'failover' else {}) }}
+  register: replication_failover_source_read
+  failed_when: >-
+    replication_failover_source_read.replication is not defined
+    and not (replication_failover_source_read.cluster_unanswered | default(false) or replication_failover_source_read.status | default(0) in [502, 503, 504])
+  when: not replication_failover_source_down | default(false) | bool
+
+- name: Remember that the source did not answer
+  ansible.builtin.set_fact:
+    replication_failover_source_down: true
+    replication_failover_source_error: "{{ replication_failover_source_read.msg }}"
+  when:
+    - replication_failover_source_read is not skipped
+    - replication_failover_source_read.replication is not defined
+
+- name: Read the target's relationships, {{ replication_failover_item.entry.target }}
+  qumulo.cluster.replication_info:
+    gather_subset: [source, target]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_failover_connections[replication_failover_item.entry.target] }}"
+  register: replication_failover_target_read
+
+- name: Read each new target's tenants and network document, once per host in the run
+  when: replication_failover_action != 'failover' and replication_failover_tenancy_due | length > 0
+  vars:
+    replication_failover_tenancy_due: >-
+      {{ (([] if replication_failover_source_down | bool else [inventory_hostname])
+          + ([replication_failover_item.entry.target] if replication_failover_action == 'failback' else []))
+         | reject('in', replication_failover_tenancy) | list }}
+  block:
+    - name: Read each new target's tenants
+      qumulo.cluster.tenant_info:
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_failover_connections[replication_failover_tenancy_host] }}"
+      loop: "{{ replication_failover_tenancy_due }}"
+      loop_control:
+        loop_var: replication_failover_tenancy_host
+      register: replication_failover_tenants_read
+
+    # The rule reads the network document only to find the tenant of the address's network, which one tenant needs not.
+    - name: Read the network document of each new target with more than one tenant
+      qumulo.cluster.network_info:
+        gather_subset: [document]
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ replication_failover_connections[replication_failover_tenancy_host.replication_failover_tenancy_host] }}"
+      loop: "{{ replication_failover_tenants_read.results | selectattr('tenants', 'defined') | list }}"
+      loop_control:
+        loop_var: replication_failover_tenancy_host
+        label: "{{ replication_failover_tenancy_host.replication_failover_tenancy_host }}"
+      when: replication_failover_tenancy_host.tenants | length > 1
+      register: replication_failover_networks_read
+
+    - name: Keep each new target's tenants and network document for the run
+      ansible.builtin.set_fact:
+        replication_failover_tenancy: >-
+          {%- set found = namespace(hosts=replication_failover_tenancy) -%}
+          {%- for tenants in replication_failover_tenants_read.results -%}
+            {%- set network = replication_failover_networks_read.results[loop.index0] -%}
+            {%- set found.hosts = found.hosts | combine({tenants.replication_failover_tenancy_host:
+                  {'tenants': tenants.tenants, 'document': network.network.document if network.network is defined else none}}) -%}
+          {%- endfor -%}
+          {{ found.hosts }}

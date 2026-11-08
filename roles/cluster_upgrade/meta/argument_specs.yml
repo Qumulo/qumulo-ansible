@@ -1,0 +1,126 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+argument_specs:
+  main:
+    short_description: Upgrade a fleet of Qumulo clusters hop by hop, in the order the upgrade plan gives
+    version_added: 0.1.0
+    description:
+      - Runs each hop of O(cluster_upgrade_plan), the plan C(qumulo.cluster.upgrade_plan) returns, on every host of the
+        play at once, and finishes each hop on every host before the next starts. A hop is nine steps, keyed by facts
+        on each host. 1. waits out a reboot under way, with M(qumulo.cluster.cluster_info)'s C(upgrade) subset, and
+        then the upgrade's preflight, with its C(upgrade_blocked) subset; 2. prepares every host the hop moves, every
+        prepare before any commit; 3. prepares again each host whose first prepare failed, and asks
+        M(qumulo.cluster.upgrade) whether each host may commit; 4. asks the plan module whether the hop's commits may
+        begin inside the maintenance window; 5. commits the schedule's steps in order, the spokes of a portal component
+        together and then their hub, each step's readiness checked again just before its commit; 6. waits on each moved
+        component's portals and reads each replication relationship that touches a moved host; 7. waits for the
+        reboots; 8. reads the peers again; 9. writes the report.
+      - A host that fails a step leaves the play, and holds its unit, its whole portal component, and every unit that
+        follows it by C(qumulo_upgrade_after) or a kept replication edge, as the plan's C(holds) give them. The rest of
+        the hop goes on, and the run stops before the next hop, with C(upgrade_stop) set.
+      - Runs only in a linear play without C(serial); its first task refuses a play run in batches. Every
+        C(qumulo.cluster.upgrade) call writes its commit record on the controller through
+        O(qumulo.cluster.upgrade#module:commit_record), so the play's hosts use the local connection.
+      - Under C(--check), makes one M(qumulo.cluster.upgrade) call per host, for its first hop, which predicts every
+        phase; asks the maintenance window once; skips the other steps up to the report; renews no lock; and writes
+        the report, marked as a check run's.
+      - Sets the facts C(upgrade_moves), C(upgrade_reboots_only), C(upgrade_prepare_failed), C(upgrade_ready) and
+        C(upgrade_committed) on each host, reset at each hop's start; C(upgrade_held), the hop's held hosts,
+        C(upgrade_stop), true once the run must stop, and C(upgrade_stop_reason), why a failed lock renewal stopped it,
+        on every host.
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      cluster_upgrade_plan:
+        description: The plan, the C(qumulo.cluster.upgrade_plan) module's output. Its C(hops) are run in order.
+        type: dict
+        required: true
+      upgrade_lock_hosts:
+        description:
+          - The hosts that hold one of the run's restore locks, the plan's C(lock_hosts) the lock step took. Each renews
+            its lock to the hop's lease at each hop's start, outside check mode; a renewal that fails stops the run
+            before the hop.
+        type: list
+        elements: str
+        default: []
+      upgrade_lock_token:
+        description:
+          - On each of O(upgrade_lock_hosts), the C(token) its take of the lock returned, which each renewal passes back.
+        type: str
+      upgrade_lock_held:
+        description:
+          - The hosts a lock the lock step refused protects. Each hop holds, for each of them it moves, its C(holds) in
+            that hop.
+        type: list
+        elements: str
+        default: []
+      upgrade_stop:
+        description: True to run no hop. The role sets it once a hop ends with a host held or out of the play.
+        type: bool
+        default: false
+      cluster_upgrade_artifact_dir:
+        description:
+          - The directory, on the controller, of the commit records, C(<host>/upgrade/commit.yml), and of the report,
+            C(upgrade-<UTC>.yml). Refused empty.
+          - Defaults to the edge_rebuild role's own expression, beside the inventory source that defines the host.
+        type: str
+      edge_rebuild_artifact_dir:
+        description: The directory of the restore locks, C(<host>/restore/lock), the edge_rebuild role's own variable.
+        type: str
+      cluster_upgrade_wait_timeout:
+        description: Seconds each phase of an upgrade call waits, passed to every call as its C(wait_timeout).
+        type: int
+        default: 3600
+      cluster_upgrade_reboot_timeout:
+        description: Seconds a reboot may take, passed to every upgrade call as its C(reboot_timeout), and step 1's bound.
+        type: int
+        default: 43200
+      cluster_upgrade_unblock_timeout:
+        description:
+          - Seconds step 1 waits for the upgrade's preflight to clear, such as the background work after a reboot.
+        type: int
+        default: 14400
+      cluster_upgrade_peer_timeout:
+        description: Seconds steps 6 and 8 wait for a component's portals to read ACTIVE. A timeout is reported, not failed.
+        type: int
+        default: 1800
+      cluster_upgrade_poll_delay:
+        description:
+          - Seconds between the reads of step 1, which waits out a reboot and the preflight, and between the portal
+            reads of steps 6 and 8.
+          - Each read of the reboot status in step 1 asks every node for its boot identity; a value below 30 is for tests.
+        type: int
+        default: 30
+      cluster_upgrade_prepare_throttle:
+        description:
+          - How many prepares, and so how many clusters' image downloads, run at once. It bounds step 2 and step 3's
+            prepare again, never the commits.
+          - Unset, they run as wide as C(forks).
+        type: int
+      qumulo_upgrade_images:
+        description:
+          - The host's images, each a URL or a path, or a mapping with C(image) and C(build). The plan's C(image_index)
+            picks the hop's entry; its URL's query string and user information are passed as the call's
+            C(image_secret), read once per hop.
+        type: list
+        elements: raw
+      qumulo_upgrade_reboot_set_size:
+        description: How many nodes a rolling reboot takes at once, at least 1. Unset, Qumulo Core chooses.
+        type: int
+      qumulo_upgrade_allow_limited_release:
+        description:
+          - A support-directed action; Qumulo Care directs when to set it.
+          - Sends Qumulo Core's waiver of the rule that refuses a limited (letter) release as the source.
+        type: bool
+        default: false
+      qumulo_upgrade_verify_in_check_mode:
+        description: In check mode, also run verify, which downloads the whole image on every node.
+        type: bool
+        default: false
+      qumulo_portal:
+        description: The host's portal, whose C(hub) names the hub whose portals a spoke reads when the hub is outside the play.
+        type: dict
+      qumulo_replication_relationships:
+        description: The host's replication relationships, whose last job the peer steps read when one touches a moved host.
+        type: list
+        elements: dict

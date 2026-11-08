@@ -1,0 +1,21 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# A settings step: the id mapping on the target's reversed source record before the resync's reconnect, or the declared
+# settings on the source's record at the end of a failback, which a reverse may have reset (spec Decision 9). It
+# changes nothing when the record already holds them.
+- name: "{{ replication_failover_step.text }}"
+  qumulo.cluster.replication_relationship:
+    source_path: "{{ replication_failover_step.options.source_path }}"
+    target_cluster_uuid: "{{ replication_failover_step.options.target_cluster_uuid }}"
+    target_path: "{{ replication_failover_step.options.target_path }}"
+    target_address: "{{ replication_failover_step.options.target_address }}"
+    target_port: "{{ replication_failover_step.options.target_port }}"
+    relationship_id: "{{ replication_failover_step.options.relationship_id }}"
+    replication_enabled: "{{ replication_failover_step.options.replication_enabled | default(omit) }}"
+    map_local_ids_to_nfs_ids: "{{ replication_failover_step.options.map_local_ids_to_nfs_ids | default(omit) }}"
+    source_root_read_only: "{{ replication_failover_step.options.source_root_read_only | default(omit) }}"
+    blackout_windows: "{{ replication_failover_step.options.blackout_windows | default(omit) }}"
+    blackout_window_timezone: "{{ replication_failover_step.options.blackout_window_timezone | default(omit) }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_failover_connections[replication_failover_step.host] }}"

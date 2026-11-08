@@ -1,0 +1,26 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# A mode and an ACL are two views of one fact: declared for one path, they
+# undo each other on every run unless they agree (G-FS-ACL-MODE). Paths are
+# compared as the modules canonicalize them, repeated and trailing slashes
+# dropped. The edge_rebuild role runs this file too, before it drains.
+- name: Refuse a path that declares both a mode and an ACL before anything is written
+  ansible.builtin.assert:
+    that: cluster_baseline_mode_and_acl | length == 0
+    fail_msg: >-
+      {{ inventory_hostname }}: these paths have both a mode in qumulo_directories and an ACL in qumulo_file_acls:
+      {{ cluster_baseline_mode_and_acl | join(', ') }}; setting the mode rewrites the ACL, so declare one or the other
+      (G-FS-ACL-MODE)
+    quiet: true
+  vars:
+    cluster_baseline_mode_and_acl: >-
+      {%- set acl_paths = qumulo_file_acls | default([]) | map(attribute='path')
+            | map('regex_replace', '/+', '/') | map('regex_replace', '(.)/$', '\\1') | list -%}
+      {%- set found = namespace(paths=[]) -%}
+      {%- for item in qumulo_directories | default([]) if item.mode is defined and item.state | default('present') == 'present' -%}
+        {%- if item.path | regex_replace('/+', '/') | regex_replace('(.)/$', '\\1') in acl_paths -%}
+          {%- set found.paths = found.paths + [item.path] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.paths }}

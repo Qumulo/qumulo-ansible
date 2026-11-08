@@ -1,0 +1,149 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Everything here reads only the inventory and the records on the controller,
+# so a rebuild in one run refuses before its predestroy phase drains anything.
+- name: Refuse a replication release or restore, which belong to later runs
+  ansible.builtin.assert:
+    that:
+      - qumulo_replication_release | default([]) == []
+      - qumulo_replication_restore | default([]) == []
+    fail_msg: >-
+      {{ inventory_hostname }}: the replay takes neither qumulo_replication_release nor qumulo_replication_restore; both
+      belong to later runs. The replay forms the edge, so its source directories are new and nothing has been copied
+      back into them yet: a relationship whose replica may be the only copy of their data is held, and the replay
+      reports it. Where the report names the restore, the second pass, ansible-playbook
+      qumulo.cluster.edge_license_complete -i <inventory> -l {{ inventory_hostname }}, restores it; otherwise copy the
+      replica back, then run ansible-playbook qumulo.cluster.baseline -i <inventory> -l {{ inventory_hostname }} with
+      the release the held refusal prints.
+    quiet: true
+
+- name: Require what the replay forms the edge with, and what its baseline needs from the inventory
+  ansible.builtin.assert:
+    that: edge_rebuild_missing | length == 0
+    fail_msg: >-
+      {{ inventory_hostname }}: a replay forms or adopts a new cluster, so it needs
+      {{ edge_rebuild_missing | join('; ') }}
+    quiet: true
+  vars:
+    edge_rebuild_hub_known: "{{ qumulo_portal is defined and qumulo_portal.hub in groups['qumulo_hubs'] | default([]) }}"
+    edge_rebuild_missing: >-
+      {{ (['-e qumulo_rebuild=true, the declaration that this edge is being rebuilt']
+          if not qumulo_rebuild | default(false) | bool else [])
+         + (['edge_rebuild_eula_accepted: true, since forming a cluster accepts the end user license agreement']
+            if not edge_rebuild_eula_accepted | default(false) | bool else [])
+         + (['edge_rebuild_admin_password or qumulo_api_password, the password of admin, which the replay forms the edge with and connects as']
+            if edge_rebuild_admin_password | default(qumulo_api_password | default('')) | length == 0 else [])
+         + (['qumulo_factory_defaults with nfs_root_export and smb_files_share each present or absent, since every formation creates them again']
+            if qumulo_factory_defaults.nfs_root_export is not defined or qumulo_factory_defaults.smb_files_share is not defined else [])
+         + (['qumulo_cluster_name, the name the edge forms with'] if qumulo_cluster_name is not defined else [])
+         + (["qumulo_cluster_uuid, the old edge's UUID, on which the hub's record of it and the predestroy records are keyed"]
+            if qumulo_cluster_uuid | default('') | length == 0 else [])
+         + (['qumulo_portal.hub to name a host in the qumulo_hubs group']
+            if qumulo_portal is defined and not edge_rebuild_hub_known else [])
+         + (["qumulo_portal_hosts on the edge and on its hub, the IP addresses each side reaches the other at, and the hub's qumulo_cluster_uuid"]
+            if edge_rebuild_hub_known and (qumulo_portal_hosts | default([]) | length == 0
+               or hostvars[qumulo_portal.hub].qumulo_portal_hosts | default([]) | length == 0
+               or hostvars[qumulo_portal.hub].qumulo_cluster_uuid | default('') | length == 0) else [])
+         + (['qumulo_capacity.license as pending, required or none']
+            if qumulo_capacity is defined and qumulo_capacity.license | default('pending') not in ['pending', 'required', 'none'] else [])
+         + (['edge_rebuild_reinstall_tasks as the absolute path of a tasks file that exists']
+            if edge_rebuild_phase == 'all' and not (edge_rebuild_reinstall_tasks is abs and edge_rebuild_reinstall_tasks is file) else []) }}
+
+# The license step's own first refusal, made here too, so that a rebuild
+# refuses before its drain, or before its formation in the replay phase.
+- name: Refuse license none beside a license document
+  ansible.builtin.assert:
+    that: >-
+      (qumulo_capacity | default({})).license | default('pending') != 'none'
+      or (((qumulo_capacity | default({})).license_document | default(none)) or none) is none
+    fail_msg: >-
+      {{ inventory_hostname }}: declares qumulo_capacity.license: none and a license document.
+      Set qumulo_capacity.license to pending or required, keeping its other keys, such as clamp and free_threshold, to
+      apply the document, or remove the document if it is another cluster's.
+    quiet: true
+
+# A rebuilt edge forms unlicensed with min(platform, 1 TB), and provisioning
+# never shrinks, so the baseline cannot write a clamp more than the rounding
+# tolerance below that, licensed or not. edge_cache_resize_floor_bytes
+# describes a smaller platform. edge_cache_route parses the clamp as the
+# license step's capacity_clamp does, and gives its tolerance.
+- name: Read the declared clamp in bytes, with the floor and the rounding tolerance
+  qumulo.cluster.edge_cache_route:
+    target: "{{ qumulo_capacity.clamp }}"
+    total: 0
+    unprotected_edge: true
+    floor: "{{ edge_cache_resize_floor_bytes | default(omit) }}"
+  register: edge_rebuild_clamp_floor
+  when: (qumulo_capacity | default({})).clamp is defined
+
+- name: Refuse a clamp below the capacity the rebuilt edge forms with
+  ansible.builtin.assert:
+    that: edge_rebuild_floor_bound | int - edge_rebuild_clamp_floor.target <= edge_rebuild_clamp_floor.rounding_tolerance
+    fail_msg: >-
+      {{ inventory_hostname }}: declares {{ edge_rebuild_none_clause }}a clamp of
+      {{ edge_rebuild_clamp_floor.target }} bytes, below {{ edge_rebuild_floor_named }}. {{ edge_rebuild_forms }} with the
+      smaller of its platform's capacity and 1 TB, and provisioning never shrinks, so the baseline cannot write such a
+      clamp (G-EDGE-FLOOR, G-CLAMP-SHRINK). Set qumulo_capacity.clamp to {{ edge_rebuild_floor_value }}, so that a
+      license that arrives later cannot grow the edge past it, or remove it {{ edge_rebuild_when_smaller }}, and keep the
+      cache smaller with free_threshold.
+    quiet: true
+  vars:
+    edge_rebuild_floor_bound: "{{ [10**12, edge_rebuild_clamp_floor.floor] | min }}"
+    edge_rebuild_runs_unlicensed: "{{ qumulo_capacity.license | default('pending') == 'none' }}"
+    edge_rebuild_none_clause: "{{ 'qumulo_capacity.license: none and ' if edge_rebuild_runs_unlicensed else '' }}"
+    edge_rebuild_floor_named: "{{ '1 TB' if edge_rebuild_floor_bound | int == 10**12 else edge_rebuild_floor_bound ~ ' bytes' }}"
+    edge_rebuild_floor_value: "{{ '1TB' if edge_rebuild_floor_bound | int == 10**12 else edge_rebuild_floor_bound }}"
+    edge_rebuild_forms: "{{ 'An unlicensed edge forms' if edge_rebuild_runs_unlicensed else 'A rebuilt edge forms unlicensed' }}"
+    edge_rebuild_when_smaller: >-
+      {{ 'on a platform smaller than 1 TB' if edge_rebuild_runs_unlicensed
+         else "when the platform or the license's cap is smaller than 1 TB" }}
+  when: (qumulo_capacity | default({})).clamp is defined
+
+- name: Require the new certificate's authority when the factory certificate goes unverified
+  ansible.builtin.assert:
+    that: edge_rebuild_validate_factory_certs | bool or qumulo_ssl.ca_path_after is defined
+    fail_msg: >-
+      {{ inventory_hostname }}: edge_rebuild_validate_factory_certs false needs qumulo_ssl with ca_path_after, so the
+      replay verifies the edge again from its certificate step on
+    quiet: true
+
+- name: Check that no declared quota or snapshot policy lies under a spoke root
+  ansible.builtin.include_role:
+    name: qumulo.cluster.cluster_baseline
+    tasks_from: spoke_paths.yml
+  when: qumulo_portal is defined
+
+- name: Check that no path declares both a mode and an ACL
+  ansible.builtin.include_role:
+    name: qumulo.cluster.cluster_baseline
+    tasks_from: mode_and_acl.yml
+  when: qumulo_file_acls is defined and qumulo_directories is defined
+
+- name: Refuse a policy lock key the rebuilt edge's empty key store cannot hold
+  ansible.builtin.include_tasks: lock_keys.yml
+
+- name: Read the predestroy record of the old edge
+  ansible.builtin.include_tasks: previous.yml
+
+# A join under the old edge's name resets the computer account's password,
+# which cuts a live old edge off from the domain. In one run the predestroy
+# phase leaves first, but only with credentials does the leave delete the
+# account.
+- name: Refuse to join the domain while the old edge may still be joined
+  ansible.builtin.assert:
+    that: >-
+      qumulo_ad is not defined or edge_rebuild_old_edge_destroyed | bool
+      or (edge_rebuild_phase == 'all' and edge_rebuild_ad_leave | bool
+          and qumulo_ad.join_user is defined and qumulo_ad.join_password is defined)
+      or (edge_rebuild_phase == 'replay' and edge_rebuild_previous.ad_left | default(false) | bool)
+    fail_msg: >-
+      {{ inventory_hostname }}:
+      {{ ('the predestroy phase leaves ' ~ qumulo_ad.domain | default('') ~ ' and deletes the computer account only with
+          edge_rebuild_ad_leave and qumulo_ad.join_user and join_password')
+         if edge_rebuild_phase == 'all'
+         else ('no predestroy record in ' ~ edge_rebuild_host_dir ~ ' shows that ' ~ edge_rebuild_previous_uuid ~ ' left '
+               ~ qumulo_ad.domain | default('')) }}, and joining under the same name would reset the computer account a
+      live old edge still uses. {{ 'Set them' if edge_rebuild_phase == 'all' else 'Run the predestroy phase on the old edge' }},
+      or set edge_rebuild_old_edge_destroyed once it is gone.
+    quiet: true

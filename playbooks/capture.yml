@@ -1,0 +1,295 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Reads each cluster, changing nothing on it, and writes everything the
+# collection can configure on it and read back to
+# <qumulo_capture_dir>/<host>/host_vars.captured.yml (directory mode 0700, file
+# mode 0600), in the shape the inventory declares it, so that a check run of
+# playbooks/baseline.yml from the file changes nothing. qumulo.cluster.capture_info
+# does the reading. The file holds qumulo_cluster_uuid, the name, the network
+# document with its floating IPs, DNS, time, the TLS cipher suites, cloud
+# monitoring and the Nexus connection, the audit log destinations, the clamp,
+# the eviction threshold and an active license, local groups and users, the AD
+# membership, the user-defined mappings and SAML settings, custom roles and
+# role members, the spoke portal,
+# directories, the SMB and NFS settings, shares and exports and whether the
+# factory share and export are present, quotas, snapshot policies, and the
+# replication relationships the cluster is the source of, for the replication
+# roles. qumulo_portal_hosts and qumulo_replication_address come from the
+# records of the cluster's peers captured in the same run, since only they
+# record them (G-PORTAL-HOSTS), when every record agrees and comes from a live
+# portal or relationship. Lists are sorted and values canonical, so a second
+# capture of an unchanged cluster writes the same file.
+#
+# Never captured, and named instead in comments at the end of the file: secrets,
+# which the inventory supplies, encrypted with ansible-vault: local passwords,
+# the certificate and its key (the cluster returns neither), the AD join user
+# and password, a Nexus join key, and the license document of a cluster without
+# an active license. One-shot actions are not configuration: forming a cluster,
+# applying a license document, registering with or retiring from Nexus, rotating
+# the admin password, clearing the authentication cache, the edge rebuild's
+# records, and snapshots. Nor are identity attributes, since the cluster lists
+# no identity that has them (G-ID-ATTRIBUTES). The comments also list what was
+# read but left out, with the reason: an area Terraform owns or the cluster does
+# not offer, a portal hub or replication target that no inventory host names,
+# data in a spoke root, which is the hub's, an export mapped to a user that no
+# longer exists (G-MAPTO), and a peer's variable whose records disagree, are not
+# live, or were not captured in this run. qumulo_capture_dir defaults to a
+# captures directory beside the inventory source that defines the host, never
+# inside it: given a directory, Ansible reads every .yml and .json file in it as
+# an inventory.
+#
+# Adopting a cluster formed by Qumulo's installer, the CLI or Terraform: write a
+# host entry with qumulo_api_host and a password but no UUID, and for a cluster
+# the Terraform provider formed, qumulo_managed_by: terraform_provider and its
+# qumulo_cluster_kind, so that a CNQ cluster's floating addresses stay
+# Terraform's and an edge or bare-metal cluster's are captured; then run
+#
+#   ansible-playbook playbooks/capture.yml -i inventory -l edge01 -e qumulo_adopt=true
+#
+# which also writes host_vars/edge01.yml beside the inventory source that
+# defines the host, where Ansible reads it, with every captured variable the
+# inventory does not already define, and qumulo_managed_by: none and
+# qumulo_terraform_owned_areas: [] when it defines neither. A variable the
+# inventory defines, such as those of the qumulo.cluster.terraform inventory
+# plugin, is left out, since a host_vars file would override it, and so is an
+# area the inventory gives to Terraform. A host whose host_vars file already
+# exists beside any inventory source fails instead, and the file is left as it
+# was. The baseline refuses a share, export or network declared twice, so the
+# file also leaves out each share or export entry the inventory declares the
+# same way, as a group's flat qumulo_smb_shares can declare a share the captured
+# qumulo_tenants holds under a tenant, or removes, as a group's
+# qumulo_factory_defaults can, each with a comment naming the inventory's entry.
+# When the inventory defines qumulo_tenants, the file cannot hold the captured
+# one, so each share and export a captured tenant holds that the inventory
+# does not declare is written in the flat lists for its tenant, and a captured
+# tenant the inventory does not declare, or removes, gets a comment. A host
+# whose file would hold a network the inventory declares, or an entry the
+# inventory declares with other values, fails instead, naming each; so does one
+# whose captured tenant the inventory declares with other switches or
+# settings, or holds a network the inventory does not list for it, or lists
+# with other values. Review the new file, check it with
+# `playbooks/baseline.yml --check`, and commit it.
+#
+# Captured state is a one-time import into the inventory. The inventory stays
+# the source of truth afterwards, and nothing replays a capture: a rebuild
+# replays the inventory, never state read from the cluster it destroys.
+- name: Capture each cluster's configuration
+  hosts: qumulo_clusters
+  gather_facts: false
+  module_defaults:
+    group/qumulo.cluster.qumulo:
+      api_host: "{{ qumulo_api_host }}"
+      api_port: "{{ qumulo_api_port | default(8000) }}"
+      api_username: "{{ qumulo_api_username | default('admin') }}"
+      api_password: "{{ qumulo_api_password | default('') }}"
+      api_token: "{{ qumulo_api_token | default('') }}"
+      validate_certs: "{{ qumulo_validate_certs | default(true) }}"
+      ca_path: "{{ qumulo_ca_path | default(omit) }}"
+      expected_cluster_uuid: "{{ qumulo_cluster_uuid | default('') }}"
+  vars_files: [vars/host_vars_file.yml]
+  vars:
+    # Beside the outermost source that defines the host, so that no source reads the capture as an inventory.
+    capture_dir: >-
+      {{ qumulo_capture_dir | default((capture_sources | sort | first | dirname) ~ '/captures') }}/{{ inventory_hostname }}
+    capture_file: "{{ capture_dir }}/host_vars.captured.yml"
+  tasks:
+    - name: Require an inventory source to put the capture beside, or qumulo_capture_dir
+      ansible.builtin.assert:
+        that: qumulo_capture_dir is defined or capture_sources | length > 0
+        fail_msg: "{{ inventory_hostname }} comes from no inventory file or directory; set qumulo_capture_dir"
+        quiet: true
+
+    - name: Read the cluster_baseline role's areas, which the capture leaves to Terraform
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../roles/cluster_baseline/vars/main.yml"
+
+    - name: Read the node's state and version
+      qumulo.cluster.cluster_info:
+        gather_subset: [node, version]
+      register: capture_info
+
+    - name: Require a formed cluster, since an UNCONFIGURED node has no UUID or settings to capture
+      ansible.builtin.assert:
+        that: capture_info.cluster.cluster_id is not none
+        fail_msg: >-
+          {{ inventory_hostname }} is {{ capture_info.cluster.state }}: it belongs to no cluster yet, so there is
+          nothing to capture; form the cluster first
+        quiet: true
+
+    - name: Read everything the collection configures, leaving out the areas Terraform owns
+      qumulo.cluster.capture_info:
+        inventory_clusters: "{{ capture_inventory_clusters }}"
+        leave_out: "{{ cluster_baseline_owned_areas }}"
+      register: capture_read
+
+    # A cluster records neither the addresses the other side of a portal
+    # reaches it at nor the one a replication source reaches it at; only its
+    # peers do (G-PORTAL-HOSTS). Such a variable is copied from the peers
+    # captured in this run when every record of it agrees and comes from a
+    # live portal or relationship, and is otherwise named as one to supply.
+    - name: Add the variables only the cluster's peers record
+      ansible.builtin.set_fact:
+        capture_host_vars: "{{ capture_read.capture.host_vars | combine(capture_from_peers.vars) }}"
+        capture_supply: "{{ capture_read.capture.supply + capture_from_peers.supply }}"
+      vars:
+        capture_uuid: "{{ capture_info.cluster.cluster_id | lower }}"
+        capture_peer_records: >-
+          {%- set found = namespace(records=[]) -%}
+          {%- for host in ansible_play_hosts -%}
+            {%- set found.records = found.records + (hostvars[host].capture_read.capture.peer_values | default([])
+                  | selectattr('uuid', 'equalto', capture_uuid) | list) -%}
+          {%- endfor -%}
+          {{ found.records }}
+        capture_from_peers: >-
+          {%- set out = namespace(vars={}, supply=[]) -%}
+          {%- for variable in capture_read.capture.from_peers -%}
+            {%- set records = capture_peer_records | selectattr('variable', 'equalto', variable) | list -%}
+            {%- set unusable = records | selectattr('unusable') | list -%}
+            {%- set values = records | map(attribute='value') | unique | list -%}
+            {%- if records and not unusable and values | length == 1 and variable == 'qumulo_replication_address' -%}
+              {%- set out.vars = out.vars | combine({variable: values[0].address})
+                    | combine({'qumulo_replication_port': values[0].port} if values[0].port != 3712 else {}) -%}
+            {%- elif records and not unusable and values | length == 1 -%}
+              {%- set out.vars = out.vars | combine({variable: values[0]}) -%}
+            {%- else -%}
+              {%- set why = ('only the peers record it, and no peer is captured in this run (G-PORTAL-HOSTS)' if not records
+                  else 'the record of it on ' ~ unusable[0].recorded_by ~ ' is ' ~ unusable[0].unusable ~ ', so it is not copied'
+                  if unusable else 'the peers ' ~ records | map(attribute='recorded_by') | unique | join(', ')
+                       ~ ' record different values of it, and the inventory holds one') -%}
+              {%- set out.supply = out.supply + [{'variable': variable, 'why': why}] -%}
+            {%- endif -%}
+          {%- endfor -%}
+          {{ {'vars': out.vars, 'supply': out.supply} }}
+
+    - name: Create the cluster's artifact directory
+      ansible.builtin.file:
+        path: "{{ capture_dir }}"
+        state: directory
+        mode: "0700"
+      delegate_to: localhost
+
+    # Each string is written !unsafe, so that Ansible never templates one read from the cluster.
+    - name: Render the captured host_vars
+      qumulo.cluster.host_vars_text:
+        variables: "{{ capture_host_vars }}"
+        header: |-
+          Captured from {{ inventory_hostname }} by playbooks/capture.yml: Qumulo Core {{ capture_info.cluster.version | default('unknown') }},
+          cluster {{ capture_info.cluster.cluster_id }}. A one-time import: review it, copy what you keep into
+          host_vars/{{ inventory_hostname }}.yml, and commit that. Nothing replays this file.
+        supply: "{{ capture_supply }}"
+        left_out: "{{ capture_read.capture.left_out }}"
+      register: capture_text
+      delegate_to: localhost
+
+    - name: Write the captured host_vars
+      ansible.builtin.copy:
+        dest: "{{ capture_file }}"
+        mode: "0600"
+        content: "{{ capture_text.text }}"
+      delegate_to: localhost
+
+    - name: Adopt the cluster into the inventory
+      when: qumulo_adopt | default(false) | bool
+      vars:
+        # Written only when the inventory sets neither, so that a list the role
+        # would default from qumulo_managed_by is never replaced.
+        capture_ownership: >-
+          {{ {} if qumulo_managed_by is defined or qumulo_terraform_owned_areas is defined
+             else {'qumulo_managed_by': 'none', 'qumulo_terraform_owned_areas': cluster_baseline_owned_areas} }}
+        capture_source: "{{ capture_sources | first }}"
+        capture_host_vars_dir: "{{ capture_source if capture_source is directory else capture_source | dirname }}/host_vars"
+      block:
+        - name: Require one inventory source to write host_vars beside
+          ansible.builtin.assert:
+            that: capture_sources | length == 1
+            fail_msg: >-
+              {{ inventory_hostname }}: {{ 'no inventory file or directory defines it'
+              if capture_sources | length == 0 else 'it is in each of ' ~ capture_sources | join(' and ') }}, so
+              adoption cannot tell which host_vars directory to write; give -i the one source that defines it
+            quiet: true
+
+        # The areas Terraform owns were never read.
+        - name: Choose the captured variables the inventory does not already define
+          ansible.builtin.set_fact:
+            capture_adopted: >-
+              {{ capture_host_vars
+                 | combine(capture_ownership)
+                 | dict2items
+                 | rejectattr('key', 'in', hostvars[inventory_hostname].keys() | list)
+                 | items2dict }}
+
+        - name: Look for the host's host_vars beside every inventory source
+          ansible.builtin.stat:
+            path: "{{ item }}"
+          loop: "{{ capture_host_vars_paths }}"
+          register: capture_existing
+          delegate_to: localhost
+
+        - name: Refuse to rewrite the host's host_vars
+          ansible.builtin.fail:
+            msg: >-
+              {{ inventory_hostname }}: {{ capture_found | join(' and ') }} already holds host_vars, and adoption never
+              rewrites them; copy what you keep from {{ capture_file }} yourself
+          when: capture_found | length > 0
+          vars:
+            capture_found: "{{ capture_existing.results | selectattr('stat.exists') | map(attribute='item') | list }}"
+
+        # A variable the inventory defines stays in force beside the file, as a group's flat qumulo_smb_shares does
+        # beside the qumulo_tenants adoption writes, so the file leaves out each entry the inventory declares too.
+        # When the inventory defines qumulo_tenants, the file cannot hold the captured one, so what each captured tenant
+        # holds is judged against the inventory's, and its shares and exports go in the flat lists.
+        - name: Leave out the shares and exports the inventory declares too
+          ansible.builtin.set_fact:
+            capture_kept: >-
+              {{ capture_adopted | qumulo.cluster.host_vars_duplicates(hostvars[inventory_hostname],
+                   lacks_tenant_1=capture_read.capture.left_out | selectattr('what', 'equalto', 'tenant 1') | list | length > 0,
+                   captured_tenants=none if 'qumulo_tenants' in capture_adopted else capture_host_vars.qumulo_tenants | default(none)) }}
+
+        - name: Refuse host_vars that the inventory contradicts
+          ansible.builtin.fail:
+            msg: >-
+              {{ inventory_hostname }}: the inventory contradicts what adoption would write, so no host_vars file was
+              written: {{ capture_kept.refusals | join('; ') }}. For a network both declare, take it out of the
+              inventory variable named. For a tenant network the inventory does not list, or lists otherwise, list it
+              under that tenant in the inventory's qumulo_tenants as the capture holds it. When qumulo_tenants is []
+              in a group's variables, remove it from them, so that adoption writes the captured one; when the group's
+              list is one other hosts need, give this host its own qumulo_tenants in its inventory entry, starting from
+              the one in {{ capture_file }}, which replaces the group's for this host. For each such share, export or
+              tenant, give the inventory's entry the values {{ capture_file }} holds, change it on the cluster to the
+              inventory's values, or take the entry out of the inventory. Then adopt again
+          when: capture_kept.refusals | length > 0
+
+        - name: Look for the inventory's host_vars directory
+          ansible.builtin.stat:
+            path: "{{ capture_host_vars_dir }}"
+          register: capture_host_vars_dir_stat
+          delegate_to: localhost
+
+        - name: Create the inventory's host_vars directory
+          ansible.builtin.file:
+            path: "{{ capture_host_vars_dir }}"
+            state: directory
+            mode: "0755"
+          when: not capture_host_vars_dir_stat.stat.exists
+          delegate_to: localhost
+
+        - name: Render the host's host_vars
+          qumulo.cluster.host_vars_text:
+            variables: "{{ capture_kept.variables }}"
+            header: |-
+              Adopted from {{ inventory_hostname }} by playbooks/capture.yml: Qumulo Core {{ capture_info.cluster.version | default('unknown') }},
+              cluster {{ capture_info.cluster.cluster_id }}. Variables the inventory already defined are left out.
+              Review it, check it with playbooks/baseline.yml --check, and commit it.
+            supply: "{{ capture_supply }}"
+            left_out: "{{ capture_read.capture.left_out + capture_kept.left_out }}"
+          register: capture_adopted_text
+          delegate_to: localhost
+
+        - name: Write the host's host_vars
+          ansible.builtin.copy:
+            dest: "{{ capture_host_vars_dir }}/{{ inventory_hostname }}.yml"
+            force: false
+            mode: "0644"
+            content: "{{ capture_adopted_text.text }}"
+          delegate_to: localhost

@@ -1,0 +1,39 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# What playbooks/capture.yml and playbooks/clone_edge.yml share to write a
+# host_vars file: where the inventory that defines the host lives, every path
+# Ansible reads the host's host_vars from, and which inventory host each
+# cluster UUID is. qumulo.cluster.host_vars_text renders
+# the file itself.
+
+# The -i sources that hold the file defining this host: that file itself, or
+# a directory above it. Ansible reads host_vars/ beside each source, which
+# for a directory is not beside a file nested inside it.
+capture_sources: >-
+  {%- set found = namespace(sources=[]) -%}
+  {%- for source in ansible_inventory_sources -%}
+    {%- if inventory_file and (source == inventory_file
+          or (source is directory and inventory_file.startswith(source ~ '/'))) -%}
+      {%- set found.sources = found.sources + [source] -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {{ found.sources }}
+# Every directory Ansible reads host_vars/ beside: each directory source, and each file source's directory.
+capture_source_dirs: >-
+  {{ ((ansible_inventory_sources | select('directory') | list)
+      + (ansible_inventory_sources | select('file') | map('dirname') | list)) | unique }}
+# <dir>/host_vars/<host>.yml, .yaml, .json and the bare name, a file or a directory, for each such directory.
+capture_host_vars_paths: >-
+  {{ capture_source_dirs | product(['.yml', '.yaml', '.json', ''])
+     | map('join', '/host_vars/' ~ inventory_hostname) | list }}
+# Each inventory cluster's UUID and its host, which name a portal's hub and a replication target.
+capture_inventory_clusters: >-
+  {%- set found = namespace(clusters={}) -%}
+  {%- for host in groups['qumulo_clusters'] | default([]) -%}
+    {%- set uuid = hostvars[host].qumulo_cluster_uuid | default('') | string | lower -%}
+    {%- if uuid -%}
+      {%- set found.clusters = found.clusters | combine({uuid: host}) -%}
+    {%- endif -%}
+  {%- endfor -%}
+  {{ found.clusters }}

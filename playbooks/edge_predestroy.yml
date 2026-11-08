@@ -1,0 +1,32 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The first phase of an edge rebuild, on the edge that is about to be
+# destroyed: the qumulo.cluster.edge_rebuild role checks that the inventory
+# declares everything the edge holds, drains its portal into the hub, leaves
+# the domain and Nexus, and writes artifacts/<edge>/predestroy-<UTC>.yml, which
+# says the edge is safe to destroy. Run it with --check first; one edge at a
+# time.
+#
+#   ansible-playbook playbooks/edge_predestroy.yml -l edge01 --check
+#   ansible-playbook playbooks/edge_predestroy.yml -l edge01
+#
+# Then reinstall the edge, and run playbooks/edge_rebuild.yml.
+- name: Drain each edge and record that it is safe to destroy
+  hosts: qumulo_edges
+  serial: 1
+  gather_facts: false
+  module_defaults:
+    group/qumulo.cluster.qumulo:
+      api_host: "{{ qumulo_api_host }}"
+      api_port: "{{ qumulo_api_port | default(8000) }}"
+      api_username: "{{ qumulo_api_username | default('admin') }}"
+      api_password: "{{ qumulo_api_password | default('') }}"
+      api_token: "{{ qumulo_api_token | default('') }}"
+      validate_certs: "{{ qumulo_validate_certs | default(true) }}"
+      ca_path: "{{ qumulo_ca_path | default(omit) }}"
+      expected_cluster_uuid: "{{ qumulo_cluster_uuid | default('') }}"
+  roles:
+    - role: qumulo.cluster.edge_rebuild
+      vars:
+        edge_rebuild_phase: predestroy

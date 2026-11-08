@@ -1,0 +1,35 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: warn
+  short_description: Show a text as a warning of the task that renders it
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - Shows the text as an Ansible warning, which the run lists with the other tasks' warnings, and gives the text back.
+  options:
+    _input:
+      description: The warning.
+      type: str
+      required: true
+
+EXAMPLES: |
+  - name: Warn that the restore stamp is not written
+    vars:
+      stamp_file: /srv/qumulo/artifacts/edge01/restore/done.yml
+    ansible.builtin.set_fact:
+      stamp_warning: "{{ ('Could not write the restore stamp ' ~ stamp_file) | qumulo.cluster.warn }}"
+
+  - name: Warn when a host has no license, and carry on
+    # The task renders the text, so the warning is shown whether or not the result is used.
+    ansible.builtin.set_fact:
+      license_warning: "{{ (inventory_hostname ~ ' runs without a license.') | qumulo.cluster.warn }}"
+    when: qumulo_capacity.license | default('pending') == 'none'
+
+RETURN:
+  _value:
+    description: The text, unchanged.
+    returned: always
+    type: str
+    sample: edge01 runs without a license.

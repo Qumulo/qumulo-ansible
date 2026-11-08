@@ -1,0 +1,37 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 20a: each tenant declared absent loses its SMB and NFS settings, whether the inventory declares them or not, and
+# then the tenant goes. Steps 3, 18 and 19 removed its networks, shares and exports, so the server's cascade removes
+# nothing (decision D6, G-TENANT-CASCADE). Every override goes before every delete, and a rerun after a stop between
+# them finds the overrides gone and deletes what is left.
+- name: Return the absent tenants' SMB settings to the global ones
+  qumulo.cluster.smb_settings:
+    tenant: "{{ item.name }}"
+    state: inherit
+  loop: "{{ cluster_baseline_tenancy.step_20a }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Return the absent tenants' NFS settings to the global ones
+  qumulo.cluster.nfs_settings:
+    tenant: "{{ item.name }}"
+    state: inherit
+  loop: "{{ cluster_baseline_tenancy.step_20a }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Delete the tenants declared absent
+  qumulo.cluster.tenant:
+    name: "{{ item.name }}"
+    state: absent
+    content_removed: "{{ item.content_removed }}"
+    management_network: "{{ item.management_network | default(omit) }}"
+    cluster_port: "{{ qumulo_cluster_port | default(omit) }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+    planned_networks: "{{ item.planned_networks | default(omit) }}"
+    planned_tenants: "{{ item.planned_tenants | default(omit) }}"
+  loop: "{{ cluster_baseline_tenancy.step_20a }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: cluster_baseline_step_20a

@@ -1,0 +1,52 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: artifact_dir
+  short_description: Where the collection's roles keep a host's records and secrets
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - The C(artifacts) directory beside the outermost inventory source on disk that holds the file defining the host. It
+      is never inside the source.
+    - An empty string when no inventory source on disk holds the host, as for a host list given with C(-i edge01,).
+    - The default of C(cluster_baseline_artifact_dir), C(cluster_upgrade_artifact_dir) and C(edge_rebuild_artifact_dir),
+      and through the last, of C(replication_pair_artifact_dir).
+  positional: inventory_file
+  options:
+    _input:
+      description: The inventory sources, as C(ansible_inventory_sources) gives them.
+      type: list
+      elements: path
+      required: true
+    inventory_file:
+      description: The file that defines the host, as C(inventory_file) gives it.
+      type: path
+      required: true
+
+EXAMPLES: |
+  - name: Show where this host's records and secrets go
+    ansible.builtin.debug:
+      msg: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+
+  - name: Stop before a role needs an artifact directory the host does not have
+    # A host from a host list given with -i, as in -i edge01, comes from no inventory file, so it has none.
+    ansible.builtin.assert:
+      that:
+        - ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) != ''
+      fail_msg: "{{ inventory_hostname }} comes from no inventory file; set the role's *_artifact_dir variable."
+
+  - name: Keep a host's artifacts in the directory the roles would choose, for a task of your own
+    ansible.builtin.file:
+      path: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}/{{ inventory_hostname }}"
+      state: directory
+      mode: "0700"
+    delegate_to: localhost
+    when: ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) | length > 0
+
+RETURN:
+  _value:
+    description: The directory's path, or an empty string when no inventory source on disk holds the host.
+    returned: always
+    type: path
+    sample: /srv/qumulo/inventory/artifacts

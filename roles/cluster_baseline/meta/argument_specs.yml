@@ -1,0 +1,1318 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+argument_specs:
+  main:
+    short_description: Bring a Qumulo cluster to the baseline its inventory declares
+    version_added: 0.1.0
+    description:
+      - Applies each area the inventory declares, in the order the server's own rules need, and leaves an area whose
+        variable is unset alone.
+      - Before step 1, Ansible refuses each key that a variable's options do not list, a misspelt one among them,
+        with C(Validation of arguments failed:), then the dotted path to the key, and the keys taken where the key
+        sits; with keys in more than one place, the list is for one of them. The message does not say which entry of a
+        list holds the key. A variable that lists the keys of a module takes that module's options, apart from the
+        connection options, which the play's C(module_defaults) set, and the options the role sets itself, which are
+        C(tenant) and C(state) of the SMB and NFS settings, whose tenant overrides go in the entry of O(qumulo_tenants),
+        and C(declared_access_key_ids) of O(qumulo_s3_access_keys). It refuses both kinds, such as C(request_timeout) or
+        C(state) in an entry. A dict whose options are left open takes any key. These are
+        O(qumulo_network.managed_interfaces), which M(qumulo.cluster.network_config) sends to the cluster as the
+        document's interfaces, O(qumulo_s3_bucket_policies[].policy), O(qumulo_capacity.license_document), and
+        O(qumulo_tenants[].identity), which step 2 refuses.
+      - 1. M(qumulo.cluster.cluster_guard), unless O(cluster_baseline_guard=false).
+      - 2. An ownership check, which fails when a provider-formed V(cnq) cluster's O(qumulo_terraform_owned_areas)
+        leaves out V(network.floating_ips), as the Terraform inventory plugin does; when a declared area belongs to
+        Terraform by O(qumulo_terraform_owned_areas), or, with no list, by O(qumulo_managed_by=terraform_provider) on a
+        cluster of kind V(cnq) or unset, which gives the provider the floating addresses; owning them covers every
+        C(floating_ip_ranges) in O(qumulo_network) and in a tenant's C(networks); or when a declared CloudWatch entry of
+        O(qumulo_audit_destinations) does while the list names V(audit.cloudwatch),
+        unless O(qumulo_take_over_from_terraform) hands the area back; a check that no declared quota, snapshot
+        policy or S3 bucket lies under a spoke root of O(qumulo_portal) (G-SPOKE-PATHS); and a check that no path has
+        both a mode in O(qumulo_directories) and an ACL in O(qumulo_file_acls) (G-FS-ACL-MODE); and a check that the file
+        system key store holds each C(lock_key) that O(qumulo_snapshot_policies) declares, unless
+        V(-e qumulo_allow_deferred_policy_lock_keys=true) is given. It reads the key store once, and refuses the whole run, not
+        only the policies it names, so that the run writes nothing it would have to finish later. It also checks that
+        no keytab is declared to install beside a domain join (G-KRB-AD), which O(qumulo_kerberos.keytab_state=absent)
+        satisfies. All five fail before anything is written. The ownership check also finds a tenant's C(networks) in
+        V(network), its networks' C(floating_ip_ranges) in V(network.floating_ips), its C(smb_settings) and C(smb_shares) in V(smb), and its
+        C(nfs_settings) and C(nfs_exports) in V(nfs). V(tenants) covers O(qumulo_tenants), and each entry of
+        O(qumulo_smb_shares) and O(qumulo_nfs_exports) that names its tenants with C(tenants) or C(tenant_id).
+      - 2, continued. Whenever the inventory declares O(qumulo_tenants), O(qumulo_network), O(qumulo_smb_shares),
+        O(qumulo_nfs_exports), O(qumulo_nfs_settings) or O(qumulo_factory_defaults), the role reads the tenants with
+        M(qumulo.cluster.tenant_info), the network document with M(qumulo.cluster.network_info), and its status only
+        when the cluster has two or more tenants or the run creates one, the shares with M(qumulo.cluster.smb_info),
+        the exports, NFS settings and each tenant's NFS settings with M(qumulo.cluster.nfs_info), and the protection
+        type with M(qumulo.cluster.cluster_info) when O(qumulo_tenants) is declared and O(qumulo_cluster_kind) is not.
+        Every such run makes these reads, so the user the play connects as needs read access to each,
+        C(PRIVILEGE_TENANT_READ) for the tenant list included, even for an inventory written before tenants. Then
+        M(qumulo.cluster.tenancy_plan) plans steps 3a to 20a, and refuses before any write what the inventory breaks
+        and any write that would cut the play off from the cluster. When step 3a will write and step 3's document
+        differs from the cluster's, M(qumulo.cluster.network_config) checks that document in check mode first. With
+        two or more tenants once the run is done, while Terraform owns V(network) or V(network.floating_ips), by
+        O(qumulo_terraform_owned_areas), or by default on a provider-formed cluster of kind V(cnq) or unset, the role
+        warns that a Terraform apply that sends the networks without their tenants unbinds them.
+      - 3a. O(qumulo_tenants) with M(qumulo.cluster.tenant), the renames, then the services turned on, then the
+        creates.
+      - 3. The network document the plan built from the tenants' networks and O(qumulo_network), with
+        M(qumulo.cluster.network_config), when the plan has one to apply.
+      - 3b. O(qumulo_tenants) with M(qumulo.cluster.tenant), the services turned off, after every network is bound.
+      - 4. O(qumulo_dns) with M(qumulo.cluster.dns_settings), clearing the DNS cache with
+        M(qumulo.cluster.dns_cache_clear) when the servers changed, and its C(lookup_overrides) with
+        M(qumulo.cluster.dns_lookup_overrides); then O(qumulo_authoritative_dns) with
+        M(qumulo.cluster.authoritative_dns); then the source and NTP servers of O(qumulo_time) with
+        M(qumulo.cluster.time_settings).
+      - 5. O(qumulo_cluster_name) with M(qumulo.cluster.cluster_settings); the server refuses a rename while the cluster
+        is joined to a domain. Then O(qumulo_filesystem_settings) with
+        M(qumulo.cluster.filesystem_settings), and O(qumulo_web_ui_settings) with M(qumulo.cluster.web_ui_settings).
+      - 6. O(qumulo_ssl) with M(qumulo.cluster.ssl_certificate), then O(qumulo_ssl_ciphers) with
+        M(qumulo.cluster.ssl_ciphers).
+      - 7. O(qumulo_monitoring) with M(qumulo.cluster.monitoring_settings), its C(nexus) with
+        M(qumulo.cluster.nexus_connection), then M(qumulo.cluster.nexus_registration) when the Nexus connection is on
+        and there is a join key or O(qumulo_nexus_api_token) to mint one. No other monitoring write runs between the
+        registration and its result. Then O(qumulo_audit_destinations) with M(qumulo.cluster.audit_destination).
+      - 8. Qumulo issues the license for the cluster's UUID in Nexus, outside the role, once the cluster is registered.
+        The document goes in O(qumulo_capacity.license_document) (G-LICENSE).
+      - 9. M(qumulo.cluster.license), whenever O(qumulo_capacity) is declared. It first refuses
+        O(qumulo_capacity.license=none) beside a license document. It applies O(qumulo_capacity.license_document) when
+        the document is for the cluster's UUID, and otherwise reads the license. Nothing waits for a license. Without
+        an active license the role hands it off, naming the UUID, and sets C(cluster_baseline_license_missing) when
+        O(qumulo_capacity.license=required); with O(qumulo_capacity.license=none) it says the edge runs without a
+        license instead.
+      - 10. O(qumulo_capacity.clamp) with M(qumulo.cluster.capacity_clamp). While a license is expected and not active
+        the clamp waits for it, and the role only reads the stored clamp to word the hand-off. With
+        O(qumulo_capacity.license=none) the clamp is written with no license. It then limits a license that arrives
+        later, and a clamp above 1 TB provisions nothing more until a license arrives. With a license, a clamp that
+        would change and that the license's cap is below fails before the write. The second pass, which is this role again or, on an
+        edge, C(playbooks/edge_license_complete.yml), runs the same step. It applies the document, or finds the license
+        the cluster holds, and then sets the clamp. A clamp below the stored one fails; the edge_cache_resize role
+        chooses the route to a smaller cache.
+      - 11. O(qumulo_capacity.free_threshold) with M(qumulo.cluster.portal_eviction_settings).
+      - 12. The encryption key store (C(encryption_key_store)), which is not in this release.
+      - 13. O(qumulo_local_groups) without members, then O(qumulo_local_users), then the groups' members, with
+        M(qumulo.cluster.local_group) and M(qumulo.cluster.local_user); a primary group must exist before its users.
+      - 14. The keytab of O(qumulo_kerberos) with M(qumulo.cluster.kerberos_keytab), before the join, which the cluster
+        refuses while it holds a keytab (G-KRB-AD); a keytab to install beside O(qumulo_ad) fails the role before its
+        first write, and O(qumulo_kerberos.keytab_state=absent) deletes the keytab before the join. Then O(qumulo_ad)
+        with M(qumulo.cluster.ad_domain), then O(qumulo_time.use_ad_for_primary), then the setting of O(qumulo_kerberos)
+        with M(qumulo.cluster.kerberos_settings), then O(qumulo_user_defined_mappings) with
+        M(qumulo.cluster.user_defined_mappings), which the cluster takes only once joined, then
+        O(qumulo_identity_attributes) with M(qumulo.cluster.identity_attributes), whose C(ad:) trustees resolve only
+        once joined, except V(ad:NT AUTHORITY\\Authenticated Users), which resolves joined to a domain or not, with
+        M(qumulo.cluster.auth_cache_clear) after either changed, even when a later step of the two fails; then
+        O(qumulo_saml) with M(qumulo.cluster.saml_settings). A failed clear fails the run, and a later run does not
+        clear the cache again, since neither step then changes; M(qumulo.cluster.auth_cache_clear) clears it.
+      - 15. O(qumulo_roles) with M(qumulo.cluster.role), then O(qumulo_role_members) with M(qumulo.cluster.role_member),
+        then the roles O(qumulo_roles) declares absent. The cluster refuses to delete a role that still has members, so
+        the inventory removes those members in O(qumulo_role_members) first, with O(qumulo_role_members[].purge) or
+        O(qumulo_role_members[].state=absent). C(ad:) trustees resolve only after the join, except
+        V(ad:NT AUTHORITY\\Authenticated Users), which resolves joined to a domain or not, and deleting a user drops its
+        role assignments.
+      - 16. O(qumulo_portal) with the portal_pair role, the cluster as the spoke and O(qumulo_portal.hub) as the hub. It checks
+        that both run one Qumulo Core version, proposes the spoke portal and its roots, accepts and authorizes them on the hub, and
+        waits until the portal is ACTIVE.
+      - 17. O(qumulo_directories) with M(qumulo.cluster.directory), then O(qumulo_file_acls) with
+        M(qumulo.cluster.file_acl); paths may lie under the portal's authorized roots.
+      - 18. From the plan, the SMB shares the run removes first, those declared V(absent), a deleted tenant's and the
+        factory C(Files) share when O(qumulo_factory_defaults.smb_files_share=absent); then O(qumulo_smb_settings)
+        with M(qumulo.cluster.smb_settings); then each tenant's C(smb_settings); then the shares, each in the tenants
+        its entry names, with M(qumulo.cluster.smb_share).
+      - 19. From the plan, the NFS exports the run removes first, the factory C(/) export when
+        O(qumulo_factory_defaults.nfs_root_export=absent) among them; then O(qumulo_nfs_settings) with
+        M(qumulo.cluster.nfs_settings); then each tenant's C(nfs_settings); then the exports with
+        M(qumulo.cluster.nfs_export). NFSv4.1 cannot be on for a tenant while two of its export paths nest, so the
+        removals go first. Then S3, O(qumulo_s3_settings) with
+        M(qumulo.cluster.s3_settings), O(qumulo_s3_buckets) with M(qumulo.cluster.s3_bucket), and
+        O(qumulo_s3_bucket_policies) with M(qumulo.cluster.s3_bucket_policy); buckets and the base path need the
+        directories of step 17, and policies the users and the domain join of steps 13 to 15. Then
+        O(qumulo_ftp_settings) with M(qumulo.cluster.ftp_settings), after the directories and ACLs of step 17, so that a
+        new cluster serves nothing over FTP before they are in place, and after the local users of step 13, one of
+        which the anonymous user names.
+      - 20. O(qumulo_quotas) with M(qumulo.cluster.directory_quota), then O(qumulo_snapshot_policies) with
+        M(qumulo.cluster.snapshot_policy), on local paths only; step 2 has already refused one under a spoke root.
+        A policy sets its C(lock_key); unset or null leaves the policy's key, and V("") takes it off. The user the play
+        connects as needs C(PRIVILEGE_FS_KEY_MANAGEMENT_READ) when a policy declares one, and step 2 needs it for its
+        read of the key store. Under O(qumulo_allow_deferred_policy_lock_keys), step 2 lets a policy whose key is not
+        in the key store through, and step 20 applies it without the key and lists it in
+        C(cluster_baseline_policy_lock_key_hand_offs); a run after the key is registered sets it.
+        M(qumulo.cluster.snapshot_policy) refuses a disabled key there, unless the policy already holds it, so enable it
+        before the run.
+      - 20a. Each tenant declared V(absent) in O(qumulo_tenants), its SMB and NFS settings returned to the global ones
+        whether or not declared, then the tenant deleted with M(qumulo.cluster.tenant). Step 2 refuses the delete of a
+        tenant that holds a network, share or export the run does not remove. Steps 3, 18 and 19 remove the networks
+        the inventory leaves out and the shares and exports declared under the tenant or claimed for it.
+      - 21. O(qumulo_replication_relationships), the relationships this cluster is the source of, with the
+        replication_pair role, after the directories, which it may replicate. Once, before any relationship, it checks
+        that each target is an inventory host with C(qumulo_cluster_uuid) and O(qumulo_replication_address) that
+        declares the target path in its C(qumulo_directories), path only, with no entry inside it; no target path is
+        C(/), declared twice or nested on one target host, or inside a portal root on it; no two hosts declare one replication address and port; and no host's
+        O(qumulo_previous_cluster_uuids) holds its own UUID. Then it runs the removals, then the others, each so that a
+        failure does not stop the next, and fails after the last, naming each relationship held, refused or failed. A
+        relationship into an edge whose license and clamp do not apply yet waits, with a hand-off, and does not fail.
+        Each relationship that is not V(absent) reads the target's tenants, and with two or more tenants its network
+        document, and is refused, on every run, while the tenant serving the target's O(qumulo_replication_address) has
+        C(replication_enabled) false; the user the play connects to the target as needs C(PRIVILEGE_TENANT_READ), and
+        with two or more tenants C(PRIVILEGE_NETWORK_READ). A check run takes that tenant's switch from the target
+        host's own steps 3a and 3b when the target host is in the play.
+      - 22. O(qumulo_s3_access_keys) with M(qumulo.cluster.s3_access_key), the removals first, last of all. The cluster
+        returns a new key's secret only once, so the module writes it at once to a file, readable only by its owner,
+        under O(cluster_baseline_artifact_dir), and the role names each new key with its file in
+        C(cluster_baseline_s3_access_keys), never its secret, and hands it off (G-S3-KEY). Without an artifact
+        directory, an entry that would make a key fails. The step fails after the last entry, naming each that failed.
+      - A second run changes nothing, apart from local passwords declared with C(update_password=always).
+      - When a step moves the connection, the role switches the play's facts for the steps after it.
+        O(qumulo_api_host_after) replaces C(qumulo_api_host) after the network step, O(qumulo_ssl.ca_path_after)
+        replaces C(qumulo_ca_path) and sets C(qumulo_validate_certs) to V(true) after the certificate step, and the
+        new password of the user the play connects as replaces C(qumulo_api_password). A check run switches none of
+        them for a change it only predicts. In a check run a tenant that step 3a renames is still under its old name,
+        so its shares, exports and settings show as creates, and its removals as no change.
+      - A rebuild's replay meets a factory certificate that cannot be verified (G-FACTORY-TLS), so it starts with
+        C(qumulo_validate_certs=false) and relies on O(qumulo_ssl.ca_path_after) to verify the cluster from the
+        certificate step on.
+      - Connects through the play's C(module_defaults) for C(group/qumulo.cluster.qumulo), as C(playbooks/baseline.yml)
+        sets them.
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      cluster_baseline_guard:
+        description: Run M(qumulo.cluster.cluster_guard) first, checking the UUID and waiting until the cluster is ready.
+        type: bool
+        default: true
+      cluster_baseline_check_mode:
+        description:
+          - Whether the role's tasks run in check mode, for the steps that act on what a task would have done.
+            C(ansible_check_mode) is true only under C(--check), and stays false when the role runs under the
+            C(check_mode) keyword. C(playbooks/clone_edge.yml) sets this option from C(clone_edge_check_only) for that
+            case.
+          - Defaults to C(ansible_check_mode).
+        type: bool
+      cluster_baseline_replication_on_held:
+        description:
+          - What step 21 does with a held relationship, one whose replica may be the only copy of a rebuilt source's data.
+            V(fail) fails the step after its other relationships, as every refusal does. V(report) keeps it as a result
+            with status V(held) and writes nothing, as the edge_rebuild role's replay does, since no copy back can have
+            happened yet.
+        type: str
+        choices: [fail, report]
+        default: fail
+      cluster_baseline_artifact_dir:
+        description:
+          - Where a new S3 key's secret is written, in C(<cluster_baseline_artifact_dir>/<inventory host>/secrets/), a
+            directory readable only by its owner, as C(s3-<user>-<access_key_id>.yml), readable only by its owner.
+          - Defaults to an C(artifacts) directory beside the inventory source that defines the host, never inside it;
+            the edge_rebuild role's records go there too. A host that comes from no inventory file or directory has
+            none, and an entry of O(qumulo_s3_access_keys) that would make a key then fails.
+        type: path
+      qumulo_managed_by:
+        description:
+          - Who formed the cluster. With V(terraform_provider) and no O(qumulo_terraform_owned_areas), the provider
+            owns the floating addresses of a cluster whose O(qumulo_cluster_kind) is V(cnq) or unset, and none of an
+            V(edge) or V(baremetal) one.
+        type: str
+        choices: [none, terraform_provider, legacy_provisioner]
+        default: none
+      qumulo_terraform_owned_areas:
+        description:
+          - Areas Terraform owns, which the role refuses to manage; for this role V(network), V(network.floating_ips),
+            V(dns), V(dns.fqdn), V(time), V(cluster), V(filesystem), V(web_ui), V(ssl), V(monitoring), V(audit),
+            V(audit.cloudwatch), V(capacity), V(local_users), V(local_groups), V(ad), V(kerberos), V(saml),
+            V(identity_mappings), V(roles), V(portal), V(directories), V(smb), V(nfs), V(tenants), V(s3), V(ftp),
+            V(quotas), V(snapshots) and V(replication).
+          - V(identity_mappings) covers both O(qumulo_user_defined_mappings) and O(qumulo_identity_attributes).
+          - A list given here is all that Terraform owns, an empty list included, and the role manages every area it
+            leaves out, whatever O(qumulo_managed_by) says.
+          - Without a list it defaults to V([network.floating_ips]) with O(qumulo_managed_by=terraform_provider)
+            unless O(qumulo_cluster_kind) is V(edge) or V(baremetal), and to none otherwise.
+        type: list
+        elements: str
+      qumulo_take_over_from_terraform:
+        description:
+          - Manage the floating addresses although Terraform owns them, as O(qumulo_network.frontend_networks) declares
+            them, and C(enabled) and C(fqdn) of O(qumulo_authoritative_dns) although O(qumulo_terraform_owned_areas)
+            lists V(dns.fqdn).
+          - Manage O(qumulo_audit_destinations) although O(qumulo_terraform_owned_areas) lists V(audit), and its
+            CloudWatch entries although it lists V(audit.cloudwatch). One flag covers every hand-over.
+        type: bool
+        default: false
+      qumulo_allow_management_disruption:
+        description: Allow a step that moves the connection, such as one that drops C(qumulo_api_host) from the network.
+        type: bool
+        default: false
+      qumulo_allow_deferred_policy_lock_keys:
+        description:
+          - Apply a snapshot policy whose C(lock_key) is not in the file system key store yet without the key, and list it
+            in C(cluster_baseline_policy_lock_key_hand_offs), in place of refusing at step 2. This is the case on a rebuilt
+            or cloned cluster before its keys are registered again with M(qumulo.cluster.security_key).
+          - The policy's snapshots are not locked until a later run, after the key is registered, sets the key.
+          - The role sets it V(false) in its own vars, which outrank group_vars and host_vars, so a value in the inventory
+            has no effect; give it as V(-e qumulo_allow_deferred_policy_lock_keys=true) for the run that needs it.
+        type: bool
+        default: false
+      qumulo_api_host_after:
+        description: The address to connect to after the network step, when it drops C(qumulo_api_host).
+        type: str
+      qumulo_management_network:
+        description:
+          - The network the play reaches the cluster on, a network id or a list of ids, such as two for an address
+            with both an IPv4 and an IPv6 network. V(0) is a network id.
+          - Used when the cluster has two or more tenants after a write. Declare it when the play reaches the cluster
+            through NAT or a load balancer, or where the cluster's network status is unavailable. Unset, step 2 finds
+            the network whose ranges hold the address the play connects to, and for an address that no range holds
+            uses the network status, which step 2 reads when the cluster has or gains a second tenant.
+        type: raw
+      qumulo_cluster_port:
+        description:
+          - The port the cluster listens on for the play, when a load balancer or a tunnel maps the port the play
+            connects to onto another.
+          - Unset, step 2 takes the port the play connects to, and with port 443 needs both C(rest_api_enabled) and
+            C(web_ui_enabled) on the tenant that holds the management network.
+        type: int
+      qumulo_cluster_kind:
+        description:
+          - What the cluster runs on, V(cnq), V(edge) or V(baremetal). V(cnq) is a cloud cluster, and V(edge) and
+            V(baremetal) are on premises. Null counts as unset.
+          - Step 2 refuses every tenant write to a cloud cluster. Unset, it reads the cluster's protection type when
+            O(qumulo_tenants) is declared, and takes an object-backed one for a cloud cluster; a cluster on premises
+            whose storage is object-backed declares V(baremetal).
+          - Without O(qumulo_terraform_owned_areas), a cluster of V(edge) or V(baremetal) that the provider formed
+            leaves its floating addresses to the role, and one of V(cnq) or unset kind leaves them to Terraform.
+        type: str
+        # Null is a choice so that a null kind passes the role's argument check and counts as unset.
+        choices: [cnq, edge, baremetal, null]
+      qumulo_tenants:
+        description:
+          - The tenants, matched to the cluster's by name, each with its services, networks, SMB and NFS settings,
+            shares and exports.
+          - A tenant the list leaves out stays as it is. V(absent) in O(qumulo_tenants[].state) deletes a tenant, after
+            the networks, shares, exports and settings declared under it.
+          - Qumulo marks the multitenancy REST API, which the tenancy steps use, as preview; a later Qumulo Core release
+            may change it.
+        type: list
+        elements: dict
+        options:
+          name: {description: The tenant's name., type: str, required: true}
+          previous_name: {description: The tenant's name on the cluster before a rename., type: str}
+          state: {description: Whether the tenant exists., type: str, choices: [present, absent], default: present}
+          web_ui_enabled: {description: Whether the tenant's networks serve the web UI., type: bool}
+          rest_api_enabled: {description: Whether the tenant's networks serve the REST API., type: bool}
+          ssh_enabled: {description: Whether the tenant's networks serve SSH., type: bool}
+          replication_enabled: {description: Whether the tenant's networks serve replication., type: bool}
+          nfs_enabled: {description: Whether the tenant's networks serve NFS., type: bool}
+          smb_enabled: {description: Whether the tenant's networks serve SMB., type: bool}
+          networks:
+            description:
+              - The tenant's frontend networks, each as O(qumulo_network.frontend_networks) takes it without
+                C(tenant) and C(tenant_id), and with C(vlan_id) and C(mtu).
+              - Once one present tenant declares it, every present tenant must, with V([]) for none.
+            type: list
+            elements: dict
+            options:
+              id: {description: The network's id., type: int, required: true}
+              name: {description: The network's name., type: str}
+              type: {description: How nodes get their addresses., type: str, choices: [DHCP, STATIC, HOST]}
+              netmask: {description: The netmask., type: str}
+              default_gateway:
+                description:
+                  - The default gateway of a STATIC network.
+                  - At most one STATIC network, across the tenants and O(qumulo_network.frontend_networks), carries an
+                    IPv4 gateway and at most one an IPv6 gateway, as for
+                    O(qumulo_network.frontend_networks[].default_gateway).
+                type: str
+              ip_ranges: {description: The static address ranges., type: list, elements: str}
+              floating_ip_ranges: {description: The floating address ranges., type: list, elements: str}
+              vlan_id:
+                description: The frontend VLAN the network is on; unset puts it on the frontend bond.
+                type: int
+              mtu: {description: The MTU of the network's VLAN., type: int}
+          smb_settings:
+            description:
+              - The tenant's SMB settings, as M(qumulo.cluster.smb_settings) takes them, or V(inherit) for the global
+                ones. The specification cannot list the keys of a dict that may also be V(inherit), so step 2 refuses
+                a key that O(qumulo_smb_settings) does not take.
+            type: raw
+          nfs_settings:
+            description:
+              - The tenant's NFS settings, as M(qumulo.cluster.nfs_settings) takes them, or V(inherit) for the global
+                ones. The specification cannot list the keys of a dict that may also be V(inherit), so step 2 refuses
+                a key that O(qumulo_nfs_settings) does not take.
+            type: raw
+          smb_shares:
+            description:
+              - The tenant's SMB shares, each as M(qumulo.cluster.smb_share) takes it, without C(tenant) and C(tenants);
+                step 2 refuses C(tenant) and C(tenants) in such an entry, and a C(tenant_id) that names another
+                tenant, since the entry belongs to its tenant.
+            type: list
+            elements: dict
+            options: &smb_share_options
+              share_name:
+                description: See O(qumulo.cluster.smb_share#module:share_name).
+                type: str
+              tenant:
+                description: See O(qumulo.cluster.smb_share#module:tenant).
+                type: str
+              tenants:
+                description: See O(qumulo.cluster.smb_share#module:tenants).
+                type: list
+                elements: str
+              tenant_id:
+                description: See O(qumulo.cluster.smb_share#module:tenant_id).
+                type: int
+              fs_path:
+                description: See O(qumulo.cluster.smb_share#module:fs_path).
+                type: str
+              create_fs_path:
+                description: See O(qumulo.cluster.smb_share#module:create_fs_path).
+                type: bool
+              description:
+                description: See O(qumulo.cluster.smb_share#module:description).
+                type: str
+              permissions:
+                description: See O(qumulo.cluster.smb_share#module:permissions).
+                type: list
+                elements: dict
+                options:
+                  rights:
+                    description: See O(qumulo.cluster.smb_share#module:permissions[].rights).
+                    type: list
+                    elements: str
+                    choices: [READ, WRITE, CHANGE_PERMISSIONS, ALL, NONE]
+                  trustee:
+                    description: See O(qumulo.cluster.smb_share#module:permissions[].trustee).
+                    type: str
+                  type:
+                    description: See O(qumulo.cluster.smb_share#module:permissions[].type).
+                    type: str
+                    choices: [ALLOWED, DENIED]
+              network_permissions:
+                description: See O(qumulo.cluster.smb_share#module:network_permissions).
+                type: list
+                elements: dict
+                options:
+                  address_ranges:
+                    description: See O(qumulo.cluster.smb_share#module:network_permissions[].address_ranges).
+                    type: list
+                    elements: str
+                  rights:
+                    description: See O(qumulo.cluster.smb_share#module:network_permissions[].rights).
+                    type: list
+                    elements: str
+                    choices: [READ, WRITE, CHANGE_PERMISSIONS, ALL, NONE]
+                  type:
+                    description: See O(qumulo.cluster.smb_share#module:network_permissions[].type).
+                    type: str
+                    choices: [ALLOWED, DENIED]
+              access_based_enumeration_enabled:
+                description: See O(qumulo.cluster.smb_share#module:access_based_enumeration_enabled).
+                type: bool
+              require_encryption:
+                description: See O(qumulo.cluster.smb_share#module:require_encryption).
+                type: bool
+              default_file_create_mode:
+                description: See O(qumulo.cluster.smb_share#module:default_file_create_mode).
+                type: raw
+              default_directory_create_mode:
+                description: See O(qumulo.cluster.smb_share#module:default_directory_create_mode).
+                type: raw
+              expand_fs_path_variables:
+                description: See O(qumulo.cluster.smb_share#module:expand_fs_path_variables).
+                type: bool
+              offline_files_caching_mode:
+                description: See O(qumulo.cluster.smb_share#module:offline_files_caching_mode).
+                type: str
+                choices: [NO_CACHING, MANUAL_CACHING, AUTOMATIC_CACHING]
+              state:
+                description: See O(qumulo.cluster.smb_share#module:state).
+                type: str
+                choices: [present, absent]
+          nfs_exports:
+            description:
+              - The tenant's NFS exports, each as M(qumulo.cluster.nfs_export) takes it, without C(tenant) and
+                C(tenants); step 2 refuses C(tenant) and C(tenants) in such an entry, and a C(tenant_id) that names
+                another tenant, since the entry belongs to its tenant.
+            type: list
+            elements: dict
+            options: &nfs_export_options
+              export_path:
+                description: See O(qumulo.cluster.nfs_export#module:export_path).
+                type: str
+              tenant:
+                description: See O(qumulo.cluster.nfs_export#module:tenant).
+                type: str
+              tenants:
+                description: See O(qumulo.cluster.nfs_export#module:tenants).
+                type: list
+                elements: str
+              tenant_id:
+                description: See O(qumulo.cluster.nfs_export#module:tenant_id).
+                type: int
+              fs_path:
+                description: See O(qumulo.cluster.nfs_export#module:fs_path).
+                type: str
+              create_fs_path:
+                description: See O(qumulo.cluster.nfs_export#module:create_fs_path).
+                type: bool
+              description:
+                description: See O(qumulo.cluster.nfs_export#module:description).
+                type: str
+              fields_to_present_as_32_bit:
+                description: See O(qumulo.cluster.nfs_export#module:fields_to_present_as_32_bit).
+                type: list
+                elements: str
+                choices: [FILE_IDS, FILE_SIZES, FS_SIZE, ALL, NONE]
+              restrictions:
+                description: See O(qumulo.cluster.nfs_export#module:restrictions).
+                type: list
+                elements: dict
+                options:
+                  host_restrictions:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].host_restrictions).
+                    type: list
+                    elements: str
+                  map_to_group:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].map_to_group).
+                    type: str
+                  map_to_user:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].map_to_user).
+                    type: str
+                  read_only:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].read_only).
+                    type: bool
+                  require_privileged_port:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].require_privileged_port).
+                    type: bool
+                  require_tls:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].require_tls).
+                    type: bool
+                  required_authentication_mode:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].required_authentication_mode).
+                    type: str
+                    choices: [AUTHENTICATION_MODE_NONE, AUTHENTICATION_MODE_KRB5, AUTHENTICATION_MODE_KRB5I,
+                              AUTHENTICATION_MODE_KRB5P]
+                  user_mapping:
+                    description: See O(qumulo.cluster.nfs_export#module:restrictions[].user_mapping).
+                    type: str
+                    choices: [NFS_MAP_NONE, NFS_MAP_ROOT, NFS_MAP_ALL]
+              state:
+                description: See O(qumulo.cluster.nfs_export#module:state).
+                type: str
+                choices: [present, absent]
+          identity:
+            description: Reserved for per-tenant identity, which is not supported yet; step 2 refuses it.
+            type: raw
+      qumulo_cluster_name:
+        description: The cluster's name, as M(qumulo.cluster.cluster_settings) takes it.
+        type: str
+      qumulo_filesystem_settings:
+        description: The file system settings, as M(qumulo.cluster.filesystem_settings) takes them.
+        type: dict
+        options:
+          permissions_mode:
+            description: See O(qumulo.cluster.filesystem_settings#module:permissions_mode).
+            type: str
+            choices: [NATIVE, CROSS_PROTOCOL, CROSS_PROTOCOL_POSIX_PRIORITY]
+          atime_enabled:
+            description: See O(qumulo.cluster.filesystem_settings#module:atime_enabled).
+            type: bool
+          atime_granularity:
+            description: See O(qumulo.cluster.filesystem_settings#module:atime_granularity).
+            type: str
+            choices: [HOUR, DAY, WEEK]
+          notify_recursive_mode:
+            description: See O(qumulo.cluster.filesystem_settings#module:notify_recursive_mode).
+            type: str
+            choices: [ENABLED, DISABLED_ERROR, DISABLED_IGNORE]
+      qumulo_web_ui_settings:
+        description: The Web UI's login banner and inactivity timeout, as M(qumulo.cluster.web_ui_settings) takes them.
+        type: dict
+        options:
+          login_banner:
+            description: See O(qumulo.cluster.web_ui_settings#module:login_banner).
+            type: str
+          inactivity_timeout:
+            description: See O(qumulo.cluster.web_ui_settings#module:inactivity_timeout).
+            type: int
+      qumulo_network:
+        description: The network document, as M(qumulo.cluster.network_config) takes it.
+        type: dict
+        options:
+          frontend_networks:
+            description: The frontend networks.
+            type: list
+            elements: dict
+            options:
+              id: {description: The network's id., type: int, required: true}
+              name: {description: The network's name., type: str}
+              type: {description: How nodes get their addresses., type: str, choices: [DHCP, STATIC, HOST]}
+              tenant: {description: The name of the tenant the network belongs to., type: str}
+              tenant_id:
+                description:
+                  - The id of the tenant the network belongs to. Deprecated; step 2 translates it to C(tenant), with a
+                    warning.
+                type: int
+              netmask: {description: The netmask., type: str}
+              default_gateway:
+                description:
+                  - The default gateway of a STATIC network.
+                  - Unset on a new network, the network has none. Unset on an existing network, the cluster's gateway is
+                    kept. An empty string removes it.
+                  - A chassis cluster takes one IPv4 and one IPv6 default gateway in all, so at most one STATIC network
+                    carries an IPv4 gateway and at most one an IPv6 gateway. The cluster enforces this on chassis
+                    nodes. Step 2 refuses a second one of either version on any cluster, before any write, step 3a's
+                    tenant writes included, and in check mode too, unless the cluster already gives each of those
+                    networks a gateway of that version.
+                type: str
+              ip_ranges: {description: The static address ranges., type: list, elements: str}
+              floating_ip_ranges: {description: The floating address ranges., type: list, elements: str}
+          managed_interfaces:
+            description: The bond and VLAN interfaces.
+            type: dict
+      qumulo_dns:
+        description: The DNS settings, as M(qumulo.cluster.dns_settings) takes them.
+        type: dict
+        options:
+          servers:
+            description: The DNS servers, in order.
+            type: list
+            elements: str
+          search_domains:
+            description: The search domains, in order.
+            type: list
+            elements: str
+          lookup_overrides:
+            description:
+              - The lookup override table, as M(qumulo.cluster.dns_lookup_overrides) takes it in its
+                O(qumulo.cluster.dns_lookup_overrides#module:overrides).
+            type: list
+            elements: dict
+            options:
+              ip_address: {description: The address., type: str, required: true}
+              aliases: {description: The names that resolve to it; the first is its reverse name., type: list, elements: str, required: true}
+      qumulo_authoritative_dns:
+        description:
+          - The authoritative DNS server, as M(qumulo.cluster.authoritative_dns) takes it.
+          - While O(qumulo_terraform_owned_areas) lists V(dns.fqdn), C(enabled) and C(fqdn) fail at the ownership
+            check unless O(qumulo_take_over_from_terraform), and the rest applies.
+        type: dict
+        options:
+          enabled: {description: Whether the cluster answers for its name., type: bool}
+          fqdn: {description: The cluster's fully qualified name., type: str}
+          host_restrictions:
+            description: The clients that may query it; V([]) lets every client query it.
+            type: list
+            elements: str
+          record_ttl_seconds: {description: How long a resolver may cache an answer., type: int}
+      qumulo_time:
+        description: The time settings, as M(qumulo.cluster.time_settings) takes them.
+        type: dict
+        options:
+          source:
+            description: The time source.
+            type: str
+            choices: [API_TIME_SOURCE_NTP, API_TIME_SOURCE_HYPERVISOR]
+          ntp_servers:
+            description: The NTP servers, in order.
+            type: list
+            elements: str
+          use_ad_for_primary:
+            description: Prefer the domain controller's time; set after the AD join.
+            type: bool
+      qumulo_ssl:
+        description: The certificate the cluster serves, as M(qumulo.cluster.ssl_certificate) takes it.
+        type: dict
+        options:
+          certificate:
+            description: The certificate chain in PEM.
+            type: str
+            required: true
+          private_key:
+            description: Its private key in PEM.
+            type: str
+            required: true
+            no_log: true
+          probe:
+            description: The addresses to compare the served certificate at.
+            type: list
+            elements: str
+          ca_path_after:
+            description:
+              - The certificate authority to verify the cluster with after the certificate step; verification is then
+                on, whatever C(qumulo_validate_certs) was.
+            type: path
+      qumulo_ssl_ciphers:
+        description: The TLS cipher suites the cluster accepts, as M(qumulo.cluster.ssl_ciphers) takes them.
+        type: dict
+        options:
+          tls_1_2: {description: The TLS 1.2 suites in order of preference., type: list, elements: str}
+          tls_1_3: {description: The TLS 1.3 suites in order of preference., type: list, elements: str}
+      qumulo_local_groups:
+        description:
+          - Local groups, each as M(qumulo.cluster.local_group) takes it. The role creates them without members before
+            the users, and sets the members after.
+        type: list
+        elements: dict
+        options:
+          name: {description: The group's name., type: str, required: true}
+          gid: {description: Its POSIX group id., type: int}
+          members: {description: Names of local users in the group., type: list, elements: str}
+          purge: {description: Remove members not listed., type: bool}
+          state: {description: Whether the group exists., type: str, choices: [present, absent]}
+      qumulo_local_users:
+        description: Local users, each as M(qumulo.cluster.local_user) takes it.
+        type: list
+        elements: dict
+        options:
+          name: {description: The user's name., type: str, required: true}
+          primary_group: {description: Name of its primary local group., type: str}
+          uid: {description: Its POSIX user id., type: int}
+          home_directory: {description: Its home directory., type: str}
+          password: {description: Its password., type: str, no_log: true}
+          update_password: {description: When to send the password., type: str, choices: [on_create, always]}
+          allow_admin_password_change: {description: Allow changing the password of admin., type: bool}
+          state: {description: Whether the user exists., type: str, choices: [present, absent]}
+      qumulo_ad:
+        description: The Active Directory membership, as M(qumulo.cluster.ad_domain) takes it, with C(state) V(joined).
+        type: dict
+        options:
+          domain: {description: The domain's DNS name., type: str, required: true}
+          domain_netbios: {description: The domain's NetBIOS name., type: str}
+          ou: {description: The organizational unit for the computer account., type: str}
+          join_user: {description: The user that joins the cluster., type: str}
+          join_password: {description: Its password., type: str, no_log: true}
+          search_trusted_domains: {description: Also search trusted domains., type: bool}
+          use_ad_posix_attributes: {description: Read POSIX ids from Active Directory., type: bool}
+          base_dn: {description: The search base distinguished names., type: str}
+          domain_controllers: {description: The domain controllers to use., type: list, elements: str}
+      qumulo_kerberos:
+        description:
+          - The keytab of a standalone KDC, as M(qumulo.cluster.kerberos_keytab) takes it, and the Kerberos settings,
+            as M(qumulo.cluster.kerberos_settings) takes them.
+          - A keytab to install cannot be declared beside O(qumulo_ad). The keytab is installed when
+            O(qumulo_kerberos.keytab) or O(qumulo_kerberos.keytab_path) is given, and deleted with
+            O(qumulo_kerberos.keytab_state=absent).
+        type: dict
+        options:
+          keytab: {description: The keytab file in base64., type: str, no_log: true}
+          keytab_path: {description: "The absolute path of a plain keytab file on the controller; a file encrypted with Ansible Vault fails.", type: path}
+          keytab_state: {description: V(absent) deletes the cluster's keytab., type: str, choices: [present, absent]}
+          use_alt_security_identities_mapping: {description: Map principals to AD users through C(altSecurityIdentities)., type: bool}
+      qumulo_user_defined_mappings:
+        description:
+          - Every mapping from an Active Directory user to an LDAP user, as M(qumulo.cluster.user_defined_mappings)
+            takes them. The list is the whole set, and V([]) removes every mapping.
+        type: list
+        elements: dict
+        options:
+          down_level_logon_name: {description: The AD user as DOMAIN\name., type: str, required: true}
+          ldap_name: {description: The LDAP user's name., type: str, required: true}
+      qumulo_identity_attributes:
+        description:
+          - The home directories of identities the cluster does not own, each as M(qumulo.cluster.identity_attributes)
+            takes it.
+        type: list
+        elements: dict
+        options:
+          trustee: {description: The identity in the collection's trustee grammar; not a local one., type: str, required: true}
+          home_directory: {description: Its home directory; required unless C(state) is V(absent)., type: str}
+          state: {description: Whether the identity has attributes., type: str, choices: [present, absent]}
+      qumulo_saml:
+        description: SAML sign-in through an identity provider, as M(qumulo.cluster.saml_settings) takes it.
+        type: dict
+        options:
+          enabled: {description: Whether users may sign in through the IdP; refused without a certificate., type: bool}
+          idp_sso_url: {description: The IdP's single sign-on URL., type: str}
+          idp_certificate:
+            description:
+              - The IdP's signing certificate in PEM. The cluster keeps one once set (G-ID-SAML-CERT).
+              - Left out, the certificate the cluster holds is kept unchecked, and turning sign-in on warns.
+            type: str
+          idp_entity_id: {description: The IdP's entity ID., type: str}
+          cluster_dns_name: {description: The name users reach the Web UI at., type: str}
+          require_sso: {description: Whether AD users must sign in through the IdP while sign-in is on., type: bool}
+      qumulo_roles:
+        description: Custom roles, each as M(qumulo.cluster.role) takes it. The built-in roles cannot be changed.
+        type: list
+        elements: dict
+        options:
+          name: {description: The role's name., type: str, required: true}
+          description: {description: What the role is for., type: str}
+          privileges: {description: Every privilege the role grants., type: list, elements: str}
+          state: {description: Whether the role exists., type: str, choices: [present, absent]}
+      qumulo_role_members:
+        description: Role assignments, each as M(qumulo.cluster.role_member) takes them.
+        type: list
+        elements: dict
+        options:
+          role: {description: The role's name., type: str, required: true}
+          members: {description: Trustees in the collection's grammar., type: list, elements: str, required: true}
+          purge: {description: Remove members not listed., type: bool}
+          state: {description: Assign or remove the members., type: str, choices: [present, absent]}
+      qumulo_monitoring:
+        description: Cloud monitoring and the cluster's Nexus connection and registration.
+        type: dict
+        options:
+          enabled: {description: Whether cloud monitoring is on; off also turns the Nexus connection off., type: bool}
+          mq_host: {description: The monitoring service's host., type: str}
+          mq_port: {description: Its port., type: int}
+          mq_proxy_host: {description: A proxy for the monitoring service., type: str}
+          mq_proxy_port: {description: The proxy's port., type: int}
+          s3_proxy_host: {description: A proxy for log uploads., type: str}
+          s3_proxy_port: {description: The upload proxy's port., type: int}
+          s3_proxy_disable_https: {description: Upload through the proxy without HTTPS., type: bool}
+          vpn_enabled: {description: Whether the support VPN is on., type: bool}
+          vpn_host: {description: The support VPN's host., type: str}
+          period: {description: Seconds between monitoring reports., type: int}
+          nexus:
+            description: The Nexus connection, as M(qumulo.cluster.nexus_connection) takes it.
+            type: dict
+            options:
+              nexus_enabled: {description: Whether the cluster connects to Nexus., type: bool}
+              nexus_host: {description: The Nexus host., type: str}
+              nexus_port: {description: Its port., type: int}
+              nexus_interval: {description: Seconds between the cluster's Nexus check-ins., type: int}
+              nexus_capability_remote_support: {description: Allow remote support through Nexus., type: bool}
+              nexus_capability_sso: {description: Allow single sign-on through Nexus., type: bool}
+          nexus_join_key:
+            description: A single-use Nexus join key, sent only to a cluster that is not registered (G-NEXUS-KEY).
+            type: str
+            no_log: true
+          nexus_account_id: {description: The Nexus organization a minted key registers the cluster to., type: int}
+      qumulo_audit_destinations:
+        description:
+          - Audit log destinations, each as M(qumulo.cluster.audit_destination) takes it. A destination the list leaves out
+            is left alone.
+        type: list
+        elements: dict
+        options:
+          name: {description: The destination's name., type: str, required: true}
+          type: {description: Where it sends audit logs., type: str, choices: [SYSLOG, CLOUDWATCH, LOCAL]}
+          enabled: {description: Whether the cluster sends audit logs to it., type: bool}
+          server_address: {description: The syslog server., type: str}
+          server_port: {description: The syslog server's port., type: int}
+          log_format: {description: The syslog message format., type: str, choices: [csv, json]}
+          log_group_name: {description: The CloudWatch log group., type: str}
+          region: {description: The log group's AWS region., type: str}
+          state: {description: Whether the destination exists., type: str, choices: [present, absent]}
+      qumulo_nexus_api_token:
+        description:
+          - A Nexus user's API token. M(qumulo.cluster.nexus_registration) mints a join key with it.
+        type: str
+        no_log: true
+      qumulo_nexus_api_url:
+        description: The Nexus API the token is for; the modules' default when unset.
+        type: str
+      qumulo_capacity:
+        description: The license, the capacity clamp and the eviction threshold.
+        type: dict
+        options:
+          clamp:
+            description: The capacity clamp, in bytes or as a size with a unit, such as C(4TB) or C(4TiB).
+            type: raw
+          free_threshold:
+            description: The fraction of capacity, from 0.0 to 1.0, that the cluster keeps free by evicting cached spoke data.
+            type: float
+          license:
+            description:
+              - What the inventory expects of the license. No value makes the role wait or fail; a missing license that
+                is expected is handed off, naming the cluster's UUID, and the clamp waits for it.
+              - V(required) also sets C(cluster_baseline_license_missing) while the cluster has no active license, so a
+                later check of the final state can fail on it.
+              - V(pending), the default, expects that the license may come after the first pass.
+              - V(none) is for an edge that runs without a license, within the capacity its formation gave it
+                (G-EDGE-FLOOR). Nothing is handed off, and the clamp is written with no license. It then limits a
+                license that arrives later, and a clamp above 1 TB provisions nothing more until a license arrives.
+                With a license active,
+                the step runs as V(pending) does and warns that V(none) is stale. It goes with a clamp, and never with
+                O(qumulo_capacity.license_document), which the role refuses beside it.
+            type: str
+            choices: [pending, required, none]
+          license_document:
+            description:
+              - The license document issued for the cluster's UUID, as the C(document) option of
+                M(qumulo.cluster.license) takes it, a dict or its JSON text. Encrypt it with ansible-vault.
+              - Applied before the clamp when it is for the cluster's UUID. One for another UUID, as after a rebuild, is
+                not applied, and the hand-off says so.
+            type: raw
+            no_log: true
+      qumulo_portal:
+        description: The portal from this cluster, the spoke, to its hub.
+        type: dict
+        options:
+          hub: {description: The inventory host of the hub; its variables say how to connect to it., type: str, required: true}
+          type:
+            description: Whether the spoke may write through the portal.
+            type: str
+            choices: [read_write, read_only]
+            default: read_write
+          roots:
+            description: The roots the portal links, each a C(spoke_root) on this cluster and a C(hub_root) on the hub.
+            type: list
+            elements: dict
+            options:
+              spoke_root: {description: The root's path on the spoke; the spoke creates it., type: str, required: true}
+              hub_root: {description: The root's path on the hub; it must exist., type: str, required: true}
+      qumulo_portal_hosts:
+        description:
+          - The addresses the other side of a portal reaches this cluster at, each with an C(address) and an optional
+            C(port), 3713 by default. Required on the spoke and on its hub.
+          - IP addresses, never C(qumulo_api_host), which may be a name.
+          - Always declared; the role never reads them from the cluster's network status. The
+            C(qumulo.cluster.terraform) inventory plugin sets them from the output's C(portal_hosts).
+        type: list
+        elements: dict
+        options:
+          address:
+            description: See O(qumulo.cluster.portal_hub#module:spoke_hosts[].address).
+            type: str
+          port:
+            description: See O(qumulo.cluster.portal_hub#module:spoke_hosts[].port).
+            type: int
+      qumulo_factory_defaults:
+        description: What becomes of the share and export every formation creates (G-FACTORY).
+        type: dict
+        options:
+          smb_files_share: {description: V(absent) removes the C(Files) share; V(present) leaves it., type: str, choices: [present, absent]}
+          nfs_root_export: {description: V(absent) removes the C(/) export; V(present) leaves it., type: str, choices: [present, absent]}
+      qumulo_directories:
+        description: Directories, each as M(qumulo.cluster.directory) takes it, with C(path), C(mode), C(owner), C(group) and C(state).
+        type: list
+        elements: dict
+        options:
+          path:
+            description: See O(qumulo.cluster.directory#module:path).
+            type: str
+          mode:
+            description: See O(qumulo.cluster.directory#module:mode).
+            type: raw
+          owner:
+            description: See O(qumulo.cluster.directory#module:owner).
+            type: str
+          group:
+            description: See O(qumulo.cluster.directory#module:group).
+            type: str
+          state:
+            description: See O(qumulo.cluster.directory#module:state).
+            type: str
+            choices: [present, absent]
+      qumulo_file_acls:
+        description:
+          - ACLs, each as M(qumulo.cluster.file_acl) takes it, with C(path), C(aces), C(control),
+            C(posix_special_permissions) and C(allow_data_loss).
+          - A path here must not also have a C(mode) in O(qumulo_directories) (G-FS-ACL-MODE).
+        type: list
+        elements: dict
+        options:
+          path:
+            description: See O(qumulo.cluster.file_acl#module:path).
+            type: str
+          aces:
+            description: See O(qumulo.cluster.file_acl#module:aces).
+            type: list
+            elements: dict
+            options:
+              flags:
+                description: See O(qumulo.cluster.file_acl#module:aces[].flags).
+                type: list
+                elements: str
+                choices: [OBJECT_INHERIT, CONTAINER_INHERIT, NO_PROPAGATE_INHERIT, INHERIT_ONLY, INHERITED]
+              rights:
+                description: See O(qumulo.cluster.file_acl#module:aces[].rights).
+                type: list
+                elements: str
+                choices: [READ, READ_EA, READ_ATTR, READ_ACL, WRITE_EA, WRITE_ATTR, WRITE_ACL, CHANGE_OWNER,
+                          WRITE_GROUP, DELETE, EXECUTE, MODIFY, EXTEND, DELETE_CHILD, SYNCHRONIZE, ALL,
+                          ACCESS_RIGHTS_ALL, ADD_FILE, ADD_SUBDIR]
+              trustee:
+                description: See O(qumulo.cluster.file_acl#module:aces[].trustee).
+                type: str
+              type:
+                description: See O(qumulo.cluster.file_acl#module:aces[].type).
+                type: str
+                choices: [ALLOWED, DENIED]
+          control:
+            description: See O(qumulo.cluster.file_acl#module:control).
+            type: list
+            elements: str
+            choices: [PRESENT, DEFAULTED, TRUSTED, AUTO_INHERIT, PROTECTED]
+          posix_special_permissions:
+            description: See O(qumulo.cluster.file_acl#module:posix_special_permissions).
+            type: list
+            elements: str
+            choices: [SET_UID, SET_GID, STICKY_BIT]
+          allow_data_loss:
+            description: See O(qumulo.cluster.file_acl#module:allow_data_loss).
+            type: bool
+      qumulo_smb_settings:
+        description: The SMB settings, as M(qumulo.cluster.smb_settings) takes them.
+        type: dict
+        options:
+          session_encryption:
+            description: See O(qumulo.cluster.smb_settings#module:session_encryption).
+            type: str
+            choices: [NONE, PREFERRED, REQUIRED]
+          supported_dialects:
+            description: See O(qumulo.cluster.smb_settings#module:supported_dialects).
+            type: list
+            elements: str
+            choices: [SMB2_DIALECT_2_002, SMB2_DIALECT_2_1, SMB2_DIALECT_3_0, SMB2_DIALECT_3_11]
+          hide_shares_from_unauthorized_users:
+            description: See O(qumulo.cluster.smb_settings#module:hide_shares_from_unauthorized_users).
+            type: bool
+          hide_shares_from_unauthorized_hosts:
+            description: See O(qumulo.cluster.smb_settings#module:hide_shares_from_unauthorized_hosts).
+            type: bool
+          snapshot_directory_mode:
+            description: See O(qumulo.cluster.smb_settings#module:snapshot_directory_mode).
+            type: str
+            choices: [VISIBLE, HIDDEN, DISABLED]
+          bypass_traverse_checking:
+            description: See O(qumulo.cluster.smb_settings#module:bypass_traverse_checking).
+            type: bool
+          signing_required:
+            description: See O(qumulo.cluster.smb_settings#module:signing_required).
+            type: bool
+      qumulo_smb_shares:
+        description:
+          - SMB shares, each as M(qumulo.cluster.smb_share) takes it. Step 2 refuses C(tenant) in an entry, and
+            C(tenants) with C(tenant_id); give C(tenants).
+          - An entry's C(tenants), a list of tenant names or V(all), gives the tenants it applies to. When the
+            cluster, with the tenants the run creates, holds two or more, an entry needs C(tenants).
+        type: list
+        elements: dict
+        options: *smb_share_options
+      qumulo_nfs_settings:
+        description: The NFS settings, as M(qumulo.cluster.nfs_settings) takes them.
+        type: dict
+        options:
+          v4_enabled:
+            description: See O(qumulo.cluster.nfs_settings#module:v4_enabled).
+            type: bool
+          krb5_enabled:
+            description: See O(qumulo.cluster.nfs_settings#module:krb5_enabled).
+            type: bool
+          krb5i_enabled:
+            description: See O(qumulo.cluster.nfs_settings#module:krb5i_enabled).
+            type: bool
+          krb5p_enabled:
+            description: See O(qumulo.cluster.nfs_settings#module:krb5p_enabled).
+            type: bool
+          auth_sys_enabled:
+            description: See O(qumulo.cluster.nfs_settings#module:auth_sys_enabled).
+            type: bool
+          idmap_domain:
+            description: See O(qumulo.cluster.nfs_settings#module:idmap_domain).
+            type: str
+      qumulo_nfs_exports:
+        description:
+          - NFS exports, each as M(qumulo.cluster.nfs_export) takes it. Step 2 refuses C(tenant) in an entry, and
+            C(tenants) with C(tenant_id); give C(tenants).
+          - An entry's C(tenants), a list of tenant names or V(all), gives the tenants it applies to. When the
+            cluster, with the tenants the run creates, holds two or more, an entry needs C(tenants).
+        type: list
+        elements: dict
+        options: *nfs_export_options
+      qumulo_s3_settings:
+        description: The S3 server settings, as M(qumulo.cluster.s3_settings) takes them.
+        type: dict
+        options:
+          enabled:
+            description: See O(qumulo.cluster.s3_settings#module:enabled).
+            type: bool
+          secure:
+            description: See O(qumulo.cluster.s3_settings#module:secure).
+            type: bool
+          base_path:
+            description: See O(qumulo.cluster.s3_settings#module:base_path).
+            type: str
+          multipart_upload_expiry_interval:
+            description: See O(qumulo.cluster.s3_settings#module:multipart_upload_expiry_interval).
+            type: str
+      qumulo_s3_buckets:
+        description: S3 buckets, each as M(qumulo.cluster.s3_bucket) takes it.
+        type: list
+        elements: dict
+        options:
+          name:
+            description: See O(qumulo.cluster.s3_bucket#module:name).
+            type: str
+          path:
+            description: See O(qumulo.cluster.s3_bucket#module:path).
+            type: str
+          create_fs_path:
+            description: See O(qumulo.cluster.s3_bucket#module:create_fs_path).
+            type: bool
+          versioning:
+            description: See O(qumulo.cluster.s3_bucket#module:versioning).
+            type: str
+            choices: [Unversioned, Enabled, Suspended]
+          object_lock:
+            description: See O(qumulo.cluster.s3_bucket#module:object_lock).
+            type: bool
+          default_retention:
+            description: See O(qumulo.cluster.s3_bucket#module:default_retention).
+            type: dict
+            options:
+              units:
+                description: See O(qumulo.cluster.s3_bucket#module:default_retention.units).
+                type: str
+                choices: [days, years]
+              value:
+                description: See O(qumulo.cluster.s3_bucket#module:default_retention.value).
+                type: int
+          allow_data_loss:
+            description: See O(qumulo.cluster.s3_bucket#module:allow_data_loss).
+            type: bool
+          state:
+            description: See O(qumulo.cluster.s3_bucket#module:state).
+            type: str
+            choices: [present, absent]
+      qumulo_s3_bucket_policies:
+        description: S3 bucket policies, each as M(qumulo.cluster.s3_bucket_policy) takes it, with C(bucket) and C(policy).
+        type: list
+        elements: dict
+        options:
+          bucket:
+            description: See O(qumulo.cluster.s3_bucket_policy#module:bucket).
+            type: str
+          policy:
+            description: See O(qumulo.cluster.s3_bucket_policy#module:policy).
+            type: dict
+          allow_remove_self:
+            description: See O(qumulo.cluster.s3_bucket_policy#module:allow_remove_self).
+            type: bool
+          state:
+            description: See O(qumulo.cluster.s3_bucket_policy#module:state).
+            type: str
+            choices: [present, absent]
+      qumulo_s3_access_keys:
+        description:
+          - S3 access keys, each as M(qumulo.cluster.s3_access_key) takes it, with C(user) and, once the key is made,
+            its C(access_key_id), quoted.
+          - A key the role makes, because none meets the entry, as after a rebuild, has its secret written to a file under
+            O(cluster_baseline_artifact_dir), the only time the cluster returns it. An entry that still names the old id
+            on the next run fails, naming the key the user holds. Each entry gets the ids its user's other present
+            entries declare, so a rebuild makes each of a user's declared keys again, and no more.
+        type: list
+        elements: dict
+        options:
+          user:
+            description: See O(qumulo.cluster.s3_access_key#module:user).
+            type: str
+          access_key_id:
+            description: See O(qumulo.cluster.s3_access_key#module:access_key_id).
+            type: str
+          secret_destination:
+            description: See O(qumulo.cluster.s3_access_key#module:secret_destination).
+            type: path
+          state:
+            description: See O(qumulo.cluster.s3_access_key#module:state).
+            type: str
+            choices: [present, absent]
+      qumulo_ftp_settings:
+        description: The FTP server settings, as M(qumulo.cluster.ftp_settings) takes them.
+        type: dict
+        options:
+          enabled:
+            description: See O(qumulo.cluster.ftp_settings#module:enabled).
+            type: bool
+          check_remote_host:
+            description: See O(qumulo.cluster.ftp_settings#module:check_remote_host).
+            type: bool
+          log_operations:
+            description: See O(qumulo.cluster.ftp_settings#module:log_operations).
+            type: bool
+          chroot_users:
+            description: See O(qumulo.cluster.ftp_settings#module:chroot_users).
+            type: bool
+          allow_unencrypted_connections:
+            description: See O(qumulo.cluster.ftp_settings#module:allow_unencrypted_connections).
+            type: bool
+          expand_wildcards:
+            description: See O(qumulo.cluster.ftp_settings#module:expand_wildcards).
+            type: bool
+          anonymous_user:
+            description: See O(qumulo.cluster.ftp_settings#module:anonymous_user).
+            type: str
+          greeting:
+            description: See O(qumulo.cluster.ftp_settings#module:greeting).
+            type: str
+      qumulo_quotas:
+        description: Directory quotas, each as M(qumulo.cluster.directory_quota) takes it, with C(path), C(limit) and C(state).
+        type: list
+        elements: dict
+        options:
+          path:
+            description: See O(qumulo.cluster.directory_quota#module:path).
+            type: str
+          limit:
+            description: See O(qumulo.cluster.directory_quota#module:limit).
+            type: str
+          state:
+            description: See O(qumulo.cluster.directory_quota#module:state).
+            type: str
+            choices: [present, absent]
+      qumulo_snapshot_policies:
+        description:
+          - Snapshot policies, each as M(qumulo.cluster.snapshot_policy) takes it, C(lock_key) by the key's name.
+        type: list
+        elements: dict
+        options:
+          policy_name:
+            description: See O(qumulo.cluster.snapshot_policy#module:policy_name).
+            type: str
+          path:
+            description: See O(qumulo.cluster.snapshot_policy#module:path).
+            type: str
+          enabled:
+            description: See O(qumulo.cluster.snapshot_policy#module:enabled).
+            type: bool
+          lock_key:
+            description: See O(qumulo.cluster.snapshot_policy#module:lock_key). Declared by the key's name.
+            type: str
+          schedule:
+            description: See O(qumulo.cluster.snapshot_policy#module:schedule).
+            type: dict
+            options:
+              day_of_month:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.day_of_month).
+                type: int
+              fire_every:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.fire_every).
+                type: int
+              fire_every_interval:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.fire_every_interval).
+                type: str
+                choices: [FIRE_IN_MINUTES, FIRE_IN_HOURS]
+              frequency:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.frequency).
+                type: str
+                choices: [SCHEDULE_HOURLY_OR_LESS, SCHEDULE_DAILY_OR_WEEKLY, SCHEDULE_MONTHLY]
+              hour:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.hour).
+                type: int
+              minute:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.minute).
+                type: int
+              on_days:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.on_days).
+                type: list
+                elements: str
+                choices: [SUN, MON, TUE, WED, THU, FRI, SAT, EVERY_DAY]
+              timezone:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.timezone).
+                type: str
+              window_end_hour:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.window_end_hour).
+                type: int
+              window_end_minute:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.window_end_minute).
+                type: int
+              window_start_hour:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.window_start_hour).
+                type: int
+              window_start_minute:
+                description: See O(qumulo.cluster.snapshot_policy#module:schedule.window_start_minute).
+                type: int
+          expiration_time_to_live:
+            description: See O(qumulo.cluster.snapshot_policy#module:expiration_time_to_live).
+            type: str
+          snapshot_name_template:
+            description: See O(qumulo.cluster.snapshot_policy#module:snapshot_name_template).
+            type: str
+          recreate:
+            description: See O(qumulo.cluster.snapshot_policy#module:recreate).
+            type: bool
+          state:
+            description: See O(qumulo.cluster.snapshot_policy#module:state).
+            type: str
+            choices: [present, absent]
+      qumulo_replication_relationships:
+        description:
+          - The replication relationships this cluster is the source of, each from a directory here to a directory on
+            the inventory host C(target), which the relationship is identified by with the two paths.
+          - The target host declares the target path in its C(qumulo_directories), path only, and its
+            O(qumulo_replication_address).
+        type: list
+        elements: dict
+        options:
+          source_path: {description: The source directory on this cluster., type: str, required: true}
+          target: {description: The target's inventory host., type: str, required: true}
+          target_path: {description: The target directory on the target host; its qumulo_directories declares it., type: str, required: true}
+          state:
+            description: Whether the relationship exists. V(absent) deletes it on both sides and keeps the target directory's data.
+            type: str
+            choices: [present, absent]
+            default: present
+          replication_enabled: {description: Whether the relationship replicates., type: bool}
+          map_local_ids_to_nfs_ids: {description: Whether local ids are mapped to NFS ids on the target., type: bool}
+          source_root_read_only: {description: Whether the source directory is read-only while the relationship exists., type: bool}
+          blackout_windows:
+            description:
+              - When replication pauses, each with C(start_hour), C(start_minute), C(end_hour), C(end_minute) and
+                C(on_days), in C(blackout_window_timezone), which they need.
+            type: list
+            elements: dict
+            options:
+              end_hour:
+                description: See O(qumulo.cluster.replication_relationship#module:blackout_windows[].end_hour).
+                type: int
+              end_minute:
+                description: See O(qumulo.cluster.replication_relationship#module:blackout_windows[].end_minute).
+                type: int
+              on_days:
+                description: See O(qumulo.cluster.replication_relationship#module:blackout_windows[].on_days).
+                type: list
+                elements: str
+                choices: [EVERY_DAY, SUN, MON, TUE, WED, THU, FRI, SAT]
+              start_hour:
+                description: See O(qumulo.cluster.replication_relationship#module:blackout_windows[].start_hour).
+                type: int
+              start_minute:
+                description: See O(qumulo.cluster.replication_relationship#module:blackout_windows[].start_minute).
+                type: int
+          blackout_window_timezone:
+            description: The timezone of the blackout windows, such as V(America/Los_Angeles); it cannot be cleared once set.
+            type: str
+          allow_non_empty_target:
+            description:
+              - Let the source's content replace a target directory that already holds entries, subdirectories included;
+                the first job deletes whatever the source lacks.
+            type: bool
+            default: false
+          recreate:
+            description: With a release bound to it, replace the source's ENDED record of the relationship (row O3).
+            type: bool
+            default: false
+          strict_capacity:
+            description: Refuse, rather than warn, when the source looks larger than the space the target can reuse.
+            type: bool
+            default: false
+          target_gone:
+            description:
+              - With V(absent), the target is gone for good, so only the source's records are deleted, and no connection
+                to the target is made. Once the target host has left the inventory, give C(target_cluster_uuid).
+            type: bool
+            default: false
+          target_cluster_uuid:
+            description: The target's UUID, for C(target_gone) once the target host has left the inventory.
+            type: str
+          previous_target_cluster_uuids:
+            description: The target's previous UUIDs, for C(target_gone) once the target host has left the inventory.
+            type: list
+            elements: str
+      qumulo_replication_address:
+        description:
+          - The IP address a replication source reaches this cluster at. Required on every target of a relationship.
+          - Never derived from C(qumulo_api_host) or the cluster's network status; the C(qumulo.cluster.terraform)
+            inventory plugin sets it from the output's C(replication_address).
+        type: str
+      qumulo_replication_port:
+        description: The port a replication source reaches this cluster's replication service at.
+        type: int
+        default: 3712
+      qumulo_previous_cluster_uuids:
+        description:
+          - The UUIDs this cluster had before it was formed again, as after a rebuild. A relationship to or from a
+            previous UUID is replaced or held (C(docs/explanation/replication.md)); the list never holds the current
+            UUID.
+          - The edge_rebuild role's report gives the list in its host_vars patch. For a cluster formed again without
+            that role, the old UUID is added by hand.
+        type: list
+        elements: str

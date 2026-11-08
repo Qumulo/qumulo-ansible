@@ -1,0 +1,12 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Galaxy's import lints the artifact with this file, since the artifact leaves out .ansible-lint, which ansible-lint
+# reads first in the checkout. It keeps .ansible-lint's profile and supported releases, and nothing else.
+profile: production
+# ansible-lint's built-in list of supported ansible-core releases stops at
+# 2.19, which would reject requires_ansible ">=2.20.0" in meta/runtime.yml.
+supported_ansible_also:
+  - "2.20."
+  - "2.21."
+  - "2.22."

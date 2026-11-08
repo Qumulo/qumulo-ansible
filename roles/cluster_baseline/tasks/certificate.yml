@@ -1,0 +1,23 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Install the certificate
+  qumulo.cluster.ssl_certificate:
+    certificate: "{{ qumulo_ssl.certificate }}"
+    private_key: "{{ qumulo_ssl.private_key }}"
+    probe: "{{ qumulo_ssl.probe | default([]) }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) or qumulo_ssl.ca_path_after is defined }}"
+  register: cluster_baseline_certificate
+
+# A rebuild's replay meets a factory certificate that nothing can verify, so it
+# starts with qumulo_validate_certs false; from here on the cluster serves
+# the declared one, and the passwords the later steps send go over verified TLS.
+# The play's module_defaults read these inventory variables, so the switch must
+# set them under their own names. A check run leaves the old certificate served.
+- name: Verify the cluster with the new certificate's authority from here on
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    qumulo_ca_path: "{{ qumulo_ssl.ca_path_after }}"
+    qumulo_validate_certs: true
+  when:
+    - qumulo_ssl.ca_path_after is defined
+    - not (cluster_baseline_check_mode | bool and cluster_baseline_certificate is changed)

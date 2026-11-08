@@ -1,0 +1,77 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: restore_key_hash
+  short_description: The digest that names a relationship's restore record and restore stamp
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - The SHA-256 hex digest of a replication relationship's normalized key, written as the three lines
+      C(<source path>), C(<target cluster UUID>) and C(<target path>), joined by newlines, with each path without its
+      trailing slash (C(/) stays C(/)) and the UUID in lower case.
+    - The restore record under C(<artifact dir>/<host>/restore/) is named C(<digest>.yml), and its restore stamp
+      C(done-<digest>.yml).
+    - The target host's name is not hashed.
+  options:
+    _input:
+      description: The key.
+      type: dict
+      required: true
+      suboptions:
+        source_path:
+          description: The relationship's source path on the edge.
+          type: str
+          required: true
+        target_cluster_uuid:
+          description: The target cluster's UUID.
+          type: str
+          required: true
+        target_path:
+          description: The relationship's target path on the target cluster.
+          type: str
+          required: true
+        target_host:
+          description: The target's inventory host name, which the record holds but the digest leaves out.
+          type: str
+
+EXAMPLES: |
+  - name: Name the relationship's restore record
+    vars:
+      artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+      hub_uuid: 7d4a2e10-3c8b-4f5a-9b6e-1a2b3c4d5e6f
+    ansible.builtin.debug:
+      msg: >-
+        {{ artifact_dir }}/{{ inventory_hostname }}/restore/{{
+           {'source_path': '/projects', 'target_cluster_uuid': hub_uuid, 'target_path': '/replicas/edge01'}
+           | qumulo.cluster.restore_key_hash }}.yml
+
+  - name: Name the relationship's restore stamp
+    # Trailing slashes are dropped, so this names the same stamp as /projects and /replicas/edge01.
+    vars:
+      artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+      hub_uuid: 7d4a2e10-3c8b-4f5a-9b6e-1a2b3c4d5e6f
+    ansible.builtin.debug:
+      msg: >-
+        {{ artifact_dir }}/{{ inventory_hostname }}/restore/done-{{
+           {'source_path': '/projects/', 'target_cluster_uuid': hub_uuid, 'target_path': '/replicas/edge01/'}
+           | qumulo.cluster.restore_key_hash }}.yml
+
+  - name: Check whether the relationship's restore stamp exists
+    vars:
+      artifact_dir: "{{ ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default('')) }}"
+      hub_uuid: 7d4a2e10-3c8b-4f5a-9b6e-1a2b3c4d5e6f
+    ansible.builtin.stat:
+      path: >-
+        {{ artifact_dir }}/{{ inventory_hostname }}/restore/done-{{
+           {'source_path': '/projects', 'target_cluster_uuid': hub_uuid, 'target_path': '/replicas/edge01'}
+           | qumulo.cluster.restore_key_hash }}.yml
+    delegate_to: localhost
+    register: restore_stamp
+
+RETURN:
+  _value:
+    description: The digest, 64 lower-case hex digits.
+    returned: always
+    type: str
+    sample: c6f21a2d2f429154980c601dcefa44cce45d276f639aff197d40598dc1ef34dc

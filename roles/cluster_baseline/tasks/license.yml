@@ -1,0 +1,226 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The license, then the clamp. capacity.yml runs this, and so does
+# playbooks/edge_license_complete.yml, with
+# cluster_baseline_license_hand_off_fails set, so that both passes do the same.
+#
+# A license that raises usable capacity applies only at the next quorum
+# formation, and the clamp's write is the collection's only cause of one
+# (G-CLAMP-BOUNCE). Nothing waits for a license. A new UUID has none until
+# Qumulo issues one in Nexus, which sees the UUID only once the cluster is
+# registered, so the first pass leaves the clamp and hands the license off;
+# the second, with the document in qumulo_capacity.license_document, or once
+# the cluster holds the license, applies it and then sets the clamp. An edge
+# that declares qumulo_capacity.license: none runs without a license, within
+# the capacity its formation gave it (G-EDGE-FLOOR): nothing is handed off,
+# and its clamp is written with no license, so that it limits a license that
+# arrives later.
+- name: Refuse license none beside a license document, before anything applies the document
+  ansible.builtin.assert:
+    that: >-
+      (qumulo_capacity | default({})).license | default('pending') != 'none'
+      or (((qumulo_capacity | default({})).license_document | default(none)) or none) is none
+    fail_msg: >-
+      {{ inventory_hostname }}: declares qumulo_capacity.license: none and a license document.
+      Set qumulo_capacity.license to pending or required, keeping its other keys, such as clamp and free_threshold, to
+      apply the document, or remove the document if it is another cluster's.
+    quiet: true
+
+# On an edge with a declared clamp, both license calls also tell whether a
+# held license's cap waits for the quorum formation that the clamp's write
+# would have caused, had the clamp changed.
+- name: Read the license for the cluster's UUID
+  qumulo.cluster.license:
+    check_waiting_cap: "{{ (qumulo_capacity | default({})).clamp is defined and inventory_hostname in groups['qumulo_edges'] | default([]) }}"
+  register: cluster_baseline_license_read
+
+# A document for another UUID is the old edge's after a rebuild: it is not
+# applied, and the hand-off says so instead of failing the first pass.
+- name: Keep the UUID the inventory's license document is for
+  ansible.builtin.set_fact:
+    cluster_baseline_license_document_for: >-
+      {{ none if cluster_baseline_document is none
+         else ((cluster_baseline_document if cluster_baseline_document is mapping else cluster_baseline_document | from_json)
+               .cluster_uuid | default('') | string) }}
+  vars:
+    cluster_baseline_document: "{{ ((qumulo_capacity | default({})).license_document | default(none)) or none }}"
+  no_log: true
+
+# A document without a UUID goes to the module, which says what it lacks.
+- name: Apply the inventory's license document for the cluster's UUID
+  qumulo.cluster.license:
+    document: "{{ qumulo_capacity.license_document }}"
+    check_waiting_cap: "{{ (qumulo_capacity | default({})).clamp is defined and inventory_hostname in groups['qumulo_edges'] | default([]) }}"
+  register: cluster_baseline_license_applied
+  when:
+    - cluster_baseline_license_document_for is not none
+    - cluster_baseline_license_document_for | lower in ['', cluster_baseline_license_read.cluster_uuid | lower]
+
+- name: Record the license, whether it is pending, and whether the clamp waits for it
+  ansible.builtin.set_fact:
+    cluster_baseline_license: "{{ cluster_baseline_result }}"
+    cluster_baseline_license_pending: "{{ cluster_baseline_pending }}"
+    cluster_baseline_license_missing: "{{ cluster_baseline_pending and cluster_baseline_capacity.license | default('pending') == 'required' }}"
+    cluster_baseline_needs_quorum_bounce: "{{ cluster_baseline_result.needs_quorum_bounce }}"
+    cluster_baseline_clamp_deferred: "{{ cluster_baseline_capacity.clamp is defined and cluster_baseline_pending }}"
+  vars:
+    cluster_baseline_capacity: "{{ qumulo_capacity | default({}) }}"
+    cluster_baseline_result: >-
+      {{ cluster_baseline_license_read if cluster_baseline_license_applied is skipped else cluster_baseline_license_applied }}
+    # An edge that runs without a license expects none, so nothing is pending and its clamp does not wait.
+    cluster_baseline_pending: >-
+      {{ cluster_baseline_result.license_status != 'active' and cluster_baseline_capacity.license | default('pending') != 'none' }}
+
+# While the clamp waits for the license, the plan only reads the stored clamp
+# for the hand-off, so a plan that fails there does not fail the step, and
+# one that would write reports no change, since no write follows.
+- name: Plan the clamp, which reads it in bytes and writes nothing
+  qumulo.cluster.capacity_clamp:
+    capacity_clamp: "{{ qumulo_capacity.clamp }}"
+  check_mode: true
+  register: cluster_baseline_clamp_plan
+  failed_when: cluster_baseline_clamp_plan.failed | default(false) and not cluster_baseline_clamp_deferred | bool
+  changed_when: cluster_baseline_clamp_plan.changed | default(false) and not cluster_baseline_clamp_deferred | bool
+  when: (qumulo_capacity | default({})).clamp is defined
+
+# A stored clamp that the declared one would not raise is never written
+# again, so the license's cap applies at whatever quorum formation comes next.
+- name: Record what the second pass needs for the license
+  ansible.builtin.set_fact:
+    cluster_baseline_clamp_already_set: "{{ cluster_baseline_already_set }}"
+    cluster_baseline_license_hand_off: >-
+      {{ '' if not cluster_baseline_license_pending else
+         ('The cluster holds no license for its UUID, ' ~ cluster_baseline_uuid ~ '. '
+          ~ ('This run registered the cluster with Nexus, so Qumulo can issue the license for its UUID there. '
+             if cluster_baseline_registration.registration.registration_status | default('') == 'REGISTERED'
+             else 'Qumulo issues the license for the UUID in Nexus, which sees the UUID only once the cluster is registered there. ')
+          ~ ('The license document in qumulo_capacity.license_document is for ' ~ cluster_baseline_license_document_for
+             ~ ', not this cluster. ' if cluster_baseline_stale | bool else '')
+          ~ ('Replace it with the license document issued for ' ~ cluster_baseline_uuid if cluster_baseline_stale | bool
+             else 'Put the license document issued for ' ~ cluster_baseline_uuid ~ ' in qumulo_capacity.license_document for '
+                  ~ inventory_hostname)
+          ~ ', encrypted with ansible-vault, then run ansible-playbook '
+          ~ ('qumulo.cluster.edge_license_complete' if inventory_hostname in groups['qumulo_edges'] | default([])
+             else 'qumulo.cluster.baseline')
+          ~ ' -i <inventory> -l ' ~ inventory_hostname ~ ', which applies it'
+          ~ (", then sets the capacity clamp, whose write applies the license's cap"
+             if (qumulo_capacity | default({})).clamp is defined and not cluster_baseline_already_set | bool else '')
+          ~ '. Once the cluster holds the license, that run needs no document (G-LICENSE).'
+          ~ (" Its clamp is already set, so the license's cap applies at the next quorum formation after the license arrives."
+             if cluster_baseline_already_set | bool else '')) }}
+  vars:
+    cluster_baseline_uuid: "{{ cluster_baseline_license.cluster_uuid }}"
+    cluster_baseline_stale: "{{ cluster_baseline_license_document_for not in [none, ''] and cluster_baseline_license_applied is skipped }}"
+    # The plan ran while the clamp waits, read a stored clamp, and would not raise it; a plan that failed reads as not.
+    # The waiting plan reports no change, so this reads its stored clamp: passing no allow_decrease, a plan that
+    # succeeds leaves the clamp exactly when the stored clamp is at or above the request.
+    cluster_baseline_already_set: >-
+      {{ cluster_baseline_clamp_deferred | bool and cluster_baseline_clamp_plan is not skipped
+         and cluster_baseline_clamp_plan.msg is not defined and cluster_baseline_clamp_plan.capacity_clamp is not none
+         and cluster_baseline_clamp_plan.capacity_clamp | int >= cluster_baseline_clamp_plan.requested | int }}
+
+- name: Hand the license off
+  when: cluster_baseline_license_pending | bool
+  vars:
+    cluster_baseline_license_message: >-
+      {{ inventory_hostname ~ ': '
+         ~ ('qumulo_capacity.license is required, and the cluster has none. ' if cluster_baseline_license_missing else '')
+         ~ cluster_baseline_license_hand_off
+         ~ (' Until then the capacity clamp is not set.'
+            if cluster_baseline_clamp_deferred and not cluster_baseline_clamp_already_set | bool else '') }}
+  block:
+    - name: Say what the second pass needs
+      ansible.builtin.debug:
+        msg: "{{ cluster_baseline_license_message }}"
+      when: not cluster_baseline_license_hand_off_fails | default(false) | bool
+
+    - name: Stop, saying what the second pass needs
+      ansible.builtin.fail:
+        msg: "{{ cluster_baseline_license_message }}"
+      when: cluster_baseline_license_hand_off_fails | default(false) | bool
+
+- name: Say that the edge runs without a license
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }}: runs without a license."
+  when:
+    - (qumulo_capacity | default({})).license | default('pending') == 'none'
+    - cluster_baseline_license.license_status != 'active'
+
+- name: Write the clamp, unless it waits for the license
+  when:
+    - cluster_baseline_clamp_plan is not skipped
+    - not cluster_baseline_clamp_deferred | bool
+  block:
+    # A clamp above the cap would still re-form quorum, for nothing.
+    - name: Stop when the license's cap is below a clamp that would change, before its write re-forms quorum
+      ansible.builtin.assert:
+        that: >-
+          cluster_baseline_license.license.usable_capacity_cap | default(none) is none
+          or cluster_baseline_license.license.usable_capacity_cap | int >= cluster_baseline_clamp_plan.requested | int
+        fail_msg: >-
+          {{ inventory_hostname }}: the license caps usable capacity at
+          {{ cluster_baseline_license.license.usable_capacity_cap }} bytes, below the clamp of
+          {{ cluster_baseline_clamp_plan.requested }}, so the clamp was not written. Put the document of a license whose cap
+          allows the clamp for {{ cluster_baseline_license.cluster_uuid }} in qumulo_capacity.license_document, or lower
+          qumulo_capacity.clamp, then run this again (G-LICENSE).
+        quiet: true
+      when: cluster_baseline_clamp_plan is not skipped and cluster_baseline_clamp_plan is changed
+
+    - name: Warn before the clamp's write re-forms quorum
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname ~ ": setting the clamp re-forms quorum, which pauses the cluster, and an edge's portal on its "
+             ~ 'hub, for less than 30 seconds'
+             ~ (", and applies the license's capacity cap" if cluster_baseline_license.license_status == 'active' else '') }}
+      when: cluster_baseline_clamp_plan is not skipped and cluster_baseline_clamp_plan is changed
+
+    - name: Set the capacity clamp
+      qumulo.cluster.capacity_clamp:
+        capacity_clamp: "{{ qumulo_capacity.clamp }}"
+      register: cluster_baseline_clamp
+
+# The clamp's write re-forms quorum, which applies a raised cap.
+- name: Record that the clamp's write applied the license's cap
+  ansible.builtin.set_fact:
+    cluster_baseline_needs_quorum_bounce: false
+  when: cluster_baseline_clamp is changed and not cluster_baseline_check_mode | bool
+
+- name: Say when a raised cap still waits for a quorum formation
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }}: the license allows more capacity than the file system has, and the clamp did not
+      change, so the cap applies at the next quorum formation
+  when: cluster_baseline_needs_quorum_bounce | bool
+
+# The license module tells, as cap_waits_for_formation, a held cap that an
+# edge formed without a license still waits for. Its warning never prints
+# beside the one above, and on an edge that declares license: none, which
+# holds a license after all, it takes that edge's form.
+- name: Say when a held cap waits for a quorum formation that no clamp write causes, or that license none is stale
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname ~ ': '
+         ~ (('declares qumulo_capacity.license: none but holds an active license'
+             ~ ('. Its ' ~ cluster_baseline_waiting ~ ' Set qumulo_capacity.license to pending or required.'
+                if cluster_baseline_cap_waits | bool
+                else ", and declares no clamp, so nothing limits the license's cap, which applies at a quorum formation, and "
+                     ~ 'the capacity provisioned under it never shrinks. Declare qumulo_capacity.clamp, and set '
+                     ~ 'qumulo_capacity.license to pending or required.'
+                if cluster_baseline_clamp_plan is skipped
+                else '. Its clamp limits the licensed capacity. Set qumulo_capacity.license to pending or required.'
+                if cluster_baseline_license.file_system_size_bytes | default(-1) | int >= cluster_baseline_clamp_plan.requested | int
+                else '. Set qumulo_capacity.license to pending or required.'))
+            if cluster_baseline_none | bool else 'its ' ~ cluster_baseline_waiting) }}
+  when: >-
+    (cluster_baseline_none | bool and cluster_baseline_license.license_status == 'active')
+    or (not cluster_baseline_none | bool and cluster_baseline_cap_waits | bool)
+  vars:
+    cluster_baseline_none: "{{ (qumulo_capacity | default({})).license | default('pending') == 'none' }}"
+    # Only a clamp the plan would leave as it is: a write would re-form quorum.
+    cluster_baseline_cap_waits: >-
+      {{ cluster_baseline_license.cap_waits_for_formation | default(false) and cluster_baseline_clamp_plan is not skipped
+         and cluster_baseline_clamp_plan is not changed and not cluster_baseline_needs_quorum_bounce | bool }}
+    cluster_baseline_waiting: >-
+      clamp is already set, so no clamp write re-forms quorum, and the license's cap applies at the next quorum
+      formation, unless the platform's disks already limit the file system.

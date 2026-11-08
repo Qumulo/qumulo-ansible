@@ -1,0 +1,113 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One answer of the step module, from fresh reads of both clusters' status lists and of the restore record: the
+# module first, then only what it answers. An answer of read names the inputs step 1 or step 21's check needs, which
+# are gathered and passed on a second call; step 9's summary needs the declared directories under the source path,
+# read the same way. Each step's actions run in the module's order, and the next call reads again.
+- name: Forget the last call's reads
+  ansible.builtin.set_fact:
+    replication_pair_restore_inputs: {}
+    replication_pair_restore_halt: {}
+    replication_pair_restore_target_host: "{{ replication_pair_restore_declared.target }}"
+
+- name: Read the edge's source and target relationships
+  qumulo.cluster.replication_info:
+    gather_subset: [source, target]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[inventory_hostname] }}"
+  register: replication_pair_restore_edge_read
+
+# A target that does not answer is the module's to decide, by the restore-to-do rule.
+- name: Read the target's source and target relationships
+  qumulo.cluster.replication_info:
+    gather_subset: [source, target]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[replication_pair_restore_target_host] | default({}) }}"
+  register: replication_pair_restore_target_read
+  failed_when: false
+
+- name: Ask the step module
+  ansible.builtin.include_tasks: restore_choose.yml
+
+# Decided before the block, since a block's when is evaluated again before each of its tasks: the reads fill
+# replication_pair_restore_inputs, which would skip the second ask.
+- name: Decide whether the answer needs reads before the module is asked again
+  ansible.builtin.set_fact:
+    replication_pair_restore_gathers: >-
+      {{ replication_pair_restore_answer.decision == 'read'
+         or (replication_pair_restore_answer.step == 9 and replication_pair_restore_subdirectory_paths | length > 0
+             and replication_pair_restore_inputs.subdirectories is not defined) }}
+
+# A survey needs only past_delete, which an answer of read gives as false: read comes only before step 1 and from step
+# 21's check.
+- name: Gather what the module asks for, and ask again
+  when:
+    - not replication_pair_restore_surveying | bool
+    - replication_pair_restore_gathers | bool
+  block:
+    - name: Gather what the module asks for
+      ansible.builtin.include_tasks: restore_reads.yml
+
+    - name: Ask the step module again
+      ansible.builtin.include_tasks: restore_choose.yml
+
+- name: Keep whether the relationship is done or past X's delete, for its siblings, and the module's warnings
+  ansible.builtin.set_fact:
+    replication_pair_restore_past_delete: >-
+      {{ replication_pair_restore_past_delete | combine({replication_pair_restore_name: replication_pair_restore_answer.past_delete | default(false)}) }}
+    replication_pair_restore_warnings: >-
+      {{ (replication_pair_restore_warnings + replication_pair_restore_answer.warnings | default([])) | unique }}
+
+- name: Run the module's answer
+  when: not replication_pair_restore_surveying | bool
+  block:
+    - name: Fail on an answer the role cannot run
+      ansible.builtin.fail:
+        msg: "the restore's step module still asks for {{ replication_pair_restore_answer.reads | join(', ') }}"
+      when: replication_pair_restore_answer.decision == 'read'
+
+    # Check mode changes nothing between steps, so the module's first answer predicts the rest.
+    - name: Run the step's actions, in the module's order
+      ansible.builtin.include_tasks: restore_action.yml
+      loop: "{{ replication_pair_restore_answer.actions }}"
+      loop_control:
+        loop_var: replication_pair_restore_action
+        label: "{{ replication_pair_restore_action.action }}"
+      when:
+        - not ansible_check_mode
+        - replication_pair_restore_answer.step != 4
+
+    - name: Keep what the answer leaves the relationship at
+      ansible.builtin.set_fact:
+        replication_pair_restore_state: >-
+          {{ replication_pair_restore_state | combine({replication_pair_restore_name: replication_pair_restore_next}, recursive=true) }}
+      vars:
+        replication_pair_restore_answer_outcome:
+          name: "{{ replication_pair_restore_name }}"
+          outcome: >-
+            {{ replication_pair_restore_halt.outcome | default(replication_pair_restore_answer.outcome
+               if replication_pair_restore_answer.decision != 'step' else 'predicted') }}
+          fails: "{{ replication_pair_restore_halt.fails | default(replication_pair_restore_answer.fails) }}"
+          message: "{{ replication_pair_restore_halt.message | default(replication_pair_restore_answer.message) }}"
+          summary: "{{ '' if replication_pair_restore_halt else replication_pair_restore_answer.summary }}"
+          note: "{{ '' if replication_pair_restore_halt else replication_pair_restore_answer.note }}"
+          sequence: "{{ replication_pair_restore_answer.sequence }}"
+        # An answer's step leaves the relationship active for the next call, step 4 waiting, and step 9 restored; an
+        # outcome, a halt or check mode's prediction decides it.
+        replication_pair_restore_next: >-
+          {%- set answer = replication_pair_restore_answer -%}
+          {%- set state = replication_pair_restore_state[replication_pair_restore_name] -%}
+          {%- if replication_pair_restore_halt -%}
+            {{ {'status': 'decided', 'outcome': replication_pair_restore_answer_outcome} }}
+          {%- elif answer.decision != 'step' or ansible_check_mode -%}
+            {{ {'status': 'decided', 'outcome': replication_pair_restore_answer_outcome} }}
+          {%- elif answer.step == 4 -%}
+            {{ {'status': 'waiting', 'relationship_id': answer.relationship_id,
+                'wait_started': now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ') if state.ran_step_3 else state.wait_started} }}
+          {%- elif answer.step == 9 -%}
+            {{ {'status': 'decided', 'relationship_id': answer.relationship_id, 'outcome': replication_pair_restore_answer_outcome
+                | combine({'outcome': 'restored', 'fails': false, 'message': '', 'snapshots_left': answer.snapshots_left | default([])})} }}
+          {%- else -%}
+            {{ {'status': 'active', 'relationship_id': answer.relationship_id, 'ran_step_3': state.ran_step_3 or answer.step == 3} }}
+          {%- endif -%}

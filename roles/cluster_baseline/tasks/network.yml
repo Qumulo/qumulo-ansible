@@ -1,0 +1,24 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 3: the document step 2's plan built, with the management network and planned tenants the plan gives its write,
+# so network_config reads no status. tenants.yml includes this file when the plan's document is not empty.
+- name: Apply the network document, keeping the parts Terraform owns
+  qumulo.cluster.network_config:
+    frontend_networks: "{{ cluster_baseline_tenancy.network.frontend_networks | default(omit) }}"
+    managed_interfaces: "{{ cluster_baseline_tenancy.network.managed_interfaces | default(omit) }}"
+    owned_parts: "{{ cluster_baseline_owned_parts }}"
+    managed_by: "{{ qumulo_managed_by | default('none') }}"
+    take_over_from_terraform: "{{ cluster_baseline_take_over_floating }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+    api_host_after: "{{ qumulo_api_host_after | default(omit) }}"
+    management_network: "{{ cluster_baseline_tenancy.network.management_network | default(omit) }}"
+    cluster_port: "{{ qumulo_cluster_port | default(omit) }}"
+    planned_tenants: "{{ cluster_baseline_tenancy.network.planned_tenants | default(omit) }}"
+  register: cluster_baseline_network
+
+# The play's module_defaults read this inventory variable, so the switch must set it under its own name.
+- name: Connect to the cluster's new address from here on
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    qumulo_api_host: "{{ cluster_baseline_network.api_host }}"
+  when: cluster_baseline_network.api_host is defined

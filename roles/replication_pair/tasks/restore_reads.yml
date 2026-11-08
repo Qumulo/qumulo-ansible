@@ -1,0 +1,149 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The reads the step module's answer names, gathered into replication_pair_restore_inputs for its next call: step
+# 1's, taken only when X exists and R has no pair, step 21's check pass for a relationship with no X, and, for step
+# 9's summary, whether each declared directory under the source path is still there. A check that refuses is a
+# result the module reads, so none of them fails here.
+- name: Check R's create on the target without writing
+  qumulo.cluster.replication_relationship:
+    source_path: "{{ replication_pair_restore_answer.check_options.relationship.source_path }}"
+    target_cluster_uuid: "{{ replication_pair_restore_answer.check_options.relationship.target_cluster_uuid }}"
+    target_path: "{{ replication_pair_restore_answer.check_options.relationship.target_path }}"
+    target_address: "{{ replication_pair_restore_answer.check_options.relationship.target_address | default(omit, true) }}"
+    target_port: "{{ replication_pair_restore_answer.check_options.relationship.target_port }}"
+    replication_enabled: "{{ replication_pair_restore_answer.check_options.relationship.replication_enabled }}"
+    blackout_windows: "{{ replication_pair_restore_answer.check_options.relationship.blackout_windows }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[replication_pair_restore_target_host] }}"
+  check_mode: true
+  changed_when: false
+  failed_when: false
+  register: replication_pair_restore_relationship_check
+  when: "'relationship_check' in replication_pair_restore_answer.reads"
+
+- name: Check R's authorize on the edge without writing
+  qumulo.cluster.replication_target:
+    source_cluster_uuid: "{{ replication_pair_restore_answer.check_options.target.source_cluster_uuid }}"
+    source_path: "{{ replication_pair_restore_answer.check_options.target.source_path }}"
+    target_path: "{{ replication_pair_restore_answer.check_options.target.target_path }}"
+    source_creates: "{{ replication_pair_restore_answer.check_options.target.source_creates }}"
+    allow_directories_only: "{{ replication_pair_restore_answer.check_options.target.allow_directories_only }}"
+    directory_pending: "{{ replication_pair_restore_answer.check_options.target.directory_pending }}"
+    strict_capacity: "{{ replication_pair_restore_answer.check_options.target.strict_capacity }}"
+    wait: false
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[inventory_hostname] }}"
+  check_mode: true
+  changed_when: false
+  failed_when: false
+  register: replication_pair_restore_target_check
+  when: "'target_check' in replication_pair_restore_answer.reads or 'source_directory' in replication_pair_restore_answer.reads"
+
+# A path-only directory check reports a change for a directory that is missing, and reads nothing else; that change
+# is the answer, so it is kept.
+- name: Read which of the source path and its declared ancestors exist on the edge
+  qumulo.cluster.directory:
+    path: "{{ replication_pair_restore_path }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[inventory_hostname] }}"
+  check_mode: true
+  loop: >-
+    {{ (replication_pair_restore_answer.source_directories if 'source_directory' in replication_pair_restore_answer.reads else [])
+       + (replication_pair_restore_subdirectory_paths if replication_pair_restore_answer.step == 9 else []) }}
+  loop_control:
+    loop_var: replication_pair_restore_path
+  register: replication_pair_restore_directories
+
+- name: Read the edge's license
+  qumulo.cluster.license:
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[inventory_hostname] }}"
+  check_mode: true
+  changed_when: false
+  register: replication_pair_restore_license
+  when: "'license' in replication_pair_restore_answer.reads"
+
+- name: Plan the edge's declared clamp, which reads it and writes nothing
+  qumulo.cluster.capacity_clamp:
+    capacity_clamp: "{{ qumulo_capacity.clamp }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[inventory_hostname] }}"
+  check_mode: true
+  failed_when: false
+  register: replication_pair_restore_clamp
+  when: "'clamp_plan' in replication_pair_restore_answer.reads"
+
+- name: Read each cluster's spoke portals
+  qumulo.cluster.portal_info:
+    gather_subset: [spokes]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_pair_connections[replication_pair_restore_cluster] }}"
+  loop: >-
+    {{ ([replication_pair_restore_target_host] if 'target_spokes' in replication_pair_restore_answer.reads else [])
+       + ([inventory_hostname] if 'edge_spokes' in replication_pair_restore_answer.reads else []) }}
+  loop_control:
+    loop_var: replication_pair_restore_cluster
+  register: replication_pair_restore_spokes
+
+- name: Read whether the record directory can be created and written
+  ansible.builtin.stat:
+    path: "{{ replication_pair_restore_candidate }}"
+  delegate_to: localhost
+  loop: >-
+    {{ [replication_pair_artifact_dir ~ '/' ~ inventory_hostname ~ '/restore', replication_pair_artifact_dir ~ '/' ~ inventory_hostname,
+        replication_pair_artifact_dir, replication_pair_artifact_dir | dirname]
+       if 'record_directory_writable' in replication_pair_restore_answer.reads and replication_pair_artifact_dir | length > 0 else [] }}
+  loop_control:
+    loop_var: replication_pair_restore_candidate
+  register: replication_pair_restore_record_dirs
+
+- name: Run step 21's check pass for the relationship
+  ansible.builtin.include_tasks: restore_step21.yml
+  when: "'step21' in replication_pair_restore_answer.reads"
+
+- name: Keep what was read for the module's next call
+  ansible.builtin.set_fact:
+    replication_pair_restore_inputs: >-
+      {%- set reads = replication_pair_restore_answer.reads -%}
+      {%- set found = namespace(inputs=replication_pair_restore_inputs) -%}
+      {%- set checked = replication_pair_restore_directories.results | default([]) -%}
+      {%- if 'relationship_check' in reads -%}
+        {%- set found.inputs = found.inputs | combine({'relationship_check': replication_pair_restore_relationship_check}) -%}
+      {%- endif -%}
+      {%- if 'target_check' in reads -%}
+        {%- set found.inputs = found.inputs | combine({'target_check': replication_pair_restore_target_check}) -%}
+      {%- endif -%}
+      {%- if 'source_directory' in reads -%}
+        {%- set first = replication_pair_restore_target_check.unmet | default([]) | selectattr('row', 'equalto', 'O1')
+              | map(attribute='facts') | map(attribute='first_object', default=none) | select | first | default(none) -%}
+        {%- set missing = checked | selectattr('replication_pair_restore_path', 'in', replication_pair_restore_answer.source_directories)
+              | selectattr('changed') | map(attribute='replication_pair_restore_path') | list -%}
+        {%- set found.inputs = found.inputs | combine({'source_directory': {'missing': missing, 'first_object': first}}) -%}
+      {%- endif -%}
+      {%- if replication_pair_restore_answer.step == 9 -%}
+        {%- set subdirectories = namespace(found=[]) -%}
+        {%- for result in checked if result.replication_pair_restore_path in replication_pair_restore_subdirectory_paths -%}
+          {%- set subdirectories.found = subdirectories.found + [{'path': result.replication_pair_restore_path, 'exists': not result.changed}] -%}
+        {%- endfor -%}
+        {%- set found.inputs = found.inputs | combine({'subdirectories': subdirectories.found}) -%}
+      {%- endif -%}
+      {%- if 'license' in reads -%}
+        {%- set found.inputs = found.inputs | combine({'license': replication_pair_restore_license}) -%}
+      {%- endif -%}
+      {%- if 'clamp_plan' in reads -%}
+        {%- set found.inputs = found.inputs | combine({'clamp_plan': replication_pair_restore_clamp}) -%}
+      {%- endif -%}
+      {%- for result in replication_pair_restore_spokes.results | default([]) -%}
+        {%- set side = 'target_spokes' if result.replication_pair_restore_cluster == replication_pair_restore_target_host else 'edge_spokes' -%}
+        {%- set found.inputs = found.inputs | combine({side: result.portals.spokes | default([])}) -%}
+      {%- endfor -%}
+      {%- if 'record_directory_writable' in reads -%}
+        {%- set nearest = replication_pair_restore_record_dirs.results | default([]) | selectattr('stat.exists') | first | default({}) -%}
+        {%- set found.inputs = found.inputs | combine({'record_directory_writable':
+              nearest.stat.isdir | default(false) and nearest.stat.writeable | default(false)}) -%}
+      {%- endif -%}
+      {%- if 'step21' in reads -%}
+        {%- set found.inputs = found.inputs | combine({'step21': replication_pair_restore_step21}) -%}
+      {%- endif -%}
+      {{ found.inputs }}

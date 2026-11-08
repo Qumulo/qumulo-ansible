@@ -1,0 +1,649 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The quirk register: server behaviours the collection works around. Each entry:
+#   id:               QUIRK- and three digits; code, tests and targets cite it
+#   behaviour:        what a client of the REST API sees
+#   workaround:       what the collection does about it
+#   workaround_owner: the module, module_utils file, or module_utils symbol that owns the
+#                     workaround (client.QumuloClient.paginate), or a list of them
+#   status:           implemented, or planned while no owner exists yet; the unit contract
+#                     test fails when a planned quirk's owners all exist
+#   unit_pin:         the unit test that pins the workaround, as tests/unit/<file>.py::test_<name>;
+#                     or "n/a: <reason>", only on a quirk whose workaround is documentation,
+#                     which also sets docs_only: true
+#   integration_pin:  the target under tests/integration/targets/ that fails when the quirk stops
+#                     reproducing; "pending: <target> with <module>" while that target waits for
+#                     a module that has not landed (the pin fails once the module exists); or
+#                     "none: <reason>" when no tier 1 target can pin it
+#                     The unit contract test checks both pins' form always, and once a quirk is
+#                     implemented, that the unit test and the target exist and cite its id.
+#   first_seen:       the first Qumulo Core release the quirk was observed on
+#   fixed_in:         optional; the first Qumulo Core release that no longer has the quirk. The
+#                     workaround stays while the collection supports an earlier release.
+# Run `python tools/render_registers.py` after editing; docs/reference/quirks.md is generated.
+---
+- id: QUIRK-001
+  behaviour: >-
+    When `hide_shares_from_unauthorized_users` and `hide_shares_from_unauthorized_hosts` differ, the ETag from
+    `GET /v1/smb/settings` never matches what PATCH checks, so a PATCH with that If-Match returns 412.
+  workaround: The SMB settings route never sends If-Match (`etag=omit`); last writer wins
+  workaround_owner: smb_settings
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_smb_settings.py::test_smb_settings_never_sends_if_match
+  integration_pin: quirk_smb_settings_etag
+  first_seen: "7.10.3"
+- id: QUIRK-002
+  behaviour: An identical `PUT /v3/network` re-runs static and floating IP allocation.
+  workaround: No PUT without a difference
+  workaround_owner: network_config
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_network_config.py::test_identical_network_sends_no_put
+  integration_pin: network_config
+  first_seen: "7.10.3"
+- id: QUIRK-003
+  behaviour: >-
+    PUT and PATCH of `/v1/support/settings` return `monitor_uri` `/v1/support/status`, but the route is
+    `/v1/support/status/`.
+  workaround: Polls the known route instead of the returned URI
+  workaround_owner: monitoring_settings
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_monitoring_settings.py::test_polls_the_support_status_route_not_the_monitor_uri
+  integration_pin: quirk_support_monitor_uri
+  first_seen: "7.10.3"
+- id: QUIRK-004
+  behaviour: Quota lists end with `paging.next == ""`, possibly after an empty page.
+  workaround: Pagination stops on a falsy `next`, an empty page or a repeated URI
+  workaround_owner: client.QumuloClient.iterate
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_client.py::test_paginate_stops_on_empty_string_next_and_empty_page
+  integration_pin: quirk_quota_pagination
+  first_seen: "7.10.3"
+- id: QUIRK-005
+  behaviour: >-
+    A same-value portal PATCH bumps the revision and re-checks connectivity. A same-value PATCH returns a new revision
+    ETag; an empty PATCH does not.
+  workaround: Diff before any PATCH
+  workaround_owner: [portal_hub, portal_spoke]
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_portal.py::test_same_type_sends_no_patch
+  integration_pin: quirk_portal_same_value_patch
+  first_seen: "7.10.3"
+- id: QUIRK-006
+  behaviour: Sending `creation_schedule` resets the schedule anchor.
+  workaround: Sends `creation_schedule` only when it differs
+  workaround_owner: snapshot_policy
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_snapshot_policy.py::test_unchanged_schedule_not_sent
+  integration_pin: "none: the schedule anchor a creation_schedule resets is not readable through the API"
+  first_seen: "7.10.3"
+- id: QUIRK-007
+  behaviour: "`allow_fs_path_create` is stored on the share and reapplied on a later `fs_path` PATCH."
+  workaround: Always sends `create_fs_path`
+  workaround_owner: smb_share
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_smb_share.py::test_fs_path_change_always_sends_create_fs_path
+  integration_pin: quirk_smb_fs_path_create
+  first_seen: "7.10.3"
+- id: QUIRK-008
+  behaviour: Snapshot and snapshot policy DELETE advertise If-Match but ignore it.
+  workaround: >-
+    The snapshot policy route declares `etag=omit`; the snapshot module takes snapshots and deletes none, so no
+    snapshot DELETE is sent
+  workaround_owner: snapshot_policy
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_snapshot_policy.py::test_policy_delete_never_sends_if_match
+  integration_pin: quirk_snapshot_delete_etag
+  first_seen: "7.10.3"
+- id: QUIRK-009
+  behaviour: "`free_threshold` is 0.05 on a new cluster, but the API documentation says 0.15."
+  workaround: Documents 0.05; the module requires `free_threshold`, so it never applies the documented default
+  workaround_owner: portal_eviction_settings
+  status: implemented
+  unit_pin: "n/a: documentation only"
+  docs_only: true
+  integration_pin: portal_eviction_settings
+  first_seen: "7.10.3"
+- id: QUIRK-010
+  behaviour: >-
+    PUT `/v1/support/settings` with a null `nexus_registration_key` clears a pending join key, and the PUT bypasses the
+    rule that `enabled=false` forces `nexus_enabled=false`.
+  workaround: Never PUTs the support settings
+  workaround_owner: monitoring_settings
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_monitoring_settings.py::test_monitoring_settings_never_puts
+  integration_pin: "none: the PUT that shows it would clear a pending join key"
+  first_seen: "7.10.3"
+- id: QUIRK-011
+  behaviour: "`GET /v1/nexus/registration` never returns ERROR_REGISTERING."
+  workaround: Registration POSTs rotate, which gives a synchronous result
+  workaround_owner: nexus_registration
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nexus_registration.py::test_registration_posts_rotate_for_a_synchronous_result
+  integration_pin: "none: no Nexus in tier 1"
+  first_seen: "7.10.3"
+- id: QUIRK-012
+  behaviour: The clamp rounds up to whole provisioning units, while the API documentation says "without exceeding it".
+  workaround: >-
+    A stored clamp from the request D up to D + `rounding_tolerance` (default the larger of 1% of D and 8 GiB, the unit
+    seen on a 7.10.3A docker edge, where 53.33 GiB was stored as 56 GiB) is unchanged; a larger one is a decrease, which
+    needs `allow_decrease`
+  workaround_owner: capacity_clamp
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_capacity_clamp.py::test_stored_at_or_above_request_is_unchanged
+  integration_pin: quirk_clamp_rounding
+  first_seen: "7.10.3"
+- id: QUIRK-013
+  behaviour: An `NFS_UID` or `NFS_GID` id_value with a leading zero is read as octal, so `0065` is stored as 53.
+  workaround: nfs_export writes uids and gids as decimal integers
+  workaround_owner: nfs_export
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nfs_export.py::test_uid_and_gid_with_leading_zeros_are_written_in_decimal
+  integration_pin: quirk_nfs_uid_octal
+  first_seen: "7.10.3"
+- id: QUIRK-014
+  behaviour: >-
+    `/v1/dns/configs/system` stores server addresses verbatim, so `2001:DB8::0001` reads back as sent, and its ETag
+    changes on every PATCH, even one that changes nothing.
+  workaround: Compares stored addresses in canonical form, sends canonical text, and sends no PATCH without a difference
+  workaround_owner: dns_settings
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_dns_settings.py::test_server_text_the_cluster_kept_verbatim_matches_its_canonical_form
+  integration_pin: "none: the target sends canonical form"
+  first_seen: "7.10.3A"
+- id: QUIRK-015
+  behaviour: >-
+    `PATCH /v1/nexus/connection` accepts `nexus_enabled=true` while cloud monitoring is off, although
+    `PATCH /v1/support/settings` refuses the same change.
+  workaround: Refuses to turn the connection on while cloud monitoring is off, before any write
+  workaround_owner: nexus_connection
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nexus_connection.py::test_enabling_while_monitoring_is_off_fails_before_any_write
+  integration_pin: "none: the nexus_connection target shows the refusal, not the server accepting the PATCH"
+  first_seen: "7.10.3"
+- id: QUIRK-016
+  behaviour: >-
+    `DELETE /v1/nexus/registration` clears only the secret. A stored join key keeps the status
+    `PENDING_REGISTRATION`; only a PATCH of `/v1/support/settings` with `nexus_registration_key` set to `""` clears it.
+  workaround: Removing a pending registration PATCHes the stored key empty instead of sending DELETE
+  workaround_owner: nexus_registration
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nexus_registration.py::test_absent_on_a_pending_cluster_clears_the_stored_key_with_patch
+  integration_pin: nexus_registration
+  first_seen: "7.10.3"
+- id: QUIRK-017
+  behaviour: >-
+    `POST /v1/identity/find` caches a 404 for about 60 seconds, so a name created after a check-mode lookup stays
+    unresolvable for a while.
+  workaround: On a LOCAL 404, list `/v1/users/` and `/v1/groups/` and find the identity by its SID
+  workaround_owner: identity.IdentityResolver.find_listed_local
+  status: planned
+  unit_pin: tests/unit/plugins/module_utils/test_identity.py::test_local_name_a_cached_404_hides_resolves_by_listing
+  integration_pin: quirk_identity_find_cached_404
+  first_seen: "7.10.3A"
+- id: QUIRK-018
+  behaviour: >-
+    A cluster that stores a join key while its Nexus connection is on registers with it by itself within about two
+    seconds, and `POST /v1/nexus/registration/rotate` sent in that window answers 412 `db_revision_mismatch_error`
+    without doing anything. A UUID retired in Nexus registers again this way, and Nexus keeps it `DECOMMISSIONED`.
+  workaround: >-
+    After a 412 from rotate, reads the registration status: `REGISTERED` is success, and while it is
+    `PENDING_REGISTRATION` rotate is sent again, up to three times, two seconds apart
+  workaround_owner: nexus_registration
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nexus_registration.py::test_a_rotate_that_races_the_clusters_own_registration_reads_the_status
+  integration_pin: "none: the race depends on timing; the Nexus part of nexus_registration usually meets it"
+  first_seen: "7.10.3"
+- id: QUIRK-019
+  behaviour: >-
+    A PATCH of `/v2/replication/source-relationships/{id}` with `blackout_window_timezone` set to `""` answers 200 and
+    leaves the stored timezone in place, so a timezone cannot be cleared once set.
+  workaround: >-
+    `replication_relationship` refuses an empty timezone where one is set, and blackout windows without a timezone,
+    before any write (G-REPL-TZ)
+  workaround_owner: replication_source.ReplicationRelationship
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_replication_relationship.py::test_an_empty_timezone_where_one_is_set_fails_before_any_write
+  integration_pin: quirk_replication_timezone
+  first_seen: "7.10.3A"
+- id: QUIRK-020
+  behaviour: >-
+    The source reports `target_root_path` as it was sent until it first polls the target, and then resolved, with a
+    trailing slash; `source_root_path` always ends with one.
+  workaround: >-
+    `describe_source` and `describe_target` report both paths without the trailing slash, so a relationship's key and
+    the modules' comparisons hold whichever form the server sent
+  workaround_owner: [replication.describe_source, replication.describe_target]
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_replication.py::test_a_target_path_with_or_without_its_slash_is_one_key
+  integration_pin: replication_info
+  first_seen: "7.10.3A"
+- id: QUIRK-021
+  behaviour: >-
+    `POST /v2/replication/target-relationships/{id}/authorize` into a directory that holds data and that another live
+    relationship holds at the same path answers 400 `relationship_manager_target_path_not_empty_error` without
+    `allow-non-empty-directory`, and 409 `relationship_manager_target_contains_another_relationship_error` only with it,
+    so the first answer names the directory's content and not the holder.
+  workaround: >-
+    `replication_target` lists this cluster's records and reports a holder (row O2) before the directory's entries
+    (row O1), and sends no authorize while either is unmet
+  workaround_owner: replication_target.ReplicationTarget
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_replication_target.py::test_a_holder_is_reported_before_the_directory_s_entries
+  integration_pin: replication_target
+  first_seen: "7.10.3A"
+- id: QUIRK-022
+  behaviour: >-
+    When the gateway in front of Nexus fails the cluster's registration call with an HTML error page, such as 502 Bad
+    Gateway, `POST /v1/nexus/registration/rotate` answers 400 `decode_error`, quoting the page after `body was:`.
+  workaround: >-
+    An HTML page whose title is a 5xx status is transient: rotate reads the registration status, succeeds on
+    `REGISTERED`, and while it is `PENDING_REGISTRATION` is sent again, backing off from two seconds to fifteen, until
+    `retry_timeout` runs out
+  workaround_owner: nexus_registration
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nexus_registration.py::test_a_rotate_answered_with_a_nexus_gateway_page_is_sent_again_while_pending
+  integration_pin: "none: it takes a failing gateway in front of Nexus"
+  first_seen: "7.10.3A"
+- id: QUIRK-023
+  behaviour: >-
+    The API documentation types `host_restrictions` of `/v1/authoritative-dns/settings` as a string, but the cluster
+    refuses a string with `decode_error` and takes and returns a list of address ranges, which it merges, sorts and
+    rewrites: `10.0.0.0/30` and `10.0.0.5` come back as `10.0.0.0-3` and `10.0.0.5`, and `::ffff:192.0.2.7` as
+    `192.0.2.7`.
+  workaround: "`authoritative_dns` sends a list and compares the ranges as sets of addresses"
+  workaround_owner: authoritative_dns
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_authoritative_dns.py::test_host_restrictions_are_sent_as_a_list
+  integration_pin: authoritative_dns
+  first_seen: "7.10.3A"
+- id: QUIRK-024
+  behaviour: >-
+    Once the authoritative DNS settings were written, the ETag from `GET /v1/authoritative-dns/settings` never matches
+    what `PATCH` checks, so a PATCH that sends it is refused with 412 `db_revision_mismatch_error` although nothing
+    changed in between. On a cluster whose settings were never written, the first such PATCH passes.
+  workaround: The authoritative DNS route never sends If-Match (`etag=omit`); last writer wins
+  workaround_owner: authoritative_dns
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_authoritative_dns.py::test_authoritative_dns_never_sends_if_match
+  integration_pin: quirk_authoritative_dns_etag
+  first_seen: "7.10.3A"
+- id: QUIRK-030
+  behaviour: >-
+    `GET /v1/auth/roles/{name}` and `GET /v1/auth/roles/{name}/members` for a role that does not exist answer 404
+    `http_not_found_error`, the error class of a route that does not exist.
+  workaround: >-
+    role finds a role in `GET /v1/auth/roles/`, by its name in any case, and never reads one by name first;
+    role_member reads that list when the members route answers 404, and says the role does not exist
+  workaround_owner: auth.find_role
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_role.py::test_a_role_is_found_in_the_list_never_by_its_own_get
+  integration_pin: role
+  first_seen: "7.10.3A"
+- id: QUIRK-031
+  behaviour: >-
+    `PUT /v1/auth/user-defined-mappings/` with any mapping, on a cluster not joined to Active Directory, answers 500
+    `ldap_dc_not_found_error` rather than a client error.
+  workaround: >-
+    user_defined_mappings reads the AD status before it writes a list that is not empty, and outside a domain refuses
+    it, naming ad_domain, or in check mode notes the join it expects
+  workaround_owner: user_defined_mappings
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_user_defined_mappings.py::test_outside_a_domain_a_list_is_refused_before_the_put
+  integration_pin: user_defined_mappings
+  first_seen: "7.10.3A"
+- id: QUIRK-032
+  behaviour: >-
+    `PATCH /v1/saml/settings` with `enabled: true` turns SAML sign-in on while the cluster holds no IdP certificate,
+    so no IdP response can be checked.
+  workaround: >-
+    saml_settings refuses to turn sign-in on, before any write, when neither the task nor the cluster has a
+    certificate
+  workaround_owner: saml_settings
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_saml_settings.py::test_turning_sign_in_on_without_any_certificate_fails_before_any_write
+  integration_pin: "none: the lane's edge keeps a certificate once any run sets one, so no target can count on an edge without one"
+  first_seen: "7.10.3A"
+- id: QUIRK-050
+  behaviour: >-
+    `/v1/s3/settings` reads `multipart_upload_expiry_interval` back in the largest unit it fits, rounding down, and a
+    month is four weeks: `14days` reads back as `2weeks`, `30days` as `1months` and `36hours` as `1days`.
+  workaround: >-
+    Compares the interval in the form the cluster reads it back, and refuses before any request a value that would read
+    back as a shorter interval
+  workaround_owner: s3_settings
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_s3_settings.py::test_interval_compares_in_the_form_the_cluster_reads_back
+  integration_pin: s3_settings
+  first_seen: "7.10.3A"
+- id: QUIRK-051
+  behaviour: >-
+    The S3 routes answer a missing directory, bucket or access key with HTTP 404 and error class
+    `http_not_found_error`, the class the API gives a route the release lacks.
+  workaround: >-
+    Checks that a directory the S3 modules name exists, and finds buckets and keys by listing them, before any request
+    that names one, so that a 404 on a read or a create means a missing route; a DELETE's 404 right after a listing is
+    taken as another client's delete
+  workaround_owner: [s3_access_key, s3_bucket, s3_bucket_policy, s3_settings]
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_s3_settings.py::test_missing_base_path_fails_before_the_patch
+  integration_pin: s3_settings
+  first_seen: "7.10.3A"
+- id: QUIRK-052
+  behaviour: >-
+    `PATCH /v1/s3/buckets/{name}` replaces `lock_config` whole: a lock sent without `default_retention` clears the
+    bucket's default retention.
+  workaround: Every write of the lock sends the whole lock, its default retention included
+  workaround_owner: s3_bucket
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_s3_bucket.py::test_lock_config_is_always_sent_whole
+  integration_pin: s3_bucket
+  first_seen: "7.10.3A"
+- id: QUIRK-053
+  behaviour: >-
+    `GET /v1/s3/access-keys/` with `user` refuses a page size: with `limit` it answers 400 "Pagination is not allowed
+    with the user parameter."
+  workaround: Reads one user's keys in a single request without a page size
+  workaround_owner: s3_access_key
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_s3_access_key.py::test_the_user_s_keys_are_read_without_a_limit
+  integration_pin: s3_access_key
+  first_seen: "7.10.3A"
+- id: QUIRK-060
+  behaviour: >-
+    `PUT /v2/cluster/settings/ssl/ciphers` adds `ECDHE-RSA-AES128-SHA256` to the end of a `tls_1_2` list and
+    `TLS_AES_128_GCM_SHA256` to the end of a `tls_1_3` list that leaves it out, so the stored lists differ from the ones
+    sent.
+  workaround: "`ssl_ciphers` adds the same suite to the end of a list that leaves it out before it compares"
+  workaround_owner: ssl_ciphers
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_ssl_ciphers.py::test_a_list_without_the_required_suite_compares_with_it_added_at_the_end
+  integration_pin: ssl_ciphers
+  first_seen: "7.10.3A"
+- id: QUIRK-061
+  behaviour: >-
+    `PUT /v2/cluster/settings/ssl/ciphers` stores an empty list as the one suite it adds (QUIRK-060), and a `tls_1_2`
+    name that names no suite as written; it refuses only unknown `tls_1_3` names and `tls_1_2` names that let in RC4 or
+    anonymous suites.
+  workaround: >-
+    `ssl_ciphers` refuses an empty list before any request; it cannot tell an unknown TLS 1.2 name, and its
+    documentation says so
+  workaround_owner: ssl_ciphers
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_ssl_ciphers.py::test_an_empty_list_fails_before_any_request
+  integration_pin: ssl_ciphers
+  first_seen: "7.10.3A"
+- id: QUIRK-062
+  behaviour: >-
+    `PATCH /v2/audit/destinations/{id}` answers 200 to a body with fields other than `enabled`, such as `server_port`,
+    and changes only `enabled`.
+  workaround: "`audit_destination` never PATCHes: every change PUTs the destination's whole configuration with If-Match"
+  workaround_owner: audit_destination
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_audit_destination.py::test_a_change_puts_the_whole_configuration_with_if_match_never_a_patch
+  integration_pin: audit_destination
+  first_seen: "7.10.3A"
+  fixed_in: "7.11.0"
+- id: QUIRK-090
+  behaviour: >-
+    `GET /v2/upgrade/status` reports REBOOTING as IDLE, and answers IDLE without a full quorum.
+  workaround: The `upgrade` module reads the state only from `GET /v3/upgrade/status`
+  workaround_owner: upgrade.Upgrade._wait_reboot
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_upgrade.py::test_the_state_is_read_from_v3_status_never_v2
+  integration_pin: "none: the container never reboots for an upgrade, so its v2 status cannot read REBOOTING"
+  first_seen: "7.10.3"
+- id: QUIRK-091
+  behaviour: >-
+    After a quorum change during prepare or commit, `GET /v3/upgrade/status` reads IDLE with `settings: null` and no
+    error, as after success.
+  workaround: The `upgrade` module decides a commit's outcome from the running build, never from IDLE
+  workaround_owner: upgrade.Upgrade._await_commit
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_upgrade.py::test_an_idle_status_after_the_restart_is_decided_by_the_build
+  integration_pin: "none: the container cannot prepare or commit; tier 3 pins it once the lab probe records it"
+  first_seen: "7.10.3"
+- id: QUIRK-092
+  behaviour: >-
+    On the docker container, verify and prepare answer 500 `os_error_ENOENT` naming the installer's verify script,
+    whatever the image path, since the image carries no installer.
+  workaround: The `upgrade` module refuses the cluster as one that cannot upgrade in band (F8)
+  workaround_owner: upgrade.Upgrade._server_refusal
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_upgrade.py::test_the_containers_missing_installer_is_f8
+  integration_pin: quirk_upgrade_container
+  first_seen: "7.10.3A"
+- id: QUIRK-093
+  behaviour: >-
+    `POST /v2/upgrade/prepare` answers only after every node's verify has downloaded and checked the image, and the
+    status reads IDLE meanwhile.
+  workaround: >-
+    Verify and prepare are sent with a request timeout of their own, and a lost prepare answer is read back from the
+    status until that timeout, never sent again
+  workaround_owner: [upgrade.Upgrade._request_timeout, upgrade.Upgrade._await_prepared]
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_upgrade.py::test_a_lost_prepare_answer_is_read_back_and_never_sent_again
+  integration_pin: "none: the container has no installer, so its prepare downloads nothing; tier 3 pins it"
+  first_seen: "7.10.3"
+- id: QUIRK-094
+  behaviour: >-
+    `POST /v2/upgrade/verify-image` answers 200 with `error` set for a refused image, while `POST /v2/upgrade/prepare`
+    answers 400 `upgrade_verify_error` "The provided upgrade is invalid: …" for the same image.
+  workaround: The `upgrade` module reads both as the same refusal and passes the server's words on
+  workaround_owner: upgrade.Upgrade._image_refused
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_upgrade.py::test_verify_200_with_an_error_and_prepare_400_are_one_refusal
+  integration_pin: "none: the container has no installer to refuse an image; tier 3 pins it"
+  first_seen: "7.10.3"
+- id: QUIRK-095
+  behaviour: >-
+    A URL a node cannot reach fails verify as "Malformed qimg", a download timeout or a generic error, never naming
+    the URL's reach.
+  workaround: The `upgrade` module adds a line saying every node must reach the URL from its own network
+  workaround_owner: upgrade.Upgrade._reach
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_upgrade.py::test_the_reach_line_is_added_to_a_malformed_qimg
+  integration_pin: "none: the container has no installer to download an image; tier 3 pins it"
+  first_seen: "7.10.3"
+- id: QUIRK-100
+  behaviour: >-
+    `POST /v1/identity/find` answers the SID of a domain the node has not found a name in since it started with 400
+    `api_identity_unsupported_domain_error`, "Unknown SID domain", on a fresh join and for well-known SIDs such as
+    `S-1-5-11` (Authenticated Users) alike; a find of any name in that domain lifts it.
+  workaround: >-
+    `identity_info`'s `find_trustees` and `expand_trustees` report that 400 as the term's error and go on with the
+    other terms, and the docs say to find a name in the domain first; `identity.render` writes Authenticated Users by
+    its name, `ad:NT AUTHORITY\Authenticated Users`, and `parse_trustee` sends the find of `S-1-5-11` as the find of
+    that name, which the node answers joined to a domain or not, so `sid:S-1-5-11` resolves too and no trustee the
+    collection writes is `sid:S-1-5-11`; `file_acl`, `smb_share` and `directory` compare the entries they read back by
+    the `auth_id` the cluster gives with each, so a SID the node refuses in an entry it reads back does not fail them;
+    resolving any other SID again after such a find, for every module, waits on a ruling
+  workaround_owner: [identity.FIND_TERM_CLASSES, identity._sid_query, identity.IdentityResolver.known]
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_identity.py::test_authenticated_users_resolves_by_name_on_a_node_that_refuses_its_sid
+  integration_pin: identity_info
+  first_seen: "7.10.3"
+- id: QUIRK-101
+  behaviour: >-
+    `GET /v1/files/{ref}/info/attributes` answers an id it cannot place, such as `0`, a decimal id of 2^128 or more,
+    or one whose file system bits name no file system, with 404 `http_not_found_error`, the answer of a route that
+    does not exist.
+  workaround: >-
+    `filesystem_info`'s `find_files` takes that 404 as a miss for an id term, since the route is in every release the
+    collection supports; a path term still fails on it
+  workaround_owner: files.ID_MISSES
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_files.py::test_an_id_answered_with_the_missing_routes_404_is_a_miss
+  integration_pin: filesystem_info
+  first_seen: "7.10.3"
+- id: QUIRK-102
+  behaviour: >-
+    With no Active Directory domain controller in reach, `POST /v1/identity/find` answers a name the node has not
+    cached with 404 `ad_domain_controller_not_found_error`, "No DCs found", whose class ends `_not_found_error` like
+    that of a name no source holds.
+  workaround: >-
+    The miss rule takes only `api_identity_name_not_found_error` for a missing trustee, so with no domain controller in
+    reach `role_member` and `identity_attributes` with `state: absent` fail rather than report the trustee gone and
+    leave it in place, a check run fails rather than report it pending, and a lookup fails rather than report a miss
+  workaround_owner: identity.MISS_CLASSES
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_identity.py::test_resolve_existing_fails_when_no_domain_controller_is_in_reach
+  integration_pin: "none: taking the lane's domain controller away needs the host's container runtime, which a target does not have"
+  first_seen: "7.11.0"
+- id: QUIRK-110
+  behaviour: >-
+    `POST /v1/multitenancy/tenants/` without `identity_config_id` answers 400 `decode_error`, "field
+    'identity_config_id' not found": the server has no default, although the SDK's client sends 1 for a caller that
+    leaves it out.
+  workaround: >-
+    `tenant` sends the identity configuration of tenant 1, or once tenant 1 is gone the one every tenant shares, and
+    fails when the tenants differ
+  workaround_owner: tenancy.create_identity_config
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_tenant.py::test_create_sends_every_switch_no_network_and_tenant_1s_identity_configuration
+  integration_pin: tenant
+  first_seen: "7.10.3"
+- id: QUIRK-111
+  behaviour: >-
+    `GET /v1/multitenancy/tenants/` answers every tenant in one unpaged list with no ETag, and no route looks a tenant
+    up by name; `GET /v1/multitenancy/tenants/{id}` has an ETag.
+  workaround: >-
+    Read the list and scan it by name. `tenant` reads the list on each fetch and `tenant_info` on each run;
+    `tenancy.tenant_ids` reads it once per module run, until a write that changes it, for a module that looks a tenant
+    up by name. A change or a delete takes its If-Match from the item GET
+  workaround_owner: tenancy.tenant_ids
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_tenancy.py::test_tenant_ids_maps_names_to_ids_and_back_from_one_read
+  integration_pin: tenant_info
+  first_seen: "7.10.3"
+- id: QUIRK-112
+  behaviour: >-
+    `GET /v1/multitenancy/smb/settings/{tenant_id}` answers a tenant without an SMB override with 404
+    `api_smb_tenant_settings_do_not_exist_error`, and `GET /v1/multitenancy/nfs/settings/{tenant_id}` with 404
+    `api_nfs_tenant_settings_do_not_exist_error`; a tenant that does not exist answers the same 404 with
+    `tenant_does_not_exist_error`.
+  workaround: >-
+    `smb_settings` and `nfs_settings` with `tenant` read only the "does not exist" class as no override, which `state:
+    inherit` already satisfies; any other error fails the module
+  workaround_owner: overrides.TenantOverride.fetch
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_smb_settings.py::test_only_the_missing_override_class_reads_as_no_override
+  integration_pin: smb_settings
+  first_seen: "7.10.3"
+- id: QUIRK-113
+  behaviour: >-
+    `PUT /v1/multitenancy/smb/settings/{tenant_id}` with an If-Match header, for a tenant without an override, answers
+    404 `api_smb_tenant_settings_do_not_exist_error`; the same PUT without If-Match creates the override, as the module's
+    create in the smb_settings target shows. The PUT needs every field, and answers 400 `decode_error` for a body that
+    leaves one out.
+  workaround: >-
+    `smb_settings` and `nfs_settings` with `tenant` create an override by a PUT of every field without If-Match, seeded
+    from the global settings; a change is a PATCH with If-Match
+  workaround_owner: overrides.TenantOverride.create
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_smb_settings.py::test_present_creates_the_override_by_put_without_if_match_from_the_global_settings
+  integration_pin: smb_settings
+  first_seen: "7.10.3"
+- id: QUIRK-114
+  behaviour: >-
+    `DELETE /v1/multitenancy/nfs/settings/{tenant_id}` runs no NFSv4.1 nesting check: with NFSv4.1 on in the global
+    settings, it removes an override that keeps NFSv4.1 off from a tenant one of whose exports is inside another, so
+    the tenant serves NFSv4.1 over the nested exports. A PUT or PATCH of the override that turns NFSv4.1 on answers 409
+    `nfs_export_tree_name_is_prefix_error` for the same exports.
+  workaround: >-
+    `nfs_settings` with `tenant` and `state: inherit` refuses, in check mode too, while the global settings have
+    NFSv4.1 on, the override has it off, and an export of the tenant is inside another, naming the pair
+  workaround_owner: overrides.NfsOverride.check_inherit
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nfs_settings.py::test_inherit_checks_the_tenants_exports_when_the_global_settings_turn_v4_on
+  integration_pin: nfs_settings
+  first_seen: "7.10.3"
+- id: QUIRK-115
+  behaviour: >-
+    `PUT /v1/multitenancy/nfs/settings/{tenant_id}` needs only `v4_enabled`, and gives each field it leaves out its
+    factory default, not the global setting: with `krb5_enabled: false` and an `idmap_domain` in the global settings,
+    a PUT of `v4_enabled` alone makes an override with `krb5_enabled: true` and a null `idmap_domain`.
+  workaround: >-
+    `nfs_settings` with `tenant` creates an override by a PUT of every field, seeded from the global settings with the
+    task's settings over them, as `smb_settings` must, whose PUT needs every field (QUIRK-113)
+  workaround_owner: overrides.TenantOverride.seed
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_nfs_settings.py::test_present_creates_the_override_by_put_of_every_field_from_the_global_settings
+  integration_pin: nfs_settings
+  first_seen: "7.10.3"
+- id: QUIRK-120
+  behaviour: >-
+    `POST /v1/file-system/security/keys/` takes and stores a key with an empty `name`, which no `key_ref` names
+    afterwards: the key is read and deleted only by its id. A name of digits only is refused, with 400
+    `fs_api_key_store_decode_error`.
+  workaround: >-
+    `security_key` refuses an empty name, and a name of digits only, before any request; `snapshot_info` reads each
+    key's usages by its id, never its name; `snapshot_policy`, `snapshot_info` and capture name such a key by its id,
+    so that a policy holding it never reads as holding no key
+  workaround_owner: [security_keys.SecurityKey, security_keys.usages, snapshots.key_label]
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_security_key.py::test_an_empty_name_is_refused_before_any_request
+  integration_pin: security_key
+  first_seen: "7.10.3"
+- id: QUIRK-125
+  behaviour: >-
+    While a replication relationship's source does not answer, the target's status record of a job the source was
+    running keeps `job_state: REPLICATION_RUNNING`, its `job_start_time` and no `error_from_last_job`, for as long as it
+    was watched (six minutes). `make-writable` is still accepted and discards the job's partial changes.
+  workaround: >-
+    `replication_failover_plan` refuses a failover for a running job only when the source answers and its own record
+    shows the job; with the source not answering it goes on and notes the job it discards
+  workaround_owner: replication_failover._refuse_failover
+  status: implemented
+  unit_pin: tests/unit/plugins/module_utils/test_replication_failover.py::test_the_target_s_running_job_with_the_source_gone_is_noted_and_the_failover_goes_on
+  integration_pin: >-
+    none: it needs a job long enough to pause its source during, which on the lane took a 1.5 GB file through the REST
+    API, and no tier 1 target holds that in its time
+  first_seen: "7.11.0"
+- id: QUIRK-160
+  behaviour: >-
+    `GET /v1/auth/kerberos-keytab` answers the same ETag, `"AAAAAA"`, whatever keytab the cluster holds, and a PUT or
+    DELETE of the keytab that sends it as If-Match answers 412 `db_revision_mismatch_error` once a keytab is held.
+  workaround: >-
+    The keytab route sends no If-Match (`etag=omit`); last writer wins. The settings route's ETag covers the keytab
+    too, but sending it on a keytab write would cost a read of the settings for no protection the module needs
+  workaround_owner: kerberos.KEYTAB
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_kerberos_keytab.py::test_install_puts_the_file_without_if_match_and_returns_entries_without_keys
+  integration_pin: kerberos_keytab
+  first_seen: "7.10.3"
+- id: QUIRK-161
+  behaviour: >-
+    `DELETE /v1/auth/kerberos-keytab` also turns `use_alt_security_identities_mapping` off in
+    `/v1/auth/kerberos-settings`, whether or not a keytab was held. A PUT of a keytab leaves the setting alone.
+  workaround: >-
+    `kerberos_keytab` with `state: absent` reads the setting before the DELETE and, when it was on and is off after,
+    PUTs it back on, also after a DELETE whose connection was lost
+  workaround_owner: kerberos.KerberosKeytab.settle_absent
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_kerberos_keytab.py::test_absent_deletes_and_turns_the_mapping_back_on
+  integration_pin: kerberos_keytab
+  first_seen: "7.10.3"
+- id: QUIRK-162
+  behaviour: >-
+    The keytab PUT keeps the 8-bit key version of each entry and ignores the 32-bit version a keytab file holds after
+    the key: an entry of version 300 reads back as version 44.
+  workaround: >-
+    `kerberos_keytab` compares each entry by the low 8 bits of its version, and warns about an entry whose version is
+    above 255
+  workaround_owner: kerberos.read_keytab
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_kerberos_keytab.py::test_a_version_above_255_warns_and_compares_by_its_low_8_bits
+  integration_pin: kerberos_keytab
+  first_seen: "7.10.3"
+- id: QUIRK-163
+  behaviour: >-
+    A PUT of `/v1/auth/kerberos-keytab` in the JSON form GET returns, with an entry the server cannot decode, answers
+    400 `decode_error` with a description that quotes the entries sent, keys included.
+  workaround: >-
+    `kerberos_keytab` sends the keytab file as `application/octet-stream`, never the JSON form, and reports a failed
+    PUT by its status and error class only, without the description
+  workaround_owner: kerberos.KerberosKeytab
+  status: implemented
+  unit_pin: tests/unit/plugins/modules/test_kerberos_keytab.py::test_a_refused_put_reports_status_and_class_without_the_description
+  integration_pin: kerberos_keytab
+  first_seen: "7.10.3"

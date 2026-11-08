@@ -1,0 +1,27 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The connection options of each inventory host in
+# cluster_baseline_connection_hosts, as group/qumulo.cluster.qumulo takes
+# them, read from that host's variables now, after any step before switched
+# them. They go into cluster_baseline_connections, keyed by host, beside the
+# hosts an earlier include recorded. The portal and replication steps, the
+# edge_rebuild role and playbooks/edge_license_complete.yml pass them to the
+# modules of the cluster each block runs on.
+- name: Record how to connect to {{ cluster_baseline_connection_hosts | join(', ') }}
+  ansible.builtin.set_fact:
+    cluster_baseline_connections: >-
+      {%- set found = namespace(connections=cluster_baseline_connections | default({})) -%}
+      {%- for name in cluster_baseline_connection_hosts -%}
+        {%- set host = hostvars[name] -%}
+        {%- set connection = {'api_host': host.qumulo_api_host, 'api_port': host.qumulo_api_port | default(8000) | int,
+                              'api_username': host.qumulo_api_username | default('admin'),
+                              'api_password': host.qumulo_api_password | default(''),
+                              'api_token': host.qumulo_api_token | default(''),
+                              'validate_certs': host.qumulo_validate_certs | default(true) | bool,
+                              'expected_cluster_uuid': host.qumulo_cluster_uuid | default('')} -%}
+        {%- set found.connections = found.connections | combine({name: connection
+              | combine({'ca_path': host.qumulo_ca_path} if host.qumulo_ca_path is defined else {})}) -%}
+      {%- endfor -%}
+      {{ found.connections }}
+  no_log: true

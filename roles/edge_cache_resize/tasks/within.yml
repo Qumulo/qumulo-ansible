@@ -1,0 +1,5 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Apply the free threshold, the only setting this route changes
+  ansible.builtin.include_tasks: free_threshold.yml

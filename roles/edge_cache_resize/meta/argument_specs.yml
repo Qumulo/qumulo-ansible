@@ -1,0 +1,99 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+argument_specs:
+  main:
+    short_description: Bring a Qumulo edge's cache to a target size, by the least disruptive route
+    version_added: 0.1.0
+    description:
+      - Reads the edge's file system size (C), stored capacity clamp (R), license ceiling (L) and product type, and
+        chooses a route to the target clamp T with M(qumulo.cluster.edge_cache_route). L is the license's usable
+        capacity cap; on an unprotected edge without one it is 1 TB, the most an unlicensed edge provisions. The role
+        fails when the product type is unknown.
+      - C(within) when C is within the margin of T.
+      - C(grow) when C is more than the margin below T, R is below T and L allows T. Raises the clamp to T, which
+        re-forms quorum once, then reads C again. If C is still more than the margin below T, the route becomes
+        C(platform_limited).
+      - C(platform_limited) when C is more than the margin below T but R already allows T. Writes nothing; the reason
+        names the platform's disks, or a license cap that applies only at the next quorum formation.
+      - C(blocked_license) when L is below T. Fails naming the license the edge's UUID needs from Nexus (G-LICENSE).
+      - C(below_floor) when C is more than the margin above T and T is below the floor, which a rebuilt edge
+        provisions again (G-EDGE-FLOOR). Needs C(qumulo_capacity.free_threshold), and suggests a value.
+      - C(rebuild) when C is more than the margin above T otherwise, since provisioned capacity never shrinks
+        (G-CLAMP-SHRINK). Fails with the plan to rebuild the edge, which then has a new UUID and needs a new license
+        from Nexus (G-UUID, G-LICENSE).
+      - On every route that does not fail, applies C(qumulo_capacity.free_threshold) when it is declared.
+      - With O(edge_cache_resize_plan_only), and so under C(--check), it only reports the route and its inputs.
+      - Sets the facts C(edge_cache_resize_route), the route taken, and C(edge_cache_resize_plan), the result of
+        M(qumulo.cluster.edge_cache_route), which holds the route, the reason, and T, R, L, C, the margin and the floor
+        in bytes.
+      - Connects through the play's C(module_defaults) for C(group/qumulo.cluster.qumulo), as
+        C(playbooks/edge_cache_resize.yml) sets them. It runs no M(qumulo.cluster.cluster_guard) itself;
+        C(playbooks/edge_cache_resize.yml) runs one first.
+    author: Qumulo, Inc. (@Qumulo)
+    options:
+      qumulo_capacity:
+        description: The edge's capacity settings, as the inventory declares them.
+        type: dict
+        required: true
+        options:
+          clamp:
+            description:
+              - The target clamp T, in bytes or as a size with a unit, such as C(4TB) (10^12 bytes) or C(4TiB) (2^40 bytes).
+            type: raw
+            required: true
+          free_threshold:
+            description:
+              - The fraction of capacity, from 0.0 to 1.0, that the edge keeps free by evicting cached spoke data.
+              - Declared state, applied on every route that does not fail; needed on C(below_floor).
+            type: float
+          license:
+            description:
+              - What the inventory expects of the license, C(pending) or C(required), or C(none) for an edge that runs
+                without a license, within the capacity its formation gave it (G-EDGE-FLOOR). The license step of a
+                baseline writes a C(none) edge's clamp with no license. It then limits a license that arrives later, and
+                a clamp above 1 TB provisions nothing more until a license arrives.
+              - Read by the license step of a baseline, not by this role.
+            type: str
+            choices: [pending, required, none]
+          license_document:
+            description:
+              - The license document issued for the edge's UUID, encrypted with ansible-vault.
+              - Applied by the license step of a baseline and by C(playbooks/edge_license_complete.yml), not by this role.
+            type: raw
+            no_log: true
+      edge_cache_resize_margin_bytes:
+        description:
+          - How close C must be to T to count as that size, in bytes or as a size with a unit.
+          - Unset means 10% of T.
+        type: raw
+      edge_cache_resize_rounding_tolerance:
+        description:
+          - How far above T a stored clamp may be and still count as T rounded up to a provisioning unit, passed to
+            M(qumulo.cluster.capacity_clamp) as O(qumulo.cluster.capacity_clamp#module:rounding_tolerance).
+          - Unset means the module's own default, the larger of 1% of T and 8 GiB. The role calls the module only on the
+            V(grow) route, where the stored clamp is below T, so the tolerance decides only whether the clamp read back
+            after the write draws a warning.
+        type: raw
+      edge_cache_resize_floor_bytes:
+        description:
+          - The capacity a rebuilt edge provisions at formation, if its platform is larger (G-EDGE-FLOOR). A target
+            below it routes to C(below_floor) rather than C(rebuild).
+          - It does not move the 1 TB ceiling of an unlicensed edge.
+          - The C(qumulo.cluster.edge_rebuild) role also reads it, to refuse a declared clamp more than its rounding
+            tolerance below min(1 TB, this); see that role's description.
+        type: int
+        default: 1000000000000
+      edge_cache_resize_allow_rebuild:
+        description:
+          - On the C(rebuild) route, rebuild the edge with the edge_rebuild role, phase C(all), instead of failing with
+            the plan. Needs O(edge_rebuild_reinstall_tasks), and the replay's own variables, C(-e qumulo_rebuild=true)
+            among them.
+        type: bool
+        default: false
+      edge_rebuild_reinstall_tasks:
+        description: The tasks file that reinstalls the edge between the predestroy and replay phases of edge_rebuild.
+        type: path
+      edge_cache_resize_plan_only:
+        description: Report the route and its inputs, and change nothing. True by default under C(--check).
+        type: bool

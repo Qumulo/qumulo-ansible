@@ -1,0 +1,48 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Groups first without members, so a user's primary group exists; then users;
+# then the groups' members, who now exist.
+- name: Create the local groups, without members
+  qumulo.cluster.local_group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
+  loop: "{{ qumulo_local_groups | default([]) }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when: item.state | default('present') == 'present'
+
+- name: Apply the local users
+  qumulo.cluster.local_user:
+    name: "{{ item.name }}"
+    primary_group: "{{ item.primary_group | default(omit) }}"
+    uid: "{{ item.uid | default(omit) }}"
+    home_directory: "{{ item.home_directory | default(omit) }}"
+    password: "{{ item.password | default(omit) }}"
+    update_password: "{{ item.update_password | default('on_create') }}"
+    allow_admin_password_change: "{{ item.allow_admin_password_change | default(false) }}"
+    allow_management_disruption: "{{ qumulo_allow_management_disruption | default(false) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ qumulo_local_users | default([]) }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: cluster_baseline_users
+  no_log: true
+
+# The play's module_defaults read this inventory variable, so the switch must set it under its own name.
+- name: Connect with the new password of the user the play connects as
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    qumulo_api_password: "{{ (cluster_baseline_users.results | selectattr('connection_password_changed', 'defined') | first).item.password }}"
+  when: cluster_baseline_users.results | selectattr('connection_password_changed', 'defined') | list | length > 0
+  no_log: true
+
+- name: Apply the local groups' members, or delete the groups declared absent
+  qumulo.cluster.local_group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid | default(omit) }}"
+    members: "{{ item.members | default(omit) }}"
+    purge: "{{ item.purge | default(false) }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ qumulo_local_groups | default([]) }}"
+  loop_control:
+    label: "{{ item.name }}"

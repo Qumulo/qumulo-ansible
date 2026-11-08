@@ -1,0 +1,48 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# A read-only wait: each poll reads one record by id every 5 seconds until it reads one of its states, all of them
+# together within replication_failover_wait_timeout. A timeout sends nothing, so the relationship stays where it is.
+- name: Note when the wait starts
+  ansible.builtin.set_fact:
+    replication_failover_poll_started: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ') }}"
+
+- name: "{{ replication_failover_step.text }}"
+  qumulo.cluster.replication_info:
+    relationship_id: "{{ replication_failover_step.relationship_id }}"
+    side: "{{ replication_failover_poll.side }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: >-
+      {{ replication_failover_connections[inventory_hostname if replication_failover_poll.cluster == 'source' else replication_failover_item.entry.target] }}
+  loop: "{{ replication_failover_step.polls }}"
+  loop_control:
+    loop_var: replication_failover_poll
+    label: "{{ replication_failover_poll.cluster }} {{ replication_failover_poll.side }}"
+  register: replication_failover_polled
+  until: >-
+    ((replication_failover_polled.replication | default({})).relationship | default(none, true) or {}).state | default('') in replication_failover_poll.until
+  retries: >-
+    {{ [((replication_failover_wait_timeout | int
+          - (now(utc=true) - (replication_failover_poll_started | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).total_seconds()) / 5)
+        | round(0, 'ceil') | int, 0] | max }}
+  delay: 5
+  failed_when: false
+
+- name: Fail when a record did not reach its state in time
+  ansible.builtin.fail:
+    msg: >-
+      {{ replication_failover_item.name }}: the wait "{{ replication_failover_step.text }}" ended after {{ replication_failover_wait_timeout }} seconds;
+      {{ replication_failover_missed | join('; ') }}. Nothing was sent; run again to resume from the records.
+  when: replication_failover_missed | length > 0
+  vars:
+    replication_failover_missed: >-
+      {%- set found = namespace(lines=[]) -%}
+      {%- for result in replication_failover_polled.results -%}
+        {%- set record = (result.replication | default({})).relationship | default(none, true) or {} -%}
+        {%- if record.state | default('') not in result.replication_failover_poll.until -%}
+          {%- set poll = result.replication_failover_poll -%}
+          {%- set found.lines = found.lines + [poll.cluster ~ "'s " ~ poll.side ~ ' record read ' ~ (record.state | default('nothing'))
+                ~ ', job ' ~ (record.job_state | default('unknown')) ~ ', waiting for ' ~ poll.until | join(' or ')] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ found.lines }}

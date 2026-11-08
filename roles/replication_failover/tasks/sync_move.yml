@@ -1,0 +1,32 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One move of sync.yml's wait: the target's source records, read every 5 seconds until the recovery point of each
+# waiting relationship on it is set and differs from replication_failover_moved_past, {id: recovery point}, within what
+# is left of replication_failover_sync_timeout. A job that reports an error does not end the wait, since a later
+# attempt can succeed while the error still shows (spec 011, research R19); a wait that runs out names it.
+- name: Fix the recovery points this move waits past
+  ansible.builtin.set_fact:
+    replication_failover_sync_past: "{{ replication_failover_moved_past }}"
+
+- name: Wait until every recovery point moves, on {{ replication_failover_sync_target }}
+  qumulo.cluster.replication_info:
+    gather_subset: [source]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ replication_failover_connections[replication_failover_sync_target] }}"
+  register: replication_failover_sync_read
+  until: replication_failover_sync_lagging | length == 0
+  retries: >-
+    {{ [((replication_failover_sync_timeout | int
+          - (now(utc=true) - (replication_failover_sync_started | to_datetime('%Y-%m-%dT%H:%M:%SZ'))).total_seconds()) / 5)
+        | round(0, 'ceil') | int, 0] | max }}
+  delay: 5
+  failed_when: false
+
+- name: Fail when a recovery point did not move in time
+  ansible.builtin.fail:
+    msg: >-
+      {{ replication_failover_sync_lagging | length }} relationships on {{ replication_failover_sync_target }} had no recovery point taken after the
+      writes stopped within {{ replication_failover_sync_timeout }} seconds: {{ replication_failover_sync_lagging | join('; ') }}. Nothing was
+      sent; the failback makes a source writable only once it holds what the target held. Run again to resume.
+  when: replication_failover_sync_lagging | length > 0

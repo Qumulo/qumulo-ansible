@@ -1,0 +1,22 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# meta/argument_specs.yml documents each variable.
+replication_pair_target_port: 3712
+replication_pair_target_directories: []
+replication_pair_target_capacity: null
+replication_pair_release: []
+replication_pair_previous_target_uuids: []
+replication_pair_previous_source_uuids: []
+replication_pair_inventory_cluster_uuids: []
+replication_pair_source_path_pending: false
+replication_pair_target_gone: false
+replication_pair_strict_capacity: false
+replication_pair_on_held: fail
+replication_pair_check_pass: false
+replication_pair_wait_timeout: 600
+replication_pair_source_host: ""
+# The edge_rebuild role's directory, as the inventory sets it or as that role
+# defaults it, since the restore's files sit beside its rebuild reports.
+replication_pair_artifact_dir: >-
+  {{ edge_rebuild_artifact_dir | default(ansible_inventory_sources | qumulo.cluster.artifact_dir(inventory_file | default(''))) }}

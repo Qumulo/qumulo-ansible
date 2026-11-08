@@ -1,0 +1,54 @@
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+---
+DOCUMENTATION:
+  name: redact_images
+  short_description: An upgrade images list without the secret parts of its URLs
+  version_added: 0.1.0
+  author: Qumulo, Inc. (@Qumulo)
+  description:
+    - The list with each entry's image stripped of its query string and user information, such as a presigned URL's
+      signature or a C(user:password@) prefix. A path, or a URL with neither, is kept as it is.
+    - A mapping entry keeps its other fields. The file name, which redaction keeps, gives the release and kind.
+    - One entry in place of the list, a string or a mapping, is refused; give it as C([entry]).
+    - C(playbooks/upgrade.yml) passes every host's C(qumulo_upgrade_images) through it to the C(images) of
+      M(qumulo.cluster.upgrade_plan). M(qumulo.cluster.upgrade) takes the redacted URL as C(image) and the parts
+      P(qumulo.cluster.url_secret#filter) gives as C(image_secret).
+  options:
+    _input:
+      description: A C(qumulo_upgrade_images) list, of URLs, paths and mappings C({version, image, kind, build}).
+      type: list
+      elements: raw
+      required: true
+
+EXAMPLES: |
+  - name: Show a host's images without their secrets
+    ansible.builtin.debug:
+      msg: "{{ qumulo_upgrade_images | qumulo.cluster.redact_images }}"
+
+  - name: Redact one image entry
+    # A single entry is refused; wrap it in a list, and take the first element back.
+    ansible.builtin.set_fact:
+      safe_image: "{{ [qumulo_upgrade_images[0]] | qumulo.cluster.redact_images | first }}"
+
+  - name: Collect every host's redacted images, as the hosts of the upgrade plan are given
+    # The plan's hosts cover every inventory host, so the list is built once over the group, with no module call here.
+    ansible.builtin.set_fact:
+      redacted_images_by_host: >-
+        {{ dict(groups['qumulo_clusters']
+                | zip(groups['qumulo_clusters']
+                      | map('extract', hostvars, 'qumulo_upgrade_images')
+                      | map('default', [])
+                      | map('qumulo.cluster.redact_images'))) }}
+    run_once: true
+
+RETURN:
+  _value:
+    description: The list, each image redacted.
+    returned: always
+    type: list
+    elements: raw
+    sample:
+      - https://images.example.com/qumulo/qumulo_core_7.11.0.qimg
+      - version: "7.11.0"
+        image: https://bucket.s3.amazonaws.com/qumulo_core_7.11.0.qimg

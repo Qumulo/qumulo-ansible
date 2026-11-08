@@ -1,0 +1,9 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+- name: Report why the cache is short of the target, writing no clamp
+  ansible.builtin.debug:
+    msg: "{{ inventory_hostname }}: platform_limited: {{ edge_cache_resize_plan.reason }}"
+
+- name: Apply the free threshold
+  ansible.builtin.include_tasks: free_threshold.yml

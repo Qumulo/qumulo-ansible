@@ -1,0 +1,63 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Step 21's own check pass for a relationship with no X, no pair of R and no restore record, on an edge with
+# previous UUIDs: this role in check mode with replication_pair_on_held report, as the replay runs it, and with
+# replication_pair_check_pass, since ansible_check_mode stays false under an apply of check_mode. Its answer, as
+# replication_pair_restore_step21's status and message, decides between not restored and refused by step 21. The
+# check pass's facts would replace those the baseline's or the license play's step 21 left, so they are put back.
+- name: Keep the facts step 21's check pass replaces
+  ansible.builtin.set_fact:
+    replication_pair_restore_kept: >-
+      {{ {'replication_pair_result': replication_pair_result | default(none),
+          'replication_pair_source_result': replication_pair_source_result | default(none),
+          'replication_pair_target_result': replication_pair_target_result | default(none)} }}
+
+- name: Run step 21's check pass for the relationship
+  block:
+    - name: Check the relationship as the baseline's step 21 would, writing nothing
+      ansible.builtin.include_role:
+        name: qumulo.cluster.replication_pair
+        apply:
+          check_mode: true
+      vars:
+        replication_pair_source: "{{ replication_pair_connections[inventory_hostname] }}"
+        replication_pair_target: "{{ replication_pair_connections[replication_pair_restore_target_host] }}"
+        replication_pair_relationship: "{{ replication_pair_restore_declared }}"
+        replication_pair_target_host: "{{ replication_pair_restore_target_host }}"
+        replication_pair_target_address: "{{ hostvars[replication_pair_restore_target_host].qumulo_replication_address | default('') }}"
+        replication_pair_target_port: "{{ hostvars[replication_pair_restore_target_host].qumulo_replication_port | default(3712) | int }}"
+        replication_pair_target_directories: "{{ hostvars[replication_pair_restore_target_host].qumulo_directories | default([]) }}"
+        replication_pair_target_capacity: >-
+          {{ hostvars[replication_pair_restore_target_host].qumulo_capacity | default(none)
+             if replication_pair_restore_target_host in groups['qumulo_edges'] | default([]) else none }}
+        replication_pair_previous_target_uuids: "{{ hostvars[replication_pair_restore_target_host].qumulo_previous_cluster_uuids | default([]) }}"
+        replication_pair_previous_source_uuids: "{{ qumulo_previous_cluster_uuids | default([]) }}"
+        replication_pair_inventory_cluster_uuids: "{{ replication_pair_restore_uuids.values() | list }}"
+        replication_pair_on_held: report
+        replication_pair_check_pass: true
+
+    - name: Keep step 21's answer
+      ansible.builtin.set_fact:
+        replication_pair_restore_step21:
+          status: "{{ replication_pair_result.status | default('paired') }}"
+          message: "{{ replication_pair_result.message | default('') }}"
+  rescue:
+    - name: Keep step 21's refusal
+      ansible.builtin.set_fact:
+        replication_pair_restore_step21:
+          status: refused
+          message: "{{ ansible_failed_result.msg | default('failed') }}"
+      when: ansible_failed_task.name | default('') == 'Stop before any write on either cluster'
+
+    - name: Fail on anything else, as a failure of the relationship
+      ansible.builtin.fail:
+        msg: "{{ ansible_failed_result.msg | default('failed') }}"
+      when: ansible_failed_task.name | default('') != 'Stop before any write on either cluster'
+  always:
+    # A fact that was undefined comes back as none, since a fact cannot be unset.
+    - name: Put back the facts step 21's check pass replaced
+      ansible.builtin.set_fact:
+        replication_pair_result: "{{ replication_pair_restore_kept.replication_pair_result }}"
+        replication_pair_source_result: "{{ replication_pair_restore_kept.replication_pair_source_result }}"
+        replication_pair_target_result: "{{ replication_pair_restore_kept.replication_pair_target_result }}"

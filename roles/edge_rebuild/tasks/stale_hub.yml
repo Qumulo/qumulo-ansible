@@ -1,0 +1,79 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Keyed on the old edge's UUID, never on a name, which the hub's portals need
+# not keep unique.
+- name: Record how to connect to the hub
+  ansible.builtin.include_role:
+    name: qumulo.cluster.cluster_baseline
+    tasks_from: connections.yml
+  vars:
+    cluster_baseline_connection_hosts: ["{{ qumulo_portal.hub }}"]
+
+- name: Read the hub's portals
+  qumulo.cluster.portal_info:
+    gather_subset: [hubs]
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[qumulo_portal.hub] }}"
+  register: edge_rebuild_hub_side
+
+# A DELETING record lost its spoke portal already. When any predestroy record
+# of the old edge shows that portal was drained first, the hub holds every
+# write the old edge made, and forcing the record's delete loses nothing.
+- name: Find the hub's record of the old edge
+  ansible.builtin.set_fact:
+    edge_rebuild_stale_hub: >-
+      {{ edge_rebuild_hub_side.portals.hubs | selectattr('spoke_cluster_uuid', 'equalto', edge_rebuild_previous_uuid)
+         | first | default(none) }}
+    edge_rebuild_stale_hub_drained: >-
+      {{ cluster_baseline_connections[qumulo_portal.hub].expected_cluster_uuid | lower in edge_rebuild_drained_hubs | default([]) }}
+
+# A record the hub still sees connected belongs to an old edge that is still up.
+- name: Refuse to delete the portal of an old edge that is still up
+  ansible.builtin.assert:
+    that: >-
+      edge_rebuild_stale_hub is none or edge_rebuild_stale_hub.state in ['PENDING', 'DELETING']
+      or edge_rebuild_stale_hub.status == 'DISCONNECTED'
+    fail_msg: >-
+      {{ inventory_hostname }}: the hub {{ qumulo_portal.hub }} still reaches the old edge
+      {{ edge_rebuild_previous_uuid }} through its portal ({{ edge_rebuild_stale_hub.state | default('') }},
+      {{ edge_rebuild_stale_hub.status | default('') }}). Run the predestroy phase on the old edge first; or, if the old
+      edge is already destroyed, wait until the hub reports its portal DISCONNECTED and run the replay again.
+    quiet: true
+
+- name: Stop, unless losing the old edge's undrained writes is allowed
+  ansible.builtin.assert:
+    that: >-
+      edge_rebuild_stale_hub is none or edge_rebuild_stale_hub.state == 'PENDING'
+      or (edge_rebuild_stale_hub.state == 'DELETING' and edge_rebuild_stale_hub_drained | bool)
+      or edge_rebuild_allow_data_loss | bool
+    fail_msg: >-
+      {{ inventory_hostname }}: the hub {{ qumulo_portal.hub }} still holds the {{ edge_rebuild_stale_hub.state | default('') }}
+      and {{ edge_rebuild_stale_hub.status | default('') }} portal of the old edge {{ edge_rebuild_previous_uuid }}, and
+      no predestroy record shows it was drained, so the writes the old edge made that the hub had not received are lost.
+      Set edge_rebuild_allow_data_loss to delete the record.
+    quiet: true
+
+- name: Say why deleting a DELETING record loses nothing
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }}: the hub's record of {{ edge_rebuild_previous_uuid }} is DELETING, and the predestroy
+      record shows the old edge was drained before its portal was deleted, so forcing the record's delete loses nothing
+  when:
+    - edge_rebuild_stale_hub is not none
+    - edge_rebuild_stale_hub.state == 'DELETING'
+    - edge_rebuild_stale_hub_drained | bool
+
+# A PENDING record was never accepted, so it holds no writes, and its forced
+# delete is the fast path (G-PORTAL-STALE).
+- name: Delete the hub's record of the old edge
+  qumulo.cluster.portal_hub:
+    spoke_cluster_uuid: "{{ edge_rebuild_previous_uuid }}"
+    state: absent
+    allow_data_loss: true
+    wait_timeout: "{{ edge_rebuild_drain_timeout }}"
+  module_defaults:
+    group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[qumulo_portal.hub] }}"
+  throttle: 1
+  register: edge_rebuild_stale_hub_deleted
+  when: edge_rebuild_stale_hub is not none

@@ -1,0 +1,290 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The play's module_defaults read these inventory variables, so the switches
+# set them under their own names. A new edge has one user, admin, with the
+# password it forms with; a token or another user the inventory connects with
+# belongs to the old edge.
+# The report says so when admin's new password is not the one the inventory
+# connects with; the password itself never reaches the report.
+- name: Note whether admin's password on the new edge differs from the inventory's
+  ansible.builtin.set_fact:
+    edge_rebuild_admin_password_changed: >-
+      {{ edge_rebuild_admin_password is defined and edge_rebuild_admin_password != qumulo_api_password | default('') }}
+  no_log: true
+
+- name: Connect to the new edge as admin, with the password it forms with
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    qumulo_api_username: admin
+    qumulo_api_password: "{{ edge_rebuild_admin_password | default(qumulo_api_password) }}"
+    qumulo_api_token: ""
+  no_log: true
+
+# The new edge serves a factory certificate nothing can verify (G-FACTORY-TLS);
+# the baseline's certificate step turns verification back on with
+# qumulo_ssl.ca_path_after.
+- name: Connect to the new edge without verifying its factory certificate, until the certificate step
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    qumulo_validate_certs: false
+  when: not edge_rebuild_validate_factory_certs | bool
+
+- name: Read the predestroy record of the old edge, which a rebuild in one run has just written
+  ansible.builtin.include_tasks: previous.yml
+
+# After the records of the old UUID are read, since they are keyed on it. A
+# replay on its own reads the inventory at the start of its run, after the
+# reinstall; a rebuild in one run reads it again here.
+- name: Read the inventory again after the reinstall tasks
+  ansible.builtin.include_tasks: refresh_inventory.yml
+  when: edge_rebuild_phase == 'all'
+
+# The inventory's qumulo_management_network wins, unless it is null, as the
+# baseline reads it; without it, the network the predestroy preflight found
+# the play reaching the old edge on, which a tenant 1 pass of two or more HOST
+# networks leaves step 2 no other way to place, while the play still reaches
+# the edge at the address the preflight found it by. Every report reads it.
+- name: Take the management network from the inventory, or from the predestroy record
+  ansible.builtin.set_fact:
+    edge_rebuild_management_network: >-
+      {{ qumulo_management_network if qumulo_management_network | default(none) is not none
+         else edge_rebuild_previous.management_network | default(none)
+              if edge_rebuild_previous.management_api_host | default(none) == qumulo_api_host | default(none)
+              else none }}
+
+# A Terraform-formed edge: Terraform's output, through the inventory, names the
+# new edge. The old UUID again means the inventory names no new edge.
+- name: Take the inventory's UUID as the new edge's, when it is not the old one
+  ansible.builtin.set_fact:
+    edge_rebuild_inventory_uuid: >-
+      {{ qumulo_cluster_uuid | default('') | lower
+         if qumulo_cluster_uuid | default('') | lower != edge_rebuild_previous_uuid else '' }}
+
+- name: Check that the edge is newly formed or unconfigured, and holds nothing yet
+  block:
+    - name: Check the edge with cluster_guard in mode rebuilt
+      qumulo.cluster.cluster_guard:
+        mode: rebuilt
+        # A typed UUID wins over the inventory's.
+        new_cluster_uuid: >-
+          {{ qumulo_new_cluster_uuid if qumulo_new_cluster_uuid is defined else (edge_rebuild_inventory_uuid or omit) }}
+        cluster_name: "{{ qumulo_cluster_name }}"
+      register: edge_rebuild_guard
+  rescue:
+    - name: Stop, naming the switch for a factory certificate when the edge's did not verify
+      ansible.builtin.fail:
+        msg: >-
+          {{ ansible_failed_result.msg }}{{
+          ('. A newly formed edge serves a factory certificate nothing can verify (G-FACTORY-TLS): set
+            edge_rebuild_validate_factory_certs: false in its host_vars, with qumulo_ssl.ca_path_after, so the replay
+            verifies it again from its certificate step on')
+          if 'TLS certificate verification failed' in ansible_failed_result.msg | default('') else '' }}{{
+          ('. The inventory names no edge but the old one, ' ~ edge_rebuild_previous_uuid ~ ': if Terraform formed the
+            new edge, save its output again where the inventory source reads it (docs/how-to/edge-rebuild.md, A
+            Terraform-formed edge), or give qumulo_new_cluster_uuid')
+          if qumulo_new_cluster_uuid is not defined and edge_rebuild_inventory_uuid == ''
+             and 'set new_cluster_uuid' in ansible_failed_result.msg | default('') else '' }}
+
+# Once host_vars holds the new UUID, the inventory names the new edge as the
+# old one, and a replay would retire it in Nexus and report it as replaced.
+- name: Refuse to replay onto the cluster the inventory names as the one to rebuild
+  ansible.builtin.assert:
+    that: edge_rebuild_guard.cluster_id | default('', true) | lower != edge_rebuild_previous_uuid
+    fail_msg: >-
+      {{ inventory_hostname }}: the edge is {{ edge_rebuild_previous_uuid }}, the cluster qumulo_cluster_uuid names as
+      the one being rebuilt, so this is not a rebuilt edge{{
+      (': ' ~ edge_rebuild_last_report_file ~ ' names it as the edge a replay formed')
+      if edge_rebuild_last_report.cluster_uuid | default('') == edge_rebuild_previous_uuid else '' }}. A replay that
+      failed after the edge formed is finished with playbooks/baseline.yml -l {{ inventory_hostname }}, once host_vars
+      holds the new UUID from the report. {{ edge_rebuild_finish_text }}{{
+      (' If Terraform formed this edge and its output already names it, run the replay without
+        qumulo_new_cluster_uuid: it takes the old edge from its predestroy record (docs/how-to/edge-rebuild.md, A
+        Terraform-formed edge).')
+      if edge_rebuild_last_report.cluster_uuid | default('') != edge_rebuild_previous_uuid else '' }}
+    quiet: true
+  vars:
+    edge_rebuild_last_report_file: >-
+      {{ query('ansible.builtin.fileglob', edge_rebuild_host_dir ~ '/rebuild-*.yml') | sort | last | default('') }}
+    edge_rebuild_last_report: >-
+      {{ (lookup('ansible.builtin.file', edge_rebuild_last_report_file) | ansible.builtin.from_yaml)
+         if edge_rebuild_last_report_file else {} }}
+
+# Before the edge forms, so a refusal leaves the node UNCONFIGURED.
+- name: Delete the hub's record of the old edge
+  ansible.builtin.include_tasks: stale_hub.yml
+  when: qumulo_portal is defined
+
+# Keyed on the old UUID, so before the edge forms: a formation that fails
+# then leaves no old UUID behind in Nexus.
+- name: Retire the old edge's UUID in Nexus
+  qumulo.cluster.nexus_cluster:
+    cluster_uuid: "{{ edge_rebuild_previous_uuid }}"
+    allow_connected: true
+    nexus_api_token: "{{ qumulo_nexus_api_token }}"
+    nexus_api_url: "{{ qumulo_nexus_api_url | default(omit) }}"
+  register: edge_rebuild_previous_retired
+  when: qumulo_nexus_api_token | default('') | length > 0
+
+- name: Form the edge
+  when: edge_rebuild_guard.state == 'UNCONFIGURED'
+  block:
+    - name: Form the edge with unprotected_edge_create
+      qumulo.cluster.unprotected_edge_create:
+        cluster_name: "{{ qumulo_cluster_name }}"
+        admin_password: "{{ qumulo_api_password }}"
+        eula_accepted: "{{ edge_rebuild_eula_accepted | bool }}"
+      register: edge_rebuild_formed
+  rescue:
+    # The node state needs no login, so it answers whatever failed after the create.
+    - name: Read whether the edge formed before the failure
+      ansible.builtin.uri:
+        url: >-
+          https://{{ ('[' ~ qumulo_api_host ~ ']') if ':' in qumulo_api_host else qumulo_api_host }}:{{ qumulo_api_port | default(8000) }}/v1/node/state
+        validate_certs: "{{ qumulo_validate_certs | default(true) | bool }}"
+        ca_path: "{{ qumulo_ca_path | default(omit) }}"
+      register: edge_rebuild_node_state
+      failed_when: false
+      check_mode: false
+
+    - name: Keep the new UUID of an edge that formed
+      ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+        qumulo_cluster_uuid: "{{ edge_rebuild_node_state.json.cluster_id | lower }}"
+      when: edge_rebuild_node_state.json.cluster_id | default('', true) | length > 0
+
+    - name: Write the report with the new UUID
+      ansible.builtin.include_tasks: report.yml
+      vars:
+        edge_rebuild_report_status: formed; the formation failed afterwards
+      when: edge_rebuild_node_state.json.cluster_id | default('', true) | length > 0
+
+    - name: Stop with what the formation left
+      ansible.builtin.fail:
+        msg: >-
+          {{ inventory_hostname }}: {{ ansible_failed_result.msg | default(ansible_failed_result) }}.
+          {{ ('The edge formed as ' ~ qumulo_cluster_uuid ~ ', which ' ~ edge_rebuild_host_dir ~ '/rebuild-'
+              ~ edge_rebuild_stamp ~ '.yml records; apply its host_vars_patch and finish with playbooks/baseline.yml -l '
+              ~ inventory_hostname ~ '.')
+             if edge_rebuild_node_state.json.cluster_id | default('', true) | length > 0
+             else 'The edge did not form; once the cause is fixed, run the replay again.' }}
+          {{ edge_rebuild_finish_text if edge_rebuild_node_state.json.cluster_id | default('', true) | length > 0 else '' }}
+
+- name: Stop a check run here, since no edge was formed to replay onto
+  ansible.builtin.meta: end_host
+  when:
+    - ansible_check_mode
+    - edge_rebuild_formed is not skipped
+
+# The per-request guard checks the new UUID from here on.
+- name: Switch the inventory to the new edge's UUID
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    qumulo_cluster_uuid: >-
+      {{ (edge_rebuild_formed.unprotected_edge.cluster_id if edge_rebuild_formed is not skipped
+          else edge_rebuild_guard.cluster_id) | lower }}
+
+# As the host_vars patch writes it: the replication step finds the old
+# edge's records by these, at any address.
+- name: Add the old UUID to the edge's previous UUIDs
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    qumulo_previous_cluster_uuids: >-
+      {{ (qumulo_previous_cluster_uuids | default([]) | map('lower') | list + [edge_rebuild_previous_uuid]) | unique
+         | reject('equalto', qumulo_cluster_uuid) | list }}
+
+- name: Keep the new UUID before anything else can fail
+  ansible.builtin.include_tasks: report.yml
+  vars:
+    edge_rebuild_report_status: formed; the baseline has not run yet
+
+# A relationship the edge is the source of is held while its replica may be
+# the only copy of the data the rebuild destroyed: the replay reports it, and
+# writes nothing on either cluster, whatever edge_rebuild_allow_data_loss says.
+# The report is written however the baseline ends, so that a failed step
+# still leaves it naming each S3 key the last step made, with its secret's
+# file, and each key entry that failed, and listing each relationship step
+# 21 held, the claim the restore reads.
+#
+# A newly formed edge on host-managed networking has no frontend network, and
+# the baseline creates tenants at step 3a before its network document at step
+# 3, so step 2 would refuse a second tenant's create. The baseline's tenancy
+# step runs first with tenant 1 alone and tenant 1's own networks, or every
+# network the inventory lists for a tenant that stays when tenant 1 holds
+# none; the baseline then adds the rest and binds them, and the play's
+# address stays in tenant 1 through the pass. It is the baseline's step, so a
+# failure there is reported as the baseline's. It declares no shares, exports
+# or factory defaults, whose references to the other tenants it could not
+# resolve; the baseline applies them.
+- name: Bring the new edge to its baseline and pair it with its hub again, then write the rebuild report
+  block:
+    - name: Read the new edge's tenants, for the tenant 1 pass
+      qumulo.cluster.tenant_info:
+      register: edge_rebuild_formed_tenants
+      when: qumulo_tenants is defined
+
+    - name: Read the new edge's network document, for the tenant 1 pass
+      qumulo.cluster.network_info:
+        gather_subset: [document]
+      register: edge_rebuild_formed_network
+      when: qumulo_tenants is defined
+
+    - name: Plan the tenant 1 pass
+      ansible.builtin.set_fact:
+        edge_rebuild_first_pass: >-
+          {{ qumulo_tenants | qumulo.cluster.tenancy_first_pass(edge_rebuild_formed_tenants.tenants,
+                                                               edge_rebuild_formed_network.network.document,
+                                                               qumulo_network | default(none)) }}
+      when: qumulo_tenants is defined
+
+    - name: Write tenant 1's own networks first, or every listed network when it holds none, with the baseline's tenancy step
+      when: edge_rebuild_first_pass | default({}) != {}
+      block:
+        # For the cluster_baseline_owned fact tenants.yml reads; it checks the inventory as it stands, as predestroy did
+        # and as the baseline will, since the pass's own variables would count as declared.
+        - name: Check that Terraform owns no area the inventory declares
+          ansible.builtin.include_role:
+            name: qumulo.cluster.cluster_baseline
+            tasks_from: ownership.yml
+
+        - name: Rename tenant 1 and write the pass's networks into it
+          ansible.builtin.include_role:
+            name: qumulo.cluster.cluster_baseline
+            tasks_from: tenants.yml
+          vars:
+            qumulo_tenants: "{{ edge_rebuild_first_pass.tenants }}"
+            qumulo_network: "{{ edge_rebuild_first_pass.network }}"
+            qumulo_smb_shares: []
+            qumulo_nfs_exports: []
+            qumulo_factory_defaults: {}
+            qumulo_management_network: "{{ edge_rebuild_management_network }}"
+
+    # A check run writes nothing, so the baseline would read the edge without tenant 1's networks and predict the
+    # refusal the pass prevents.
+    - name: Say that a check run predicts the tenant 1 pass and not the baseline after it
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}: a check run stops after the tenant 1 pass, since the baseline's prediction needs the
+          networks the pass writes; the run without --check goes on to the baseline
+      when:
+        - ansible_check_mode
+        - edge_rebuild_first_pass | default({}) != {}
+
+    - name: Stop a check run after the tenant 1 pass
+      ansible.builtin.meta: end_host
+      when:
+        - ansible_check_mode
+        - edge_rebuild_first_pass | default({}) != {}
+
+    - name: Bring the new edge to its baseline and pair it with its hub again
+      ansible.builtin.include_role:
+        name: qumulo.cluster.cluster_baseline
+      vars:
+        cluster_baseline_guard: false
+        cluster_baseline_replication_on_held: report
+        cluster_baseline_artifact_dir: "{{ edge_rebuild_artifact_dir }}"
+        qumulo_management_network: "{{ edge_rebuild_management_network }}"
+
+    - name: Note that the baseline finished
+      ansible.builtin.set_fact:
+        edge_rebuild_baseline_finished: true
+  always:
+    - name: Write the rebuild report
+      ansible.builtin.include_tasks: report.yml
+      vars:
+        edge_rebuild_report_status: "{{ 'replayed' if edge_rebuild_baseline_finished | default(false) else 'formed; the baseline failed' }}"

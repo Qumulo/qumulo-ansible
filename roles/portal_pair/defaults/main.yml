@@ -1,0 +1,9 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# meta/argument_specs.yml documents each variable.
+portal_pair_state: present
+portal_pair_type: read_write
+portal_pair_roots: []
+portal_pair_allow_data_loss: false
+portal_pair_wait_timeout: 600

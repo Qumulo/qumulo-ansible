@@ -1,0 +1,82 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+requires_ansible: ">=2.20.0"
+action_groups:
+  # Every module that talks to a cluster, sorted, so that module_defaults:
+  # group/qumulo.cluster.qumulo sets the connection options once per play.
+  # edge_cache_route, replication_failover_plan, replication_pair_plan, replication_restore_step, tenancy_plan,
+  # clone_host_vars, host_vars_text, replication_restore_lock and replication_restore_info talk to none, so they are not here.
+  qumulo:
+    - access_token
+    - ad_domain
+    - audit_destination
+    - auth_cache_clear
+    - authoritative_dns
+    - capacity_clamp
+    - capture_info
+    - cluster_guard
+    - cluster_info
+    - cluster_settings
+    - directory
+    - directory_quota
+    - dns_cache_clear
+    - dns_lookup_overrides
+    - dns_settings
+    - edge_rebuild_preflight
+    - encryption_key_rotation
+    - file_acl
+    - filesystem_info
+    - filesystem_settings
+    - ftp_info
+    - ftp_settings
+    - identity_attributes
+    - identity_info
+    - kerberos_keytab
+    - kerberos_settings
+    - license
+    - local_group
+    - local_user
+    - monitoring_info
+    - monitoring_settings
+    - network_config
+    - network_info
+    - nexus_cluster
+    - nexus_connection
+    - nexus_registration
+    - nfs_export
+    - nfs_info
+    - nfs_settings
+    - portal_eviction_settings
+    - portal_hub
+    - portal_info
+    - portal_spoke
+    - replication_info
+    - replication_relationship
+    - replication_reverse
+    - replication_target
+    - role
+    - role_member
+    - s3_access_key
+    - s3_bucket
+    - s3_bucket_policy
+    - s3_info
+    - s3_settings
+    - saml_settings
+    - security_key
+    - smb_info
+    - smb_settings
+    - smb_share
+    - snapshot
+    - snapshot_info
+    - snapshot_lock
+    - snapshot_policy
+    - ssl_certificate
+    - ssl_ciphers
+    - tenant
+    - tenant_info
+    - time_settings
+    - unprotected_edge_create
+    - upgrade
+    - user_defined_mappings
+    - web_ui_settings

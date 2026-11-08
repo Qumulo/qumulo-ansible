@@ -1,0 +1,9 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# tools/companion.py fills in the documentation's address below, as it does in the README.
+blank_issues_enabled: false
+contact_links:
+  - name: Read the documentation
+    url: https://github.com/Qumulo/qumulo-ansible/blob/main/docs/README.md
+    about: The tutorials, how-to guides and reference pages for the collection.

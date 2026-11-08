@@ -1,0 +1,221 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# One portal, edge_rebuild_portal. The portal_pair role owns the drain: the hub
+# makes the portal read-only, both sides settle, the spoke portal is deleted,
+# and both records are gone. Only when that fails does
+# edge_rebuild_allow_data_loss force the deletes, losing the edge's writes that
+# the hub has not received. Each portal adds what happened to it to
+# edge_rebuild_drains, from what the steps did rather than what was asked, and
+# the record is written again, so that a run that fails later keeps it. A
+# portal an earlier run of this UUID recorded as drained counts as drained.
+- name: Drain the portal through the hub's inventory host
+  when: edge_rebuild_portal.hub is not none
+  vars:
+    edge_rebuild_drained_before: "{{ edge_rebuild_portal.hub_cluster_uuid in edge_rebuild_drained_hubs | default([]) }}"
+    # A DELETING record with no spoke portal has nothing left to drain, and its
+    # wait would only time out again; edge_rebuild_allow_data_loss forces it.
+    edge_rebuild_forced_delete: >-
+      {{ edge_rebuild_allow_data_loss | bool and not edge_rebuild_portal.on_edge
+         and edge_rebuild_hub_record.state | default('') == 'DELETING' }}
+  block:
+    - name: Record how to connect to the edge and to the hub
+      ansible.builtin.include_role:
+        name: qumulo.cluster.cluster_baseline
+        tasks_from: connections.yml
+      vars:
+        cluster_baseline_connection_hosts: ["{{ inventory_hostname }}", "{{ edge_rebuild_portal.hub }}"]
+
+    # The rescue reads what the portal_pair role did in this run, so an earlier
+    # portal's results must not stand in for this one's.
+    - name: Forget the results of an earlier drain
+      ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+        portal_pair_hub_portal: null
+        portal_pair_drained: {skipped: true}
+        portal_pair_spoke_deleted: {changed: false}
+        edge_rebuild_hub_record: null
+
+    # Only the declared hub can hold a record the edge has no portal for. If
+    # that hub is down, there is nothing on the edge to drain, and the record
+    # says the hub's side is not known.
+    - name: Read the hub's record of the edge, which has no portal to it
+      qumulo.cluster.portal_info:
+        gather_subset: [hubs]
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[edge_rebuild_portal.hub] }}"
+      register: edge_rebuild_hub_side
+      ignore_errors: true
+      when: not edge_rebuild_portal.on_edge
+
+    - name: Keep the hub's record of the edge
+      ansible.builtin.set_fact:
+        edge_rebuild_hub_record: >-
+          {{ edge_rebuild_hub_side.portals.hubs | selectattr('spoke_cluster_uuid', 'equalto', qumulo_cluster_uuid | lower)
+             | first | default(none) }}
+      when:
+        - not edge_rebuild_portal.on_edge
+        - edge_rebuild_hub_side is succeeded
+
+    - name: Record that there is nothing to drain
+      ansible.builtin.set_fact:
+        edge_rebuild_drains: >-
+          {{ edge_rebuild_drains + [edge_rebuild_portal | combine({
+               'drained': false, 'deleted': false, 'forced': false, 'hub_record_left': edge_rebuild_hub_side is failed})] }}
+      when:
+        - not edge_rebuild_portal.on_edge
+        - edge_rebuild_hub_side is failed or edge_rebuild_hub_record is none
+
+    - name: Drain the edge into the hub and delete the portal on both sides
+      ansible.builtin.include_role:
+        name: qumulo.cluster.portal_pair
+      vars:
+        portal_pair_spoke: "{{ cluster_baseline_connections[inventory_hostname] }}"
+        portal_pair_hub: "{{ cluster_baseline_connections[edge_rebuild_portal.hub] }}"
+        portal_pair_state: absent
+        portal_pair_wait_timeout: "{{ edge_rebuild_drain_timeout }}"
+        portal_pair_allow_data_loss: "{{ edge_rebuild_forced_delete }}"
+      when: edge_rebuild_portal.on_edge or edge_rebuild_hub_record is not none
+
+    - name: Record the drain
+      ansible.builtin.set_fact:
+        edge_rebuild_drains: >-
+          {{ edge_rebuild_drains + [edge_rebuild_portal | combine({
+               'drained': portal_pair_drained is not skipped
+                          or (portal_pair_hub_portal.state | default('') == 'DELETING' and edge_rebuild_drained_before | bool),
+               'deleted': edge_rebuild_portal.on_edge or portal_pair_hub_portal is not none,
+               'forced': edge_rebuild_forced_delete | bool, 'hub_record_left': false})] }}
+      when: edge_rebuild_portal.on_edge or edge_rebuild_hub_record is not none
+
+    - name: Write the record so far
+      ansible.builtin.include_tasks: record.yml
+      vars:
+        edge_rebuild_record_safe: false
+  rescue:
+    - name: Read whether the edge still has the portal
+      qumulo.cluster.portal_info:
+        gather_subset: [spokes]
+      register: edge_rebuild_spoke_after
+      ignore_errors: true
+
+    - name: Work out what the failed drain did
+      ansible.builtin.set_fact:
+        edge_rebuild_drain_failure: "{{ ansible_failed_result.msg | default(ansible_failed_result) }}"
+        edge_rebuild_spoke_gone: >-
+          {{ edge_rebuild_spoke_after is succeeded
+             and edge_rebuild_spoke_after.portals.spokes | map(attribute='hub_cluster_uuid') | map('lower')
+                 | select('equalto', edge_rebuild_portal.hub_cluster_uuid) | list == [] }}
+        # An earlier run deleted the spoke portal, and the hub's record is still going.
+        edge_rebuild_deleting_before: >-
+          {{ not edge_rebuild_portal.on_edge
+             and (edge_rebuild_hub_record.state | default(portal_pair_hub_portal.state | default(''))) == 'DELETING' }}
+
+    # The decommission deletes the spoke portal only after the drain, if any, has settled.
+    - name: Work out whether the edge's writes reached the hub
+      ansible.builtin.set_fact:
+        edge_rebuild_spoke_deleted: "{{ edge_rebuild_portal.on_edge and edge_rebuild_spoke_gone | bool }}"
+        edge_rebuild_drained: >-
+          {{ (portal_pair_drained is not skipped and edge_rebuild_spoke_gone | bool)
+             or (edge_rebuild_deleting_before | bool and edge_rebuild_drained_before | bool) }}
+
+    - name: Record what the failed drain did, before stopping
+      ansible.builtin.set_fact:
+        edge_rebuild_drains: >-
+          {{ edge_rebuild_drains + [edge_rebuild_portal | combine({
+               'drained': edge_rebuild_drained | bool, 'deleted': true, 'forced': false, 'hub_record_left': true})] }}
+      when:
+        - not edge_rebuild_allow_data_loss | bool
+        - edge_rebuild_spoke_deleted | bool or edge_rebuild_deleting_before | bool
+
+    - name: Write the record so far
+      ansible.builtin.include_tasks: record.yml
+      vars:
+        edge_rebuild_record_safe: false
+      when:
+        - not edge_rebuild_allow_data_loss | bool
+        - edge_rebuild_spoke_deleted | bool or edge_rebuild_deleting_before | bool
+
+    - name: Stop, unless losing the edge's undrained writes is allowed
+      ansible.builtin.fail:
+        msg: >-
+          {{ inventory_hostname }}: the drain of the portal to {{ edge_rebuild_portal.hub }} failed:
+          {{ edge_rebuild_drain_failure }}.
+          {{ ('The drain finished and the spoke portal is deleted, so the writes of the edge are on the hub, but the
+              record of ' ~ qumulo_cluster_uuid ~ ' on the hub is left, and the predestroy record says so. Run the
+              predestroy phase again to wait for the record to go; or set edge_rebuild_allow_data_loss to force its
+              delete, which now loses nothing.')
+             if edge_rebuild_spoke_deleted | bool and edge_rebuild_drained | bool else
+             ('The spoke portal is deleted, without a drain since the record on the hub was PENDING or already DELETING,
+              but the record of ' ~ qumulo_cluster_uuid ~ ' on the hub is left. Run the predestroy phase again to wait
+              for the record to go; or set edge_rebuild_allow_data_loss to force its delete.')
+             if edge_rebuild_spoke_deleted | bool else
+             ('The edge holds no portal to this hub: an earlier run deleted it'
+              ~ (', after a drain a predestroy record shows' if edge_rebuild_drained_before | bool else '')
+              ~ ', and the record of ' ~ qumulo_cluster_uuid ~ ' on the hub is still DELETING. Run the predestroy phase
+              again to wait for the record to go; or set edge_rebuild_allow_data_loss to force its delete'
+              ~ (', which loses nothing.' if edge_rebuild_drained_before | bool else '.'))
+             if edge_rebuild_deleting_before | bool else
+             (('The hub has made the portal read-only, so the clients of the edge cannot write through it until a rerun
+               finishes the drain or playbooks/baseline.yml sets its type back. ' if portal_pair_drained is changed else '')
+              ~ 'Nothing on the edge has been left or deleted. Fix the cause and run the predestroy phase again; or, to
+              delete the portal without the drain and lose the writes the edge made that the hub has not received, set
+              edge_rebuild_allow_data_loss.')
+             if edge_rebuild_spoke_after is succeeded else
+             ('The edge did not answer afterwards, so whether its portal is deleted is not known. Run the predestroy phase
+              again once the edge answers.') }}
+      when: not edge_rebuild_allow_data_loss | bool
+
+    - name: Force the deletion of the spoke portal
+      qumulo.cluster.portal_spoke:
+        hub_cluster_uuid: "{{ edge_rebuild_portal.hub_cluster_uuid }}"
+        state: absent
+        allow_data_loss: true
+        wait_timeout: "{{ edge_rebuild_drain_timeout }}"
+
+    # The hub may be the reason the drain failed; the replay deletes a record
+    # left here, keyed on this edge's UUID, if the hub is the declared one.
+    - name: Force the deletion of the hub portal, if the hub answers
+      qumulo.cluster.portal_hub:
+        spoke_cluster_uuid: "{{ qumulo_cluster_uuid }}"
+        state: absent
+        allow_data_loss: true
+        wait_timeout: 60
+      module_defaults:
+        group/qumulo.cluster.qumulo: "{{ cluster_baseline_connections[edge_rebuild_portal.hub] }}"
+      throttle: 1
+      register: edge_rebuild_hub_forced
+      ignore_errors: true
+
+    - name: Record the forced deletion
+      ansible.builtin.set_fact:
+        edge_rebuild_drains: >-
+          {{ edge_rebuild_drains + [edge_rebuild_portal | combine({
+               'drained': edge_rebuild_drained | bool, 'deleted': true, 'forced': true,
+               'hub_record_left': edge_rebuild_hub_forced is failed})] }}
+
+    - name: Write the record so far
+      ansible.builtin.include_tasks: record.yml
+      vars:
+        edge_rebuild_record_safe: false
+
+# Without an inventory host for the hub nothing can reach it: the edge's side
+# goes, and the hub keeps its record of the edge until someone deletes it.
+- name: Delete without a drain the portal to a hub the inventory does not name
+  when: edge_rebuild_portal.hub is none
+  block:
+    - name: Force the deletion of the spoke portal
+      qumulo.cluster.portal_spoke:
+        hub_cluster_uuid: "{{ edge_rebuild_portal.hub_cluster_uuid }}"
+        state: absent
+        allow_data_loss: true
+        wait_timeout: "{{ edge_rebuild_drain_timeout }}"
+
+    - name: Record the forced deletion
+      ansible.builtin.set_fact:
+        edge_rebuild_drains: >-
+          {{ edge_rebuild_drains + [edge_rebuild_portal | combine({
+               'drained': false, 'deleted': true, 'forced': true, 'hub_record_left': true})] }}
+
+    - name: Write the record so far
+      ansible.builtin.include_tasks: record.yml
+      vars:
+        edge_rebuild_record_safe: false

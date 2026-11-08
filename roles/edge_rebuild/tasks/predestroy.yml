@@ -1,0 +1,170 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# Phase predestroy runs no preconditions, apart from the lock key check it
+# shares with them, and the drain and the record read the declared hub's
+# variables.
+- name: Require the declared hub as a host in qumulo_hubs, with its UUID
+  ansible.builtin.assert:
+    that: >-
+      qumulo_portal is not defined
+      or (qumulo_portal.hub in groups['qumulo_hubs'] | default([])
+          and hostvars[qumulo_portal.hub].qumulo_cluster_uuid | default('') | length > 0)
+    fail_msg: >-
+      {{ inventory_hostname }}: qumulo_portal.hub must name a host in the qumulo_hubs group with qumulo_cluster_uuid,
+      the hub the predestroy phase drains the edge into
+    quiet: true
+
+- name: Check that the edge is the inventory's, and wait until it is ready
+  qumulo.cluster.cluster_guard:
+
+# The record is written after each portal, and reads these; an earlier run's
+# results in the same play must not stand in for this one's.
+- name: Forget the results of an earlier predestroy
+  ansible.builtin.set_fact:
+    edge_rebuild_ad: {skipped: true}
+    edge_rebuild_nexus_registration: {skipped: true}
+    edge_rebuild_nexus_retired: {skipped: true}
+
+- name: Read the records of earlier predestroy runs, for the portals they drained
+  ansible.builtin.include_tasks: previous.yml
+
+- name: Capture what the edge holds, for the record
+  ansible.builtin.include_tasks: capture.yml
+
+- name: Read the replication relationships the inventory declares, and their peers
+  ansible.builtin.include_tasks: replication.yml
+
+# Fails before the drain, as the replay's baseline would at its first step:
+# an area the inventory declares that Terraform owns. It also records the
+# areas Terraform owns, from which the baseline's variables give the parts of
+# the network document the replay writes; the preflight takes the same.
+- name: Check that Terraform owns no area the inventory declares
+  ansible.builtin.include_role:
+    name: qumulo.cluster.cluster_baseline
+    tasks_from: ownership.yml
+
+- name: Refuse a policy lock key the rebuilt edge's empty key store cannot hold
+  ansible.builtin.include_tasks: lock_keys.yml
+
+- name: Load the baseline's variables, for the parts of the network document the replay writes
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/../cluster_baseline/vars/main.yml"
+
+# Fails before the drain: a rebuild replays the inventory, never the edge. An
+# item declared absent is declared too, but the edge should not hold it. The
+# tenancy variables and qumulo_network go as the inventory declares them, so
+# the preflight reads them as the replay's baseline will.
+- name: Check that the inventory declares everything the edge holds, and that the replay can create it again
+  qumulo.cluster.edge_rebuild_preflight:
+    tenants: "{{ qumulo_tenants | default([]) }}"
+    smb_shares: "{{ qumulo_smb_shares | default([]) }}"
+    nfs_exports: "{{ qumulo_nfs_exports | default([]) }}"
+    factory_defaults: "{{ qumulo_factory_defaults | default({}) }}"
+    network: "{{ qumulo_network | default(none) }}"
+    owned_parts: "{{ cluster_baseline_owned_parts }}"
+    terraform_owned_areas: "{{ cluster_baseline_owned }}"
+    management_network: "{{ cluster_baseline_management_network }}"
+    quotas: "{{ qumulo_quotas | default([]) | map(attribute='path') }}"
+    snapshot_policies: "{{ qumulo_snapshot_policies | default([]) | map(attribute='policy_name') }}"
+    local_users: "{{ qumulo_local_users | default([]) | map(attribute='name') }}"
+    local_groups: "{{ qumulo_local_groups | default([]) | map(attribute='name') }}"
+    declared_absent:
+      quotas: "{{ qumulo_quotas | default([]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent')
+        | map(attribute='path') }}"
+      snapshot_policies: "{{ qumulo_snapshot_policies | default([]) | selectattr('state', 'defined')
+        | selectattr('state', 'equalto', 'absent') | map(attribute='policy_name') }}"
+      local_users: "{{ qumulo_local_users | default([]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent')
+        | map(attribute='name') }}"
+      local_groups: "{{ qumulo_local_groups | default([]) | selectattr('state', 'defined') | selectattr('state', 'equalto', 'absent')
+        | map(attribute='name') }}"
+    portal_roots: "{{ qumulo_portal.roots | default([]) | map(attribute='spoke_root') }}"
+    network_declared: "{{ qumulo_network is defined }}"
+    acknowledge: "{{ edge_rebuild_acknowledge }}"
+    ignore_drift: "{{ edge_rebuild_ignore_drift }}"
+    replication_declared: "{{ edge_rebuild_replication_declared }}"
+  register: edge_rebuild_preflight
+
+# Every portal the edge holds is drained, declared or not, since the rebuild
+# destroys its writes either way: the declared one, and any other whose hub
+# an inventory host in qumulo_hubs names by its UUID.
+- name: Find every portal the edge holds, and the inventory host of each one's hub
+  ansible.builtin.set_fact:
+    edge_rebuild_portals: >-
+      {%- set declared = (hostvars[qumulo_portal.hub].qumulo_cluster_uuid | lower) if qumulo_portal is defined else '' -%}
+      {%- set found = namespace(portals=[]) -%}
+      {%- set live = edge_rebuild_capture_portals.portals.spokes | map(attribute='hub_cluster_uuid') | map('lower') | list -%}
+      {%- for uuid in (live + ([declared] if declared else [])) | unique -%}
+        {%- set hub = namespace(host=qumulo_portal.hub if uuid == declared else none) -%}
+        {%- for host in groups['qumulo_hubs'] | default([]) if hub.host is none
+              and (hostvars[host].qumulo_cluster_uuid | default('') | lower) == uuid -%}
+          {%- set hub.host = host -%}
+        {%- endfor -%}
+        {%- set found.portals = found.portals + [{'hub': hub.host, 'hub_cluster_uuid': uuid, 'declared': uuid == declared,
+                                                  'on_edge': uuid in live}] -%}
+      {%- endfor -%}
+      {{ found.portals }}
+    edge_rebuild_drains: []
+
+- name: Refuse to delete without a drain a portal whose hub is not in the inventory
+  ansible.builtin.assert:
+    that: edge_rebuild_unreachable | length == 0 or edge_rebuild_allow_data_loss | bool
+    fail_msg: >-
+      {{ inventory_hostname }}: the edge has a portal to the hub {{ edge_rebuild_unreachable | join(', ') }}, which no
+      host in qumulo_hubs names as its qumulo_cluster_uuid, so the predestroy phase cannot drain it. Add the hub to the
+      inventory; or, to delete the portal without a drain and lose the writes the edge made that the hub has not
+      received, set edge_rebuild_allow_data_loss.
+    quiet: true
+  vars:
+    edge_rebuild_unreachable: "{{ edge_rebuild_portals | selectattr('hub', 'none') | map(attribute='hub_cluster_uuid') | list }}"
+
+- name: Drain each portal to its hub, then delete it on both sides
+  ansible.builtin.include_tasks: drain.yml
+  loop: "{{ edge_rebuild_portals }}"
+  loop_control:
+    loop_var: edge_rebuild_portal
+    label: "{{ edge_rebuild_portal.hub | default(edge_rebuild_portal.hub_cluster_uuid, true) }}"
+
+- name: Leave the domain, which with credentials deletes the edge's computer account
+  qumulo.cluster.ad_domain:
+    domain: "{{ qumulo_ad.domain }}"
+    join_user: "{{ qumulo_ad.join_user | default(omit) }}"
+    join_password: "{{ qumulo_ad.join_password | default(omit) }}"
+    state: absent
+  register: edge_rebuild_ad
+  when:
+    - qumulo_ad is defined
+    - edge_rebuild_ad_leave | bool
+
+- name: Remove the edge's Nexus registration
+  qumulo.cluster.nexus_registration:
+    state: absent
+  register: edge_rebuild_nexus_registration
+  when: edge_rebuild_nexus_deregister | bool
+
+# Nexus may report the cluster connected for a while after its registration is
+# gone, and the edge is about to be destroyed anyway.
+- name: Retire the edge's UUID in Nexus
+  qumulo.cluster.nexus_cluster:
+    cluster_uuid: "{{ qumulo_cluster_uuid }}"
+    allow_connected: true
+    nexus_api_token: "{{ qumulo_nexus_api_token }}"
+    nexus_api_url: "{{ qumulo_nexus_api_url | default(omit) }}"
+  register: edge_rebuild_nexus_retired
+  when:
+    - edge_rebuild_nexus_deregister | bool
+    - qumulo_nexus_api_token | default('') | length > 0
+
+- name: Write the predestroy record, which says the edge is safe to destroy
+  ansible.builtin.include_tasks: record.yml
+  vars:
+    edge_rebuild_record_safe: true
+
+- name: Report that the edge is safe to destroy
+  ansible.builtin.debug:
+    msg: >-
+      {{ inventory_hostname }}:
+      {{ 'check run: nothing was drained or left, and no record was written' if ansible_check_mode else
+         'drained and safe to destroy; the record is ' ~ edge_rebuild_host_dir ~ '/predestroy-' ~ edge_rebuild_stamp ~ '.yml' }}{{
+         ('. The rebuild loses ' ~ edge_rebuild_predestroy.acknowledged | map(attribute='detail') | join(', '))
+         if edge_rebuild_predestroy.acknowledged else '' }}

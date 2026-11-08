@@ -1,0 +1,25 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The rebuild report's claim on replication_pair_claims_host's relationships,
+# read on the controller under replication_pair_claims_dir, the artifact
+# directory, by the qumulo.cluster.restore_report_claims filter, which says
+# what claims. The result joins replication_pair_report_claims, keyed by the
+# host: directory, the host's directory or "" when the artifact directory is
+# empty, as a host from no inventory file on disk has; report, the newest
+# report's file name or none; claimed, the claimed keys, normalized;
+# stamped, the key hashes of the restore stamps that name that report; and
+# records, the key hashes of the restore records there.
+- name: Read the report claim and the restore records of {{ replication_pair_claims_host }}
+  ansible.builtin.set_fact:
+    replication_pair_report_claims: >-
+      {{ replication_pair_report_claims | default({}, true) | combine({replication_pair_claims_host:
+           {'directory': replication_pair_claims_host_dir, 'records': replication_pair_claims_records}
+           | combine(replication_pair_claims_host_dir | qumulo.cluster.restore_report_claims)}) }}
+  vars:
+    replication_pair_claims_host_dir: >-
+      {{ (replication_pair_claims_dir ~ '/' ~ replication_pair_claims_host) if replication_pair_claims_dir | default('', true) | length > 0 else '' }}
+    replication_pair_claims_records: >-
+      {{ (query('ansible.builtin.fileglob', replication_pair_claims_host_dir ~ '/restore/*.yml') | map('basename')
+          | select('match', '^[0-9a-f]{64}\.yml$') | map('regex_replace', '\.yml$', '') | sort | list)
+         if replication_pair_claims_host_dir else [] }}

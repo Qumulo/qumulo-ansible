@@ -1,0 +1,144 @@
+---
+# Copyright (c) 2026 Qumulo, Inc.
+# SPDX-License-Identifier: MIT
+# The hops' order and barriers rest on a linear play, which the calling play sets; ansible_play_batch differs from
+# ansible_play_hosts only under serial, since both leave out a host that failed before the role.
+- name: Refuse a play that runs its hosts in batches
+  ansible.builtin.assert:
+    that: ansible_play_batch | sort == ansible_play_hosts | sort
+    fail_msg: >-
+      The cluster_upgrade role runs only in a linear play without serial, but this play's batch is
+      {{ ansible_play_batch | join(', ') }} of {{ ansible_play_hosts | join(', ') }}. A hop commits a portal component's
+      waves and holds a failed host's unit across every host of the play at once; run it without serial.
+    quiet: true
+
+- name: Refuse an empty artifact directory
+  ansible.builtin.assert:
+    that: cluster_upgrade_artifact_dir | length > 0
+    fail_msg: >-
+      cluster_upgrade_artifact_dir is empty for {{ inventory_hostname }}, as for a host given with -i as a list; set it,
+      or run from an inventory file or directory, so the commit records and the report have a directory.
+    quiet: true
+
+# Qumulo Core refuses 0 only after every node has downloaded the image.
+- name: Refuse a reboot set size below 1
+  ansible.builtin.assert:
+    that: qumulo_upgrade_reboot_set_size | int >= 1
+    fail_msg: >-
+      qumulo_upgrade_reboot_set_size is {{ qumulo_upgrade_reboot_set_size }} for {{ inventory_hostname }}; it must be at
+      least 1, or unset so Qumulo Core sizes the groups.
+    quiet: true
+  when: qumulo_upgrade_reboot_set_size is defined
+
+- name: Start the run's stop and its report
+  ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+    upgrade_stop: "{{ upgrade_stop | default(false) | bool }}"
+    cluster_upgrade_stamp: "{{ now(utc=true, fmt='%Y%m%dT%H%M%SZ') }}"
+    cluster_upgrade_reports: []
+  run_once: true
+
+- name: Run the hops
+  module_defaults:
+    qumulo.cluster.upgrade:
+      image: "{{ cluster_upgrade_entry.image_redacted | default(omit, true) }}"
+      image_secret: "{{ cluster_upgrade_image_secret }}"
+      host_name: "{{ inventory_hostname }}"
+      version: "{{ cluster_upgrade_entry.version }}"
+      build: "{{ cluster_upgrade_entry.build | default(omit, true) }}"
+      reboot: "{{ cluster_upgrade_entry.reboot }}"
+      reboot_set_size: "{{ qumulo_upgrade_reboot_set_size | default(omit) }}"
+      allow_upgrade_from_limited_release: "{{ qumulo_upgrade_allow_limited_release | default(false) | bool }}"
+      verify_in_check_mode: "{{ qumulo_upgrade_verify_in_check_mode | default(false) | bool }}"
+      wait_timeout: "{{ cluster_upgrade_wait_timeout }}"
+      reboot_timeout: "{{ cluster_upgrade_reboot_timeout }}"
+  block:
+    # FR-006: one call per host predicts every phase of its first hop, and nothing waits.
+    - name: Predict the first hop in check mode
+      when: ansible_check_mode
+      block:
+        - name: Find each host's first hop
+          ansible.builtin.set_fact:
+            cluster_upgrade_entry: >-
+              {%- set found = namespace(entry=none) -%}
+              {%- for hop in cluster_upgrade_plan.hops if found.entry is none and inventory_hostname in hop.hosts -%}
+                {%- set found.entry = hop.hosts[inventory_hostname] -%}
+              {%- endfor -%}
+              {{ found.entry }}
+
+        - name: Pin each host's image secret for the run
+          ansible.builtin.set_fact:
+            cluster_upgrade_image_secret: >-
+              {{ qumulo_upgrade_images[cluster_upgrade_entry.image_index] | qumulo.cluster.url_secret
+                 if cluster_upgrade_entry.image_index is not none else {} }}
+          no_log: true
+          when: cluster_upgrade_entry is not none
+
+        - name: Hold, for the first hop, what a refused lock protects
+          ansible.builtin.set_fact:  # noqa: var-naming[no-role-prefix]
+            upgrade_held: >-
+              {{ upgrade_lock_held | default([]) | select('in', cluster_upgrade_plan.hops[0].moves)
+                 | map('extract', cluster_upgrade_plan.hops[0].hosts, 'holds') | flatten | unique | sort }}
+            cluster_upgrade_peers: {commits: [], reboots: []}
+          run_once: true
+          when: cluster_upgrade_plan.hops | length > 0
+
+        - name: Warn that forks or the prepare throttle puts the first hop's prepares or commits in batches
+          ansible.builtin.debug:
+            msg: "{{ cluster_upgrade_plan.hops[0].forks_warning }}"
+          run_once: true
+          when:
+            - cluster_upgrade_plan.hops | length > 0
+            - cluster_upgrade_plan.hops[0].forks_warning | default(none) is not none
+
+        # A reboots_only host's hop is step 7's reboot wait alone, which passes commit false and may have no image.
+        - name: Predict each host's first hop
+          qumulo.cluster.upgrade:
+            state: rebooted
+            prepare: true
+            commit: "{{ false if cluster_upgrade_entry.reboots_only | default(false) else omit }}"
+            commit_record: "{{ cluster_upgrade_artifact_dir }}/{{ inventory_hostname }}/upgrade/commit.yml"
+          register: cluster_upgrade_prediction
+          when: cluster_upgrade_entry is not none
+
+        - name: Predict whether the maintenance window lets the first hop's commits begin
+          qumulo.cluster.upgrade_plan:
+            window:
+              hop: "{{ cluster_upgrade_plan.hops[0] }}"
+              held: "{{ upgrade_held }}"
+          register: cluster_upgrade_window
+          run_once: true
+          when:
+            - cluster_upgrade_plan.hops | length > 0
+            - cluster_upgrade_plan.hops[0].windows | length > 0
+
+        - name: Keep the predictions
+          ansible.builtin.set_fact:
+            cluster_upgrade_results: >-
+              {%- set found = namespace(results={}) -%}
+              {%- for host in ansible_play_hosts_all if hostvars[host].cluster_upgrade_prediction is defined
+                    and hostvars[host].cluster_upgrade_prediction is not skipped -%}
+                {%- set found.results = found.results | combine({host: [hostvars[host].cluster_upgrade_prediction]}) -%}
+              {%- endfor -%}
+              {{ found.results }}
+          run_once: true
+
+        - name: Report the predictions
+          ansible.builtin.include_tasks: report.yml
+          vars:
+            cluster_upgrade_hop: "{{ cluster_upgrade_plan.hops[0] }}"
+          when: cluster_upgrade_plan.hops | length > 0
+
+    # Every task inside hop.yml reads upgrade_stop itself: a looped include's own when is read for every hop before the
+    # first one runs.
+    - name: Run each hop in lock-step
+      ansible.builtin.include_tasks: hop.yml
+      loop: "{{ cluster_upgrade_plan.hops }}"
+      loop_control:
+        loop_var: cluster_upgrade_hop
+        label: "{{ cluster_upgrade_hop.number }} to {{ cluster_upgrade_hop.release }}"
+      when: not ansible_check_mode
+
+# The plan's skipped names each host already at its target.
+- name: Write the plan alone, for a run with no hop
+  ansible.builtin.include_tasks: write_report.yml
+  when: cluster_upgrade_plan.hops | length == 0
